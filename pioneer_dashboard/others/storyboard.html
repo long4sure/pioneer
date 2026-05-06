@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KPI system · scene visualization</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        body {
+            background: #f1f5f9;
+            padding: 2rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .wrapper {
+            max-width: 1300px;
+            width: 100%;
+        }
+        h1 {
+            font-size: 2rem;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+            color: #0b2b4f;
+            margin-bottom: 0.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .subhead {
+            color: #2c4b6f;
+            margin-bottom: 2rem;
+            border-left: 4px solid #3b82f6;
+            padding-left: 1rem;
+            font-weight: 400;
+            font-size: 1.1rem;
+            background: #e6edf6;
+            border-radius: 0 0.75rem 0.75rem 0;
+            width: fit-content;
+            padding: 0.5rem 1.5rem 0.5rem 1rem;
+        }
+        .scene-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+        .scene-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            justify-content: flex-start;
+        }
+        .card {
+            background: white;
+            border-radius: 1.2rem;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.02), 0 2px 6px rgba(0,20,40,0.05);
+            border: 1px solid #e9eef2;
+            overflow: hidden;
+            min-width: 280px;
+            flex: 1 1 280px;
+            transition: all 0.1s ease;
+        }
+        .card-header {
+            background: #f8fafd;
+            padding: 0.9rem 1.2rem;
+            border-bottom: 1px solid #dee5ec;
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: #1a3048;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .scene-number {
+            background: #3b82f6;
+            color: white;
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 0.2rem 0.7rem;
+            border-radius: 30px;
+            letter-spacing: 0.3px;
+        }
+        .card-body {
+            padding: 1.2rem 1.2rem 1.4rem 1.2rem;
+        }
+        .mock-input, .mock-select, .mock-button {
+            border-radius: 10px;
+            border: 1px solid #d4dce4;
+            background: #ffffff;
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+            color: #1e293b;
+        }
+        .mock-button {
+            background: #f0f4fa;
+            border: 1px solid #cbd5e1;
+            font-weight: 500;
+            color: #1e3a5f;
+            display: inline-block;
+            text-align: center;
+            cursor: default;
+        }
+        .kpi-badge {
+            display: inline-block;
+            background: #e2f0fa;
+            padding: 0.25rem 0.9rem;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        .kpi-row {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin: 0.75rem 0 0.5rem;
+        }
+        .kpi-tile {
+            background: #f1f7fd;
+            border-radius: 16px;
+            padding: 1rem 0.9rem;
+            flex: 1 1 100px;
+            text-align: center;
+            border: 1px solid #dbe5ef;
+        }
+        .kpi-tile .label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            color: #4a627a;
+        }
+        .kpi-tile .value {
+            font-size: 1.8rem;
+            font-weight: 600;
+            line-height: 1.2;
+            color: #0c2d4b;
+        }
+        .bar-chart {
+            margin: 1rem 0 0.8rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+        .bar-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .bar-label {
+            width: 50px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #334e6e;
+        }
+        .bar-track {
+            flex: 1;
+            height: 28px;
+            background: #e6edf4;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            padding: 2px;
+        }
+        .bar-fill-target {
+            height: 24px;
+            width: 80%;
+            background: #fbbf24;
+            border-radius: 20px 0 0 20px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 8px;
+            color: #1e293b;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .bar-fill-actual {
+            height: 24px;
+            width: 65%;
+            background: #ef4444; /* red = needs attention by default, but we override per example */
+            border-radius: 20px 0 0 20px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 8px;
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .green-fill {
+            background: #22c55e !important;
+        }
+        .red-fill {
+            background: #ef4444 !important;
+        }
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 20px;
+            display: inline-block;
+        }
+        .table-mini {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+        }
+        .table-mini th {
+            text-align: left;
+            background: #eef3f9;
+            padding: 0.4rem 0.3rem;
+            font-weight: 600;
+            color: #1c3a5c;
+        }
+        .table-mini td {
+            padding: 0.4rem 0.3rem;
+            border-bottom: 1px solid #dee7ef;
+        }
+        .status-badge {
+            background: #e6f7e6;
+            color: #1f7b4d;
+            padding: 0.15rem 0.5rem;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            width: fit-content;
+        }
+        .status-attention {
+            background: #ffe6e2;
+            color: #b3402c;
+        }
+        .admin-panel {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin: 1rem 0 0.2rem;
+        }
+        .admin-btn {
+            background: #eef3f9;
+            border: 1px solid #bdcbd9;
+            border-radius: 30px;
+            padding: 0.3rem 1rem;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: #1f3b5c;
+        }
+        .lan-tag {
+            background: #dfe9f3;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .footer-note {
+            margin-top: 2.5rem;
+            background: #dce9f5;
+            border-radius: 40px;
+            padding: 0.8rem 2rem;
+            color: #0f344f;
+            font-weight: 500;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.2rem;
+            justify-content: center;
+            border: 1px solid #b9d1e8;
+            font-size: 0.95rem;
+        }
+        .separator {
+            width: 100%;
+            margin: 0.5rem 0;
+            border-top: 2px dashed #b7cfdd;
+        }
+        .badge-icon {
+            background: #1b3b5c;
+            color: white;
+            padding: 0.2rem 0.9rem;
+            border-radius: 30px;
+            font-size: 0.75rem;
+        }
+    </style>
+</head>
+<body>
+<div class="wrapper">
+    <h1>
+        🧩 KPI monitoring system · scene atlas
+        <span style="font-size: 0.9rem; background: #2d4d6e; color: white; padding: 0.2rem 1rem; border-radius: 40px; margin-left: 1rem;">LAN ready</span>
+    </h1>
+    <div class="subhead">all 7 scenes + summary · role-based · auto color logic · XAMPP / LAN</div>
+
+    <div class="scene-grid">
+
+        <!-- row 1: scenes 1 & 2 -->
+        <div class="scene-row">
+            <!-- scene 1 – login -->
+            <div class="card">
+                <div class="card-header"><span class="scene-number">1</span> 🔐 Login system</div>
+                <div class="card-body">
+                    <div style="display: flex; flex-direction: column; gap: 0.8rem;">
+                        <div class="mock-input" style="background: #ffffff;">👤 Username</div>
+                        <div class="mock-input" style="background: #ffffff;">🔑 Password</div>
+                        <div class="mock-button" style="background: #2563eb; color: white; border: none;">➡️ Login</div>
+                        <div style="display: flex; gap: 1rem; font-size:0.8rem; color:#2c4e72;">
+                            <span class="badge-icon">Admin</span>
+                            <span class="badge-icon">Staff</span>
+                            <span style="margin-left:auto;">🔄 session auth</span>
+                        </div>
+                        <div style="font-size:0.8rem; background:#eef4fa; padding:0.3rem 0.8rem; border-radius:30px;">
+                            ⏎ logout functionality
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- scene 2 – main dashboard overview -->
+            <div class="card">
+                <div class="card-header"><span class="scene-number">2</span> 📊 main dashboard</div>
+                <div class="card-body">
+                    <div class="kpi-row">
+                        <div class="kpi-tile"><span class="label">Total KPIs</span><div class="value">24</div></div>
+                        <div class="kpi-tile"><span class="label">Achieved</span><div class="value" style="color:#15803d;">16</div></div>
+                        <div class="kpi-tile"><span class="label">Needs attention</span><div class="value" style="color:#b91c1c;">8</div></div>
+                    </div>
+                    <div style="font-size:0.85rem; color:#365d84; margin-top:0.5rem;">
+                        ⚡ quick performance overview · operational health
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- row 2: scenes 3 & 4 -->
+        <div class="scene-row">
+            <!-- scene 3 – KPI performance chart (target vs actual) -->
+            <div class="card">
+                <div class="card-header"><span class="scene-number">3</span> 📈 target vs actual</div>
+                <div class="card-body">
+                    <div class="bar-chart">
+                        <div class="bar-item">
+                            <span class="bar-label">KPI A</span>
+                            <div class="bar-track">
+                                <div class="bar-fill-target" style="width:78%;">target 78%</div>
+                            </div>
+                        </div>
+                        <div class="bar-item">
+                            <span class="bar-label">actual</span>
+                            <div class="bar-track">
+                                <div class="bar-fill-actual green-fill" style="width:82%;">actual 82% ✔️</div>
+                            </div>
+                        </div>
+                        <div style="height:6px;"></div>
+                        <div class="bar-item">
+                            <span class="bar-label">KPI B</span>
+                            <div class="bar-track">
+                                <div class="bar-fill-target" style="width:60%;">target 60%</div>
+                            </div>
+                        </div>
+                        <div class="bar-item">
+                            <span class="bar-label">actual</span>
+                            <div class="bar-track">
+                                <div class="bar-fill-actual red-fill" style="width:43%;">actual 43% ⚠️</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="display:flex; gap:1.2rem; font-size:0.8rem; margin-top:0.4rem;">
+                        <span><span class="legend-dot green-fill"></span> achieved (higher-is-better)</span>
+                        <span><span class="legend-dot red-fill"></span> needs attention</span>
+                    </div>
+                    <div style="font-size:0.75rem; color:#4f6582; margin-top:0.5rem;">⬆️⬇️ supports both directions</div>
+                </div>
+            </div>
+            <!-- scene 4 – month & year filter -->
+            <div class="card">
+                <div class="card-header"><span class="scene-number">4</span> 📅 time filter</div>
+                <div class="card-body">
+                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                        <div class="mock-select" style="min-width: 100px;">📆 March</div>
+                        <div class="mock-select" style="min-width: 80px;">2025</div>
+                        <div class="mock-button" style="background: #3b82f6; color: white; border: none;">Apply filter</div>
+                    </div>
+                    <div style="margin-top: 0.8rem; background:#eaf1fa; border-radius:20px; padding:0.5rem 0.8rem; font-size:0.8rem;">
+                        🔄 dynamically updates summary & chart · historical view
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- row 3: scene 5 (detailed table) and scene 6 (admin controls) -->
+        <div class="scene-row">
+            <!-- scene 5 – KPI detailed table -->
+            <div class="card">
+                <div class="card-header"><span class="scene-number">5</span> 📋 KPI detailed table</div>
+                <div class="card-body">
+                    <table class="table-mini">
+                        <thead><tr><th>KPI</th><th>Dept</th><th>Target</th><th>Actual</th><th>Status</th></tr></thead>
+                        <tbody>
+                            <tr><td>Revenue</td><td>Sales</td><td>100k</td><td>112k</td><td><span class="status-badge">✅ achieved</span></td></tr>
+                            <tr><td>CSAT</td><td>Support</td><td>88%</td><td>79%</td><td><span class="status-badge status-attention">⚠️ attention</span></td></tr>
+                            <tr><td>OEE</td><td>Ops</td><td>82%</td><td>84%</td><td><span class="status-badge">✅ achieved</span></td></tr>
+                            <tr><td>Defect</td><td>Quality</td><td>3%</td><td>4.1%</td><td><span class="status-badge status-attention">⚠️ attention</span></td></tr>
+                        </tbody>
+                    </table>
+                    <div style="font-size:0.75rem; color:#3d5a78; margin-top:0.5rem;">* lower-is-better (defect) computed automatically</div>
+                </div>
+            </div>
+            <!-- scene 6 – admin controls -->
+            <div class="card">
+                <div class="card-header"><span class="scene-number">6</span> ⚙️ admin controls (admin only)</div>
+                <div class="card-body">
+                    <div class="admin-panel">
+                        <span class="admin-btn">➕ Add KPI</span>
+                        <span class="admin-btn">✏️ Edit KPI</span>
+                        <span class="admin-btn">🗑️ Delete KPI</span>
+                        <span class="admin-btn">👥 Manage Users</span>
+                    </div>
+                    <div style="margin-top: 0.8rem; background:#fff3e2; border-radius:20px; padding:0.5rem 0.9rem; font-size:0.8rem; border:1px solid #fed7aa;">
+                        🔒 CRUD operations · user management · admin‑only panel
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- row 4: scene 7 LAN accessibility + system summary block (can be extended) -->
+        <div class="scene-row">
+            <!-- scene 7 – LAN accessibility -->
+            <div class="card">
+                <div class="card-header"><span class="scene-number">7</span> 🌐 LAN accessibility</div>
+                <div class="card-body">
+                    <div class="lan-tag">
+                        <span>🖥️ XAMPP local</span> <span>🔌 company LAN</span> <span>📶 no internet</span>
+                    </div>
+                    <div style="margin-top: 1rem; display: flex; gap: 1rem; align-items:center; background:#e3ecf5; padding: 0.5rem 1rem; border-radius: 60px;">
+                        <span>👥 multiple users</span>
+                        <span>⚡ offline</span>
+                        <span>📡 192.168.x.x</span>
+                    </div>
+                </div>
+            </div>
+            <!-- system summary (condensed) as extra card -->
+            <div class="card" style="background: #f0f6fe;">
+                <div class="card-header" style="background: #d9e6f5;">📌 system summary</div>
+                <div class="card-body">
+                    <ul style="padding-left: 1.2rem; margin: 0.2rem 0; color: #1c3f62;">
+                        <li>🎯 Centralized KPI monitoring</li>
+                        <li>⚙️ automated evaluation logic</li>
+                        <li>📊 visual performance analytics</li>
+                        <li>🔐 secure role-based access</li>
+                        <li>💻 offline LAN deployment (XAMPP)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- extra summary line / all scenes combined -->
+    <div class="separator"></div>
+    <div class="footer-note">
+        <span>✅ scene 1 – login (role‑based / session)</span>
+        <span>📊 scene 2 – dashboard KPI summary</span>
+        <span>📉 scene 3 – bar chart (red/green auto)</span>
+        <span>📅 scene 4 – month/year filter</span>
+        <span>📋 scene 5 – detailed table + status</span>
+        <span>⚙️ scene 6 – admin crud + users</span>
+        <span>🌍 scene 7 – LAN / XAMPP / multi‑user</span>
+    </div>
+    <div style="display: flex; justify-content: flex-end; margin-top: 1rem; opacity: 0.6; font-size:0.85rem;">
+        * interactive mock · all components reflect spec (auto‑color, lower/higher-is-better, role access)
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,10 @@
+lets create a powerbi-like website, tailored to what i need, must have login 
+and registration, with admin user and view only user, the 1st page must be 
+the main dashboard where it has the overall results or summaries, analysis, 
+chart or graphs what ever is necessary then nav bar for the 2nd and 3rd page where
+the 2nd page is a customizable dashboard like the main dashboard but here enters filters,
+dates, etc. and the 3rd page is where the entries that the dashboard will need, we gonna 
+use xampp php mysql css html vs code and lets name the database pioneer_kpi_project.
+make it a scalable because were developing it continuosly, after 1 kpi we will proceed to another.
+
+and here is the 1st kpi that we will be developing

@@ -1,0 +1,24 @@
+CREATE DATABASE pioneer_kpi;
+USE pioneer_kpi;
+
+CREATE TABLE users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    fullname VARCHAR(100),
+    username VARCHAR(50) UNIQUE,
+    password VARCHAR(255),
+    role ENUM('admin','encoder','viewer'),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE kpis (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255),
+    department VARCHAR(100),
+    target DECIMAL(10,2),
+    actual DECIMAL(10,2),
+    month VARCHAR(20),
+    year INT,
+    created_by INT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (created_by) REFERENCES users(id)
+);

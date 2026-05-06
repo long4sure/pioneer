@@ -1,0 +1,11 @@
+# Enable rewrite engine
+RewriteEngine On
+
+# Set base directory
+RewriteBase /pioneer_kpi/
+
+# Handle errors
+ErrorDocument 404 /pioneer_kpi/404.php
+
+# Prevent directory listing
+Options -Indexes

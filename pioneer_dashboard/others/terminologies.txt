@@ -1,0 +1,70 @@
+🟢 SKU
+
+Stock Keeping Unit
+→ Unique identifier for a product
+Example: Adhesive A 1L = 1 SKU
+Adhesive A 5L = another SKU
+
+This is product-level tracking.
+
+🟢 SO
+
+Sales Order
+→ Customer order placed
+This is demand.
+
+If SO exists but no stock → you must produce.
+
+🟢 SI
+
+Sales Invoice
+→ Order already delivered and billed
+Meaning: revenue recognized.
+
+🟢 OOS
+
+Out Of Stock
+→ No available inventory
+
+This is critical for dashboard alerts.
+
+🟢 BACK ORDER
+
+Order that cannot be fulfilled yet because:
+
+No stock
+
+Not yet produced
+
+This is high priority.
+
+🟢 FC
+
+Forecast
+→ Expected future demand
+Usually from planning team.
+
+Helps production planning.
+
+🟢 RMPM
+
+Raw Material / Packaging Material
+
+Very important in manufacturing.
+
+If RMPM is insufficient:
+→ You cannot produce finished goods.
+
+This connects Engineering + Procurement.
+
+🟢 PCI
+
+In manufacturing systems, PCI often means:
+
+Production Control Inventory
+OR
+
+Plant Capacity Indicator
+OR
+
+Production Completion Indicator

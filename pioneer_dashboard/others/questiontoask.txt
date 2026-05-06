@@ -1,0 +1,18 @@
+
+Should the dashboard show peso value only or quantity also?
+
+Is historical comparison needed?
+
+Should we track daily changes?
+
+Which sheet is the official source of truth?
+
+Is this file manually edited or system-generated?
+
+If financial → focus on peso value
+
+If operational → focus on quantity and SKU
+
+If procurement → focus on RMPM shortages
+
+If management → focus on summary

@@ -1,0 +1,326 @@
+/* ==============================
+   GLOBAL BODY + BACKGROUND
+================================ */
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    position: relative;
+    z-index: 1;
+}
+
+/* Background Image Overlay */
+body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+
+    background: url('pioneer_bg.jpg') no-repeat center center;
+    background-size: cover;
+
+    filter: brightness(0.6);
+    z-index: -1;
+}
+
+/* ==============================
+   TOP BAR
+================================ */
+
+.top-bar {
+    background: rgba(0, 75, 99, 0.85);
+    color: white;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 8px;
+    backdrop-filter: blur(5px);
+}
+
+/* ==============================
+   FILTER SECTION
+================================ */
+
+.filter-box {
+    margin: 20px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* ==============================
+   BUTTONS
+================================ */
+
+.btn {
+    background: #0b6e8a;
+    color: white;
+    padding: 8px 14px;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: 0.3s;
+}
+
+.btn:hover {
+    background: #084f63;
+}
+
+/* ==============================
+   DASHBOARD CARDS
+================================ */
+
+.dashboard-cards {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.card {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 20px;
+    flex: 1;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    border-left: 6px solid #0b6e8a;
+    border-radius: 8px;
+}
+
+.card h3 {
+    margin-bottom: 10px;
+}
+
+.card h1 {
+    margin: 0;
+    font-size: 32px;
+}
+
+/* ==============================
+   CHART CONTAINER
+================================ */
+
+.chart-container {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    border-radius: 8px;
+}
+
+/* ==============================
+   TABLE
+================================ */
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+th {
+    background: #0b6e8a;
+    color: white;
+    padding: 12px;
+    text-align: left;
+}
+
+td {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+/* ==============================
+   STATUS CIRCLE
+================================ */
+
+.circle {
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+}
+
+.green {
+    background-color: #00b464;
+}
+
+.red {
+    background-color: #e63946;
+}
+
+/* ==============================
+   FORMS
+================================ */
+
+.form-box {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 25px;
+    width: 400px;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+.form-box input,
+.form-box select {
+    display: block;
+    width: 100%;
+    margin-bottom: 12px;
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+/* ==============================
+   LOGIN PAGE
+================================ */
+
+.login-body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.login-box {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 30px;
+    width: 350px;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+
+.login-box input {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+}
+
+.login-box button {
+    width: 100%;
+    padding: 8px;
+    background: #0b6e8a;
+    color: white;
+    border: none;
+    border-radius: 5px;
+}
+
+.error {
+    color: red;
+}
+
+.logo-section {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.logo {
+    height: 45px;
+}
+
+/* ==============================
+   RESPONSIVE DESIGN
+================================ */
+
+@media (max-width: 992px) {
+
+    .dashboard-cards {
+        flex-direction: column;
+    }
+
+    .filter-box {
+        flex-direction: column;
+        gap: 10px;
+        align-items: flex-start;
+    }
+
+    .top-bar {
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+    }
+
+    table {
+        font-size: 14px;
+    }
+}
+
+/* ==============================
+   DARK MODE
+================================ */
+
+.dark-btn {
+    margin-right: 15px;
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    background: #0b6e8a;
+    color: white;
+    transition: 0.3s;
+}
+
+.dark-btn:hover {
+    opacity: 0.8;
+}
+
+/* When Dark Mode is Active */
+body.dark-mode {
+    background: #1e1e2f;
+    color: #e0e0e0;
+}
+
+/* Top Bar */
+body.dark-mode .top-bar {
+    background: #2a2a3d;
+}
+
+/* Cards */
+body.dark-mode .card {
+    background: #2a2a3d;
+    color: #e0e0e0;
+    box-shadow: none;
+}
+
+/* Chart Container */
+body.dark-mode .chart-container {
+    background: #2a2a3d;
+}
+
+/* Table */
+body.dark-mode table {
+    background: #2a2a3d;
+}
+
+body.dark-mode th {
+    background: #0b6e8a;
+}
+
+body.dark-mode td {
+    border-bottom: 1px solid #3a3a50;
+}
+
+body.dark-mode tbody tr:hover {
+    background: #32324a;
+}
+
+/* Filter Box */
+body.dark-mode .filter-box select,
+body.dark-mode .filter-box input {
+    background: #2a2a3d;
+    color: #e0e0e0;
+    border: 1px solid #3a3a50;
+}
+
+body.dark-mode .filter-box button {
+    background: #0b6e8a;
+}
+
+/* Login Page */
+body.dark-mode .login-box {
+    background: #2a2a3d;
+}
