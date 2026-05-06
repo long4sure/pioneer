@@ -1,0 +1,43 @@
+PIONEER KPI SYSTEM - INSTALLATION GUIDE
+========================================
+
+1. Prerequisites:
+   - XAMPP with PHP 7.4+ and MySQL
+   - Web browser (Chrome/Firefox recommended)
+
+2. Installation Steps:
+
+   a. Copy the entire 'pioneer-kpi' folder to:
+      C:\xampp\htdocs\
+
+   b. Start XAMPP and ensure Apache and MySQL are running
+
+   c. Open phpMyAdmin:
+      http://localhost/phpmyadmin
+
+   d. Import the database:
+      - Click "New" database
+      - Name: pioneer_kpi
+      - Charset: utf8mb4_general_ci
+      - Click "Import"
+      - Choose file: sql/install.sql
+      - Click "Go"
+
+   e. Configure database connection (if needed):
+      - Edit config/database.php
+      - Update credentials if different from default
+
+   f. Access the application:
+      - Dashboard: http://localhost/pioneer-kpi/
+      - Tracker: http://localhost/pioneer-kpi/tracker.php
+
+3. Default Login (if authentication is enabled):
+   - Username: admin
+   - Password: admin123
+
+4. Troubleshooting:
+   - If you get database errors, check database.php credentials
+   - If styles don't load, check file permissions
+   - Enable PHP error reporting in php.ini for debugging
+
+For support, contact: IT Department

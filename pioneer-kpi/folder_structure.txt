@@ -1,0 +1,24 @@
+pioneer-kpi/
+├── index.php                 # Dashboard (main entry point)
+├── tracker.php               # KPI Tracker page
+├── config/
+│   └── database.php          # Database configuration
+├── includes/
+│   ├── header.php            # Common header
+│   ├── footer.php            # Common footer
+│   ├── functions.php         # Helper functions
+│   └── session.php           # Session management
+├── assets/
+│   ├── css/
+│   │   ├── dashboard.css     # Dashboard styles
+│   │   └── tracker.css       # Tracker styles
+│   ├── js/
+│   │   ├── dashboard.js      # Dashboard JavaScript
+│   │   └── tracker.js        # Tracker JavaScript
+│   └── img/                  # Images (if any)
+├── api/
+│   ├── get_kpi_data.php      # API to fetch KPI data
+│   ├── save_kpi_data.php     # API to save KPI data
+│   └── export_csv.php        # API to export CSV
+└── sql/
+    └── install.sql           # Database installation script

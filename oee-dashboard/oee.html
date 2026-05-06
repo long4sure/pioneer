@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hourly Bottleneck Management · form</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, system-ui, -apple-system, sans-serif;
+        }
+        body {
+            background: #e5e7eb;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 20px;
+        }
+        .form-container {
+            max-width: 1280px;
+            width: 100%;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 35px -8px rgba(0,0,0,0.25);
+            overflow: hidden;
+            border: 1px solid #cbd5e1;
+        }
+        .header-title {
+            background: #0f172a;
+            color: white;
+            padding: 18px 24px;
+            font-size: 1.9rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            border-bottom: 4px solid #f97316;
+        }
+        .header-title span {
+            font-weight: 300;
+            font-size: 1.2rem;
+            color: #fcd34d;
+            margin-left: 10px;
+        }
+        .data-section {
+            padding: 20px 24px 8px 24px;
+            background: #f8fafc;
+            border-bottom: 2px solid #d1d5db;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            align-items: baseline;
+        }
+        .data-item {
+            display: flex;
+            flex-direction: column;
+        }
+        .data-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            font-weight: 600;
+            color: #475569;
+            letter-spacing: 0.4px;
+        }
+        .data-value {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #0f172a;
+            border-bottom: 2px dotted #94a3b8;
+            padding: 4px 0;
+            min-width: 160px;
+        }
+        .shift-badge {
+            background: #1e293b;
+            color: #facc15;
+            padding: 4px 10px;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: inline-block;
+            margin-top: 4px;
+            border: 1px solid #fbbf24;
+        }
+        /* product line */
+        .product-line {
+            background: #f1f5f9;
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #334155;
+            border-bottom: 1px solid #cbd5e1;
+        }
+        .product-line strong {
+            background: #cbd5e1;
+            padding: 4px 12px;
+            border-radius: 50px;
+            margin-right: 12px;
+            font-size: 0.8rem;
+            color: #0f172a;
+        }
+        /* main hourly table */
+        .table-wrapper {
+            padding: 16px 24px 24px 24px;
+            background: white;
+            overflow-x: auto;
+        }
+        .hourly-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            border-radius: 16px;
+            border-style: hidden;
+            box-shadow: 0 0 0 1px #e2e8f0;
+            background: white;
+        }
+        .hourly-table th {
+            background: #1e293b;
+            color: #f8fafc;
+            font-weight: 600;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            padding: 14px 6px;
+            border-right: 1px solid #334155;
+            text-align: center;
+        }
+        .hourly-table th:last-child {
+            border-right: none;
+        }
+        .hourly-table td {
+            padding: 12px 6px;
+            text-align: center;
+            border-bottom: 1px solid #e2e8f0;
+            border-right: 1px solid #e2e8f0;
+            font-weight: 500;
+            color: #1e293b;
+            background-color: white;
+        }
+        .hourly-table td:last-child {
+            border-right: none;
+        }
+        .hourly-table tr:last-child td {
+            border-bottom: none;
+        }
+        .col-time {
+            font-weight: 700;
+            background-color: #f8fafc;
+            color: #0f172a;
+        }
+        .actual-cell {
+            background-color: #fef9c3;
+            font-weight: 600;
+        }
+        .target-cell {
+            background-color: #dbeafe;
+        }
+        .output-cell {
+            background-color: #dcfce7;
+            font-weight: 600;
+        }
+        .reject-cell {
+            background-color: #fee2e2;
+        }
+        /* legend section */
+        .legend-section {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 40px;
+            background: #f1f5f9;
+            padding: 18px 24px;
+            border-top: 2px solid #cbd5e1;
+            border-bottom: 2px solid #cbd5e1;
+            font-size: 0.75rem;
+        }
+        .legend-block {
+            flex: 1 1 250px;
+        }
+        .legend-title {
+            font-weight: 800;
+            font-size: 0.9rem;
+            margin-bottom: 12px;
+            padding-bottom: 4px;
+            border-bottom: 2px solid #64748b;
+            display: inline-block;
+            color: #0c4a6e;
+        }
+        .legend-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 4px 16px;
+        }
+        .code-item {
+            display: flex;
+            align-items: baseline;
+            gap: 6px;
+        }
+        .code {
+            font-family: 'Courier New', monospace;
+            font-weight: 700;
+            background: #0f172a;
+            color: #facc15;
+            padding: 2px 8px;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            min-width: 36px;
+            text-align: center;
+        }
+        .code-desc {
+            color: #1e293b;
+            font-weight: 500;
+            font-size: 0.75rem;
+        }
+        .unplanned .code {
+            background: #991b1b;
+            color: #fecaca;
+        }
+        .notes-area {
+            background: #fef9c3;
+            padding: 16px 24px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border-bottom: 2px solid #d97706;
+        }
+        .notes-label {
+            font-weight: 800;
+            color: #92400e;
+            background: #fffbeb;
+            padding: 5px 16px;
+            border-radius: 40px;
+            border: 1px solid #fbbf24;
+        }
+        .notes-text {
+            background: white;
+            padding: 8px 20px;
+            border-radius: 40px;
+            width: 100%;
+            border: 1px dashed #b45309;
+            color: #78350f;
+            font-style: italic;
+        }
+        .footer-note {
+            background: #0f172a;
+            color: #f1f5f9;
+            padding: 12px 24px;
+            text-align: right;
+            font-size: 0.75rem;
+            letter-spacing: 0.3px;
+        }
+        .footer-note i {
+            color: #fcd34d;
+        }
+    </style>
+</head>
+<body>
+<div class="form-container">
+    <div class="header-title">
+        ⏱️ HOURLY BOTTLENECK MANAGEMENT
+        <span>| production board</span>
+    </div>
+
+    <!-- data row: machine + shift schedule + product (compact) -->
+    <div class="data-section">
+        <div class="data-item">
+            <span class="data-label">Machine name</span>
+            <span class="data-value">(A) manual filling</span>
+        </div>
+        <div class="data-item">
+            <span class="data-label">Shift schedule</span>
+            <span class="data-value">
+                1st (6-2) · 2nd (12-10) · 3rd (10-6) <span style="margin:0 6px">|</span> Dayshift (6am-6pm) · Night (6pm-6am)
+            </span>
+        </div>
+        <div class="data-item">
+            <span class="data-label">Product</span>
+            <span class="data-value">CLEAR m. PURPOSE (3x)</span>
+        </div>
+    </div>
+
+    <!-- hourly block header (implicit) -->
+    <div class="product-line">
+        <strong>📋 HOURLY TRACKING</strong> <span style="font-weight:400;">Actual output / Target / Total output / Reject (all in mins or units, per record)</span>
+    </div>
+
+    <!-- main table exactly like description: 6-7 ... 5-6 with Actual, Target, Total Output, Total Reject -->
+    <div class="table-wrapper">
+        <table class="hourly-table">
+            <thead>
+                <tr>
+                    <th>Time</th>
+                    <th>Actual Output (mins)</th>
+                    <th>Target Output (units)</th>
+                    <th>Total Output (units)</th>
+                    <th>Total Reject</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- data from description (exactly as given) -->
+                <tr><td class="col-time">6-7</td><td class="actual-cell">100 mins</td><td class="target-cell">224</td><td class="output-cell">224</td><td class="reject-cell">0</td></tr>
+                <tr><td class="col-time">7-8</td><td class="actual-cell">100 mins</td><td class="target-cell">224</td><td class="output-cell">224</td><td class="reject-cell">0</td></tr>
+                <tr><td class="col-time">8-9</td><td class="actual-cell">100 mins</td><td class="target-cell">224</td><td class="output-cell">224</td><td class="reject-cell">0</td></tr>
+                <tr><td class="col-time">9-10</td><td class="actual-cell">0</td><td class="target-cell">0</td><td class="output-cell">0</td><td class="reject-cell">0</td></tr>
+                <tr><td class="col-time">10-11</td><td class="actual-cell">60 mins</td><td class="target-cell">48</td><td class="output-cell">96</td><td class="reject-cell">0</td></tr>
+                <tr><td class="col-time">11-12</td><td class="actual-cell">60 mins</td><td class="target-cell">48</td><td class="output-cell">96</td><td class="reject-cell">0</td></tr>
+                <tr><td class="col-time">12-1</td><td class="actual-cell">60 mins</td><td class="target-cell">48</td><td class="output-cell">96</td><td class="reject-cell">0</td></tr>
+                <tr><td class="col-time">1-2</td><td class="actual-cell">60 mins</td><td class="target-cell">48</td><td class="output-cell">96</td><td class="reject-cell">0</td></tr>
+                <tr><td class="col-time">2-3</td><td class="actual-cell">45 mins</td><td class="target-cell">41</td><td class="output-cell">84</td><td class="reject-cell">0</td></tr>
+                <tr><td class="col-time">3-4</td><td class="actual-cell">100 mins</td><td class="target-cell">48</td><td class="output-cell">96</td><td class="reject-cell">0</td></tr>
+                <tr><td class="col-time">4-5</td><td class="actual-cell">100 mins</td><td class="target-cell">48</td><td class="output-cell">96</td><td class="reject-cell">0</td></tr>
+                <tr><td class="col-time">5-6</td><td class="actual-cell">60 mins</td><td class="target-cell">43</td><td class="output-cell">80</td><td class="reject-cell">0</td></tr>
+            </tbody>
+        </table>
+        <div style="font-size:0.7rem; margin-top: 8px; color:#475569; display: flex; gap: 20px;">
+            <span><span style="background:#fef9c3; padding:2px 8px;">◉ Actual output (mins)</span></span>
+            <span><span style="background:#dbeafe; padding:2px 8px;">◉ Target (units)</span></span>
+            <span><span style="background:#dcfce7; padding:2px 8px;">◉ Total output (units)</span></span>
+            <span><span style="background:#fee2e2; padding:2px 8px;">◉ Reject</span></span>
+        </div>
+    </div>
+
+    <!-- legend: exactly from the image description -->
+    <div class="legend-section">
+        <!-- planned downtime -->
+        <div class="legend-block">
+            <div class="legend-title">📌 PLANNED DOWNTIME</div>
+            <div class="legend-grid">
+                <div class="code-item"><span class="code">A1</span><span class="code-desc">55, Sanitation</span></div>
+                <div class="code-item"><span class="code">A2</span><span class="code-desc">Break Time</span></div>
+                <div class="code-item"><span class="code">A3</span><span class="code-desc">CLAIR</span></div>
+                <div class="code-item"><span class="code">A4</span><span class="code-desc">Changeover, Set up/Start up, Change Kettle</span></div>
+                <div class="code-item"><span class="code">A5</span><span class="code-desc">PM (Preventive Maintenance)</span></div>
+                <div class="code-item"><span class="code">A6</span><span class="code-desc">Flag Ceremony</span></div>
+                <div class="code-item"><span class="code">A7</span><span class="code-desc">General Assembly</span></div>
+                <div class="code-item"><span class="code">A8</span><span class="code-desc">Performance Dialogue</span></div>
+                <div class="code-item"><span class="code">A9</span><span class="code-desc">Trial Run</span></div>
+                <div class="code-item"><span class="code">A10</span><span class="code-desc">Training, Meetings</span></div>
+                <div class="code-item"><span class="code">A11</span><span class="code-desc">Company Activities</span></div>
+                <div class="code-item"><span class="code">A12</span><span class="code-desc">Emergency Drills</span></div>
+                <div class="code-item"><span class="code">A13</span><span class="code-desc">No schedule</span></div>
+                <div class="code-item"><span class="code">A14</span><span class="code-desc">No Head Count Allocation</span></div>
+                <div class="code-item"><span class="code">A15</span><span class="code-desc">No Production Plan</span></div>
+            </div>
+        </div>
+        <!-- unplanned downtime -->
+        <div class="legend-block unplanned">
+            <div class="legend-title">⚠️ UNPLANNED DOWNTIME</div>
+            <div class="legend-grid">
+                <div class="code-item"><span class="code">B1</span><span class="code-desc">BM Overflow at Hopper</span></div>
+                <div class="code-item"><span class="code">B2</span><span class="code-desc">Defective ARO Pump</span></div>
+                <div class="code-item"><span class="code">B3</span><span class="code-desc">Defective Conveyor/Roller</span></div>
+                <div class="code-item"><span class="code">C1</span><span class="code-desc">Lack of Manpower</span></div>
+                <div class="code-item"><span class="code">C2</span><span class="code-desc">Technical Downtime (QA & RND) - HOLD</span></div>
+                <div class="code-item"><span class="code">C3</span><span class="code-desc">Manpower Transfer</span></div>
+                <div class="code-item"><span class="code">C4</span><span class="code-desc">No OT (Go home)</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- notes / remarks exactly as original -->
+    <div class="notes-area">
+        <span class="notes-label">📝 NOTE/REMARKS</span>
+        <span class="notes-text">(as per image)  —  all reject columns zero; actual output shown in minutes; total output matches given numbers</span>
+    </div>
+
+    <!-- tiny footer with shift context (extra) -->
+    <div class="footer-note">
+        <i>machine (A) manual filling</i> · data reflects 6-6 cycle · 0 rejects recorded
+    </div>
+</div>
+<!-- optional description that data exactly matches the image -->
+</body>
+</html>

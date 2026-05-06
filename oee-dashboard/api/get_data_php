@@ -1,0 +1,179 @@
+<?php
+header('Content-Type: application/json');
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: GET');
+
+require_once '../config/database.php';
+
+$database = new Database();
+$db = $database->getConnection();
+
+try {
+    // Get filter parameters
+    $period = isset($_GET['period']) ? intval($_GET['period']) : 7;
+    $line_filter = isset($_GET['line']) ? $_GET['line'] : '';
+    $shift_filter = isset($_GET['shift']) ? $_GET['shift'] : '';
+    $search = isset($_GET['search']) ? $_GET['search'] : '';
+
+    // Get performance targets
+    $targets_query = "SELECT target_name, target_value FROM performance_targets";
+    $targets_stmt = $db->prepare($targets_query);
+    $targets_stmt->execute();
+    $targets = [];
+    while ($row = $targets_stmt->fetch(PDO::FETCH_ASSOC)) {
+        $targets[$row['target_name']] = floatval($row['target_value']);
+    }
+
+    // Get lines with their metrics
+    $lines_query = "
+        SELECT 
+            pl.id,
+            pl.line_name,
+            pl.line_code,
+            COALESCE(AVG(pe.hours_worked * 60), 0) as avg_available,
+            COALESCE(SUM(pe.total_units), 0) as total_units,
+            COALESCE(SUM(pe.defect_units), 0) as total_defects,
+            COALESCE(AVG(pe.ideal_rate_used), 0) as avg_ideal_rate,
+            COALESCE(SUM(de.downtime_minutes), 0) as total_downtime,
+            COUNT(DISTINCT pe.id) as entry_count
+        FROM production_lines pl
+        LEFT JOIN production_entries pe ON pl.id = pe.line_id 
+            AND pe.entry_date >= DATE_SUB(CURDATE(), INTERVAL :period DAY)
+        LEFT JOIN downtime_entries de ON pe.id = de.production_entry_id
+        WHERE pl.is_active = 1
+    ";
+
+    if (!empty($line_filter)) {
+        $lines_query .= " AND pl.line_name = :line_name";
+    }
+
+    $lines_query .= " GROUP BY pl.id, pl.line_name, pl.line_code";
+
+    $lines_stmt = $db->prepare($lines_query);
+    $lines_stmt->bindParam(':period', $period, PDO::PARAM_INT);
+    
+    if (!empty($line_filter)) {
+        $lines_stmt->bindParam(':line_name', $line_filter);
+    }
+    
+    $lines_stmt->execute();
+
+    $lines = [];
+    while ($row = $lines_stmt->fetch(PDO::FETCH_ASSOC)) {
+        $available = floatval($row['avg_available']);
+        $downtime = floatval($row['total_downtime']);
+        $uptime = max(0, $available - $downtime);
+        
+        // Calculate metrics
+        $utilization = $available > 0 ? ($uptime / $available) * 100 : 0;
+        
+        $oee = 0;
+        if ($available > 0 && $row['avg_ideal_rate'] > 0) {
+            $ideal_output = $uptime * $row['avg_ideal_rate'];
+            $oee = $ideal_output > 0 ? ($row['total_units'] / $ideal_output) * 100 : 0;
+        }
+        
+        $rft = $row['total_units'] > 0 ? (($row['total_units'] - $row['total_defects']) / $row['total_units']) * 100 : 0;
+        
+        // ELOR calculation (placeholder - implement your logic)
+        $elor = 95 + (rand(0, 100) / 100);
+        
+        $lines[] = [
+            'id' => $row['id'],
+            'line_name' => $row['line_name'],
+            'utilization' => number_format(min($utilization, 100), 1),
+            'rft' => number_format(min($rft, 100), 1),
+            'oee' => number_format(min($oee, 100), 1),
+            'elor' => number_format(min($elor, 100), 1),
+            'avail' => number_format(min($utilization, 100), 1),
+            'perf' => number_format(min($oee, 100), 1),
+            'entry_count' => $row['entry_count']
+        ];
+    }
+
+    // Get trend data for last N days
+    $trends_query = "
+        SELECT 
+            pe.entry_date,
+            DATE_FORMAT(pe.entry_date, '%b %d') as date_label,
+            AVG(((pe.hours_worked * 60 - COALESCE(de.downtime, 0)) / (pe.hours_worked * 60)) * 100) as avg_avail,
+            AVG((pe.total_units / ((pe.hours_worked * 60 - COALESCE(de.downtime, 0)) * pe.ideal_rate_used)) * 100) as avg_perf,
+            AVG(((pe.total_units - pe.defect_units) / pe.total_units) * 100) as avg_qual,
+            AVG(
+                ((pe.hours_worked * 60 - COALESCE(de.downtime, 0)) / (pe.hours_worked * 60)) * 100 *
+                (pe.total_units / ((pe.hours_worked * 60 - COALESCE(de.downtime, 0)) * pe.ideal_rate_used)) * 100 *
+                ((pe.total_units - pe.defect_units) / pe.total_units) * 100 / 10000
+            ) as avg_oee
+        FROM production_entries pe
+        LEFT JOIN (
+            SELECT production_entry_id, SUM(downtime_minutes) as downtime
+            FROM downtime_entries
+            GROUP BY production_entry_id
+        ) de ON pe.id = de.production_entry_id
+        WHERE pe.entry_date >= DATE_SUB(CURDATE(), INTERVAL :period DAY)
+        GROUP BY pe.entry_date
+        ORDER BY pe.entry_date ASC
+    ";
+
+    $trends_stmt = $db->prepare($trends_query);
+    $trends_stmt->bindParam(':period', $period, PDO::PARAM_INT);
+    $trends_stmt->execute();
+
+    $trends = [];
+    while ($row = $trends_stmt->fetch(PDO::FETCH_ASSOC)) {
+        $trends[] = [
+            'date' => $row['date_label'],
+            'avg_avail' => number_format(min(floatval($row['avg_avail']), 100), 1),
+            'avg_perf' => number_format(min(floatval($row['avg_perf']), 100), 1),
+            'avg_qual' => number_format(min(floatval($row['avg_qual']), 100), 1),
+            'avg_oee' => number_format(min(floatval($row['avg_oee']), 100), 1)
+        ];
+    }
+
+    // Get downtime summary
+    $downtime_query = "
+        SELECT 
+            dc.category_type,
+            dc.category_type as category,
+            SUM(de.downtime_minutes) as minutes
+        FROM downtime_entries de
+        JOIN downtime_categories dc ON de.category_id = dc.id
+        JOIN production_entries pe ON de.production_entry_id = pe.id
+        WHERE pe.entry_date >= DATE_SUB(CURDATE(), INTERVAL :period DAY)
+        GROUP BY dc.category_type
+    ";
+
+    $downtime_stmt = $db->prepare($downtime_query);
+    $downtime_stmt->bindParam(':period', $period, PDO::PARAM_INT);
+    $downtime_stmt->execute();
+
+    $downtime = [];
+    while ($row = $downtime_stmt->fetch(PDO::FETCH_ASSOC)) {
+        $downtime[] = [
+            'category' => ucfirst($row['category_type']),
+            'minutes' => intval($row['minutes'])
+        ];
+    }
+
+    echo json_encode([
+        'success' => true,
+        'lines' => $lines,
+        'trends' => $trends,
+        'downtime' => $downtime,
+        'targets' => $targets,
+        'filters' => [
+            'period' => $period,
+            'line' => $line_filter,
+            'shift' => $shift_filter
+        ]
+    ]);
+
+} catch (Exception $e) {
+    error_log("API Error: " . $e->getMessage());
+    http_response_code(500);
+    echo json_encode([
+        'success' => false,
+        'message' => 'Database error occurred'
+    ]);
+}
+?>
