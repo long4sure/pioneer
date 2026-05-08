@@ -39,6 +39,7 @@ function authInit() {
             _applyRole(p.role);
             document.getElementById('login-screen')?.classList.add('hidden');
             _updateTopbar();
+            if (typeof Chat !== 'undefined') Chat.init();
             return;
         }
     } catch(e) {}
