@@ -3,34 +3,14 @@
    ============================================================ */
 
 // ── Config ───────────────────────────────────────────────────
-const whNonOtifIssues = [
-    {c:'PL',i:'Material constraint'},{c:'PL',i:'Planning error'},{c:'PL',i:'Capacity Constraint'},{c:'PL',i:'Acumatica Inventory Issue'},
-    {c:'FG',i:'Warehouse Constraint'},{c:'FG',i:'Truck unavailability'},{c:'FG',i:'Dispatch Issue'},{c:'FG',i:'Custom Issue'},{c:'FG',i:'Permits'},
-    {c:'PR',i:'Machine downtime'},{c:'PR',i:'Production Under run'},{c:'PR',i:'Manpower constraint'},{c:'PR',i:'Production delay'},{c:'PR',i:'Acumatica Confirmation delay'},{c:'PR',i:'Subcon delay'},
-    {c:'TE',i:'Developmental Issue'},{c:'TE',i:'Quality Issue'},
-    {c:'SA',i:'Cancelled Order'},{c:'SA',i:'Demand Shift'},{c:'SA',i:'CS Issue'},
-    {c:'FI',i:'Pricing Issue'}
-];
-const whSOIssues = [
-    {c:'PL',i:'Material constraint'},{c:'PL',i:'Planning error'},{c:'PL',i:'Capacity Constraint'},{c:'PL',i:'Acumatica Inventory Issue'},
-    {c:'FG',i:'Warehouse Constraint'},{c:'FG',i:'Truck unavailability'},{c:'FG',i:'Dispatch Issue'},{c:'FG',i:'Custom Issue'},{c:'FG',i:'Permits'},
-    {c:'PR',i:'Machine downtime'},{c:'PR',i:'Production Under run'},{c:'PR',i:'Manpower constraint'},{c:'PR',i:'Production delay'},{c:'PR',i:'Acumatica Confirmation delay'},{c:'PR',i:'Subcon delay'},
-    {c:'TE',i:'Developmental Issue'},{c:'TE',i:'Quality Issue'},
-    {c:'SA',i:'Cancelled Order'},{c:'SA',i:'Demand Shift'},{c:'SA',i:'CS Issue'},{c:'SA',i:'Beyond forecast'},
-    {c:'FI',i:'Pricing Issue'}
-];
 const catNames = { PL:'Planning', FG:'Finished Goods', PR:'Production', TE:'Technical', SA:'Sales', FI:'Finance' };
 
 // ── Model ────────────────────────────────────────────────────
 const whDB = {};
 function whInitDB() {
     return {
-        otif:    { served: '', total: '' },
         vol:     { del: '', ord: '' },
         fr:      { corp: { del:'', ord:'' }, sc: { del:'', ord:'' }, core: { del:'', ord:'' }, m7: { del:'', ord:'' } },
-        nonOtif: Object.fromEntries(whNonOtifIssues.map((_, i) => ['no' + i, ''])),
-        soVal:   Object.fromEntries(whSOIssues.map((_, i) => ['sv' + i, ''])),
-        soWt:    Object.fromEntries(whSOIssues.map((_, i) => ['sw' + i, ''])),
         wh:      { rmTot:'', rmUsed:'', fgTot:'', fgUsed:'', extTot:'', extUsed:'' },
         otdl:    { gma:'', north:'', central:'', south:'', vis:'', mind:'', mt:'', pai:'' },
         trucks:  { t10:'', auv:'', t6:'', t4:'', c20:'' },
@@ -55,13 +35,7 @@ function whFillStatus(r) {
 function whCalc() {
     const d = whGetDB();
 
-    // OTIF
-    const sv = +d.otif.served || 0, tot = +d.otif.total || 0, or = tot > 0 ? sv / tot * 100 : 0;
-    setText('wh-otif', or.toFixed(2) + '%'); setText('wh-otifServed', fmtN(sv)); setText('wh-otifTotal', fmtN(tot)); setW('wh-otifBar', or);
-    // OTIF card status (same thresholds as fill)
-    let ob = 'badge-neutral', ot = 'No Data';
-    if (tot > 0) [ob, ot] = whFillStatus(or);
-    setBadge('wh-otifStatus', ob, ot);
+
 
     // Volume Fill
     const vd = +d.vol.del || 0, vo = +d.vol.ord || 0, vr = vo > 0 ? vd / vo * 100 : 0;
@@ -100,27 +74,7 @@ function whCalc() {
     updateFR('core', 'fr-core', 'fr-coreDel', 'fr-coreOrd', 'fr-coreSt');
     updateFR('m7',   'fr-m7',   'fr-m7Del',   'fr-m7Ord',   'fr-m7St');
 
-    // Non-OTIF issues
-    let nonTotal = 0; const catCnt = {}, issueCnt = {};
-    const nonTbl = whNonOtifIssues.map((item, i) => {
-        const v = +d.nonOtif['no' + i] || 0; nonTotal += v;
-        if (v > 0) { catCnt[item.c] = (catCnt[item.c] || 0) + v; issueCnt[item.i] = issueCnt[item.i] || { cnt: 0 }; issueCnt[item.i].cnt += v; }
-        return `<tr><td><span class="cat-badge">${item.c}</span>${catNames[item.c]}</td><td>${item.i}</td><td>${v}</td></tr>`;
-    }).join('');
-    setHTML('wh-nonOtifTbl', nonTbl); setText('wh-nonOtifTot', 'Total: ' + nonTotal); setText('wh-nonOtifTotal', nonTotal);
-    let topCat = '—', topCnt = 0;
-    for (let c in catCnt) { if (catCnt[c] > topCnt) { topCnt = catCnt[c]; topCat = catNames[c] + ' (' + topCnt + ')'; } }
-    let topIssue = '—', topIssueCnt = 0;
-    for (let i in issueCnt) { if (issueCnt[i].cnt > topIssueCnt) { topIssueCnt = issueCnt[i].cnt; topIssue = i + ' (' + topIssueCnt + ')'; } }
-    setText('wh-nonOtifTop', topCat); setText('wh-nonOtifTopIssue', topIssue);
 
-    // Stock Outs
-    let soValTot = 0, soWtTot = 0;
-    const soValTbl = whSOIssues.map((item, i) => { const v = +d.soVal['sv' + i] || 0; soValTot += v; return `<tr><td><span class="cat-badge">${item.c}</span>${catNames[item.c]}</td><td>${item.i}</td><td>${fmtC(v)}</td></tr>`; }).join('');
-    const soWtTbl  = whSOIssues.map((item, i) => { const w = +d.soWt['sw'  + i] || 0; soWtTot += w;  return `<tr><td><span class="cat-badge">${item.c}</span>${catNames[item.c]}</td><td>${item.i}</td><td>${fmtN(w)} KGS</td></tr>`; }).join('');
-    setHTML('wh-soValTbl', soValTbl); setHTML('wh-soWtTbl', soWtTbl);
-    setText('wh-soValTot', '₱' + fmtN(soValTot)); setText('wh-soWtTot', fmtN(soWtTot) + ' KGS');
-    setText('wh-stockVal', fmtC(soValTot)); setText('wh-stockWt', fmtN(soWtTot) + ' KGS');
 
     // WH details
     const rmUtil = rm.tot > 0 ? rm.used / rm.tot * 100 : 0;
@@ -157,7 +111,6 @@ function whCalc() {
     setText('wh-mp-absC', fmtN(abs, 0)); setText('wh-mp-absD', days.toFixed(2)); setText('wh-mp-absR', absR.toFixed(2) + '%');
 
     // Card status borders — unified fill thresholds (>99 excellent, 95.01-99 good, ≤95 critical)
-    setCardStatus('card-wh-otif',  or,     { good: 99.01, warn: 95, higherIsBetter: true });
     setCardStatus('card-wh-vol',   vr,     { good: 99.01, warn: 95, higherIsBetter: true });
     setCardStatus('card-wh-util',  wu,     { good: 75,    warn: 60, higherIsBetter: true });
     setCardStatus('card-wh-sc',    sc.r,   { good: 99.01, warn: 95, higherIsBetter: true });
@@ -172,12 +125,7 @@ function whLoadInput() {
     const d   = whGetDB();
     let h = '';
 
-    if (cat === 'otif') {
-        h = `<div class="input-section" style="grid-column:1/-1"><div class="input-section-title">OTIF Rate</div><div class="input-fields-grid">
-            <div class="input-field-wrap"><label class="input-field-label">Served per Line Item</label><input class="input-field" type="number" inputmode="decimal" id="wh_i_otif_served" value="${d.otif.served}" placeholder="Count"></div>
-            <div class="input-field-wrap"><label class="input-field-label">Total Line Items</label><input class="input-field" type="number" inputmode="decimal" id="wh_i_otif_total" value="${d.otif.total}" placeholder="Count"></div>
-        </div></div>`;
-    } else if (cat === 'volume') {
+    if (cat === 'volume') {
         h = `<div class="input-section" style="grid-column:1/-1"><div class="input-section-title">Volume Fill Rate</div><div class="input-fields-grid">
             <div class="input-field-wrap"><label class="input-field-label">Delivered (₱)</label><input class="input-field" type="number" inputmode="decimal" id="wh_i_vol_del" value="${d.vol.del}" placeholder="₱"></div>
             <div class="input-field-wrap"><label class="input-field-label">Orders (₱)</label><input class="input-field" type="number" inputmode="decimal" id="wh_i_vol_ord" value="${d.vol.ord}" placeholder="₱"></div>
@@ -189,14 +137,6 @@ function whLoadInput() {
             <div class="input-field-wrap"><label class="input-field-label">Delivered (₱)</label><input class="input-field" type="number" inputmode="decimal" id="wh_i_fr_${k}_del" value="${d.fr[k].del}" placeholder="₱"></div>
             <div class="input-field-wrap"><label class="input-field-label">Orders (₱)</label><input class="input-field" type="number" inputmode="decimal" id="wh_i_fr_${k}_ord" value="${d.fr[k].ord}" placeholder="₱"></div>
         </div></div>`).join('');
-    } else if (cat === 'nonotif') {
-        h = `<div class="input-section" style="grid-column:1/-1"><div class="input-section-title">Non-OTIF Issues (Count)</div><div class="input-fields-grid-4">` +
-            whNonOtifIssues.map((it, i) => `<div class="input-field-wrap"><label class="input-field-label">${it.c} - ${it.i}</label><input class="input-field" type="number" inputmode="decimal" id="wh_i_no_${i}" value="${d.nonOtif['no' + i] || ''}" placeholder="Count"></div>`).join('') + `</div></div>`;
-    } else if (cat === 'stockouts') {
-        h = `<div class="input-section" style="grid-column:1/-1"><div class="input-section-title">Stock Outs — Value (₱)</div><div class="input-fields-grid-4">` +
-            whSOIssues.map((it, i) => `<div class="input-field-wrap"><label class="input-field-label">${it.c} - ${it.i}</label><input class="input-field" type="number" inputmode="decimal" id="wh_i_sv_${i}" value="${d.soVal['sv' + i] || ''}" placeholder="₱"></div>`).join('') +
-            `</div></div><div class="input-section" style="grid-column:1/-1"><div class="input-section-title">Stock Outs — Weight (KGS)</div><div class="input-fields-grid-4">` +
-            whSOIssues.map((it, i) => `<div class="input-field-wrap"><label class="input-field-label">${it.c} - ${it.i}</label><input class="input-field" type="number" inputmode="decimal" id="wh_i_sw_${i}" value="${d.soWt['sw' + i] || ''}" placeholder="KGS"></div>`).join('') + `</div></div>`;
     } else if (cat === 'warehouse') {
         h = ['RM/PM Warehouse','FG Warehouse','External Warehouse'].map((title, idx) => {
             const prefixes = [['rm','rm'],['fg','fg'],['ext','ext']];
@@ -239,11 +179,8 @@ function whSave() {
     const d   = whGetDB();
     const g   = id => document.getElementById(id)?.value || '';
 
-    if      (cat === 'otif')       { d.otif.served = g('wh_i_otif_served'); d.otif.total = g('wh_i_otif_total'); }
-    else if (cat === 'volume')     { d.vol.del = g('wh_i_vol_del'); d.vol.ord = g('wh_i_vol_ord'); }
+    if      (cat === 'volume')     { d.vol.del = g('wh_i_vol_del'); d.vol.ord = g('wh_i_vol_ord'); }
     else if (cat === 'fillrates')  { ['sc','corp','core','m7'].forEach(k => { d.fr[k].del = g('wh_i_fr_' + k + '_del'); d.fr[k].ord = g('wh_i_fr_' + k + '_ord'); }); }
-    else if (cat === 'nonotif')    { whNonOtifIssues.forEach((_, i) => d.nonOtif['no' + i] = g('wh_i_no_' + i)); }
-    else if (cat === 'stockouts')  { whSOIssues.forEach((_, i) => { d.soVal['sv' + i] = g('wh_i_sv_' + i); d.soWt['sw' + i] = g('wh_i_sw_' + i); }); }
     else if (cat === 'warehouse')  { d.wh.rmTot = g('wh_i_rm_tot'); d.wh.rmUsed = g('wh_i_rm_used'); d.wh.fgTot = g('wh_i_fg_tot'); d.wh.fgUsed = g('wh_i_fg_used'); d.wh.extTot = g('wh_i_ext_tot'); d.wh.extUsed = g('wh_i_ext_used'); }
     else if (cat === 'otdl')       { ['gma','north','central','south','vis','mind','mt','pai'].forEach(k => d.otdl[k] = g('wh_i_otdl_' + k)); }
     else if (cat === 'trucks')     { ['t10','auv','t6','t4','c20'].forEach(k => d.trucks[k] = g('wh_i_tr_' + k)); }

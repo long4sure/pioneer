@@ -87,7 +87,6 @@ function doLogin(array $b): never {
 
     // Purge old expired sessions
     db()->exec('DELETE FROM sc_sessions WHERE expires_at < NOW()');
-    audit(['user_id' => $user['id'], 'username' => $user['username']], 'login');
 
     ok([
         'token'       => $token,
@@ -189,7 +188,6 @@ function doUsersCreate(array $b): never {
         'INSERT INTO sc_users (username,display_name,password,role,status,is_builtin) VALUES (?,?,?,?,"active",0)'
     )->execute([$username, $displayName, $hash, $role]);
 
-    audit($sess, 'create_user', 'Users', null, "@$username as $role");
     ok(null, "Account @$username created");
 }
 
@@ -216,7 +214,6 @@ function doUsersEdit(array $b): never {
 
     $vals[] = $username;
     db()->prepare('UPDATE sc_users SET ' . implode(',', $sets) . ' WHERE username=?')->execute($vals);
-    audit($sess, 'edit_user', 'Users', null, "@$username");
     ok(null, "Updated @$username");
 }
 
@@ -236,7 +233,6 @@ function doUsersDelete(array $b): never {
     if (!$u) fail('User not found');
 
     db()->prepare('DELETE FROM sc_users WHERE username=? AND is_builtin=0')->execute([$username]);
-    audit($sess, 'delete_user', 'Users', null, "@$username");
     ok(null, "@$username deleted");
 }
 
@@ -252,7 +248,6 @@ function doUsersApprove(array $b): never {
     $aff->execute([$username]);
     if ($aff->rowCount() === 0) fail('User not found or not pending');
 
-    audit($sess, 'approve_user', 'Users', null, "@$username");
     ok(null, "@$username approved");
 }
 
@@ -268,7 +263,6 @@ function doUsersReject(array $b): never {
     $aff->execute([$username]);
     if ($aff->rowCount() === 0) fail('User not found');
 
-    audit($sess, 'reject_user', 'Users', null, "@$username");
     ok(null, "@$username rejected");
 }
 
@@ -307,6 +301,5 @@ function doUsersRole(array $b): never {
     if (!in_array($role, ['viewer','admin','superadmin'], true)) fail('Invalid role');
 
     db()->prepare('UPDATE sc_users SET role=? WHERE username=?')->execute([$role, $username]);
-    audit($sess, 'role_change', 'Users', null, "@$username → $role");
     ok(null, 'Role updated');
 }

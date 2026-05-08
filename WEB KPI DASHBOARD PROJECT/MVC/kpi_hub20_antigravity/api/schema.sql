@@ -208,7 +208,6 @@ CREATE TABLE IF NOT EXISTS sc_prod_sched (
 -- -------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS sc_warehouse (
     period_id    SMALLINT UNSIGNED NOT NULL PRIMARY KEY,
-    otif_served  INT UNSIGNED, otif_total   INT UNSIGNED,
     vol_del      DECIMAL(15,2), vol_ord     DECIMAL(15,2),
     fr_sc_del    DECIMAL(15,2), fr_sc_ord   DECIMAL(15,2),
     fr_corp_del  DECIMAL(15,2), fr_corp_ord DECIMAL(15,2),
@@ -231,22 +230,6 @@ CREATE TABLE IF NOT EXISTS sc_warehouse (
     FOREIGN KEY (saved_by)  REFERENCES sc_users(id)   ON DELETE SET NULL
 ) ENGINE=InnoDB;
 
-CREATE TABLE IF NOT EXISTS sc_wh_non_otif (
-    period_id  SMALLINT UNSIGNED NOT NULL,
-    issue_idx  TINYINT  UNSIGNED NOT NULL,
-    cnt        INT UNSIGNED NOT NULL DEFAULT 0,
-    PRIMARY KEY (period_id, issue_idx),
-    FOREIGN KEY (period_id) REFERENCES sc_periods(id) ON DELETE CASCADE
-) ENGINE=InnoDB;
-
-CREATE TABLE IF NOT EXISTS sc_wh_stockout (
-    period_id  SMALLINT UNSIGNED NOT NULL,
-    issue_idx  TINYINT  UNSIGNED NOT NULL,
-    val_php    DECIMAL(15,2) NOT NULL DEFAULT 0,
-    val_kgs    DECIMAL(12,2) NOT NULL DEFAULT 0,
-    PRIMARY KEY (period_id, issue_idx),
-    FOREIGN KEY (period_id) REFERENCES sc_periods(id) ON DELETE CASCADE
-) ENGINE=InnoDB;
 
 -- -------------------------------------------------------------
 -- Sync log – tracks when each module/period was last saved.

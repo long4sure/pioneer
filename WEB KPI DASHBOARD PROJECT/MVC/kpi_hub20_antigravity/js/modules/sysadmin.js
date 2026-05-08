@@ -970,13 +970,12 @@ async function saDataDelete(module, year, month, line) {
     }
     else if (module === 'warehouse' && whDB[year]?.[month]) {
         whDB[year][month] = {
-            otif:{served:'',total:''}, vol:{del:'',ord:''},
+            vol:{del:'',ord:''},
             fr:{sc:{del:'',ord:''},corp:{del:'',ord:''},core:{del:'',ord:''},m7:{del:'',ord:''}},
             wh:{rmTot:'',rmUsed:'',fgTot:'',fgUsed:'',extTot:'',extUsed:''},
             otdl:{gma:'',north:'',central:'',south:'',vis:'',mind:'',mt:'',pai:''},
             trucks:{t10:'',auv:'',t6:'',t4:'',c20:''},
-            mp:{reg:'',agy:'',res:'',regH:'',agyH:'',otH:'',abs:'',days:''},
-            nonOtif:{}, soVal:{}, soWt:{}
+            mp:{reg:'',agy:'',res:'',regH:'',agyH:'',otH:'',abs:'',days:''}
         };
         if (typeof whCalc === 'function') whCalc();
     }
@@ -1018,12 +1017,12 @@ async function saDataDelete(module, year, month, line) {
 function saGetSchema(module) {
     const schemas = {
         finance:          ['Year','Month','Prod Act','Prod Tgt','Op Act','Op Bgt','Cap Act','Cap Bgt','Oth Act','Oth Bgt','DL Reg','DL OT','IL Reg','IL OT'],
-        planning:         ['Year','Month','FG Core','FG M7','FG Others','FG All-In','RM Core','RM M7','RM Others','PM Core','PM M7','PM Others','FKG Core','FKG M7','FKG Others','FKG Exp','FKG Days','FPH Core','FPH M7','FPH Others','FPH Exp','RKG Core','RKG M7','RKG Others','RKG Exp','RKG Days','FC Local','FC Export'],
+        planning:         ['Year','Month','FG Core (Days)','FG M7 (Days)','FG Others (Days)','FG All-In (Days)','RM Core (Days)','RM M7 (Days)','RM Others (Days)','PM Core (Days)','PM M7 (Days)','PM Others (Days)','FG Kgs Core','FG Kgs M7','FG Kgs Others','FG Kgs Exp','FG Kgs Days','FG Php Core','FG Php M7','FG Php Others','FG Php Exp','RM Kgs Core','RM Kgs M7','RM Kgs Others','RM Kgs Exp','RM Kgs Days','RM Php Core','RM Php M7','RM Php Others','RM Php Exp','FG Cnt','FG Miss','RM Cnt','RM Miss','FC GMA','FC North','FC South','FC Vis','FC Mind','FC MT','FC PSBSI','FC Indo','FC India','FC Direct','P Epoxy','P Elasto','P Mighty','P Pro-Epoxy','P Builders','P Coating','P Transport','P Other','P Sealant','P Waterproof','P Painting','P Adhesives','P Mining','P Others'],
         procurement:      ['Year','Month','Actual (₱)','Target (₱)'],
         production_util:  ['Year','Month','Line','Productive','Total Hrs','Util%','M.Avail','M.Used','Days'],
         production_waste: ['Year','Month','Line','FG Output','Reprocess','Rejection','Waste','Net Output','Waste%'],
         production_sched: ['Year','Month','Line','Actual','Planned','Compliance%'],
-        warehouse:        ['Year','Month','OTIF Srv','OTIF Tot','OTIF%','Vol Del','Vol Ord','Vol Fill%','SC Fill%','Corp Fill%','Core Fill%','M7 Fill%','WH Util%','Non-OTIF','Stock-Out(₱)'],
+        warehouse:        ['Year','Month','Vol Del','Vol Ord','Vol Fill%','SC Fill%','Corp Fill%','Core Fill%','M7 Fill%','WH Util%'],
     };
     return schemas[module] || [];
 }
@@ -1045,16 +1044,9 @@ function saGetAllData(module) {
             case 'planning': {
                 const d = plDB[y]?.[m];
                 if (!d) return;
-                const g = k => parseFloat(d[k]) || null;
-                const anySet = ['fgA','fgB','fgC','rmA','rmB','rmC','fcGma','fcNorth'].some(k => d[k] !== '');
+                const anySet = ['fgA','fgB','fgC','rmA','rmB','rmC','fcGma','fcNorth','pEpoxy','rmPhpFG','fgCnt'].some(k => d[k] !== '');
                 if (!anySet) return;
-                const localIds = ['fcGma','fcNorth','fcSouth','fcVis','fcMind','fcMT','fcPsbsi'];
-                const expIds   = ['fcIndo','fcIndia','fcDirect'];
-                const lv = localIds.map(k => g(k)).filter(v => v !== null);
-                const ev = expIds.map(k => g(k)).filter(v => v !== null);
-                const lAvg = lv.length ? (lv.reduce((a,b)=>a+b,0)/lv.length).toFixed(2)+'%' : '—';
-                const eAvg = ev.length ? (ev.reduce((a,b)=>a+b,0)/ev.length).toFixed(2)+'%' : '—';
-                rows.push([y, m, d.fgA||'', d.fgB||'', d.fgC||'', d.fgAllIn||'', d.rmA||'', d.rmB||'', d.rmC||'', d.pmCore||'', d.pmM7||'', d.pmOthers||'', d.fgKgsFG||'', d.fgKgsFN||'', d.fgKgsSL||'', d.fgKgsEX||'', d.fgKgsDays||'', d.fgPhpFG||'', d.fgPhpFN||'', d.fgPhpSL||'', d.fgPhpEX||'', d.rmKgsFG||'', d.rmKgsFN||'', d.rmKgsSL||'', d.rmKgsEX||'', d.rmKgsDays||'', lAvg, eAvg]);
+                rows.push([y, m, d.fgA||'', d.fgB||'', d.fgC||'', d.fgAllIn||'', d.rmA||'', d.rmB||'', d.rmC||'', d.pmCore||'', d.pmM7||'', d.pmOthers||'', d.fgKgsFG||'', d.fgKgsFN||'', d.fgKgsSL||'', d.fgKgsEX||'', d.fgKgsDays||'', d.fgPhpFG||'', d.fgPhpFN||'', d.fgPhpSL||'', d.fgPhpEX||'', d.rmKgsFG||'', d.rmKgsFN||'', d.rmKgsSL||'', d.rmKgsEX||'', d.rmKgsDays||'', d.rmPhpFG||'', d.rmPhpFN||'', d.rmPhpSL||'', d.rmPhpEX||'', d.fgCnt||'', d.fgMiss||'', d.rmCnt||'', d.rmMiss||'', d.fcGma||'', d.fcNorth||'', d.fcSouth||'', d.fcVis||'', d.fcMind||'', d.fcMT||'', d.fcPsbsi||'', d.fcIndo||'', d.fcIndia||'', d.fcDirect||'', d.pEpoxy||'', d.pElasto||'', d.pMighty||'', d.pProEpoxy||'', d.pBuilders||'', d.pCoating||'', d.pTransport||'', d.pOther||'', d.pSealant||'', d.pWaterproof||'', d.pPainting||'', d.pAdhesives||'', d.pMining||'', d.pOthers||'']);
                 break;
             }
             case 'procurement': {
@@ -1104,10 +1096,8 @@ function saGetAllData(module) {
             case 'warehouse': {
                 const d = whDB[y]?.[m];
                 if (!d) return;
-                const sv = +d.otif.served||0, tot = +d.otif.total||0;
                 const vd = +d.vol.del||0, vo = +d.vol.ord||0;
-                if (!sv && !tot && !vd && !vo) return;
-                const otifPct = tot > 0 ? (sv/tot*100).toFixed(2)+'%' : '—';
+                if (!vd && !vo) return;
                 const volPct  = vo > 0  ? (vd/vo*100).toFixed(2)+'%'  : '—';
                 const fr = d.fr;
                 const scPct   = +fr.sc.ord   > 0 ? (+fr.sc.del  /+fr.sc.ord  *100).toFixed(2)+'%' : '—';
@@ -1117,9 +1107,7 @@ function saGetAllData(module) {
                 const wTot = (+d.wh.rmTot||0)+(+d.wh.fgTot||0)+(+d.wh.extTot||0);
                 const wUsd = (+d.wh.rmUsed||0)+(+d.wh.fgUsed||0)+(+d.wh.extUsed||0);
                 const whPct = wTot > 0 ? (wUsd/wTot*100).toFixed(2)+'%' : '—';
-                const nonOtif = Object.values(d.nonOtif).reduce((s,v)=>s+(+v||0),0);
-                const soVal   = Object.values(d.soVal).reduce((s,v)=>s+(+v||0),0);
-                rows.push([y, m, fmtN(sv), fmtN(tot), otifPct, fmtC(vd), fmtC(vo), volPct, scPct, coPct, corePct, m7Pct, whPct, fmtN(nonOtif,0), fmtC(soVal)]);
+                rows.push([y, m, fmtC(vd), fmtC(vo), volPct, scPct, coPct, corePct, m7Pct, whPct]);
                 break;
             }
         }
