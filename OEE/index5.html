@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>machine utilization · web dashboard</title>
+    <!-- Font Awesome for clean icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        body {
+            background: #f0f4f9;
+            padding: 2rem 1.5rem;
+            display: flex;
+            justify-content: center;
+        }
+        .app-wrapper {
+            max-width: 1600px;
+            width: 100%;
+        }
+        /* header */
+        .app-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .title-section h1 {
+            font-weight: 600;
+            font-size: 2rem;
+            color: #172b4a;
+            letter-spacing: -0.02em;
+        }
+        .title-section p {
+            color: #4a6782;
+            font-size: 0.9rem;
+            margin-top: 4px;
+        }
+        .badge {
+            background: white;
+            padding: 0.5rem 1.2rem;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+            color: #1d3e63;
+            border: 1px solid #dde3ed;
+        }
+        /* dashboard cards */
+        .kpi-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.2rem;
+            margin-bottom: 2rem;
+        }
+        .kpi-card {
+            background: white;
+            border-radius: 24px;
+            padding: 1.3rem 1.8rem;
+            box-shadow: 0 8px 18px rgba(0,0,0,0.02);
+            flex: 1 1 160px;
+            border: 1px solid #e7ecf5;
+        }
+        .kpi-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: #617e9c;
+            font-weight: 500;
+            letter-spacing: 0.02em;
+        }
+        .kpi-value {
+            font-size: 2rem;
+            font-weight: 500;
+            color: #0f2b44;
+            line-height: 1.2;
+        }
+        .kpi-unit {
+            font-size: 0.8rem;
+            color: #738ea8;
+            margin-left: 4px;
+        }
+        .kpi-trend {
+            font-size: 0.7rem;
+            color: #2d7a5a;
+            background: #e0f0ea;
+            display: inline-block;
+            padding: 0.2rem 0.8rem;
+            border-radius: 30px;
+        }
+        /* two column layout (dashboard left / log right) */
+        .dashboard-panel {
+            display: flex;
+            gap: 1.8rem;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+        }
+        .oee-box {
+            background: white;
+            border-radius: 28px;
+            padding: 1.6rem 1.8rem;
+            flex: 2 1 300px;
+            box-shadow: 0 8px 18px rgba(0,0,0,0.02);
+            border: 1px solid #eaeff8;
+        }
+        .downtime-pareto {
+            background: white;
+            border-radius: 28px;
+            padding: 1.6rem 1.8rem;
+            flex: 1.5 1 260px;
+            box-shadow: 0 8px 18px rgba(0,0,0,0.02);
+            border: 1px solid #eaeff8;
+        }
+        .section-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #1d344b;
+            margin-bottom: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .oee-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.6rem 0;
+            border-bottom: 1px solid #edf2f9;
+        }
+        .oee-label {
+            color: #47647c;
+        }
+        .oee-number {
+            font-weight: 550;
+            color: #1b3b59;
+        }
+        .oee-total {
+            margin-top: 1rem;
+            font-weight: 700;
+            font-size: 1.3rem;
+            background: #f1f7fe;
+            padding: 0.6rem 1rem;
+            border-radius: 50px;
+        }
+        .pareto-item {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            margin-bottom: 0.7rem;
+        }
+        .pareto-code {
+            width: 55px;
+            font-weight: 600;
+            color: #2a4b74;
+        }
+        .pareto-bar {
+            flex: 1;
+            height: 24px;
+            background: #dee8f3;
+            border-radius: 30px;
+            overflow: hidden;
+        }
+        .pareto-fill {
+            height: 100%;
+            background: #3f6b9c;
+            width: 0%;
+            border-radius: 30px;
+        }
+        .pareto-min {
+            width: 50px;
+            text-align: right;
+            font-weight: 500;
+        }
+        /* ----- data log table (clean excel style) ----- */
+        .log-section {
+            background: white;
+            border-radius: 28px;
+            padding: 1.6rem 1.2rem 2rem 1.2rem;
+            box-shadow: 0 12px 28px rgba(0,0,0,0.03);
+            border: 1px solid #e7eef8;
+            margin-top: 1.2rem;
+        }
+        .log-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+        .log-header h3 {
+            font-weight: 500;
+            color: #1d364e;
+        }
+        .btn-add {
+            background: #1e3b5c;
+            color: white;
+            border: none;
+            padding: 0.6rem 1.6rem;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: 0.1s;
+        }
+        .btn-add:hover {
+            background: #153249;
+        }
+        .table-wrapper {
+            overflow-x: auto;
+            border-radius: 18px;
+            border: 1px solid #dee7f2;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.75rem;
+            min-width: 1300px;
+        }
+        th {
+            background: #f4f8fe;
+            color: #23415c;
+            font-weight: 500;
+            padding: 0.9rem 0.3rem;
+            border-bottom: 1px solid #cbd6e8;
+            text-align: center;
+        }
+        td {
+            padding: 0.7rem 0.2rem;
+            border-bottom: 1px solid #e9f0f7;
+            text-align: center;
+        }
+        .sticky-col {
+            position: sticky;
+            left: 0;
+            background: white;
+            border-right: 1px solid #dae2ef;
+        }
+        th.sticky-col {
+            background: #f4f8fe;
+            z-index: 2;
+        }
+        .input-cell {
+            width: 58px;
+            padding: 0.3rem 0.4rem;
+            border: 1px solid #c9d7ea;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            text-align: right;
+            background: #ffffff;
+        }
+        .input-cell:focus {
+            outline: 2px solid #94b6df;
+        }
+        select.input-cell {
+            text-align: left;
+        }
+        .delete-btn {
+            color: #b2493a;
+            background: none;
+            border: none;
+            font-size: 1rem;
+            cursor: pointer;
+            padding: 0 4px;
+        }
+        .footer-note {
+            margin-top: 2rem;
+            display: flex;
+            justify-content: center;
+            color: #5b7994;
+            font-size: 0.8rem;
+            gap: 2rem;
+        }
+    </style>
+</head>
+<body>
+<div class="app-wrapper">
+    <!-- header -->
+    <div class="app-header">
+        <div class="title-section">
+            <h1>machine utilization · OEE cockpit</h1>
+            <p><i class="far fa-file-excel" style="margin-right: 6px;"></i>web-based excel template · live data</p>
+        </div>
+        <div class="badge"><i class="far fa-calendar-alt"></i> week ending: 14 mar 2026</div>
+    </div>
+
+    <!-- top KPI cards -->
+    <div class="kpi-grid" id="kpiCards">
+        <div class="kpi-card"><div class="kpi-label"><i class="fas fa-industry"></i> utilization</div><div class="kpi-value"><span id="utilizationVal">85.2</span><span class="kpi-unit">%</span></div><span class="kpi-trend">vs 80% target</span></div>
+        <div class="kpi-card"><div class="kpi-label"><i class="fas fa-clock"></i> available time</div><div class="kpi-value"><span id="totalAvail">4120</span><span class="kpi-unit">min</span></div></div>
+        <div class="kpi-card"><div class="kpi-label"><i class="fas fa-ban"></i> total downtime</div><div class="kpi-value"><span id="totalDowntime">608</span><span class="kpi-unit">min</span></div></div>
+        <div class="kpi-card"><div class="kpi-label"><i class="fas fa-check-circle"></i> good units</div><div class="kpi-value"><span id="totalGoodUnits">47800</span><span class="kpi-unit">pcs</span></div></div>
+    </div>
+
+    <!-- dashboard panels: OEE and pareto -->
+    <div class="dashboard-panel">
+        <div class="oee-box">
+            <div class="section-title"><i class="fas fa-chart-pie" style="color:#336699;"></i> OEE breakdown</div>
+            <div class="oee-row"><span class="oee-label">Availability (run/planned)</span><span class="oee-number" id="oeeAvail">91.2%</span></div>
+            <div class="oee-row"><span class="oee-label">Performance (speed)</span><span class="oee-number" id="oeePerf">94.5%</span></div>
+            <div class="oee-row"><span class="oee-label">Quality (good/total)</span><span class="oee-number" id="oeeQual">98.9%</span></div>
+            <div class="oee-total"><i class="fas fa-calculator"></i> OEE = <span id="oeeTotal">85.3%</span></div>
+        </div>
+        <div class="downtime-pareto">
+            <div class="section-title"><i class="fas fa-chart-bar"></i> downtime pareto (top 5)</div>
+            <div id="paretoContainer"></div>
+        </div>
+    </div>
+
+    <!-- DATA LOG (editable) -->
+    <div class="log-section">
+        <div class="log-header">
+            <h3><i class="fas fa-table"></i> shift log · double-click cells to edit</h3>
+            <button class="btn-add" id="addRowBtn"><i class="fas fa-plus"></i> new entry</button>
+        </div>
+        <div class="table-wrapper">
+            <table id="logTable">
+                <thead>
+                    <tr>
+                        <th class="sticky-col"></th><th>date</th><th>shift</th><th>machine</th><th>product</th><th>total units</th><th>defects</th><th>ideal rate</th><th>planned run (min)</th><th>actual run (min)</th>
+                        <th>code 1</th><th>min 1</th><th>code 2</th><th>min 2</th><th>notes</th><th style="background:#f0f2fa;">avail%</th><th style="background:#f0f2fa;">perf%</th><th style="background:#f0f2fa;">qual%</th><th></th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    <!-- filled by js -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="footer-note">
+        <span><i class="far fa-edit"></i> edit any white cell · totals update automatically</span>
+        <span><i class="fas fa-database"></i> standards: dropdowns from reference</span>
+    </div>
+</div>
+
+<script>
+    (function() {
+        // ---------- REFERENCE DATA (standards) ----------
+        const products = [
+            { name: 'SKU-A', idealRate: 120 },
+            { name: 'SKU-B', idealRate: 115 },
+            { name: 'SKU-C', idealRate: 95 },
+            { name: 'SKU-X', idealRate: 100 },
+        ];
+        const machines = ['Mixer-01', 'Mixer-02', 'Oven-01'];
+        const shifts = ['Day', 'Night', 'Afternoon'];
+        const downtimeCodes = ['CHG', 'BRK', 'PM', 'UDT-PF', 'UDT-SC', 'TRN', 'OTHER'];
+
+        // ---------- INITIAL LOG DATA (rows) ----------
+        let logData = [
+            { date:'01-Mar', shift:'Day', machine:'Mixer-01', product:'SKU-A', units:5000, defects:50, ideal:120, planned:480, actual:450, code1:'CHG', min1:20, code2:'BRK', min2:10, notes:'minor jam' },
+            { date:'01-Mar', shift:'Night', machine:'Mixer-01', product:'SKU-B', units:4800, defects:30, ideal:115, planned:480, actual:460, code1:'UDT-PF', min1:15, code2:'PM', min2:5, notes:'' },
+            { date:'02-Mar', shift:'Day', machine:'Mixer-01', product:'SKU-A', units:5100, defects:40, ideal:120, planned:480, actual:470, code1:'CHG', min1:10, code2:'', min2:0, notes:'fast change' },
+            { date:'02-Mar', shift:'Afternoon', machine:'Oven-01', product:'SKU-C', units:4000, defects:20, ideal:95, planned:480, actual:465, code1:'TRN', min1:15, code2:'', min2:0, notes:'training' },
+            { date:'03-Mar', shift:'Day', machine:'Mixer-02', product:'SKU-X', units:3300, defects:15, ideal:100, planned:480, actual:470, code1:'PM', min1:10, code2:'BRK', min2:5, notes:'' },
+        ];
+
+        // helper to get ideal rate from product name
+        function getIdealRate(productName) {
+            const p = products.find(p => p.name === productName);
+            return p ? p.idealRate : 100;
+        }
+
+        // update all metrics & re-render table
+        function refreshDashboardAndTable() {
+            renderTable();
+            updateKPIandOEE();
+            renderPareto();
+        }
+
+        // render table body
+        function renderTable() {
+            let html = '';
+            logData.forEach((row, idx) => {
+                const avail = ((row.actual / row.planned) * 100).toFixed(1);
+                const perf = ( (row.units * 60) / (row.ideal * row.actual) * 100 ).toFixed(1);
+                const qual = ( ((row.units - row.defects) / row.units) * 100 ).toFixed(1);
+                html += `<tr>`;
+                html += `<td class="sticky-col">${idx+1}</td>`;
+                html += `<td><input class="input-cell" type="text" value="${row.date}" data-row="${idx}" data-field="date" onchange="updateCell(this)"></td>`;
+                // shift dropdown
+                html += `<td><select class="input-cell" data-row="${idx}" data-field="shift" onchange="updateCell(this)">${shifts.map(s => `<option value="${s}" ${row.shift===s?'selected':''}>${s}</option>`).join('')}</select></td>`;
+                // machine dropdown
+                html += `<td><select class="input-cell" data-row="${idx}" data-field="machine" onchange="updateCell(this)">${machines.map(m => `<option value="${m}" ${row.machine===m?'selected':''}>${m}</option>`).join('')}</select></td>`;
+                // product dropdown
+                html += `<td><select class="input-cell" data-row="${idx}" data-field="product" onchange="updateCell(this); updateIdealFromProduct(${idx}, this)">${products.map(p => `<option value="${p.name}" ${row.product===p.name?'selected':''}>${p.name}</option>`).join('')}</select></td>`;
+
+                html += `<td><input class="input-cell" type="number" value="${row.units}" data-row="${idx}" data-field="units" onchange="updateCell(this)"></td>`;
+                html += `<td><input class="input-cell" type="number" value="${row.defects}" data-row="${idx}" data-field="defects" onchange="updateCell(this)"></td>`;
+                html += `<td><span class="input-cell" style="background:#f2f6fc; display:inline-block; width:58px;">${row.ideal}</span></td>`;
+                html += `<td><input class="input-cell" type="number" value="${row.planned}" data-row="${idx}" data-field="planned" onchange="updateCell(this)"></td>`;
+                html += `<td><input class="input-cell" type="number" value="${row.actual}" data-row="${idx}" data-field="actual" onchange="updateCell(this)"></td>`;
+
+                // downtime code1
+                html += `<td><select class="input-cell" data-row="${idx}" data-field="code1" onchange="updateCell(this)">${downtimeCodes.map(c => `<option value="${c}" ${row.code1===c?'selected':''}>${c}</option>`).join('')}</select></td>`;
+                html += `<td><input class="input-cell" type="number" value="${row.min1}" data-row="${idx}" data-field="min1" onchange="updateCell(this)"></td>`;
+                html += `<td><select class="input-cell" data-row="${idx}" data-field="code2" onchange="updateCell(this)"><option value="">-</option>${downtimeCodes.map(c => `<option value="${c}" ${row.code2===c?'selected':''}>${c}</option>`).join('')}</select></td>`;
+                html += `<td><input class="input-cell" type="number" value="${row.min2}" data-row="${idx}" data-field="min2" onchange="updateCell(this)"></td>`;
+                html += `<td><input class="input-cell" type="text" value="${row.notes || ''}" data-row="${idx}" data-field="notes" onchange="updateCell(this)"></td>`;
+                // computed columns
+                html += `<td style="background:#f4f9ff;">${avail}%</td><td style="background:#f4f9ff;">${perf}%</td><td style="background:#f4f9ff;">${qual}%</td>`;
+                html += `<td><button class="delete-btn" onclick="deleteRow(${idx})"><i class="fas fa-trash"></i></button></td>`;
+                html += `</tr>`;
+            });
+            document.getElementById('tableBody').innerHTML = html;
+        }
+
+        // update cell (called from input)
+        window.updateCell = function(element) {
+            const rowIdx = element.getAttribute('data-row');
+            const field = element.getAttribute('data-field');
+            let value = element.value;
+            if (element.type === 'number' || element.tagName === 'INPUT' && element.type === 'number') {
+                value = parseFloat(value) || 0;
+            }
+            logData[rowIdx][field] = value;
+            // if product changed, adjust ideal rate automatically
+            if (field === 'product') {
+                logData[rowIdx].ideal = getIdealRate(value);
+            }
+            refreshDashboardAndTable();
+        };
+
+        // separate handler for product change to set ideal
+        window.updateIdealFromProduct = function(rowIdx, select) {
+            const newProd = select.value;
+            logData[rowIdx].product = newProd;
+            logData[rowIdx].ideal = getIdealRate(newProd);
+            refreshDashboardAndTable();
+        };
+
+        // delete row
+        window.deleteRow = function(idx) {
+            logData.splice(idx, 1);
+            refreshDashboardAndTable();
+        };
+
+        // add new empty row
+        document.getElementById('addRowBtn').addEventListener('click', () => {
+            logData.push({
+                date: '07-Mar', shift: 'Day', machine: 'Mixer-01', product: 'SKU-A', units: 4000, defects: 10, ideal: 120,
+                planned: 480, actual: 470, code1: 'BRK', min1: 10, code2: '', min2: 0, notes: ''
+            });
+            refreshDashboardAndTable();
+        });
+
+        // compute KPIs and OEE
+        function updateKPIandOEE() {
+            let totalAvail = 0, totalDowntime = 0, totalUnits = 0, totalDefects = 0, totalRunTime = 0, totalPlanned = 0;
+            logData.forEach(r => {
+                totalPlanned += r.planned;
+                totalRunTime += r.actual;
+                totalDowntime += (r.min1 + r.min2);
+                totalUnits += r.units;
+                totalDefects += r.defects;
+            });
+            totalAvail = totalPlanned; // available time (planned run)
+            const goodUnits = totalUnits - totalDefects;
+            document.getElementById('totalAvail').innerText = totalAvail;
+            document.getElementById('totalDowntime').innerText = totalDowntime;
+            document.getElementById('totalGoodUnits').innerText = goodUnits;
+
+            // utilization (availability)
+            const availability = totalPlanned ? (totalRunTime / totalPlanned) * 100 : 0;
+            document.getElementById('utilizationVal').innerText = availability.toFixed(1);
+            document.getElementById('oeeAvail').innerText = availability.toFixed(1) + '%';
+
+            // performance
+            let totalIdealTime = 0;
+            logData.forEach(r => { totalIdealTime += (r.units * 60) / r.ideal; });
+            const performance = totalRunTime ? (totalIdealTime / totalRunTime) * 100 : 0;
+            document.getElementById('oeePerf').innerText = performance.toFixed(1) + '%';
+
+            // quality
+            const quality = totalUnits ? ((totalUnits - totalDefects) / totalUnits) * 100 : 0;
+            document.getElementById('oeeQual').innerText = quality.toFixed(1) + '%';
+
+            const oee = (availability * performance * quality) / 10000;
+            document.getElementById('oeeTotal').innerText = oee.toFixed(1) + '%';
+        }
+
+        // pareto chart (top 5 downtime codes)
+        function renderPareto() {
+            const downtimeMap = new Map();
+            logData.forEach(r => {
+                if (r.code1 && r.min1 > 0) {
+                    downtimeMap.set(r.code1, (downtimeMap.get(r.code1) || 0) + r.min1);
+                }
+                if (r.code2 && r.min2 > 0) {
+                    downtimeMap.set(r.code2, (downtimeMap.get(r.code2) || 0) + r.min2);
+                }
+            });
+            const sorted = Array.from(downtimeMap.entries()).sort((a,b) => b[1] - a[1]).slice(0,5);
+            const total = sorted.reduce((acc, [_, val]) => acc + val, 0);
+            let html = '';
+            sorted.forEach(([code, minutes]) => {
+                const percent = total ? (minutes / total) * 100 : 0;
+                html += `<div class="pareto-item"><span class="pareto-code">${code}</span><div class="pareto-bar"><div class="pareto-fill" style="width:${percent}%;"></div></div><span class="pareto-min">${minutes} min</span></div>`;
+            });
+            if (sorted.length === 0) html = '<div style="color:#8899b2;">no downtime records</div>';
+            document.getElementById('paretoContainer').innerHTML = html;
+        }
+
+        // initial render
+        refreshDashboardAndTable();
+    })();
+</script>
+</body>
+</html>

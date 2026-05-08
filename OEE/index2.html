@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>clean · loading time tracker</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        body {
+            background: #f4f7fb;
+            margin: 2rem 1rem;
+            display: flex;
+            justify-content: center;
+        }
+        .card {
+            max-width: 98vw;
+            width: fit-content;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+            padding: 1.5rem 1rem 1.8rem 1rem;
+        }
+        .header-formula {
+            background: #eaf1fd;
+            padding: 0.9rem 1.5rem;
+            border-radius: 40px;
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: #1a3e6f;
+            display: inline-block;
+            letter-spacing: -0.01em;
+        }
+        .header-formula span {
+            background: white;
+            padding: 0.2rem 0.9rem;
+            border-radius: 30px;
+            margin: 0 6px;
+            font-family: 'JetBrains Mono', 'SF Mono', monospace;
+            font-size: 0.9rem;
+            border: 1px solid #cdddec;
+        }
+        .table-wrapper {
+            overflow-x: auto;
+            border-radius: 18px;
+            border: 1px solid #e2e9f2;
+            background: white;
+        }
+        table {
+            border-collapse: collapse;
+            font-size: 0.8rem;
+            min-width: 2000px;
+            white-space: nowrap;
+        }
+        th {
+            background-color: #f8fafd;
+            color: #1d2b3f;
+            font-weight: 500;
+            padding: 12px 5px;
+            border-bottom: 2px solid #cfddee;
+            border-right: 1px solid #e0e8f0;
+            text-align: center;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+        }
+        td {
+            padding: 6px 4px;
+            border: 1px solid #e9eef3;
+            text-align: left;
+            vertical-align: middle;
+        }
+        .sticky-col {
+            position: sticky;
+            left: 0;
+            background: white;
+            z-index: 5;
+            border-right: 2px solid #d4dee9;
+        }
+        .sticky-col-2 {
+            position: sticky;
+            left: 105px;
+            background: white;
+            z-index: 5;
+            border-right: 1px solid #dae2ec;
+        }
+        .sticky-col-3 {
+            position: sticky;
+            left: 165px;
+            background: white;
+            z-index: 5;
+        }
+        th.sticky-col, th.sticky-col-2, th.sticky-col-3 {
+            background-color: #f8fafd;
+            z-index: 6;
+        }
+        .avail-time {
+            background-color: #f0f5fe;
+            font-weight: 500;
+            color: #004078;
+        }
+        .total-uc {
+            background-color: #f3eaf8;
+            font-weight: 600;
+            color: #3f2e5f;
+        }
+        .loading-col {
+            background-color: #e2f0e9;
+            font-weight: 600;
+            color: #0f4e3a;
+        }
+        .input-cell {
+            background: #ffffff;
+            border: 1px solid #d8e2f0;
+            border-radius: 8px;
+            padding: 5px 0 5px 6px;
+            width: 64px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: #111;
+            transition: 0.1s;
+        }
+        .input-cell:focus {
+            outline: 2px solid #7ba9f0;
+            border-color: transparent;
+            background: #fcfdff;
+        }
+        .input-cell[type="number"] {
+            -moz-appearance: textfield;
+        }
+        .input-cell[type="number"]::-webkit-inner-spin-button {
+            opacity: 0.5;
+        }
+        .category-label {
+            font-size: 0.65rem;
+            font-weight: 400;
+            color: #4a5f7a;
+            line-height: 1.2;
+            white-space: normal;
+            max-width: 85px;
+        }
+        .rotate-vertical {
+            writing-mode: vertical-lr;
+            transform: rotate(180deg);
+            height: 70px;
+            font-size: 0.65rem;
+            font-weight: 500;
+            color: #2b3b54;
+            letter-spacing: 0.3px;
+            text-align: center;
+            padding: 6px 0;
+        }
+        .formula-hint {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.6rem;
+            background: #f2f6fc;
+            color: #2d4f7c;
+            border-radius: 12px;
+            padding: 2px 6px;
+            font-weight: 400;
+        }
+        .footer-note {
+            margin-top: 1.2rem;
+            font-size: 0.8rem;
+            color: #2f4858;
+            background: #f0f7fa;
+            padding: 0.6rem 1.2rem;
+            border-radius: 40px;
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .badge {
+            background: white;
+            border-radius: 24px;
+            padding: 0.2rem 0.9rem;
+            border: 1px solid #cbddec;
+            font-family: monospace;
+        }
+        td:not(.sticky-col) .input-cell {
+            background: #fefefe;
+        }
+    </style>
+</head>
+<body>
+<div class="card">
+    <!-- clean header -->
+    <div class="header-formula">
+        ⏳ <strong>AVAILABLE TIME</strong> <span>J = hours×60</span> – <strong>PLANNED DOWNTIME (UNCONTROLLABLE)</strong> <span>AM = SUM(L:AF)</span> = <strong>LOADING TIME</strong> <span>AO = J–AM</span>
+    </div>
+
+    <div class="table-wrapper">
+        <table>
+            <!-- MAIN HEADERS (merged style) -->
+            <thead>
+                <tr>
+                    <th colspan="3" class="sticky-col" style="left:0; background:#f0f4fa;">shift context</th>
+                    <th colspan="4"></th>
+                    <th colspan="2" style="background:#e9f0fc;">ideal rate</th>
+                    <th style="background:#dae9fa;">J</th>
+                    <th></th>
+                    <th colspan="21" style="background:#fef3e4;">📋 PLANNED DOWNTIME (A1–A14 + UDT)</th>
+                    <th colspan="6" style="background:#edeaf5;">(empty)</th>
+                    <th style="background:#e6d9f2;">AM</th>
+                    <th style="background:#cde8db;">AO</th>
+                </tr>
+                <tr>
+                    <!-- 3 sticky -->
+                    <th class="sticky-col" style="left:0;">DATE</th>
+                    <th class="sticky-col-2" style="left:105px;">DAY</th>
+                    <th class="sticky-col-3" style="left:165px;">SHIFT</th>
+                    <th>hours</th>
+                    <th></th>
+                    <th>Loading<br>time</th>
+                    <th>PRODUCT</th>
+                    <th>Ideal rate<br><span class="formula-hint">=IF(D>0,0,0)</span></th>
+                    <th></th>
+                    <th>Avail.time<br><span class="formula-hint">=D*60</span></th>
+                    <th></th>
+                    <!-- planned downtime short labels -->
+                    <th>A1<br><span style="font-weight:400;">5S,sanit</span></th><th>A2<br>break</th><th>A3<br>CLAIR</th><th>A4<br>change</th><th>A5<br>PM</th><th>A6<br>flag</th><th>A7<br>gen.ass</th><th>A8<br>perf.dial</th>
+                    <th>A9<br>trial</th><th>A10<br>train</th><th>A11<br>company</th><th>A12<br>drill</th><th>A13<br>no prod</th><th>A14<br>no head</th>
+                    <th>UDT<br>force</th><th>UDT<br>grid</th><th>UDT<br>supply</th><th>UDT<br>gov/reg</th><th>UDT<br>infra</th><th>UDT<br>labor</th><th>UDT<br>shuttle</th>
+                    <!-- 6 blank columns -->
+                    <th></th><th></th><th></th><th></th><th></th><th></th>
+                    <th>TOTAL<br>UNCONTROLLABLE</th>
+                    <th>LOADING<br>TIME (min)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- data rows (5–13) simplified with clean input cells. use same IDs as script -->
+                <!-- row 5 -->
+                <tr><td class="sticky-col" style="left:0;">05-Jan</td><td class="sticky-col-2" style="left:105px;">Mon</td><td class="sticky-col-3" style="left:165px;">Day</td>
+                    <td><input type="number" step="0.1" value="8.0" class="input-cell" id="D5" oninput="updateRow(5)"></td><td></td><td></td><td>SKU-A</td>
+                    <td id="H5">0.0</td><td></td><td id="J5">480.0</td><td></td>
+                    <!-- downtime inputs: 21 cells (A1..A14 + 7 UDT) -->
+                    <td><input type="number" value="10" class="input-cell" id="L5" oninput="updateRow(5)"></td>
+                    <td><input type="number" value="20" class="input-cell" id="M5" oninput="updateRow(5)"></td>
+                    <td><input type="number" value="0" class="input-cell" id="N5" oninput="updateRow(5)"></td>
+                    <td><input type="number" value="15" class="input-cell" id="O5" oninput="updateRow(5)"></td>
+                    <td><input type="number" value="0" class="input-cell" id="P5" oninput="updateRow(5)"></td>
+                    <td><input type="number" value="0" class="input-cell" id="Q5" oninput="updateRow(5)"></td>
+                    <td><input type="number" value="0" class="input-cell" id="R5" oninput="updateRow(5)"></td>
+                    <td><input type="number" value="0" class="input-cell" id="S5" oninput="updateRow(5)"></td>
+                    <td><input type="number" value="0" class="input-cell" id="T5" oninput="updateRow(5)"></td>
+                    <td><input type="number" value="10" class="input-cell" id="U5" oninput="updateRow(5)"></td>
+                    <td><input type="number" value="0" class="input-cell" id="V5" oninput="updateRow(5)"></td>
+                    <td><input type="number" value="0" class="input-cell" id="W5" oninput="updateRow(5)"></td>
+                    <td><input type="number" value="0" class="input-cell" id="X5" oninput="updateRow(5)"></td>
+                    <td><input type="number" value="0" class="input-cell" id="Y5" oninput="updateRow(5)"></td>
+                    <td><input type="number" value="0" class="input-cell" id="Z5" oninput="updateRow(5)"></td>
+                    <td><input type="number" value="0" class="input-cell" id="AA5" oninput="updateRow(5)"></td>
+                    <td><input type="number" value="0" class="input-cell" id="AB5" oninput="updateRow(5)"></td>
+                    <td><input type="number" value="0" class="input-cell" id="AC5" oninput="updateRow(5)"></td>
+                    <td><input type="number" value="0" class="input-cell" id="AD5" oninput="updateRow(5)"></td>
+                    <td><input type="number" value="0" class="input-cell" id="AE5" oninput="updateRow(5)"></td>
+                    <td><input type="number" value="0" class="input-cell" id="AF5" oninput="updateRow(5)"></td>
+                    <!-- 6 blank cells (empty) -->
+                    <td></td><td></td><td></td><td></td><td></td><td></td>
+                    <!-- AM + AO -->
+                    <td id="AM5" class="total-uc">45.0</td>
+                    <td id="AO5" class="loading-col">435.0</td>
+                </tr>
+                <!-- row 6 -->
+                <tr><td class="sticky-col" style="left:0;">05-Jan</td><td class="sticky-col-2" style="left:105px;">Mon</td><td class="sticky-col-3" style="left:165px;">Night</td>
+                    <td><input type="number" step="0.1" value="7.5" class="input-cell" id="D6" oninput="updateRow(6)"></td><td></td><td></td><td>SKU-B</td>
+                    <td id="H6">0.0</td><td></td><td id="J6">450.0</td><td></td>
+                    <td><input type="number" value="5" class="input-cell" id="L6" oninput="updateRow(6)"></td><td><input type="number" value="20" id="M6" class="input-cell" oninput="updateRow(6)"></td><td><input type="number" value="0" id="N6" class="input-cell" oninput="updateRow(6)"></td><td><input type="number" value="25" id="O6" class="input-cell" oninput="updateRow(6)"></td><td><input type="number" value="10" id="P6" class="input-cell" oninput="updateRow(6)"></td><td><input type="number" value="0" id="Q6" class="input-cell" oninput="updateRow(6)"></td><td><input type="number" value="0" id="R6" class="input-cell" oninput="updateRow(6)"></td><td><input type="number" value="0" id="S6" class="input-cell" oninput="updateRow(6)"></td><td><input type="number" value="0" id="T6" class="input-cell" oninput="updateRow(6)"></td><td><input type="number" value="0" id="U6" class="input-cell" oninput="updateRow(6)"></td><td><input type="number" value="0" id="V6" class="input-cell" oninput="updateRow(6)"></td><td><input type="number" value="0" id="W6" class="input-cell" oninput="updateRow(6)"></td><td><input type="number" value="0" id="X6" class="input-cell" oninput="updateRow(6)"></td><td><input type="number" value="0" id="Y6" class="input-cell" oninput="updateRow(6)"></td><td><input type="number" value="0" id="Z6" class="input-cell" oninput="updateRow(6)"></td><td><input type="number" value="0" id="AA6" class="input-cell" oninput="updateRow(6)"></td><td><input type="number" value="0" id="AB6" class="input-cell" oninput="updateRow(6)"></td><td><input type="number" value="0" id="AC6" class="input-cell" oninput="updateRow(6)"></td><td><input type="number" value="0" id="AD6" class="input-cell" oninput="updateRow(6)"></td><td><input type="number" value="0" id="AE6" class="input-cell" oninput="updateRow(6)"></td><td><input type="number" value="0" id="AF6" class="input-cell" oninput="updateRow(6)"></td><td></td><td></td><td></td><td></td><td></td><td></td><td id="AM6" class="total-uc">60.0</td><td id="AO6" class="loading-col">390.0</td>
+                </tr>
+                <!-- row 7 -->
+                <tr><td class="sticky-col" style="left:0;">06-Jan</td><td class="sticky-col-2" style="left:105px;">Tue</td><td class="sticky-col-3" style="left:165px;">Day</td>
+                    <td><input type="number" step="0.1" value="8.0" id="D7" class="input-cell" oninput="updateRow(7)"></td><td></td><td></td><td>SKU-A</td><td id="H7">0.0</td><td></td><td id="J7">480.0</td><td></td>
+                    <td><input type="number" value="10" id="L7" class="input-cell" oninput="updateRow(7)"></td><td><input type="number" value="20" id="M7" class="input-cell" oninput="updateRow(7)"></td><td><input type="number" value="5" id="N7" class="input-cell" oninput="updateRow(7)"></td><td><input type="number" value="10" id="O7" class="input-cell" oninput="updateRow(7)"></td><td><input type="number" value="0" id="P7" class="input-cell" oninput="updateRow(7)"></td><td><input type="number" value="0" id="Q7" class="input-cell" oninput="updateRow(7)"></td><td><input type="number" value="5" id="R7" class="input-cell" oninput="updateRow(7)"></td><td><input type="number" value="0" id="S7" class="input-cell" oninput="updateRow(7)"></td><td><input type="number" value="0" id="T7" class="input-cell" oninput="updateRow(7)"></td><td><input type="number" value="5" id="U7" class="input-cell" oninput="updateRow(7)"></td><td><input type="number" value="0" id="V7" class="input-cell" oninput="updateRow(7)"></td><td><input type="number" value="0" id="W7" class="input-cell" oninput="updateRow(7)"></td><td><input type="number" value="0" id="X7" class="input-cell" oninput="updateRow(7)"></td><td><input type="number" value="0" id="Y7" class="input-cell" oninput="updateRow(7)"></td><td><input type="number" value="0" id="Z7" class="input-cell" oninput="updateRow(7)"></td><td><input type="number" value="0" id="AA7" class="input-cell" oninput="updateRow(7)"></td><td><input type="number" value="0" id="AB7" class="input-cell" oninput="updateRow(7)"></td><td><input type="number" value="0" id="AC7" class="input-cell" oninput="updateRow(7)"></td><td><input type="number" value="0" id="AD7" class="input-cell" oninput="updateRow(7)"></td><td><input type="number" value="0" id="AE7" class="input-cell" oninput="updateRow(7)"></td><td><input type="number" value="5" id="AF7" class="input-cell" oninput="updateRow(7)"></td><td></td><td></td><td></td><td></td><td></td><td></td><td id="AM7" class="total-uc">60.0</td><td id="AO7" class="loading-col">420.0</td>
+                </tr>
+                <!-- row 8 -->
+                <tr><td class="sticky-col" style="left:0;">06-Jan</td><td class="sticky-col-2" style="left:105px;">Tue</td><td class="sticky-col-3" style="left:165px;">Night</td>
+                    <td><input type="number" step="0.1" value="7.0" id="D8" class="input-cell" oninput="updateRow(8)"></td><td></td><td></td><td>SKU-C</td><td id="H8">0.0</td><td></td><td id="J8">420.0</td><td></td>
+                    <td><input type="number" value="5" id="L8" class="input-cell" oninput="updateRow(8)"></td><td><input type="number" value="20" id="M8" class="input-cell" oninput="updateRow(8)"></td><td><input type="number" value="0" id="N8" class="input-cell" oninput="updateRow(8)"></td><td><input type="number" value="10" id="O8" class="input-cell" oninput="updateRow(8)"></td><td><input type="number" value="5" id="P8" class="input-cell" oninput="updateRow(8)"></td><td><input type="number" value="0" id="Q8" class="input-cell" oninput="updateRow(8)"></td><td><input type="number" value="0" id="R8" class="input-cell" oninput="updateRow(8)"></td><td><input type="number" value="0" id="S8" class="input-cell" oninput="updateRow(8)"></td><td><input type="number" value="10" id="T8" class="input-cell" oninput="updateRow(8)"></td><td><input type="number" value="0" id="U8" class="input-cell" oninput="updateRow(8)"></td><td><input type="number" value="0" id="V8" class="input-cell" oninput="updateRow(8)"></td><td><input type="number" value="0" id="W8" class="input-cell" oninput="updateRow(8)"></td><td><input type="number" value="0" id="X8" class="input-cell" oninput="updateRow(8)"></td><td><input type="number" value="0" id="Y8" class="input-cell" oninput="updateRow(8)"></td><td><input type="number" value="0" id="Z8" class="input-cell" oninput="updateRow(8)"></td><td><input type="number" value="0" id="AA8" class="input-cell" oninput="updateRow(8)"></td><td><input type="number" value="0" id="AB8" class="input-cell" oninput="updateRow(8)"></td><td><input type="number" value="0" id="AC8" class="input-cell" oninput="updateRow(8)"></td><td><input type="number" value="0" id="AD8" class="input-cell" oninput="updateRow(8)"></td><td><input type="number" value="0" id="AE8" class="input-cell" oninput="updateRow(8)"></td><td><input type="number" value="0" id="AF8" class="input-cell" oninput="updateRow(8)"></td><td></td><td></td><td></td><td></td><td></td><td></td><td id="AM8" class="total-uc">40.0</td><td id="AO8" class="loading-col">380.0</td>
+                </tr>
+                <!-- row 9 -->
+                <tr><td class="sticky-col" style="left:0;">07-Jan</td><td class="sticky-col-2" style="left:105px;">Wed</td><td class="sticky-col-3" style="left:165px;">Day</td>
+                    <td><input type="number" step="0.1" value="8.0" id="D9" class="input-cell" oninput="updateRow(9)"></td><td></td><td></td><td>SKU-D</td><td id="H9">0.0</td><td></td><td id="J9">480.0</td><td></td>
+                    <td><input type="number" value="10" id="L9" class="input-cell" oninput="updateRow(9)"></td><td><input type="number" value="20" id="M9" class="input-cell" oninput="updateRow(9)"></td><td><input type="number" value="0" id="N9" class="input-cell" oninput="updateRow(9)"></td><td><input type="number" value="10" id="O9" class="input-cell" oninput="updateRow(9)"></td><td><input type="number" value="0" id="P9" class="input-cell" oninput="updateRow(9)"></td><td><input type="number" value="0" id="Q9" class="input-cell" oninput="updateRow(9)"></td><td><input type="number" value="0" id="R9" class="input-cell" oninput="updateRow(9)"></td><td><input type="number" value="0" id="S9" class="input-cell" oninput="updateRow(9)"></td><td><input type="number" value="0" id="T9" class="input-cell" oninput="updateRow(9)"></td><td><input type="number" value="5" id="U9" class="input-cell" oninput="updateRow(9)"></td><td><input type="number" value="0" id="V9" class="input-cell" oninput="updateRow(9)"></td><td><input type="number" value="0" id="W9" class="input-cell" oninput="updateRow(9)"></td><td><input type="number" value="0" id="X9" class="input-cell" oninput="updateRow(9)"></td><td><input type="number" value="0" id="Y9" class="input-cell" oninput="updateRow(9)"></td><td><input type="number" value="0" id="Z9" class="input-cell" oninput="updateRow(9)"></td><td><input type="number" value="0" id="AA9" class="input-cell" oninput="updateRow(9)"></td><td><input type="number" value="0" id="AB9" class="input-cell" oninput="updateRow(9)"></td><td><input type="number" value="0" id="AC9" class="input-cell" oninput="updateRow(9)"></td><td><input type="number" value="0" id="AD9" class="input-cell" oninput="updateRow(9)"></td><td><input type="number" value="0" id="AE9" class="input-cell" oninput="updateRow(9)"></td><td><input type="number" value="0" id="AF9" class="input-cell" oninput="updateRow(9)"></td><td></td><td></td><td></td><td></td><td></td><td></td><td id="AM9" class="total-uc">45.0</td><td id="AO9" class="loading-col">435.0</td>
+                </tr>
+                <!-- row 10 -->
+                <tr><td class="sticky-col" style="left:0;">07-Jan</td><td class="sticky-col-2" style="left:105px;">Wed</td><td class="sticky-col-3" style="left:165px;">Night</td>
+                    <td><input type="number" step="0.1" value="7.0" id="D10" class="input-cell" oninput="updateRow(10)"></td><td></td><td></td><td>SKU-A</td><td id="H10">0.0</td><td></td><td id="J10">420.0</td><td></td>
+                    <td><input type="number" value="0" id="L10" class="input-cell" oninput="updateRow(10)"></td><td><input type="number" value="20" id="M10" class="input-cell" oninput="updateRow(10)"></td><td><input type="number" value="0" id="N10" class="input-cell" oninput="updateRow(10)"></td><td><input type="number" value="20" id="O10" class="input-cell" oninput="updateRow(10)"></td><td><input type="number" value="0" id="P10" class="input-cell" oninput="updateRow(10)"></td><td><input type="number" value="0" id="Q10" class="input-cell" oninput="updateRow(10)"></td><td><input type="number" value="0" id="R10" class="input-cell" oninput="updateRow(10)"></td><td><input type="number" value="0" id="S10" class="input-cell" oninput="updateRow(10)"></td><td><input type="number" value="5" id="T10" class="input-cell" oninput="updateRow(10)"></td><td><input type="number" value="0" id="U10" class="input-cell" oninput="updateRow(10)"></td><td><input type="number" value="0" id="V10" class="input-cell" oninput="updateRow(10)"></td><td><input type="number" value="0" id="W10" class="input-cell" oninput="updateRow(10)"></td><td><input type="number" value="0" id="X10" class="input-cell" oninput="updateRow(10)"></td><td><input type="number" value="0" id="Y10" class="input-cell" oninput="updateRow(10)"></td><td><input type="number" value="0" id="Z10" class="input-cell" oninput="updateRow(10)"></td><td><input type="number" value="0" id="AA10" class="input-cell" oninput="updateRow(10)"></td><td><input type="number" value="0" id="AB10" class="input-cell" oninput="updateRow(10)"></td><td><input type="number" value="0" id="AC10" class="input-cell" oninput="updateRow(10)"></td><td><input type="number" value="0" id="AD10" class="input-cell" oninput="updateRow(10)"></td><td><input type="number" value="0" id="AE10" class="input-cell" oninput="updateRow(10)"></td><td><input type="number" value="0" id="AF10" class="input-cell" oninput="updateRow(10)"></td><td></td><td></td><td></td><td></td><td></td><td></td><td id="AM10" class="total-uc">45.0</td><td id="AO10" class="loading-col">375.0</td>
+                </tr>
+                <!-- row 11: special fixed 9.4 -->
+                <tr><td class="sticky-col" style="left:0;">08-Jan</td><td class="sticky-col-2" style="left:105px;">Thu</td><td class="sticky-col-3" style="left:165px;">Day</td>
+                    <td><input type="number" step="0.1" value="7.0" id="D11" class="input-cell" oninput="updateRow(11)"></td><td></td><td></td><td>SKU-X</td><td id="H11">9.4</td><td></td><td id="J11">420.0</td><td></td>
+                    <td><input type="number" value="5" id="L11" class="input-cell" oninput="updateRow(11)"></td><td><input type="number" value="20" id="M11" class="input-cell" oninput="updateRow(11)"></td><td><input type="number" value="0" id="N11" class="input-cell" oninput="updateRow(11)"></td><td><input type="number" value="10" id="O11" class="input-cell" oninput="updateRow(11)"></td><td><input type="number" value="0" id="P11" class="input-cell" oninput="updateRow(11)"></td><td><input type="number" value="0" id="Q11" class="input-cell" oninput="updateRow(11)"></td><td><input type="number" value="0" id="R11" class="input-cell" oninput="updateRow(11)"></td><td><input type="number" value="0" id="S11" class="input-cell" oninput="updateRow(11)"></td><td><input type="number" value="0" id="T11" class="input-cell" oninput="updateRow(11)"></td><td><input type="number" value="5" id="U11" class="input-cell" oninput="updateRow(11)"></td><td><input type="number" value="0" id="V11" class="input-cell" oninput="updateRow(11)"></td><td><input type="number" value="0" id="W11" class="input-cell" oninput="updateRow(11)"></td><td><input type="number" value="0" id="X11" class="input-cell" oninput="updateRow(11)"></td><td><input type="number" value="0" id="Y11" class="input-cell" oninput="updateRow(11)"></td><td><input type="number" value="0" id="Z11" class="input-cell" oninput="updateRow(11)"></td><td><input type="number" value="0" id="AA11" class="input-cell" oninput="updateRow(11)"></td><td><input type="number" value="0" id="AB11" class="input-cell" oninput="updateRow(11)"></td><td><input type="number" value="0" id="AC11" class="input-cell" oninput="updateRow(11)"></td><td><input type="number" value="0" id="AD11" class="input-cell" oninput="updateRow(11)"></td><td><input type="number" value="0" id="AE11" class="input-cell" oninput="updateRow(11)"></td><td><input type="number" value="0" id="AF11" class="input-cell" oninput="updateRow(11)"></td><td></td><td></td><td></td><td></td><td></td><td></td><td id="AM11" class="total-uc">40.0</td><td id="AO11" class="loading-col">380.0</td>
+                </tr>
+                <!-- row 12 -->
+                <tr><td class="sticky-col" style="left:0;">08-Jan</td><td class="sticky-col-2" style="left:105px;">Thu</td><td class="sticky-col-3" style="left:165px;">Night</td>
+                    <td><input type="number" step="0.1" value="7.5" id="D12" class="input-cell" oninput="updateRow(12)"></td><td></td><td></td><td>SKU-Y</td><td id="H12">0.0</td><td></td><td id="J12">450.0</td><td></td>
+                    <td><input type="number" value="5" id="L12" class="input-cell" oninput="updateRow(12)"></td><td><input type="number" value="20" id="M12" class="input-cell" oninput="updateRow(12)"></td><td><input type="number" value="0" id="N12" class="input-cell" oninput="updateRow(12)"></td><td><input type="number" value="5" id="O12" class="input-cell" oninput="updateRow(12)"></td><td><input type="number" value="5" id="P12" class="input-cell" oninput="updateRow(12)"></td><td><input type="number" value="0" id="Q12" class="input-cell" oninput="updateRow(12)"></td><td><input type="number" value="0" id="R12" class="input-cell" oninput="updateRow(12)"></td><td><input type="number" value="0" id="S12" class="input-cell" oninput="updateRow(12)"></td><td><input type="number" value="0" id="T12" class="input-cell" oninput="updateRow(12)"></td><td><input type="number" value="5" id="U12" class="input-cell" oninput="updateRow(12)"></td><td><input type="number" value="0" id="V12" class="input-cell" oninput="updateRow(12)"></td><td><input type="number" value="0" id="W12" class="input-cell" oninput="updateRow(12)"></td><td><input type="number" value="0" id="X12" class="input-cell" oninput="updateRow(12)"></td><td><input type="number" value="0" id="Y12" class="input-cell" oninput="updateRow(12)"></td><td><input type="number" value="0" id="Z12" class="input-cell" oninput="updateRow(12)"></td><td><input type="number" value="0" id="AA12" class="input-cell" oninput="updateRow(12)"></td><td><input type="number" value="0" id="AB12" class="input-cell" oninput="updateRow(12)"></td><td><input type="number" value="0" id="AC12" class="input-cell" oninput="updateRow(12)"></td><td><input type="number" value="0" id="AD12" class="input-cell" oninput="updateRow(12)"></td><td><input type="number" value="0" id="AE12" class="input-cell" oninput="updateRow(12)"></td><td><input type="number" value="0" id="AF12" class="input-cell" oninput="updateRow(12)"></td><td></td><td></td><td></td><td></td><td></td><td></td><td id="AM12" class="total-uc">40.0</td><td id="AO12" class="loading-col">410.0</td>
+                </tr>
+                <!-- row 13 -->
+                <tr><td class="sticky-col" style="left:0;">09-Jan</td><td class="sticky-col-2" style="left:105px;">Fri</td><td class="sticky-col-3" style="left:165px;">Day</td>
+                    <td><input type="number" step="0.1" value="8.0" id="D13" class="input-cell" oninput="updateRow(13)"></td><td></td><td></td><td>SKU-Z</td><td id="H13">0.0</td><td></td><td id="J13">480.0</td><td></td>
+                    <td><input type="number" value="10" id="L13" class="input-cell" oninput="updateRow(13)"></td><td><input type="number" value="20" id="M13" class="input-cell" oninput="updateRow(13)"></td><td><input type="number" value="0" id="N13" class="input-cell" oninput="updateRow(13)"></td><td><input type="number" value="15" id="O13" class="input-cell" oninput="updateRow(13)"></td><td><input type="number" value="0" id="P13" class="input-cell" oninput="updateRow(13)"></td><td><input type="number" value="0" id="Q13" class="input-cell" oninput="updateRow(13)"></td><td><input type="number" value="0" id="R13" class="input-cell" oninput="updateRow(13)"></td><td><input type="number" value="0" id="S13" class="input-cell" oninput="updateRow(13)"></td><td><input type="number" value="0" id="T13" class="input-cell" oninput="updateRow(13)"></td><td><input type="number" value="5" id="U13" class="input-cell" oninput="updateRow(13)"></td><td><input type="number" value="0" id="V13" class="input-cell" oninput="updateRow(13)"></td><td><input type="number" value="0" id="W13" class="input-cell" oninput="updateRow(13)"></td><td><input type="number" value="0" id="X13" class="input-cell" oninput="updateRow(13)"></td><td><input type="number" value="0" id="Y13" class="input-cell" oninput="updateRow(13)"></td><td><input type="number" value="0" id="Z13" class="input-cell" oninput="updateRow(13)"></td><td><input type="number" value="0" id="AA13" class="input-cell" oninput="updateRow(13)"></td><td><input type="number" value="0" id="AB13" class="input-cell" oninput="updateRow(13)"></td><td><input type="number" value="0" id="AC13" class="input-cell" oninput="updateRow(13)"></td><td><input type="number" value="0" id="AD13" class="input-cell" oninput="updateRow(13)"></td><td><input type="number" value="0" id="AE13" class="input-cell" oninput="updateRow(13)"></td><td><input type="number" value="0" id="AF13" class="input-cell" oninput="updateRow(13)"></td><td></td><td></td><td></td><td></td><td></td><td></td><td id="AM13" class="total-uc">50.0</td><td id="AO13" class="loading-col">430.0</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- footer with live badge -->
+    <div class="footer-note">
+        <span>⚡ <strong>live update</strong> — edit any grey input (hours or downtime)</span>
+        <span class="badge">J = hours×60</span>
+        <span class="badge">AM = SUM(L…AF)</span>
+        <span class="badge">AO = J – AM</span>
+        <span>row11 ideal rate fixed 9.4 (as original)</span>
+    </div>
+</div>
+
+<!-- exactly the same update script (cleaned) -->
+<script>
+    function updateRow(r) {
+        const dInput = document.getElementById('D'+r);
+        let hours = parseFloat(dInput.value) || 0;
+        const jCell = document.getElementById('J'+r);
+        const availMin = hours * 60;
+        jCell.innerText = availMin.toFixed(1);
+        const hCell = document.getElementById('H'+r);
+        if (r !== 11) {
+            hCell.innerText = '0.0';   // original =IF(D>0.0001,0,0) → always zero
+        }
+        // sum planned downtime L through AF (21 cells)
+        let sum = 0;
+        const ids = ['L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','AA','AB','AC','AD','AE','AF'];
+        ids.forEach(function(letter) {
+            const el = document.getElementById(letter + r);
+            if (el) sum += parseFloat(el.value) || 0;
+        });
+        document.getElementById('AM'+r).innerText = sum.toFixed(1);
+        document.getElementById('AO'+r).innerText = (availMin - sum).toFixed(1);
+    }
+    for (let i=5; i<=13; i++) updateRow(i);
+    document.getElementById('H11').innerText = '9.4';  // ensure
+</script>
+</body>
+</html>

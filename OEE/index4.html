@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>clean · loading time summary</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        body {
+            background: #f5f7fb;
+            display: flex;
+            justify-content: center;
+            padding: 2rem 1rem;
+        }
+        .dashboard {
+            max-width: 1400px;
+            width: 100%;
+        }
+        /* header */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+        }
+        .header h2 {
+            font-weight: 500;
+            color: #1a2b3c;
+            font-size: 1.6rem;
+            letter-spacing: -0.02em;
+        }
+        .header p {
+            background: #ffffff;
+            padding: 0.5rem 1.2rem;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            color: #2d4b71;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+        }
+        /* kpi row */
+        .kpi-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.2rem;
+            margin-bottom: 2.5rem;
+        }
+        .kpi-card {
+            background: white;
+            border-radius: 28px;
+            padding: 1.3rem 2rem 1.3rem 1.8rem;
+            box-shadow: 0 6px 16px rgba(0,0,0,0.02);
+            flex: 1 1 180px;
+            border: 1px solid #eef2f7;
+        }
+        .kpi-label {
+            font-size: 0.8rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+            color: #62748b;
+            margin-bottom: 0.4rem;
+        }
+        .kpi-number {
+            font-size: 2.2rem;
+            font-weight: 500;
+            color: #1a2e44;
+            line-height: 1.1;
+        }
+        .kpi-unit {
+            font-size: 0.9rem;
+            color: #74869d;
+            margin-left: 0.2rem;
+            font-weight: 400;
+        }
+        /* filter row - minimal */
+        .filter-row {
+            display: flex;
+            gap: 0.8rem;
+            margin-bottom: 1.8rem;
+            background: white;
+            padding: 0.7rem 1.2rem;
+            border-radius: 60px;
+            width: fit-content;
+            border: 1px solid #e1e8f0;
+        }
+        .filter-item {
+            background: #f4f7fc;
+            border-radius: 30px;
+            padding: 0.4rem 1.2rem;
+            font-size: 0.85rem;
+            color: #1e3b5c;
+            border: 1px solid #d1ddeb;
+            cursor: pointer;
+            transition: 0.1s;
+        }
+        .filter-item.active {
+            background: #1e3b5c;
+            color: white;
+            border-color: #1e3b5c;
+        }
+        /* main card - clean table area */
+        .table-section {
+            background: white;
+            border-radius: 28px;
+            padding: 1.2rem 0.5rem 1.5rem 0.5rem;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.04);
+            border: 1px solid #eef2f8;
+            overflow-x: auto;
+        }
+        .table-header {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            padding: 0 1.5rem 1rem 1.5rem;
+            border-bottom: 1px solid #e7ecf5;
+            margin-bottom: 1rem;
+        }
+        .badge {
+            background: #eef4fa;
+            color: #24425f;
+            padding: 0.3rem 1rem;
+            border-radius: 40px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        /* spreadsheet minimal */
+        .spreadsheet {
+            border-collapse: collapse;
+            width: 100%;
+            font-size: 0.75rem;
+            min-width: 1800px;
+            white-space: nowrap;
+        }
+        .spreadsheet th {
+            text-align: center;
+            padding: 0.8rem 0.2rem;
+            color: #2f405a;
+            font-weight: 500;
+            background-color: #f9fbfe;
+            border-bottom: 1px solid #d7e0eb;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+        }
+        .spreadsheet td {
+            padding: 0.7rem 0.2rem;
+            border-bottom: 1px solid #eef3f9;
+            text-align: left;
+            color: #1c2d44;
+        }
+        .sticky-col {
+            position: sticky;
+            left: 0;
+            background: white;
+            z-index: 5;
+            border-right: 1px solid #dae3ef;
+        }
+        th.sticky-col {
+            background: #f9fbfe;
+            z-index: 6;
+        }
+        .sticky-col-2 {
+            position: sticky;
+            left: 90px;
+            background: white;
+            z-index: 5;
+        }
+        th.sticky-col-2 {
+            background: #f9fbfe;
+            z-index: 6;
+        }
+        .sticky-col-3 {
+            position: sticky;
+            left: 160px;
+            background: white;
+            z-index: 5;
+        }
+        th.sticky-col-3 {
+            background: #f9fbfe;
+        }
+        .input-mini {
+            background: #ffffff;
+            border: 1px solid #d8e3f0;
+            border-radius: 16px;
+            padding: 0.3rem 0.5rem;
+            width: 60px;
+            font-size: 0.7rem;
+            font-weight: 450;
+            color: #132b41;
+            text-align: right;
+        }
+        .input-mini:focus {
+            outline: 2px solid #8fb1da;
+            border-color: transparent;
+        }
+        .avail-cell {
+            background-color: #ecf3fb;
+            font-weight: 500;
+            color: #014a82;
+            border-radius: 8px;
+            padding: 0.3rem 0.2rem;
+            text-align: center;
+        }
+        .uc-cell {
+            background-color: #f5eaf7;
+            font-weight: 500;
+            color: #493462;
+            border-radius: 8px;
+            padding: 0.3rem 0.2rem;
+            text-align: center;
+        }
+        .loading-cell {
+            background-color: #e2f0ea;
+            font-weight: 500;
+            color: #0d5b43;
+            border-radius: 8px;
+            padding: 0.3rem 0.2rem;
+            text-align: center;
+        }
+        .footer-note {
+            margin-top: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #54718b;
+            font-size: 0.8rem;
+            background: white;
+            padding: 0.7rem 1.8rem;
+            border-radius: 60px;
+            border: 1px solid #e2eaf3;
+        }
+    </style>
+</head>
+<body>
+<div class="dashboard">
+    <!-- header (clean) -->
+    <div class="header">
+        <h2>loading time · clean view</h2>
+        <p><span style="font-weight:500;">⏳</span> available – uncontrollable = loading</p>
+    </div>
+
+    <!-- KPI cards (live) -->
+    <div class="kpi-grid" id="kpiContainer">
+        <div class="kpi-card"><div class="kpi-label">📊 total available</div><div class="kpi-number"><span id="totalAvail">0</span><span class="kpi-unit">min</span></div></div>
+        <div class="kpi-card"><div class="kpi-label">🚫 total uncontrollable</div><div class="kpi-number"><span id="totalUC">0</span><span class="kpi-unit">min</span></div></div>
+        <div class="kpi-card"><div class="kpi-label">⚙️ total loading</div><div class="kpi-number"><span id="totalLoading">0</span><span class="kpi-unit">min</span></div></div>
+        <div class="kpi-card"><div class="kpi-label">📈 loading ratio</div><div class="kpi-number"><span id="loadingRatio">0</span><span class="kpi-unit">%</span></div></div>
+    </div>
+
+    <!-- minimal filters (just for clean interaction) -->
+    <div class="filter-row">
+        <span class="filter-item active">all shifts</span>
+        <span class="filter-item">day</span>
+        <span class="filter-item">night</span>
+        <span class="filter-item" style="background:white; border: none; color:#8e9fb1;">|</span>
+        <span class="filter-item">all products</span>
+        <span class="filter-item">SKU-A</span>
+        <span class="filter-item">SKU-B</span>
+    </div>
+
+    <!-- main table card (no formulas visible) -->
+    <div class="table-section">
+        <div class="table-header">
+            <span class="badge">⏱️ shift details</span>
+            <span class="badge">✎ editable</span>
+            <span style="margin-left:auto; color:#3d6184; font-size:0.7rem;">← planned downtime categories →</span>
+        </div>
+        <div style="overflow-x: auto;">
+            <table class="spreadsheet" id="cleanSheet">
+                <thead>
+                    <tr>
+                        <th class="sticky-col">date</th><th class="sticky-col-2">day</th><th class="sticky-col-3">shift</th>
+                        <th>hours</th><th></th><th>product</th><th>ideal rate</th><th></th>
+                        <th>avail.</th><th></th>
+                        <!-- planned downtime (minimal headers) -->
+                        <th>5S</th><th>break</th><th>CLAIR</th><th>chg</th><th>PM</th><th>flag</th><th>genA</th><th>perfD</th>
+                        <th>trial</th><th>train</th><th>coAct</th><th>drill</th><th>noProd</th><th>noHc</th>
+                        <th>FrcMj</th><th>grid</th><th>supply</th><th>gov</th><th>infra</th><th>labor</th><th>shuttle</th>
+                        <th colspan="6"></th>
+                        <th>total UC</th><th>loading</th>
+                    </tr>
+                </thead>
+                <tbody id="sheetBody">
+                    <!-- filled from JS -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- footer (clean, no formula garbage) -->
+    <div class="footer-note">
+        <span>✏️ edit any grey cell · totals update instantly</span>
+        <span>v. clean · ⚡</span>
+    </div>
+</div>
+
+<script>
+    (function() {
+        // -------- CLEAN DATA (removed formula noise, only values) ---------
+        const rows = [
+            {date:"05-Jan", day:"Mon", shift:"Day", hours:8.0, prod:"SKU-A", ideal:'0.0',
+             d:[10,20,0,15,0,0,0,0,0,10,0,0,0,0, 0,0,0,0,0,0,0]},
+            {date:"05-Jan", day:"Mon", shift:"Night", hours:7.5, prod:"SKU-B", ideal:'0.0',
+             d:[5,20,0,25,10,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0]},
+            {date:"06-Jan", day:"Tue", shift:"Day", hours:8.0, prod:"SKU-A", ideal:'0.0',
+             d:[10,20,5,10,0,0,5,0,0,5,0,0,0,0, 0,0,0,0,0,0,5]},
+            {date:"06-Jan", day:"Tue", shift:"Night", hours:7.0, prod:"SKU-C", ideal:'0.0',
+             d:[5,20,0,10,5,0,0,0,10,0,0,0,0,0, 0,0,0,0,0,0,0]},
+            {date:"07-Jan", day:"Wed", shift:"Day", hours:8.0, prod:"SKU-D", ideal:'0.0',
+             d:[10,20,0,10,0,0,0,0,0,5,0,0,0,0, 0,0,0,0,0,0,0]},
+            {date:"07-Jan", day:"Wed", shift:"Night", hours:7.0, prod:"SKU-A", ideal:'0.0',
+             d:[0,20,0,20,0,0,0,0,5,0,0,0,0,0, 0,0,0,0,0,0,0]},
+            {date:"08-Jan", day:"Thu", shift:"Day", hours:7.0, prod:"SKU-X", ideal:'9.4',
+             d:[5,20,0,10,0,0,0,0,0,5,0,0,0,0, 0,0,0,0,0,0,0]},
+            {date:"08-Jan", day:"Thu", shift:"Night", hours:7.5, prod:"SKU-Y", ideal:'0.0',
+             d:[5,20,0,5,5,0,0,0,0,5,0,0,0,0, 0,0,0,0,0,0,0]},
+            {date:"09-Jan", day:"Fri", shift:"Day", hours:8.0, prod:"SKU-Z", ideal:'0.0',
+             d:[10,20,0,15,0,0,0,0,0,5,0,0,0,0, 0,0,0,0,0,0,0]}
+        ];
+
+        const tbody = document.getElementById('sheetBody');
+        // store for updates
+        window.dataRows = rows;
+
+        function computeSum(downtimes) {
+            return downtimes.reduce((a,b)=>a+b,0);
+        }
+
+        function renderTable() {
+            let html = '';
+            rows.forEach((r, idx) => {
+                const avail = (r.hours * 60).toFixed(1);
+                const sumUC = computeSum(r.d);
+                const loading = (r.hours * 60 - sumUC).toFixed(1);
+
+                html += '<tr>';
+                // sticky cols
+                html += `<td class="sticky-col">${r.date}</td><td class="sticky-col-2">${r.day}</td><td class="sticky-col-3">${r.shift}</td>`;
+                // hours editable
+                html += `<td><input class="input-mini" type="number" step="0.1" value="${r.hours}" data-row="${idx}" data-field="hours" onchange="updateCell(this)"></td><td></td>`;
+                html += `<td>${r.prod}</td>`;
+                // ideal rate (clean, no formula)
+                html += `<td>${r.ideal}</td><td></td>`;
+                // avail display
+                html += `<td class="avail-cell">${avail}</td><td></td>`;
+
+                // all downtime inputs (21)
+                r.d.forEach((val, i) => {
+                    html += `<td><input class="input-mini" type="number" value="${val}" data-row="${idx}" data-downtime-index="${i}" onchange="updateDowntime(this)"></td>`;
+                });
+                // 6 empty columns
+                for (let i=0; i<6; i++) html += '<td></td>';
+                // total UC and loading with background
+                html += `<td class="uc-cell" id="uc_${idx}">${sumUC.toFixed(1)}</td>`;
+                html += `<td class="loading-cell" id="load_${idx}">${loading}</td>`;
+                html += '</tr>';
+            });
+            tbody.innerHTML = html;
+            updateAllKPIs();
+        }
+
+        // update functions (exposed globally)
+        window.updateCell = function(input) {
+            const rowIdx = input.getAttribute('data-row');
+            const newVal = parseFloat(input.value) || 0;
+            if (!isNaN(newVal) && rowIdx !== null) {
+                rows[rowIdx].hours = newVal;
+                renderTable(); // re-render to reflect changes
+            }
+        };
+
+        window.updateDowntime = function(input) {
+            const rowIdx = input.getAttribute('data-row');
+            const idx = input.getAttribute('data-downtime-index');
+            const newVal = parseFloat(input.value) || 0;
+            if (!isNaN(newVal) && rowIdx !== null && idx !== null) {
+                rows[rowIdx].d[idx] = newVal;
+                // update specific row UC and loading without full re-render? but we want totals consistent
+                // simpler: recompute row and kpis only
+                const r = rows[rowIdx];
+                const sumUC = computeSum(r.d);
+                const avail = r.hours * 60;
+                document.getElementById('uc_'+rowIdx).innerText = sumUC.toFixed(1);
+                document.getElementById('load_'+rowIdx).innerText = (avail - sumUC).toFixed(1);
+                updateAllKPIs();
+            }
+        };
+
+        // update global KPI cards
+        function updateAllKPIs() {
+            let totalAvail = 0, totalUC = 0, totalLoading = 0;
+            rows.forEach(r => {
+                let a = r.hours * 60;
+                totalAvail += a;
+                let uc = computeSum(r.d);
+                totalUC += uc;
+                totalLoading += (a - uc);
+            });
+            document.getElementById('totalAvail').innerText = totalAvail.toFixed(0);
+            document.getElementById('totalUC').innerText = totalUC.toFixed(0);
+            document.getElementById('totalLoading').innerText = totalLoading.toFixed(0);
+            let ratio = totalAvail ? (totalLoading / totalAvail * 100) : 0;
+            document.getElementById('loadingRatio').innerText = ratio.toFixed(1);
+        }
+
+        // initial render
+        renderTable();
+
+        // minimal filter simulation (no real filtering, just keep clean)
+        const filters = document.querySelectorAll('.filter-item');
+        filters.forEach(f => {
+            f.addEventListener('click', function(e) {
+                filters.forEach(ft => ft.classList.remove('active'));
+                this.classList.add('active');
+                // no actual filter to keep example clean (but we could)
+            });
+        });
+    })();
+</script>
+<!-- ensure global functions for inputs (they are attached to window) -->
+</body>
+</html>

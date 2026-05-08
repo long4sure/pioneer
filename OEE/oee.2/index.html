@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Production System</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h2>Production Performance Log</h2>
+        
+        <div class="section grid-header">
+            <div><label>Date</label><input type="date" id="date"></div>
+            <div><label>Day</label><input type="text" id="day"></div>
+            <div><label>Shift</label><select id="shift"><option>1</option><option>2</option><option>3</option></select></div>
+            <div><label>Product</label><input type="text" id="product"></div>
+        </div>
+
+        <div class="main-layout">
+            <div class="col">
+                <h3>Planned & Uncontrollable (A & UDT)</h3>
+                <table>
+                    <thead><tr><th>Code & Description</th><th>Min</th></tr></thead>
+                    <tbody id="plannedTable">
+                        <tr><td>A1: 5S / Sanitation</td><td><input type="number" class="calc-planned"></td></tr>
+                        <tr><td>A2: Breaktime</td><td><input type="number" class="calc-planned"></td></tr>
+                        <tr><td>A4: Changeover/Setup</td><td><input type="number" class="calc-planned"></td></tr>
+                        <tr class="sep"><td>UDT1: Force Majeure</td><td><input type="number" class="calc-planned"></td></tr>
+                        <tr><td>UDT2: Grid Failure</td><td><input type="number" class="calc-planned"></td></tr>
+                        <tr><td>UDT7: Late Shuttle</td><td><input type="number" class="calc-planned"></td></tr>
+                    </tbody>
+                    <tfoot>
+                        <tr class="total-row"><td>Total Planned/Uncon.</td><td><input type="number" id="totalUncontrollable" readonly></td></tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <div class="col">
+                <h3>Unplanned Downtime (B-Codes)</h3>
+                <table>
+                    <thead><tr><th>Code & Description</th><th>Min</th></tr></thead>
+                    <tbody id="unplannedTable">
+                        <tr><td>B1: Gear Box</td><td><input type="number" class="calc-unplanned"></td></tr>
+                        <tr><td>B2: Bearing Problem</td><td><input type="number" class="calc-unplanned"></td></tr>
+                        <tr><td>B6: Sensor Problem</td><td><input type="number" class="calc-unplanned"></td></tr>
+                        <tr><td>B15: Crimping Problem</td><td><input type="number" class="calc-unplanned"></td></tr>
+                        <tr class="sep"><td>Excess Setup/C.O</td><td><input type="number" class="calc-unplanned"></td></tr>
+                        <tr><td>Material Delay (PM/RM)</td><td><input type="number" class="calc-unplanned"></td></tr>
+                        <tr><td>Quality Problem</td><td><input type="number" class="calc-unplanned"></td></tr>
+                    </tbody>
+                    <tfoot>
+                        <tr class="total-row"><td>Total Unplanned</td><td><input type="number" id="totalUnplanned" readonly></td></tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+
+        <div class="summary-bar">
+            <div class="sum-box">Loading Time: <span id="loadingTimeDisplay">0</span> min</div>
+            <div class="sum-box highlight">Operating Uptime: <span id="uptimeDisplay">0</span> min</div>
+        </div>
+        
+        <div style="margin-top:20px;">
+            <label>SAP Notification No:</label>
+            <input type="text" id="sapNo" style="width:200px">
+            <button class="btn-submit">Generate Report</button>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

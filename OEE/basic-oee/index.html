@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <title>Production Input</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+<h1>Production Data Input</h1>
+
+<div class="form-container">
+
+<h2>Production Info</h2>
+
+<label>Date</label> <input type="date" id="date">
+
+<label>Shift</label> <select id="shift">
+
+<option>Morning</option>
+<option>Afternoon</option>
+<option>Night</option>
+</select>
+
+<label>Loading Time (minutes)</label> <input type="number" id="loading_time">
+
+<h2>Downtime</h2>
+
+<label>Breaktime (minutes)</label> <input type="number" id="breaktime">
+
+<label>Changeover (minutes)</label> <input type="number" id="changeover">
+
+<label>Maintenance (minutes)</label> <input type="number" id="maintenance">
+
+<h2>Production Output</h2>
+
+<label>Ideal Production Rate (L/min)</label> <input type="number" id="ideal_rate">
+
+<label>Total Output (L)</label> <input type="number" id="total_output">
+
+<label>Reject Output (L)</label> <input type="number" id="reject_output">
+
+<button onclick="calculate()">Calculate KPI</button>
+
+<h2>Results</h2>
+
+<p>Availability: <span id="availability"></span></p>
+<p>Performance: <span id="performance"></span></p>
+<p>Quality: <span id="quality"></span></p>
+<p>OEE: <span id="oee"></span></p>
+
+</div>
+
+<script src="js/calculate.js"></script>
+
+</body>
+</html>
