@@ -556,6 +556,7 @@
     <script src="js/modules/sysadmin.js?v=2.5"></script>
     <script src="js/controllers/home.js?v=1.1"></script>
     <script src="js/core/chat.js"></script>
+    <script src="js/core/misa.js"></script>
 
     <script>
         // ── App boot ─────────────────────────────────────────────
@@ -637,8 +638,15 @@
                     </svg>
                 </div>
             </div>
+            <div class="chat-tabs">
+                <div class="chat-tab active" data-chat-tab="community">Community</div>
+                <div class="chat-tab" data-chat-tab="misa">MISA</div>
+            </div>
             <div class="chat-messages" id="chat-messages">
-                <!-- Messages will load here -->
+                <!-- Community messages load here -->
+            </div>
+            <div class="chat-messages hidden" id="misa-messages">
+                <!-- MISA assistant messages load here -->
             </div>
             <div class="chat-footer">
                 <div class="chat-input-wrap">

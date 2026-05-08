@@ -11,6 +11,8 @@ const Chat = (() => {
 
     let _initialized = false;
 
+    let _activeTab = 'community'; // 'community' or 'misa'
+
     // ── Initialization ────────────────────────────────────────
     async function init() {
         // Get session
@@ -23,8 +25,10 @@ const Chat = (() => {
         _lastId = 0;
         _unreadCount = 0;
         updateBadge();
-        const container = document.getElementById('chat-messages');
-        if (container) container.innerHTML = '';
+        const communityContainer = document.getElementById('chat-messages');
+        const misaContainer = document.getElementById('misa-messages');
+        if (communityContainer) communityContainer.innerHTML = '';
+        if (misaContainer) misaContainer.innerHTML = '';
 
         // Initial load
         await fetchMessages();
@@ -36,6 +40,12 @@ const Chat = (() => {
         if (!_initialized) {
             document.getElementById('chat-toggle').addEventListener('click', toggle);
             document.getElementById('chat-close').addEventListener('click', toggle);
+            
+            // Tab switching
+            document.querySelectorAll('.chat-tab').forEach(tab => {
+                tab.addEventListener('click', () => switchTab(tab.dataset.chatTab));
+            });
+
             document.getElementById('chat-input').addEventListener('keypress', (e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
@@ -44,6 +54,23 @@ const Chat = (() => {
             });
             _initialized = true;
         }
+
+        if (typeof MISA !== 'undefined') MISA.init();
+    }
+
+    function switchTab(tabId) {
+        _activeTab = tabId;
+        document.querySelectorAll('.chat-tab').forEach(t => t.classList.toggle('active', t.dataset.chatTab === tabId));
+        document.getElementById('chat-messages').classList.toggle('hidden', tabId !== 'community');
+        document.getElementById('misa-messages').classList.toggle('hidden', tabId !== 'misa');
+        
+        if (tabId === 'community') {
+            _unreadCount = 0;
+            updateBadge();
+        }
+        
+        scrollToBottom();
+        document.getElementById('chat-input').focus();
     }
 
     function reset() {
@@ -63,7 +90,7 @@ const Chat = (() => {
         const win = document.getElementById('chat-window');
         if (_isOpen) {
             win.classList.add('open');
-            _unreadCount = 0;
+            if (_activeTab === 'community') _unreadCount = 0;
             updateBadge();
             scrollToBottom();
             document.getElementById('chat-input').focus();
@@ -89,12 +116,12 @@ const Chat = (() => {
                 // Set last ID for next poll
                 _lastId = data[data.length - 1].id;
 
-                if (!isFirstLoad && !_isOpen) {
+                if (!isFirstLoad && (!_isOpen || _activeTab !== 'community')) {
                     _unreadCount += data.length;
                     updateBadge();
                 }
 
-                if (_isOpen || isFirstLoad) {
+                if ((_isOpen && _activeTab === 'community') || isFirstLoad) {
                     scrollToBottom();
                 }
             }
@@ -133,18 +160,39 @@ const Chat = (() => {
         if (!msg) return;
 
         input.value = ''; // Clear immediately for UX
-        input.disabled = true;
 
+        // Route based on active tab
+        if (_activeTab === 'misa') {
+            renderUserMessageInMisa(msg);
+            if (typeof MISA !== 'undefined') MISA.processQuery(msg);
+            return;
+        }
+
+        input.disabled = true;
         const res = await API.chatSend(msg);
         input.disabled = false;
         input.focus();
 
         if (res && !res.error) {
-            // Success: the polling will pick it up, or we can manually trigger a poll
             fetchMessages();
         } else {
             alert(res?.error || 'Failed to send message');
         }
+    }
+
+    function renderUserMessageInMisa(text) {
+        const container = document.getElementById('misa-messages');
+        if (!container) return;
+
+        const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const html = `
+            <div class="chat-msg-row me">
+                <div class="chat-msg-info">${time}</div>
+                <div class="chat-msg-bubble">${_esc(text)}</div>
+            </div>
+        `;
+        container.insertAdjacentHTML('beforeend', html);
+        scrollToBottom();
     }
 
     function updateBadge() {
@@ -158,8 +206,9 @@ const Chat = (() => {
     }
 
     function scrollToBottom() {
-        const container = document.getElementById('chat-messages');
-        container.scrollTop = container.scrollHeight;
+        const id = _activeTab === 'community' ? 'chat-messages' : 'misa-messages';
+        const container = document.getElementById(id);
+        if (container) container.scrollTop = container.scrollHeight;
     }
 
     function _esc(s) {
