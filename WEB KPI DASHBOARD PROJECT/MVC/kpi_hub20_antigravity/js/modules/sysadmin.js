@@ -1131,6 +1131,7 @@ function saGetAllData(module) {
                 if (!db) return;
                 utilLines.forEach(line => {
                     const d = db[line];
+                    if (!d) return;
                     const tot = utilKeys2.reduce((s,k) => s+(+d[k]||0), 0);
                     if (!tot && !d.mAvail && !d.days) return;
                     rows.push([y, m, utilLineNames[line]||line, d.productive||'', d.noPlan||'', d.noHc||'', d.changeOver||'', d.meeting||'', d.sanitation||'', d.startup||'', d.shutdown||'', d.testing||'', d.breaktime||'', d.pm||'', d.force||'', d.elec||'', d.mech||'', d.material||'', d.sorting||'', d.tech||'', d.noManpower||'', d.udt||'', d.noOt||'', d.noBulk||'', d.transfer||'', d.idle||'', d.mAvail||'', d.mUsed||'', d.days||'']);
@@ -1142,6 +1143,7 @@ function saGetAllData(module) {
                 if (!db) return;
                 wasteLines.forEach(line => {
                     const d = db[line];
+                    if (!d) return;
                     if (!d.fg && !d.waste) return;
                     rows.push([y, m, wasteLineNames[line]||line, d.fg||'', d.rep||'', d.rej||'', d.waste||'']);
                 });
@@ -1152,6 +1154,7 @@ function saGetAllData(module) {
                 if (!db) return;
                 schedLines.forEach(line => {
                     const d = db[line];
+                    if (!d) return;
                     if (!d.actual && !d.planned) return;
                     rows.push([y, m, schedLineNames[line]||line, d.actual||'', d.planned||'']);
                 });
@@ -1160,7 +1163,13 @@ function saGetAllData(module) {
             case 'warehouse': {
                 const d = whDB[y]?.[m];
                 if (!d) return;
-                const hasData = Object.values(d).some(cat => Object.values(cat).some(v => v !== '' && v != null));
+                const hasData = Object.values(d).some(cat => {
+                    if (typeof cat !== 'object') return cat !== '' && cat != null;
+                    return Object.values(cat).some(v => {
+                        if (typeof v === 'object' && v != null) return Object.values(v).some(val => val !== '' && val != null);
+                        return v !== '' && v != null;
+                    });
+                });
                 if (!hasData) return;
                 rows.push([y, m, d.vol.del||'', d.vol.ord||'', d.fr.sc.del||'', d.fr.sc.ord||'', d.fr.corp.del||'', d.fr.corp.ord||'', d.fr.core.del||'', d.fr.core.ord||'', d.fr.m7.del||'', d.fr.m7.ord||'', d.wh.rmTot||'', d.wh.rmUsed||'', d.wh.fgTot||'', d.wh.fgUsed||'', d.wh.extTot||'', d.wh.extUsed||'', d.otdl.gma||'', d.otdl.north||'', d.otdl.central||'', d.otdl.south||'', d.otdl.vis||'', d.otdl.mind||'', d.otdl.mt||'', d.otdl.pai||'', d.trucks.t10||'', d.trucks.auv||'', d.trucks.t6||'', d.trucks.t4||'', d.trucks.c20||'', d.mp.reg||'', d.mp.agy||'', d.mp.res||'', d.mp.regH||'', d.mp.agyH||'', d.mp.otH||'', d.mp.abs||'', d.mp.days||'']);
                 break;
