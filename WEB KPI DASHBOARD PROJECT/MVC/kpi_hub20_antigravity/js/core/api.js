@@ -142,6 +142,23 @@ const API = (() => {
         return _fetch('data.php', { module, year: +year, month: m, ...data });
     }
 
+    async function deleteRecord(module, year, month, line = null) {
+        _restore();
+        if (!BASE) return null;
+        const m = typeof month === 'string' ? MONTHS.indexOf(month)+1 : month;
+        let url = `${BASE}/data.php?module=${encodeURIComponent(module)}&year=${year}&month=${m}`;
+        if (line) url += `&line=${encodeURIComponent(line)}`;
+        try {
+            const res  = await fetch(url, {
+                method:  'DELETE',
+                headers: { 'Content-Type': 'application/json', ...(_token ? { 'X-Token': _token } : {}) },
+            });
+            const json = await res.json();
+            if (!res.ok) return { error: json.msg || 'Delete failed', status: res.status };
+            return json.data ?? json;
+        } catch(e) { return null; }
+    }
+
     // ── Heartbeat / sync / active sessions ──────────────────
     async function heartbeat() {
         return _fetch('ping.php', { action: 'heartbeat' });
@@ -196,7 +213,7 @@ const API = (() => {
         checkOnline,
         login, logout, register,
         usersList, usersPending, usersCreate, usersEdit, usersDelete, usersApprove, usersReject, usersRole,
-        loadAll, load, loadAllPeriods, save,
+        loadAll, load, loadAllPeriods, save, deleteRecord,
         heartbeat, checkSync, activeSessions,
         auditList, auditStats, auditLog, auditClear,
     };

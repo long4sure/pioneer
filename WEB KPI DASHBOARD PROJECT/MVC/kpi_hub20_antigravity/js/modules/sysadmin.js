@@ -1112,11 +1112,27 @@ async function saDataDelete(module, year, month, line) {
     }
 
     // Sync deletion to MySQL if online
-    if (typeof DB_MODE !== 'undefined' && DB_MODE === 'online' && typeof dbSync === 'function') {
+    if (typeof DB_MODE !== 'undefined' && DB_MODE === 'online' && typeof API !== 'undefined') {
         const mNum = MONTHS_LIST.indexOf(month) + 1;
         if (mNum > 0) {
-            const extra = line ? { line } : {};
-            dbSync(module, extra);
+            // Map frontend module names to backend table names
+            const backendModule = {
+                finance: 'finance', planning: 'planning', procurement: 'procurement',
+                production_util: 'prod_util', production_waste: 'prod_waste', production_sched: 'prod_sched',
+                warehouse: 'warehouse',
+            }[module] || module;
+
+            // For production modules, resolve line human-name → line_key for the DB
+            let lineKey = null;
+            if (module === 'production_util')  lineKey = utilLines.find(lk => (utilLineNames[lk]||lk) === line) || line || null;
+            if (module === 'production_waste') lineKey = wasteLines.find(lk => (wasteLineNames[lk]||lk) === line) || line || null;
+            if (module === 'production_sched') lineKey = schedLines.find(lk => (schedLineNames[lk]||lk) === line) || line || null;
+
+            try {
+                const res = await API.deleteRecord(backendModule, parseInt(year), mNum, lineKey);
+                if (res?.error) console.warn('[saDataDelete] DB delete error:', res.error);
+                else console.log(`[saDataDelete] Deleted from DB: ${backendModule} ${month} ${year}${lineKey ? ' / '+lineKey : ''}`);
+            } catch(e) { console.warn('[saDataDelete] DB delete exception:', e); }
         }
     }
 

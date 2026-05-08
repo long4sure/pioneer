@@ -16,8 +16,9 @@ require_once __DIR__ . '/config.php';
 cors();
 
 $method = $_SERVER['REQUEST_METHOD'];
-if ($method === 'GET')       handleLoad();
-elseif ($method === 'POST')  handleSave();
+if      ($method === 'GET')    handleLoad();
+elseif  ($method === 'POST')   handleSave();
+elseif  ($method === 'DELETE') handleDelete();
 else fail('Method not allowed', 405);
 
 // =============================================================
@@ -135,6 +136,46 @@ function handleSave(): never {
     } catch (Throwable) {}
 
     ok(null, 'Saved');
+}
+
+// =============================================================
+// DELETE  — permanently removes a data row from MySQL
+// ?module=finance&year=2026&month=4
+// ?module=prod_util&year=2026&month=4&line=L06_FILLING
+// =============================================================
+function handleDelete(): never {
+    $sess   = requireAuth('admin');
+    $module = $_GET['module'] ?? '';
+    $year   = (int)($_GET['year']  ?? 0);
+    $month  = (int)($_GET['month'] ?? 0);
+    $line   = $_GET['line'] ?? null;
+    if ($year  < 2020 || $year  > 2040) fail('Invalid year');
+    if ($month < 1    || $month > 12)   fail('Invalid month');
+
+    $pid = getPeriodId($year, $month);
+    if (!$pid) ok(null, 'Nothing to delete'); // period never saved
+
+    $tableMap = [
+        'finance'     => ['sc_finance',    false],
+        'planning'    => ['sc_planning',   false],
+        'procurement' => ['sc_procurement',false],
+        'prod_util'   => ['sc_prod_util',  true],
+        'prod_waste'  => ['sc_prod_waste', true],
+        'prod_sched'  => ['sc_prod_sched', true],
+        'warehouse'   => ['sc_warehouse',  false],
+    ];
+
+    [$table, $hasLine] = $tableMap[$module] ?? [null, false];
+    if (!$table) fail("Unknown module: $module");
+
+    if ($hasLine && $line) {
+        // Delete specific line row (production modules)
+        db()->prepare("DELETE FROM $table WHERE period_id=? AND line_key=?")->execute([$pid, $line]);
+    } else {
+        // Delete entire period row
+        db()->prepare("DELETE FROM $table WHERE period_id=?")->execute([$pid]);
+    }
+    ok(null, 'Deleted');
 }
 
 // =============================================================
