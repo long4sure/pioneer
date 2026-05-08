@@ -9,29 +9,53 @@ const Chat = (() => {
     let _currentUser = null;
     let _unreadCount = 0;
 
+    let _initialized = false;
+
     // ── Initialization ────────────────────────────────────────
     async function init() {
-        // Only run if user is logged in
+        // Get session
         _currentUser = JSON.parse(sessionStorage.getItem('sc_hub_session') || 'null');
-        if (!_currentUser || !_currentUser.dbToken) return;
+        if (!_currentUser || !_currentUser.loggedIn) return;
 
         console.log('Initializing Chat...');
         
+        // Reset state for new session
+        _lastId = 0;
+        _unreadCount = 0;
+        updateBadge();
+        const container = document.getElementById('chat-messages');
+        if (container) container.innerHTML = '';
+
         // Initial load
         await fetchMessages();
         
         // Start polling every 5 seconds
         startPolling();
 
-        // Bind events
-        document.getElementById('chat-toggle').addEventListener('click', toggle);
-        document.getElementById('chat-close').addEventListener('click', toggle);
-        document.getElementById('chat-input').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                send();
-            }
-        });
+        // Bind events (once)
+        if (!_initialized) {
+            document.getElementById('chat-toggle').addEventListener('click', toggle);
+            document.getElementById('chat-close').addEventListener('click', toggle);
+            document.getElementById('chat-input').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    send();
+                }
+            });
+            _initialized = true;
+        }
+    }
+
+    function reset() {
+        if (_pollTimer) clearInterval(_pollTimer);
+        _pollTimer = null;
+        _isOpen = false;
+        _lastId = 0;
+        _unreadCount = 0;
+        _currentUser = null;
+        const win = document.getElementById('chat-window');
+        if (win) win.classList.remove('open');
+        updateBadge();
     }
 
     function toggle() {
@@ -142,5 +166,5 @@ const Chat = (() => {
         return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
     }
 
-    return { init, toggle, send };
+    return { init, toggle, send, reset };
 })();

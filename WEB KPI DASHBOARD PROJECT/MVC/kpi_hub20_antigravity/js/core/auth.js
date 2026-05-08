@@ -75,6 +75,10 @@ function authLogin() {
         const screen = document.getElementById('login-screen');
         if (screen) { screen.style.transition='opacity 0.3s'; screen.style.opacity='0'; setTimeout(()=>{screen.classList.add('hidden');screen.style.opacity='';},300); }
         if (bEl) { bEl.disabled=false; bEl.textContent='Sign In'; }
+        
+        // Post-login initializations
+        if (typeof Chat !== 'undefined') Chat.init();
+        if (typeof loadHomePosts === 'function') loadHomePosts();
     },280);
 }
 
@@ -83,6 +87,7 @@ function authLogout() {
     try { sessionStorage.removeItem('sc_hub_session'); } catch(e) {}
     authSession = { loggedIn:false, username:null, role:null, displayName:null };
     document.body.classList.remove('role-admin','role-viewer','role-superadmin');
+    if (typeof Chat !== 'undefined') Chat.reset();
     _showLogin();
 }
 
