@@ -230,6 +230,10 @@ const API = (() => {
     const postsStatus = (id, status) => _fetch('posts.php', { action:'status', id, status });
     const postsDelete = (id)         => _fetch('posts.php', { action:'delete', id });
 
+    // ── Chat ──────────────────────────────────────────────────
+    const chatList = (lastId = 0) => _fetch(`chat.php?action=list&last_id=${lastId}`);
+    const chatSend = (message)    => _fetch('chat.php', { action: 'send', message });
+
     return {
         get online()  { return _online; },
         get token()   { return _token; },
@@ -241,5 +245,6 @@ const API = (() => {
         heartbeat, checkSync, activeSessions,
         auditList, auditStats, auditLog, auditClear,
         postsList, postsCreate, postsReply, postsStatus, postsDelete,
+        chatList, chatSend,
     };
 })();
