@@ -114,6 +114,7 @@ function saSwitchTab(tab, el) {
     if (tab === 'pending')  saRenderPending();
     if (tab === 'data')     saRenderData();
     if (tab === 'log')      saRenderLog();
+    if (tab === 'posts')    saRenderPosts();
     if (tab === 'overview') saRenderOverview();
 }
 
@@ -1323,6 +1324,103 @@ async function saClearLog() {
     saRenderLog();
     showToast('Audit log cleared');
 }
+
+// ── COMMUNITY BOARD MANAGEMENT ───────────────────────────────
+let saPostsCategory = '';
+let saPostsStatus   = '';
+let saPostsPage     = 1;
+let saActivePost    = null;
+
+async function saRenderPosts() {
+    setHTML('sa-posts-tbody', '<tr class="sa-empty-row"><td colspan="6">Loading posts…</td></tr>');
+
+    const data = await API.postsList({
+        category: saPostsCategory,
+        status: saPostsStatus,
+        limit: SA_PAGE_SIZE,
+        offset: (saPostsPage - 1) * SA_PAGE_SIZE
+    });
+
+    if (!data || data.error || !data.posts) {
+        setHTML('sa-posts-tbody', `<tr class="sa-empty-row"><td colspan="6">Error loading posts: ${data?.error || 'Unknown error'}</td></tr>`);
+        return;
+    }
+
+    const tbody = data.posts.map(p => {
+        const date = new Date(p.created_at).toLocaleDateString();
+        return `
+            <tr>
+                <td>
+                    <div style="font-weight:600; color:var(--text-primary); max-width:300px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap">${_esc(p.title)}</div>
+                    <div style="font-size:11px; color:var(--text-muted); max-width:300px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap">${_esc(p.body)}</div>
+                </td>
+                <td><div style="font-weight:600">${_esc(p.display_name)}</div><div class="mono" style="font-size:10px">@${_esc(p.username)}</div></td>
+                <td><span class="home-post-badge badge-${p.category}">${p.category}</span></td>
+                <td><span class="home-post-status status-${p.status}">${p.status.replace('_', ' ')}</span></td>
+                <td class="dim nowrap">${date}</td>
+                <td class="nowrap">
+                    <button class="sa-action-btn sa-action-edit" onclick="saEditPost(${p.id})">✏ Review</button>
+                    <button class="sa-action-btn sa-action-delete" onclick="saDeletePost(${p.id})" style="margin-left:4px">🗑 Delete</button>
+                </td>
+            </tr>`;
+    }).join('');
+
+    setHTML('sa-posts-tbody', tbody || '<tr class="sa-empty-row"><td colspan="6">No posts found.</td></tr>');
+    _renderPagination('sa-posts-pager', data.total, saPostsPage, n => { saPostsPage = n; saRenderPosts(); });
+    setText('sa-posts-count', `${data.total} post${data.total !== 1 ? 's' : ''}`);
+
+    // Store for modal use
+    window._saPostsCache = data.posts;
+}
+
+function saEditPost(id) {
+    const post = (window._saPostsCache || []).find(p => p.id === id);
+    if (!post) return;
+    saActivePost = post;
+
+    const detailHtml = `
+        <div style="margin-bottom:8px"><strong>Subject:</strong> ${_esc(post.title)}</div>
+        <div style="margin-bottom:8px"><strong>From:</strong> ${_esc(post.display_name)} (@${_esc(post.username)})</div>
+        <div style="padding:10px; background:#fff; border:1px solid var(--border); border-radius:4px; white-space:pre-wrap">${_esc(post.body)}</div>
+    `;
+    setHTML('sa-post-detail', detailHtml);
+    document.getElementById('sa-post-edit-status').value = post.status;
+    document.getElementById('sa-post-edit-reply').value  = post.admin_reply || '';
+    document.getElementById('sa-post-modal').classList.add('open');
+}
+
+function saClosePostModal() {
+    document.getElementById('sa-post-modal').classList.remove('open');
+    saActivePost = null;
+}
+
+async function saSavePostAction() {
+    if (!saActivePost) return;
+    const status = document.getElementById('sa-post-edit-status').value;
+    const reply  = document.getElementById('sa-post-edit-reply').value.trim();
+
+    // 1. Update status
+    if (status !== saActivePost.status) {
+        await API.postsStatus(saActivePost.id, status);
+    }
+    // 2. Save reply
+    await API.postsReply(saActivePost.id, reply);
+
+    showToast('Changes saved');
+    saClosePostModal();
+    saRenderPosts();
+    saLog('edit', 'Community', `Updated post #${saActivePost.id} status=${status}`);
+}
+
+async function saDeletePost(id) {
+    if (!await appConfirm('Delete Post', 'Permanently remove this community post?', 'Delete', true)) return;
+    const res = await API.postsDelete(id);
+    if (res?.error) { showToast('Error: ' + res.error); return; }
+    showToast('Post deleted');
+    saRenderPosts();
+    saLog('delete', 'Community', `Deleted post #${id}`);
+}
+
 
 // ── Helpers ───────────────────────────────────────────────────
 function _esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }

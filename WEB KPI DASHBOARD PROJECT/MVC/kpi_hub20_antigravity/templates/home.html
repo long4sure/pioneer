@@ -42,3 +42,52 @@
                     <div class="home-card-kpi"><div class="home-card-kpi-val" id="home-wh-kpi">0%</div><div class="home-card-kpi-label">SC Fill Rate</div></div>
                 </div>
             </div>
+
+            <!-- Community Board / Feedback Section -->
+            <div class="home-board-section">
+                <div class="home-board-header">
+                    <div class="home-board-info">
+                        <div class="home-board-title">Community Board</div>
+                        <div class="home-board-sub">Feedback, suggestions, and issue reporting.</div>
+                    </div>
+                    <button class="btn btn-primary" onclick="homeShowPostForm()">
+                        <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14" style="margin-right:6px"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/></svg>
+                        Create Post
+                    </button>
+                </div>
+
+                <!-- Create Post Form (initially hidden) -->
+                <div id="home-post-form-wrap" style="display:none; margin-bottom:20px;">
+                    <div class="home-post-card" style="cursor:default; border-style:dashed; background:var(--bg-light)">
+                        <div class="sa-form-field">
+                            <label class="sa-form-label">Category</label>
+                            <select class="sa-form-input" id="home-post-category">
+                                <option value="suggestion">Suggestion — New ideas for the app</option>
+                                <option value="feedback">Feedback — Tell us what you think</option>
+                                <option value="issue">Issue / Bug — Something is broken</option>
+                                <option value="general">General — Anything else</option>
+                            </select>
+                        </div>
+                        <div class="sa-form-field">
+                            <label class="sa-form-label">Subject / Title</label>
+                            <input class="sa-form-input" id="home-post-title" placeholder="Short summary of your post">
+                        </div>
+                        <div class="sa-form-field">
+                            <label class="sa-form-label">Details</label>
+                            <textarea class="sa-form-input" id="home-post-body" rows="4" placeholder="Explain your suggestion or describe the issue in detail..."></textarea>
+                        </div>
+                        <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:8px;">
+                            <button class="btn" onclick="homeHidePostForm()">Cancel</button>
+                            <button class="btn btn-primary" onclick="homeSubmitPost()">Submit Post</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="home-posts-list" class="home-posts-container">
+                    <!-- Posts will be loaded here via JS -->
+                    <div style="padding:40px; text-align:center; color:var(--text-muted); font-size:13px;">
+                        <div class="ml-spinner" style="margin:0 auto 12px"></div>
+                        Loading board...
+                    </div>
+                </div>
+            </div>

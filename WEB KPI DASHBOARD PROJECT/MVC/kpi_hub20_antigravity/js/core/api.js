@@ -206,6 +206,30 @@ const API = (() => {
         return _fetch('audit.php', { action: 'clear' });
     }
 
+    // ── Community Board / Posts ───────────────────────────────
+    async function postsList(opts = {}) {
+        const q = new URLSearchParams();
+        if (opts.category) q.set('category', opts.category);
+        if (opts.status)   q.set('status',   opts.status);
+        if (opts.limit)    q.set('limit',    opts.limit);
+        if (opts.offset)   q.set('offset',   opts.offset);
+        _restore();
+        if (!BASE) return null;
+        try {
+            const r = await fetch(`${BASE}/posts.php?${q}`, {
+                headers: { 'Content-Type': 'application/json', ...(_token ? { 'X-Token': _token } : {}) },
+                cache: 'no-store',
+            });
+            const j = await r.json();
+            return j.data ?? j;
+        } catch(e) { return null; }
+    }
+    const postsCreate = (category, title, body) =>
+        _fetch('posts.php', { action:'create', category, title, body });
+    const postsReply  = (id, reply)  => _fetch('posts.php', { action:'reply',  id, reply });
+    const postsStatus = (id, status) => _fetch('posts.php', { action:'status', id, status });
+    const postsDelete = (id)         => _fetch('posts.php', { action:'delete', id });
+
     return {
         get online()  { return _online; },
         get token()   { return _token; },
@@ -216,5 +240,6 @@ const API = (() => {
         loadAll, load, loadAllPeriods, save, deleteRecord,
         heartbeat, checkSync, activeSessions,
         auditList, auditStats, auditLog, auditClear,
+        postsList, postsCreate, postsReply, postsStatus, postsDelete,
     };
 })();

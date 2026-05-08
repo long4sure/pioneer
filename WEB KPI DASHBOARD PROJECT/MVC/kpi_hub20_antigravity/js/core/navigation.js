@@ -89,6 +89,7 @@ async function switchModule(mod, el) {
 
     if (mod === 'home') {
         updateHomeKPIs();
+        homeInitBoard();
         _hideModuleLoader();
     } else if (mod === 'analytics') {
         setTimeout(() => { anInit(); _hideModuleLoader(); }, 60);

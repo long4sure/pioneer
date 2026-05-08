@@ -20,6 +20,10 @@
                     <svg viewBox="0 0 16 16" fill="currentColor" width="12" style="vertical-align:middle;margin-right:4px"><path d="M5 4a.5.5 0 000 1h6a.5.5 0 000-1H5zm-.5 2.5A.5.5 0 015 6h6a.5.5 0 010 1H5a.5.5 0 01-.5-.5zm0 2A.5.5 0 015 8h4a.5.5 0 010 1H5a.5.5 0 01-.5-.5z"/><path d="M2 2a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2H4a2 2 0 01-2-2V2zm10-1H4a1 1 0 00-1 1v12a1 1 0 001 1h8a1 1 0 001-1V2a1 1 0 00-1-1z"/></svg>
                     Audit Log
                 </button>
+                <button class="sa-tab" onclick="saSwitchTab('posts',this)">
+                    <svg viewBox="0 0 16 16" fill="currentColor" width="12" style="vertical-align:middle;margin-right:4px"><path fill-rule="evenodd" d="M15 2a1 1 0 00-1-1H2a1 1 0 00-1 1v12a1 1 0 001 1h12a1 1 0 001-1V2zM0 2a2 2 0 012-2h12a2 2 0 012 2v12a2 2 0 01-2 2H2a2 2 0 01-2-2V2z" clip-rule="evenodd"/><path fill-rule="evenodd" d="M15 7H1V8h14V7zM1 11h14v1H1v-1z" clip-rule="evenodd"/><path d="M5 2.5a.5.5 0 01.5-.5h5a.5.5 0 010 1h-5a.5.5 0 01-.5-.5z"/></svg>
+                    Community Management
+                </button>
             </div>
 
             <!-- OVERVIEW panel -->
@@ -184,5 +188,73 @@
                         </table>
                     </div>
                     <div class="sa-pagination" id="sa-log-pager"></div>
+                </div>
+            </div>
+
+            <!-- POSTS panel -->
+            <div class="sa-panel" id="sa-panel-posts">
+                <div class="sa-section-head">
+                    <div class="sa-section-title">Community Board Management</div>
+                    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+                        <span class="dim" id="sa-posts-count" style="font-size:11px"></span>
+                        <select class="sa-select" id="sa-posts-filter-cat" onchange="saPostsCategory=this.value;saPostsPage=1;saRenderPosts()">
+                            <option value="">All Categories</option>
+                            <option value="suggestion">Suggestions</option>
+                            <option value="feedback">Feedback</option>
+                            <option value="issue">Issues</option>
+                            <option value="general">General</option>
+                        </select>
+                        <select class="sa-select" id="sa-posts-filter-status" onchange="saPostsStatus=this.value;saPostsPage=1;saRenderPosts()">
+                            <option value="">All Statuses</option>
+                            <option value="open">Open</option>
+                            <option value="in_review">In Review</option>
+                            <option value="resolved">Resolved</option>
+                            <option value="closed">Closed</option>
+                        </select>
+                        <button class="btn" onclick="saRenderPosts()">↻ Refresh</button>
+                    </div>
+                </div>
+                <div class="sa-table-wrap">
+                    <div class="sa-table-scroll">
+                        <table class="sa-table">
+                            <thead><tr>
+                                <th>Post</th><th>Author</th><th>Category</th><th>Status</th><th>Date</th><th>Actions</th>
+                            </tr></thead>
+                            <tbody id="sa-posts-tbody"><tr class="sa-empty-row"><td colspan="6">Loading posts…</td></tr></tbody>
+                        </table>
+                    </div>
+                    <div class="sa-pagination" id="sa-posts-pager"></div>
+                </div>
+            </div>
+
+            <!-- Post Reply Modal (System Admin) -->
+            <div class="sa-modal-overlay" id="sa-post-modal" onclick="if(event.target===this)saClosePostModal()">
+                <div class="sa-modal-box" style="max-width:600px">
+                    <div class="sa-modal-head">
+                        <div class="sa-modal-title">Review &amp; Reply</div>
+                        <button class="sa-modal-close" onclick="saClosePostModal()">✕</button>
+                    </div>
+                    <div class="sa-modal-body">
+                        <div id="sa-post-detail" style="margin-bottom:20px; padding:12px; background:var(--bg-light); border-radius:var(--radius); font-size:13px">
+                            <!-- Detail filled via JS -->
+                        </div>
+                        <div class="sa-form-field">
+                            <label class="sa-form-label">Status</label>
+                            <select class="sa-form-input" id="sa-post-edit-status">
+                                <option value="open">Open</option>
+                                <option value="in_review">In Review</option>
+                                <option value="resolved">Resolved</option>
+                                <option value="closed">Closed</option>
+                            </select>
+                        </div>
+                        <div class="sa-form-field">
+                            <label class="sa-form-label">Admin Reply</label>
+                            <textarea class="sa-form-input" id="sa-post-edit-reply" rows="5" placeholder="Write your reply here..."></textarea>
+                        </div>
+                    </div>
+                    <div class="sa-modal-foot">
+                        <button class="btn" onclick="saClosePostModal()">Cancel</button>
+                        <button class="btn btn-primary" onclick="saSavePostAction()">Save Changes</button>
+                    </div>
                 </div>
             </div>
