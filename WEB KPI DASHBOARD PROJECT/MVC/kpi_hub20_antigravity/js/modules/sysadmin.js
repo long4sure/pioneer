@@ -808,21 +808,61 @@ async function saDataImport(inputEl) {
         // Sync each imported period to MySQL when online
         if (typeof DB_MODE !== 'undefined' && DB_MODE === 'online') {
             const keys = Object.keys(synced);
+            let savedCount = 0;
             for (let ki = 0; ki < keys.length; ki++) {
                 const parts = keys[ki].split('|');
                 const yr = parts[0]; const mo = parts[1];
                 const mNum = MONTHS_L.indexOf(mo) + 1;
                 if (mNum < 1) continue;
-                let payload = {};
-                if (module === 'finance')     payload = (finDB[yr] && finDB[yr][mo]) ? finDB[yr][mo] : {};
-                if (module === 'procurement') payload = (procDB[yr] && procDB[yr][mo]) ? procDB[yr][mo] : {};
-                if (module === 'planning')    payload = { fields: (plDB[yr] && plDB[yr][mo]) ? plDB[yr][mo] : {} };
-                if (module === 'production_util') payload = { lines: (utilDB[yr] && utilDB[yr][mo]) ? utilDB[yr][mo] : {} };
-                if (module === 'production_waste') payload = { lines: (wasteDB[yr] && wasteDB[yr][mo]) ? wasteDB[yr][mo] : {} };
-                if (module === 'production_sched') payload = { lines: (schedDB[yr] && schedDB[yr][mo]) ? schedDB[yr][mo] : {} };
-                try { await API.save(module, parseInt(yr), mNum, payload); } catch(err) { console.warn('sync err', err); }
+                try {
+                    if (module === 'finance') {
+                        const payload = (finDB[yr] && finDB[yr][mo]) ? { ...finDB[yr][mo], module: 'finance', year: parseInt(yr), month: mNum } : null;
+                        if (payload) { await API.save('finance', parseInt(yr), mNum, finDB[yr][mo]); savedCount++; }
+                    } else if (module === 'procurement') {
+                        const d = procDB[yr] && procDB[yr][mo];
+                        if (d) { await API.save('procurement', parseInt(yr), mNum, d); savedCount++; }
+                    } else if (module === 'planning') {
+                        const d = plDB[yr] && plDB[yr][mo];
+                        if (d) { await API.save('planning', parseInt(yr), mNum, { fields: d }); savedCount++; }
+                    } else if (module === 'warehouse') {
+                        const d = whDB[yr] && whDB[yr][mo];
+                        if (d) { await API.save('warehouse', parseInt(yr), mNum, d); savedCount++; }
+                    } else if (module === 'production_util') {
+                        // Send one line at a time (backend expects a single line per call)
+                        const db = utilDB[yr] && utilDB[yr][mo];
+                        if (db) {
+                            for (const lineKey of Object.keys(db)) {
+                                const d = db[lineKey];
+                                const tot = utilKeys2.reduce((s, k) => s + (+d[k] || 0), 0);
+                                if (!tot && !d.mAvail && !d.days) continue; // skip empty lines
+                                await API.save('prod_util', parseInt(yr), mNum, { line: lineKey, ...d });
+                                savedCount++;
+                            }
+                        }
+                    } else if (module === 'production_waste') {
+                        const db = wasteDB[yr] && wasteDB[yr][mo];
+                        if (db) {
+                            for (const lineKey of Object.keys(db)) {
+                                const d = db[lineKey];
+                                if (!d.fg && !d.waste && !d.rep && !d.rej) continue;
+                                await API.save('prod_waste', parseInt(yr), mNum, { line: lineKey, ...d });
+                                savedCount++;
+                            }
+                        }
+                    } else if (module === 'production_sched') {
+                        const db = schedDB[yr] && schedDB[yr][mo];
+                        if (db) {
+                            for (const lineKey of Object.keys(db)) {
+                                const d = db[lineKey];
+                                if (!d.actual && !d.planned) continue;
+                                await API.save('prod_sched', parseInt(yr), mNum, { line: lineKey, ...d });
+                                savedCount++;
+                            }
+                        }
+                    }
+                } catch(err) { console.warn('sync err', err); }
             }
-            showToast('Imported and saved ' + imported + ' record(s) to database');
+            showToast('Imported and synced ' + savedCount + ' record(s) to database');
         } else {
             showToast('Imported ' + imported + ' record(s) (offline — reload will reset)');
         }
@@ -1163,15 +1203,28 @@ function saGetAllData(module) {
             case 'warehouse': {
                 const d = whDB[y]?.[m];
                 if (!d) return;
+                // hasData: check for any non-empty, non-null value (including numeric 0 is falsy but '' means no data)
                 const hasData = Object.values(d).some(cat => {
-                    if (typeof cat !== 'object') return cat !== '' && cat != null;
+                    if (typeof cat !== 'object' || cat == null) return (cat !== '' && cat != null);
                     return Object.values(cat).some(v => {
-                        if (typeof v === 'object' && v != null) return Object.values(v).some(val => val !== '' && val != null);
-                        return v !== '' && v != null;
+                        if (typeof v === 'object' && v != null) return Object.values(v).some(val => val !== '' && val != null && val !== undefined);
+                        return v !== '' && v != null && v !== undefined;
                     });
                 });
                 if (!hasData) return;
-                rows.push([y, m, d.vol.del||'', d.vol.ord||'', d.fr.sc.del||'', d.fr.sc.ord||'', d.fr.corp.del||'', d.fr.corp.ord||'', d.fr.core.del||'', d.fr.core.ord||'', d.fr.m7.del||'', d.fr.m7.ord||'', d.wh.rmTot||'', d.wh.rmUsed||'', d.wh.fgTot||'', d.wh.fgUsed||'', d.wh.extTot||'', d.wh.extUsed||'', d.otdl.gma||'', d.otdl.north||'', d.otdl.central||'', d.otdl.south||'', d.otdl.vis||'', d.otdl.mind||'', d.otdl.mt||'', d.otdl.pai||'', d.trucks.t10||'', d.trucks.auv||'', d.trucks.t6||'', d.trucks.t4||'', d.trucks.c20||'', d.mp.reg||'', d.mp.agy||'', d.mp.res||'', d.mp.regH||'', d.mp.agyH||'', d.mp.otH||'', d.mp.abs||'', d.mp.days||'']);
+                rows.push([y, m,
+                    d.vol?.del??'', d.vol?.ord??'',
+                    d.fr?.sc?.del??'', d.fr?.sc?.ord??'',
+                    d.fr?.corp?.del??'', d.fr?.corp?.ord??'',
+                    d.fr?.core?.del??'', d.fr?.core?.ord??'',
+                    d.fr?.m7?.del??'', d.fr?.m7?.ord??'',
+                    d.wh?.rmTot??'', d.wh?.rmUsed??'', d.wh?.fgTot??'', d.wh?.fgUsed??'', d.wh?.extTot??'', d.wh?.extUsed??'',
+                    d.otdl?.gma??'', d.otdl?.north??'', d.otdl?.central??'', d.otdl?.south??'',
+                    d.otdl?.vis??'', d.otdl?.mind??'', d.otdl?.mt??'', d.otdl?.pai??'',
+                    d.trucks?.t10??'', d.trucks?.auv??'', d.trucks?.t6??'', d.trucks?.t4??'', d.trucks?.c20??'',
+                    d.mp?.reg??'', d.mp?.agy??'', d.mp?.res??'',
+                    d.mp?.regH??'', d.mp?.agyH??'', d.mp?.otH??'', d.mp?.abs??'', d.mp?.days??''
+                ]);
                 break;
             }
         }

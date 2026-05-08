@@ -67,8 +67,9 @@ function loadAllPeriods(string $module): never {
                'July','August','September','October','November','December'];
     $tableMap = [
         'finance'=>'sc_finance','planning'=>'sc_planning','procurement'=>'sc_procurement',
-        'prod_util'=>'sc_prod_util','prod_waste'=>'sc_prod_waste',
-        'prod_sched'=>'sc_prod_sched','warehouse'=>'sc_warehouse',
+        'prod_util'=>'sc_prod_util','prod_waste'=>'sc_prod_waste','prod_sched'=>'sc_prod_sched',
+        'production_util'=>'sc_prod_util','production_waste'=>'sc_prod_waste','production_sched'=>'sc_prod_sched',
+        'warehouse'=>'sc_warehouse',
     ];
     $table = $tableMap[$module] ?? null;
     if (!$table) fail("Unknown module: $module");
@@ -89,9 +90,9 @@ function loadAllPeriods(string $module): never {
             'finance'     => loadFinance($pid),
             'planning'    => loadPlanning($pid),
             'procurement' => loadProcurement($pid),
-            'prod_util'   => loadProdUtil($pid),
-            'prod_waste'  => loadProdWaste($pid),
-            'prod_sched'  => loadProdSched($pid),
+            'prod_util','production_util'   => loadProdUtil($pid),
+            'prod_waste','production_waste'  => loadProdWaste($pid),
+            'prod_sched','production_sched'  => loadProdSched($pid),
             'warehouse'   => loadWarehouse($pid),
         };
         $result[] = ['year'=>$year,'month'=>$monthName,'data'=>$data];
