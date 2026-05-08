@@ -670,9 +670,8 @@ function _saPopulateInMemory(module, dbResult) {
             }
         } else if (module === 'warehouse') {
             if (!whDB[y]) whDB[y] = {};
-            if (data.otif || data.vol || data.fr) {
+            if (Object.keys(data).length) {
                 whDB[y][m] = {
-                    otif:{...{served:'',total:''},...(data.otif??{})},
                     vol: {...{del:'',ord:''},      ...(data.vol??{})},
                     fr:  {sc:{...{del:'',ord:''},...(data.fr?.sc??{})},
                           corp:{...{del:'',ord:''},...(data.fr?.corp??{})},
@@ -681,10 +680,7 @@ function _saPopulateInMemory(module, dbResult) {
                     wh:     {...(data.wh??{})},
                     otdl:   {...(data.otdl??{})},
                     trucks: {...(data.trucks??{})},
-                    mp:     {...(data.mp??{})},
-                    nonOtif:{...(data.nonOtif??{})},
-                    soVal:  {...(data.soVal??{})},
-                    soWt:   {...(data.soWt??{})},
+                    mp:     {...(data.mp??{})}
                 };
             }
         } else if (module === 'production_util' || module === 'prod_util') {
