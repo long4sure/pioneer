@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Finance Dashboard</title>
+
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+}
+
+body{
+background:#f5f7fa;
+padding:20px;
+}
+
+.container{
+max-width:1600px;
+margin:auto;
+background:white;
+border-radius:8px;
+box-shadow:0 4px 12px rgba(0,0,0,0.08);
+padding:24px;
+}
+
+.header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:24px;
+flex-wrap:wrap;
+gap:16px;
+}
+
+.header h1{
+font-size:24px;
+font-weight:600;
+}
+
+.filter-group{
+display:flex;
+gap:16px;
+background:#fafbfc;
+padding:8px 16px;
+border-radius:6px;
+border:1px solid #eef2f5;
+}
+
+.filter-item{
+display:flex;
+align-items:center;
+gap:8px;
+}
+
+.filter-item label{
+font-size:12px;
+font-weight:600;
+text-transform:uppercase;
+}
+
+.filter-item select{
+padding:6px 12px;
+border:1px solid #d0d5dd;
+border-radius:4px;
+font-size:13px;
+cursor:pointer;
+}
+
+.kpi-row{
+display:grid;
+grid-template-columns:repeat(4,1fr);
+gap:20px;
+margin-bottom:24px;
+}
+
+.kpi-card{
+border:1px solid #eef2f5;
+border-radius:6px;
+padding:20px;
+}
+
+.kpi-header{
+display:flex;
+align-items:center;
+gap:10px;
+margin-bottom:12px;
+}
+
+.kpi-title{
+font-size:13px;
+font-weight:600;
+text-transform:uppercase;
+color:#5f6775;
+}
+
+.kpi-main-value{
+font-size:28px;
+font-weight:600;
+margin-bottom:4px;
+}
+
+.kpi-sub-value{
+font-size:13px;
+color:#5f6775;
+margin-bottom:12px;
+}
+
+.kpi-progress{
+height:4px;
+background:#eef2f5;
+border-radius:2px;
+overflow:hidden;
+}
+
+.kpi-progress-bar{
+height:100%;
+background:#01b8aa;
+}
+
+.input-panel{
+border:1px solid #eef2f5;
+border-radius:6px;
+margin-bottom:24px;
+}
+
+.panel-header{
+padding:16px 20px;
+border-bottom:1px solid #eef2f5;
+background:#fafbfc;
+font-weight:600;
+}
+
+.input-grid{
+display:grid;
+grid-template-columns:repeat(3,1fr);
+gap:20px;
+padding:20px;
+}
+
+.input-group h4{
+margin-bottom:12px;
+color:#5f6775;
+}
+
+.input-field{
+margin-bottom:12px;
+}
+
+.input-field label{
+display:block;
+font-size:12px;
+margin-bottom:4px;
+}
+
+.input-field input{
+width:100%;
+padding:8px 12px;
+border:1px solid #d0d5dd;
+border-radius:4px;
+}
+
+.button-group{
+padding:16px 20px;
+border-top:1px solid #eef2f5;
+display:flex;
+justify-content:flex-end;
+gap:10px;
+}
+
+.btn{
+padding:8px 16px;
+border:1px solid #d0d5dd;
+background:white;
+border-radius:4px;
+cursor:pointer;
+}
+
+.btn-primary{
+background:#01b8aa;
+color:white;
+border-color:#01b8aa;
+}
+
+.footer{
+text-align:right;
+font-size:12px;
+color:#5f6775;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="header">
+<h1>FINANCE DASHBOARD</h1>
+
+<div class="filter-group">
+
+<div class="filter-item">
+<label>Year</label>
+<select id="yearSelect">
+<option>2023</option>
+<option selected>2024</option>
+<option>2025</option>
+</select>
+</div>
+
+<div class="filter-item">
+<label>Month</label>
+<select id="monthSelect">
+<option>January</option>
+<option>February</option>
+<option>March</option>
+<option>April</option>
+<option>May</option>
+<option>June</option>
+<option>July</option>
+<option>August</option>
+<option>September</option>
+<option selected>October</option>
+<option>November</option>
+<option>December</option>
+</select>
+</div>
+
+</div>
+</div>
+
+
+<div class="kpi-row">
+
+<div class="kpi-card">
+<div class="kpi-header">📦 <span class="kpi-title">Production Volume</span></div>
+<div class="kpi-main-value" id="prodValue">0 MT</div>
+<div class="kpi-sub-value" id="prodTarget">Target: 0 MT</div>
+<div class="kpi-progress"><div class="kpi-progress-bar" id="prodProgress"></div></div>
+<div id="prodPercent">0%</div>
+</div>
+
+<div class="kpi-card">
+<div class="kpi-header">💰 <span class="kpi-title">Operational Cost</span></div>
+<div class="kpi-main-value" id="opValue">₱0</div>
+<div class="kpi-sub-value" id="opBudget">Budget: ₱0</div>
+<div class="kpi-progress"><div class="kpi-progress-bar" id="opProgress"></div></div>
+<div id="opPercent">0%</div>
+</div>
+
+<div class="kpi-card">
+<div class="kpi-header">🏭 <span class="kpi-title">Capital Expenditure</span></div>
+<div class="kpi-main-value" id="capValue">₱0</div>
+<div class="kpi-sub-value" id="capBudget">Budget: ₱0</div>
+<div class="kpi-progress"><div class="kpi-progress-bar" id="capProgress"></div></div>
+<div id="capPercent">0%</div>
+</div>
+
+<div class="kpi-card">
+<div class="kpi-header">📋 <span class="kpi-title">Other Expenses</span></div>
+<div class="kpi-main-value" id="expValue">₱0</div>
+<div class="kpi-sub-value" id="expBudget">Budget: ₱0</div>
+<div class="kpi-progress"><div class="kpi-progress-bar" id="expProgress"></div></div>
+<div id="expPercent">0%</div>
+</div>
+
+</div>
+
+
+<div class="input-panel">
+
+<div class="panel-header">DATA INPUT FORM</div>
+
+<div class="input-grid">
+
+<div class="input-group">
+<h4>Production</h4>
+
+<div class="input-field">
+<label>Volume Produced</label>
+<input type="number" id="volumeActual">
+</div>
+
+<div class="input-field">
+<label>Volume Target</label>
+<input type="number" id="volumeTarget">
+</div>
+</div>
+
+
+<div class="input-group">
+<h4>Costs</h4>
+
+<div class="input-field">
+<label>Operational Actual</label>
+<input type="number" id="opActual">
+</div>
+
+<div class="input-field">
+<label>Operational Budget</label>
+<input type="number" id="opBudgetInput">
+</div>
+
+<div class="input-field">
+<label>Capital Actual</label>
+<input type="number" id="capActual">
+</div>
+
+<div class="input-field">
+<label>Capital Budget</label>
+<input type="number" id="capBudgetInput">
+</div>
+
+<div class="input-field">
+<label>Other Expense Actual</label>
+<input type="number" id="expActual">
+</div>
+
+<div class="input-field">
+<label>Other Expense Budget</label>
+<input type="number" id="expBudgetInput">
+</div>
+
+</div>
+
+</div>
+
+<div class="button-group">
+<button class="btn" onclick="clearAll()">CLEAR</button>
+<button class="btn btn-primary" onclick="calculateAll()">UPDATE</button>
+</div>
+
+</div>
+
+<div class="footer">
+Last Updated: <span id="lastUpdate">Just now</span>
+</div>
+
+</div>
+
+
+<script>
+
+function formatCurrency(num){
+if(num>=1000000) return "₱"+(num/1000000).toFixed(1)+"M";
+if(num>=1000) return "₱"+(num/1000).toFixed(1)+"K";
+return "₱"+num.toFixed(2);
+}
+
+function calculateAll(){
+
+const volumeActual = parseFloat(document.getElementById('volumeActual').value)||0;
+const volumeTarget = parseFloat(document.getElementById('volumeTarget').value)||0;
+
+const opActual = parseFloat(document.getElementById('opActual').value)||0;
+const opBudget = parseFloat(document.getElementById('opBudgetInput').value)||0;
+
+const capActual = parseFloat(document.getElementById('capActual').value)||0;
+const capBudget = parseFloat(document.getElementById('capBudgetInput').value)||0;
+
+const expActual = parseFloat(document.getElementById('expActual').value)||0;
+const expBudget = parseFloat(document.getElementById('expBudgetInput').value)||0;
+
+
+const volumePercent = volumeTarget>0 ? (volumeActual/volumeTarget)*100 : 0;
+
+document.getElementById('prodValue').textContent = volumeActual+" MT";
+document.getElementById('prodTarget').textContent = "Target: "+volumeTarget+" MT";
+document.getElementById('prodProgress').style.width = volumePercent+"%";
+document.getElementById('prodPercent').textContent = volumePercent.toFixed(1)+"%";
+
+
+const opPercent = opBudget>0 ? (opActual/opBudget)*100 : 0;
+
+document.getElementById('opValue').textContent = formatCurrency(opActual);
+document.getElementById('opBudget').textContent = "Budget: "+formatCurrency(opBudget);
+document.getElementById('opProgress').style.width = opPercent+"%";
+document.getElementById('opPercent').textContent = opPercent.toFixed(1)+"%";
+
+
+const capPercent = capBudget>0 ? (capActual/capBudget)*100 : 0;
+
+document.getElementById('capValue').textContent = formatCurrency(capActual);
+document.getElementById('capBudget').textContent = "Budget: "+formatCurrency(capBudget);
+document.getElementById('capProgress').style.width = capPercent+"%";
+document.getElementById('capPercent').textContent = capPercent.toFixed(1)+"%";
+
+
+const expPercent = expBudget>0 ? (expActual/expBudget)*100 : 0;
+
+document.getElementById('expValue').textContent = formatCurrency(expActual);
+document.getElementById('expBudget').textContent = "Budget: "+formatCurrency(expBudget);
+document.getElementById('expProgress').style.width = expPercent+"%";
+document.getElementById('expPercent').textContent = expPercent.toFixed(1)+"%";
+
+
+document.getElementById('lastUpdate').textContent = new Date().toLocaleString();
+
+}
+
+function clearAll(){
+
+document.querySelectorAll("input").forEach(i=>i.value=0);
+calculateAll();
+
+}
+
+window.onload=clearAll;
+
+</script>
+
+</body>
+</html>

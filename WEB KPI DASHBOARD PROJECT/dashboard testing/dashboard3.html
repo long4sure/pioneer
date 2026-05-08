@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2026 KPI Dashboard - Pioneer</title>
+    <style>
+        * {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background-color: #1e1e1e;
+            padding: 20px;
+            color: #ffffff;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            color: white;
+            padding: 20px 25px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+        }
+        .date-badge {
+            background: rgba(255,255,255,0.2);
+            padding: 8px 16px;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        
+        /* Control Panel */
+        .control-panel {
+            background: #2d2d2d;
+            border-radius: 10px;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            border: 1px solid #3d3d3d;
+        }
+        select, button {
+            padding: 10px 15px;
+            border-radius: 5px;
+            border: 1px solid #3d3d3d;
+            font-size: 13px;
+            background-color: #3d3d3d;
+            color: white;
+        }
+        button {
+            background-color: #3498db;
+            border: none;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        button:hover { background-color: #2980b9; }
+        .refresh-btn { background-color: #27ae60; }
+        .refresh-btn:hover { background-color: #229954; }
+        .tracker-btn { background-color: #9b59b6; }
+        .tracker-btn:hover { background-color: #8e44ad; }
+        
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+        
+        /* Dashboard Cards */
+        .dashboard-card {
+            background: #2d2d2d;
+            border-radius: 10px;
+            padding: 20px;
+            border: 1px solid #3d3d3d;
+        }
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #3498db;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #3d3d3d;
+            text-transform: uppercase;
+        }
+        
+        /* KPI Boxes */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        .kpi-box {
+            background: #363636;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+        .kpi-box.large {
+            grid-column: span 2;
+        }
+        .kpi-label {
+            font-size: 12px;
+            color: #95a5a6;
+            margin-bottom: 5px;
+        }
+        .kpi-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: white;
+            line-height: 1.2;
+        }
+        .kpi-unit {
+            font-size: 12px;
+            color: #95a5a6;
+            margin-left: 5px;
+        }
+        .kpi-target {
+            font-size: 11px;
+            color: #7f8c8d;
+            margin-top: 5px;
+        }
+        
+        /* Downtime Breakdown */
+        .downtime-list {
+            margin-top: 10px;
+        }
+        .downtime-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #3d3d3d;
+        }
+        .downtime-item:last-child {
+            border-bottom: none;
+        }
+        .downtime-label {
+            font-size: 13px;
+            color: #bdc3c7;
+        }
+        .downtime-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: #f39c12;
+        }
+        
+        /* Two Column Layout */
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        /* Stats Box */
+        .stats-box {
+            background: #363636;
+            border-radius: 8px;
+            padding: 12px;
+        }
+        .stats-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+        .stats-label {
+            color: #95a5a6;
+        }
+        .stats-value {
+            color: white;
+            font-weight: 600;
+        }
+        
+        /* Forecast List */
+        .forecast-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .forecast-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            border-bottom: 1px solid #3d3d3d;
+            font-size: 12px;
+        }
+        .forecast-item:last-child {
+            border-bottom: none;
+        }
+        .forecast-label {
+            color: #bdc3c7;
+        }
+        .forecast-value {
+            color: #f39c12;
+            font-weight: 600;
+        }
+        
+        /* Error/Warning */
+        .error {
+            color: #e74c3c;
+            font-weight: 600;
+        }
+        .warning {
+            color: #f39c12;
+        }
+        .success {
+            color: #27ae60;
+        }
+        
+        /* Absenteeism Grid */
+        .absenteeism-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .absenteeism-item {
+            background: #363636;
+            border-radius: 5px;
+            padding: 8px;
+            font-size: 12px;
+        }
+        .absenteeism-line {
+            color: #95a5a6;
+            margin-bottom: 3px;
+        }
+        .absenteeism-rate {
+            font-weight: 600;
+            color: #e74c3c;
+        }
+        
+        .note {
+            color: #7f8c8d;
+            font-size: 11px;
+            margin-top: 15px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div>
+                <h1>PIONEER - 2026 KPI DASHBOARD</h1>
+            </div>
+            <div class="date-badge">
+                <span id="currentDateTime"></span>
+            </div>
+        </div>
+
+        <!-- Control Panel -->
+        <div class="control-panel">
+            <select id="monthSelector">
+                <option value="OCT">October</option>
+                <option value="NOV">November</option>
+                <option value="DEC">December</option>
+                <option value="JAN">January</option>
+                <option value="FEB">February</option>
+                <option value="MAR">March</option>
+                <option value="APR">April</option>
+                <option value="MAY">May</option>
+                <option value="JUN">June</option>
+                <option value="JUL">July</option>
+                <option value="AUG">August</option>
+                <option value="SEP">September</option>
+            </select>
+            <button onclick="loadMonth()">Load Month</button>
+            <button class="refresh-btn" onclick="refreshDashboard()">🔄 Refresh Data</button>
+            <button class="tracker-btn" onclick="openTracker()">📊 Open Tracker</button>
+            <span style="margin-left: auto;" id="monthDisplay">OCT 2026</span>
+        </div>
+
+        <!-- Dashboard Grid -->
+        <div class="dashboard-grid">
+            <!-- Column 1 -->
+            <div class="dashboard-card">
+                <div class="card-title">OUTPUT & PRODUCTIVE TIME</div>
+                <div class="kpi-grid">
+                    <div class="kpi-box">
+                        <div class="kpi-label">OUTPUT V3 TARGET</div>
+                        <div class="kpi-value" id="outputActual">0</div>
+                        <div class="kpi-unit">MT</div>
+                        <div class="kpi-target" id="outputTarget">Target: 0 MT</div>
+                    </div>
+                    <div class="kpi-box">
+                        <div class="kpi-label">OUTPUT V3 M1</div>
+                        <div class="kpi-value" id="outputM1">0</div>
+                        <div class="kpi-unit">MT</div>
+                    </div>
+                    <div class="kpi-box">
+                        <div class="kpi-label">PRODUCTIVE TIME</div>
+                        <div class="kpi-value" id="productiveTime">0</div>
+                        <div class="kpi-unit">%</div>
+                    </div>
+                    <div class="kpi-box">
+                        <div class="kpi-label">DAYS</div>
+                        <div class="kpi-value" id="productiveDays">0</div>
+                        <div class="kpi-unit">days</div>
+                    </div>
+                </div>
+
+                <div class="card-title" style="margin-top: 20px;">DOWNTIME BREAKDOWN</div>
+                <div class="downtime-list">
+                    <div class="downtime-item">
+                        <span class="downtime-label">Idle time</span>
+                        <span class="downtime-value" id="idleTime">0.0%</span>
+                    </div>
+                    <div class="downtime-item">
+                        <span class="downtime-label">Change Over Time</span>
+                        <span class="downtime-value" id="changeOver">0.0%</span>
+                    </div>
+                    <div class="downtime-item">
+                        <span class="downtime-label">Start-up Time/Setup</span>
+                        <span class="downtime-value" id="startup">0.0%</span>
+                    </div>
+                    <div class="downtime-item">
+                        <span class="downtime-label">Breaktime</span>
+                        <span class="downtime-value" id="breaktime">0.0%</span>
+                    </div>
+                    <div class="downtime-item">
+                        <span class="downtime-label">Sanitation Time</span>
+                        <span class="downtime-value" id="sanitation">0.0%</span>
+                    </div>
+                    <div class="downtime-item">
+                        <span class="downtime-label">Meeting</span>
+                        <span class="downtime-value" id="meeting">0.0%</span>
+                    </div>
+                    <div class="downtime-item">
+                        <span class="downtime-label">Breakdown</span>
+                        <span class="downtime-value" id="breakdown">0.0%</span>
+                    </div>
+                    <div class="downtime-item">
+                        <span class="downtime-label">Testing Time</span>
+                        <span class="downtime-value" id="testing">0.0%</span>
+                    </div>
+                    <div class="downtime-item">
+                        <span class="downtime-label">Preventive Maintenance</span>
+                        <span class="downtime-value" id="preventive">#ERROR!</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Column 2 -->
+            <div class="dashboard-card">
+                <div class="card-title">ATTENDANCE & MANPOWER</div>
+                <div class="kpi-grid">
+                    <div class="kpi-box large">
+                        <div class="kpi-label">ABSENTEEISM</div>
+                        <div class="kpi-value" id="absenteeismOverall">0.0%</div>
+                    </div>
+                    <div class="kpi-box">
+                        <div class="kpi-label">ADVANCES</div>
+                        <div class="kpi-value" id="advances">0</div>
+                    </div>
+                    <div class="kpi-box">
+                        <div class="kpi-label">MANPOWER</div>
+                        <div class="kpi-value" id="manpower">0</div>
+                    </div>
+                </div>
+
+                <div class="card-title" style="margin-top: 20px;">MACHINE UTILIZATION</div>
+                <div class="kpi-grid">
+                    <div class="kpi-box">
+                        <div class="kpi-label">UTILIZATION</div>
+                        <div class="kpi-value" id="machineUtil">0.0%</div>
+                    </div>
+                    <div class="kpi-box">
+                        <div class="kpi-label">DAYS</div>
+                        <div class="kpi-value" id="machineDays">0</div>
+                        <div class="kpi-unit">days</div>
+                    </div>
+                </div>
+
+                <div class="two-column">
+                    <div class="stats-box">
+                        <div class="stats-row">
+                            <span class="stats-label">DOWNTIME</span>
+                            <span class="stats-value error" id="downtimeTotal">#ERROR!</span>
+                        </div>
+                        <div class="stats-row">
+                            <span class="stats-label">Total Hours</span>
+                            <span class="stats-value" id="downtimeHours">0 hr</span>
+                        </div>
+                        <div class="stats-row">
+                            <span class="stats-label">OT Hours</span>
+                            <span class="stats-value" id="downtimeOT">0 hr</span>
+                        </div>
+                    </div>
+                    <div class="stats-box">
+                        <div class="stats-row">
+                            <span class="stats-label">LABOR REPORT</span>
+                            <span class="stats-value">Direct Labor</span>
+                        </div>
+                        <div class="stats-row">
+                            <span class="stats-label">Total Hours</span>
+                            <span class="stats-value" id="directHours">0 hr</span>
+                        </div>
+                        <div class="stats-row">
+                            <span class="stats-label">OT Hours</span>
+                            <span class="stats-value" id="directOT">0 hr</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stats-box" style="margin-top: 10px;">
+                    <div class="stats-row">
+                        <span class="stats-label">LABOR REPORT</span>
+                        <span class="stats-value">Indirect Labor</span>
+                    </div>
+                    <div class="stats-row">
+                        <span class="stats-label">Total Hours</span>
+                        <span class="stats-value" id="indirectHours">0 hr</span>
+                    </div>
+                    <div class="stats-row">
+                        <span class="stats-label">OT Hours</span>
+                        <span class="stats-value" id="indirectOT">0 hr</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Column 3 -->
+            <div class="dashboard-card">
+                <div class="card-title">INVENTORY & WAREHOUSE</div>
+                <div class="kpi-grid">
+                    <div class="kpi-box">
+                        <div class="kpi-label">RMPM SAVINGS</div>
+                        <div class="kpi-value" id="rmpmSavings">0</div>
+                        <div class="kpi-unit">Php</div>
+                    </div>
+                    <div class="kpi-box">
+                        <div class="kpi-label">PERCENTAGE</div>
+                        <div class="kpi-value" id="rmpmPct">0.0%</div>
+                    </div>
+                    <div class="kpi-box">
+                        <div class="kpi-label">IPH</div>
+                        <div class="kpi-value" id="iph">0.0</div>
+                    </div>
+                </div>
+
+                <div class="two-column">
+                    <div class="stats-box">
+                        <div class="stats-row">
+                            <span class="stats-label">Inventory Accuracy</span>
+                            <span class="stats-value" id="invAccuracyFG">0.0%</span>
+                        </div>
+                        <div class="stats-row">
+                            <span class="stats-label">RMPM</span>
+                            <span class="stats-value" id="invAccuracyRMPM">0.0%</span>
+                        </div>
+                        <div class="stats-row">
+                            <span class="stats-label">Production</span>
+                            <span class="stats-value warning">NO DATA</span>
+                        </div>
+                    </div>
+                    <div class="stats-box">
+                        <div class="stats-row">
+                            <span class="stats-label">Warehouse Util</span>
+                            <span class="stats-value" id="whUtilFG">0.0%</span>
+                        </div>
+                        <div class="stats-row">
+                            <span class="stats-label">RMPM</span>
+                            <span class="stats-value" id="whUtilRMPM">0.0%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-title" style="margin-top: 20px;">FORECAST ACCURACY</div>
+                <div class="kpi-grid">
+                    <div class="kpi-box">
+                        <div class="kpi-label">OVERALL</div>
+                        <div class="kpi-value" id="forecastOverall">0.0%</div>
+                    </div>
+                    <div class="kpi-box">
+                        <div class="kpi-label">EXPORT</div>
+                        <div class="kpi-value" id="forecastExport">0.0%</div>
+                    </div>
+                </div>
+
+                <div class="two-column" style="margin-top: 10px;">
+                    <div class="forecast-list" style="max-height: 150px;">
+                        <div class="forecast-item">
+                            <span class="forecast-label">EPOXY (MARINE +)</span>
+                            <span class="forecast-value" id="epoxy">0.0%</span>
+                        </div>
+                        <div class="forecast-item">
+                            <span class="forecast-label">ELASTOSEAL</span>
+                            <span class="forecast-value" id="elastoseal">0.0%</span>
+                        </div>
+                        <div class="forecast-item">
+                            <span class="forecast-label">MIGHTY BOND</span>
+                            <span class="forecast-value" id="mightyBond">0.0%</span>
+                        </div>
+                        <div class="forecast-item">
+                            <span class="forecast-label">PRO-EPOXY</span>
+                            <span class="forecast-value" id="proEpoxy">0.0%</span>
+                        </div>
+                        <div class="forecast-item">
+                            <span class="forecast-label">BUILDERS BOND</span>
+                            <span class="forecast-value" id="buildersBond">0.0%</span>
+                        </div>
+                    </div>
+                    <div class="forecast-list" style="max-height: 150px;">
+                        <div class="forecast-item">
+                            <span class="forecast-label">COATING MARINE</span>
+                            <span class="forecast-value" id="coating">0.0%</span>
+                        </div>
+                        <div class="forecast-item">
+                            <span class="forecast-label">TRANSPORTATION</span>
+                            <span class="forecast-value" id="transport">0.0%</span>
+                        </div>
+                        <div class="forecast-item">
+                            <span class="forecast-label">OTHER CONSUMER</span>
+                            <span class="forecast-value" id="otherConsumer">0.0%</span>
+                        </div>
+                        <div class="forecast-item">
+                            <span class="forecast-label">PRO-SEALANT</span>
+                            <span class="forecast-value" id="proSealant">0.0%</span>
+                        </div>
+                        <div class="forecast-item">
+                            <span class="forecast-label">PRO-WATERPROOF</span>
+                            <span class="forecast-value" id="proWaterproof">0.0%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Second Row -->
+        <div class="dashboard-grid" style="margin-top: 20px;">
+            <!-- Forecast by Location -->
+            <div class="dashboard-card">
+                <div class="card-title">FORECAST ACCURACY - LOCATION</div>
+                <div class="two-column">
+                    <div>
+                        <div class="forecast-item">
+                            <span class="forecast-label">LOCAL PHILIPPINES</span>
+                            <span class="forecast-value" id="localPH">0.0%</span>
+                        </div>
+                        <div class="forecast-item">
+                            <span class="forecast-label">GMA</span>
+                            <span class="forecast-value" id="gma">0.0%</span>
+                        </div>
+                        <div class="forecast-item">
+                            <span class="forecast-label">NORTH LUZON</span>
+                            <span class="forecast-value" id="northLuzon">0.0%</span>
+                        </div>
+                        <div class="forecast-item">
+                            <span class="forecast-label">SOUTH LUZON</span>
+                            <span class="forecast-value" id="southLuzon">0.0%</span>
+                        </div>
+                        <div class="forecast-item">
+                            <span class="forecast-label">VISAYAS</span>
+                            <span class="forecast-value" id="visayas">0.0%</span>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="forecast-item">
+                            <span class="forecast-label">MINDANAO</span>
+                            <span class="forecast-value" id="mindanao">0.0%</span>
+                        </div>
+                        <div class="forecast-item">
+                            <span class="forecast-label">MODERN TRADE</span>
+                            <span class="forecast-value" id="modernTrade">0.0%</span>
+                        </div>
+                        <div class="forecast-item">
+                            <span class="forecast-label">PSBSI</span>
+                            <span class="forecast-value" id="psbsi">0.0%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Absenteeism by Line -->
+            <div class="dashboard-card">
+                <div class="card-title">ABSENTEEISM BY PRODUCTION LINE</div>
+                <div class="absenteeism-grid">
+                    <div class="absenteeism-item">
+                        <div class="absenteeism-line">L06 - EPOXY</div>
+                        <div class="absenteeism-rate" id="absL06">0.0%</div>
+                    </div>
+                    <div class="absenteeism-item">
+                        <div class="absenteeism-line">L04B - ELASTO</div>
+                        <div class="absenteeism-rate" id="absL04B">0.0%</div>
+                    </div>
+                    <div class="absenteeism-item">
+                        <div class="absenteeism-line">L03 - CYANO TUBE</div>
+                        <div class="absenteeism-rate" id="absL03">0.0%</div>
+                    </div>
+                    <div class="absenteeism-item">
+                        <div class="absenteeism-line">L01 - COATINGS</div>
+                        <div class="absenteeism-rate" id="absL01">0.0%</div>
+                    </div>
+                    <div class="absenteeism-item">
+                        <div class="absenteeism-line">L07 - EPOXY TUBE</div>
+                        <div class="absenteeism-rate" id="absL07">0.0%</div>
+                    </div>
+                    <div class="absenteeism-item">
+                        <div class="absenteeism-line">LINE 9 - EPS</div>
+                        <div class="absenteeism-rate" id="absLine9">0.0%</div>
+                    </div>
+                    <div class="absenteeism-item">
+                        <div class="absenteeism-line">L10 - CONTACT BOND</div>
+                        <div class="absenteeism-rate" id="absL10">0.0%</div>
+                    </div>
+                    <div class="absenteeism-item">
+                        <div class="absenteeism-line">GIP L11 - SILICONE</div>
+                        <div class="absenteeism-rate" id="absL11">0.0%</div>
+                    </div>
+                    <div class="absenteeism-item">
+                        <div class="absenteeism-line">L12 - SPECIAL - EP</div>
+                        <div class="absenteeism-rate" id="absL12">0.0%</div>
+                    </div>
+                    <div class="absenteeism-item">
+                        <div class="absenteeism-line">L13 - SPECIAL</div>
+                        <div class="absenteeism-rate" id="absL13">0.0%</div>
+                    </div>
+                    <div class="absenteeism-item">
+                        <div class="absenteeism-line">LINE 14</div>
+                        <div class="absenteeism-rate" id="absLine14">0.0%</div>
+                    </div>
+                    <div class="absenteeism-item">
+                        <div class="absenteeism-line">L02 - CYNO BOTTLE</div>
+                        <div class="absenteeism-rate" id="absL02">0.0%</div>
+                    </div>
+                    <div class="absenteeism-item">
+                        <div class="absenteeism-line">LABELING LINE</div>
+                        <div class="absenteeism-rate" id="absLabeling">0.0%</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Additional Stats -->
+            <div class="dashboard-card">
+                <div class="card-title">SUMMARY STATS</div>
+                <div class="stats-box" style="margin-bottom: 10px;">
+                    <div class="stats-row">
+                        <span class="stats-label">Total KPIs</span>
+                        <span class="stats-value" id="totalKpis">87</span>
+                    </div>
+                    <div class="stats-row">
+                        <span class="stats-label">On Target</span>
+                        <span class="stats-value success" id="kpisOnTarget">0</span>
+                    </div>
+                    <div class="stats-row">
+                        <span class="stats-label">Below Target</span>
+                        <span class="stats-value error" id="kpisBelowTarget">0</span>
+                    </div>
+                </div>
+                <div class="stats-box">
+                    <div class="stats-row">
+                        <span class="stats-label">Forecast Items</span>
+                        <span class="stats-value" id="forecastCount">25</span>
+                    </div>
+                    <div class="stats-row">
+                        <span class="stats-label">Avg Forecast Accuracy</span>
+                        <span class="stats-value" id="avgForecast">0.0%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="note">* All values default to zero. Data is pulled from KPI Tracker inputs.</div>
+    </div>
+
+    <script>
+        // ==================== SHARED DATA STORAGE ====================
+        // Try to load data from localStorage (saved by tracker)
+        function loadTrackerData() {
+            const savedData = localStorage.getItem('kpiTrackerData');
+            if (savedData) {
+                return JSON.parse(savedData);
+            }
+            return null;
+        }
+
+        // Initialize with all zeros
+        let kpiData = loadTrackerData() || [];
+
+        // If no data, create empty structure with zeros
+        if (kpiData.length === 0) {
+            // Create empty data structure with IDs from 1-87
+            for (let i = 1; i <= 87; i++) {
+                kpiData.push({
+                    id: i,
+                    cat: '',
+                    sub: '',
+                    kpi: '',
+                    uom: '',
+                    target: 0,
+                    actual: 0,
+                    monthValues: {}
+                });
+            }
+        }
+
+        const months = ['OCT', 'NOV', 'DEC', 'JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP'];
+        let currentMonth = 'OCT';
+
+        // Helper function to get KPI value by ID
+        function getKPIValue(id, useMonth = false) {
+            const kpi = kpiData.find(k => k.id === id);
+            if (!kpi) return 0;
+            
+            if (useMonth && kpi.monthValues && kpi.monthValues[currentMonth] !== undefined) {
+                return kpi.monthValues[currentMonth] || 0;
+            }
+            return kpi.actual || 0;
+        }
+
+        function refreshDashboard() {
+            // Reload data from localStorage
+            const savedData = localStorage.getItem('kpiTrackerData');
+            if (savedData) {
+                kpiData = JSON.parse(savedData);
+            }
+            
+            updateDateTime();
+            
+            // Output & Productive Time
+            document.getElementById('outputActual').textContent = getKPIValue(4, true).toFixed(1);
+            document.getElementById('outputTarget').textContent = `Target: ${getKPIValue(5, true).toFixed(1)} MT`;
+            document.getElementById('outputM1').textContent = (getKPIValue(4, true) * 1.006).toFixed(1); // Approximate M1
+            document.getElementById('productiveTime').textContent = (getKPIValue(27) * 100).toFixed(1);
+            document.getElementById('productiveDays').textContent = (getKPIValue(29) / 30).toFixed(1);
+            
+            // Downtime Breakdown
+            document.getElementById('idleTime').textContent = (getKPIValue(25) * 100).toFixed(1) + '%';
+            document.getElementById('changeOver').textContent = (getKPIValue(18) * 100).toFixed(1) + '%';
+            document.getElementById('startup').textContent = (getKPIValue(21) * 100).toFixed(1) + '%';
+            document.getElementById('breaktime').textContent = (getKPIValue(23) * 100).toFixed(1) + '%';
+            document.getElementById('sanitation').textContent = (getKPIValue(20) * 100).toFixed(1) + '%';
+            document.getElementById('meeting').textContent = (getKPIValue(19) * 100).toFixed(1) + '%';
+            document.getElementById('breakdown').textContent = (getKPIValue(24) * 100).toFixed(1) + '%';
+            document.getElementById('testing').textContent = (getKPIValue(22) * 100).toFixed(1) + '%';
+            
+            // Attendance
+            document.getElementById('absenteeismOverall').textContent = (getKPIValue(68) * 100).toFixed(1) + '%';
+            document.getElementById('advances').textContent = Math.round(getKPIValue(70) * 100);
+            document.getElementById('manpower').textContent = Math.round(getKPIValue(69) / 12);
+            
+            // Machine Utilization
+            document.getElementById('machineUtil').textContent = (getKPIValue(28) * 10).toFixed(1) + '%';
+            document.getElementById('machineDays').textContent = (getKPIValue(29) / 30).toFixed(1);
+            
+            // Labor Reports
+            document.getElementById('downtimeHours').textContent = Math.round(getKPIValue(18) * 10000) + ' hr';
+            document.getElementById('downtimeOT').textContent = Math.round(getKPIValue(60) * 10) + ' hr';
+            document.getElementById('directHours').textContent = Math.round(getKPIValue(62) / 10) + ' hr';
+            document.getElementById('directOT').textContent = Math.round(getKPIValue(63)) + ' hr';
+            document.getElementById('indirectHours').textContent = Math.round(getKPIValue(65) * 10) + ' hr';
+            document.getElementById('indirectOT').textContent = Math.round(getKPIValue(66) * 10) + ' hr';
+            
+            // Inventory
+            document.getElementById('rmpmSavings').textContent = Math.round(getKPIValue(85) / 10);
+            document.getElementById('rmpmPct').textContent = (getKPIValue(87) * 100).toFixed(1) + '%';
+            document.getElementById('iph').textContent = (getKPIValue(4) / 30).toFixed(1);
+            document.getElementById('invAccuracyFG').textContent = (getKPIValue(30) * 10).toFixed(1) + '%';
+            document.getElementById('invAccuracyRMPM').textContent = (getKPIValue(31) * 10).toFixed(1) + '%';
+            document.getElementById('whUtilFG').textContent = (getKPIValue(32) * 100).toFixed(1) + '%';
+            document.getElementById('whUtilRMPM').textContent = (getKPIValue(33) * 100).toFixed(1) + '%';
+            
+            // Forecast Accuracy
+            document.getElementById('forecastOverall').textContent = (getKPIValue(47) / 12).toFixed(1) + '%';
+            document.getElementById('forecastExport').textContent = (getKPIValue(55) / 12).toFixed(1) + '%';
+            
+            // Product Forecasts
+            document.getElementById('epoxy').textContent = (getKPIValue(34) / 12).toFixed(1) + '%';
+            document.getElementById('elastoseal').textContent = (getKPIValue(35) / 12).toFixed(1) + '%';
+            document.getElementById('mightyBond').textContent = (getKPIValue(36) / 12).toFixed(1) + '%';
+            document.getElementById('proEpoxy').textContent = (getKPIValue(37) / 12).toFixed(1) + '%';
+            document.getElementById('buildersBond').textContent = (getKPIValue(38) / 12).toFixed(1) + '%';
+            document.getElementById('coating').textContent = (getKPIValue(39) / 12).toFixed(1) + '%';
+            document.getElementById('transport').textContent = (getKPIValue(40) / 12).toFixed(1) + '%';
+            document.getElementById('otherConsumer').textContent = (getKPIValue(41) / 12).toFixed(1) + '%';
+            document.getElementById('proSealant').textContent = (getKPIValue(42) / 12).toFixed(1) + '%';
+            document.getElementById('proWaterproof').textContent = (getKPIValue(43) / 12).toFixed(1) + '%';
+            
+            // Location Forecasts
+            document.getElementById('localPH').textContent = (getKPIValue(47) / 12).toFixed(1) + '%';
+            document.getElementById('gma').textContent = (getKPIValue(48) / 12).toFixed(1) + '%';
+            document.getElementById('northLuzon').textContent = (getKPIValue(49) / 12).toFixed(1) + '%';
+            document.getElementById('southLuzon').textContent = (getKPIValue(50) / 12).toFixed(1) + '%';
+            document.getElementById('visayas').textContent = (getKPIValue(51) / 12).toFixed(1) + '%';
+            document.getElementById('mindanao').textContent = (getKPIValue(52) / 12).toFixed(1) + '%';
+            document.getElementById('modernTrade').textContent = (getKPIValue(53) / 12).toFixed(1) + '%';
+            document.getElementById('psbsi').textContent = (getKPIValue(54) / 12).toFixed(1) + '%';
+            
+            // Absenteeism by Line
+            document.getElementById('absL06').textContent = (getKPIValue(72) * 100).toFixed(1) + '%';
+            document.getElementById('absL04B').textContent = (getKPIValue(73) * 100).toFixed(1) + '%';
+            document.getElementById('absL03').textContent = (getKPIValue(74) * 100).toFixed(1) + '%';
+            document.getElementById('absL01').textContent = (getKPIValue(75) * 100).toFixed(1) + '%';
+            document.getElementById('absL07').textContent = (getKPIValue(76) * 100).toFixed(1) + '%';
+            document.getElementById('absLine9').textContent = (getKPIValue(77) * 100).toFixed(1) + '%';
+            document.getElementById('absL10').textContent = (getKPIValue(78) * 100).toFixed(1) + '%';
+            document.getElementById('absL11').textContent = (getKPIValue(79) * 100).toFixed(1) + '%';
+            document.getElementById('absL12').textContent = (getKPIValue(80) * 100).toFixed(1) + '%';
+            document.getElementById('absL13').textContent = (getKPIValue(81) * 100).toFixed(1) + '%';
+            document.getElementById('absLine14').textContent = (getKPIValue(82) * 100).toFixed(1) + '%';
+            document.getElementById('absL02').textContent = (getKPIValue(83) * 100).toFixed(1) + '%';
+            document.getElementById('absLabeling').textContent = (getKPIValue(84) * 100).toFixed(1) + '%';
+            
+            // Summary Stats
+            const total = kpiData.length;
+            const onTarget = kpiData.filter(k => k.actual >= k.target && k.target > 0).length;
+            const belowTarget = kpiData.filter(k => k.actual < k.target && k.target > 0).length;
+            const forecastItems = kpiData.filter(k => k.kpi.includes('FORECAST')).length;
+            
+            document.getElementById('totalKpis').textContent = total;
+            document.getElementById('kpisOnTarget').textContent = onTarget;
+            document.getElementById('kpisBelowTarget').textContent = belowTarget;
+            document.getElementById('forecastCount').textContent = forecastItems;
+            
+            document.getElementById('monthDisplay').textContent = currentMonth + ' 2026';
+        }
+
+        function updateDateTime() {
+            const now = new Date();
+            document.getElementById('currentDateTime').textContent = 
+                now.toLocaleDateString() + ' ' + now.toLocaleTimeString();
+        }
+
+        function loadMonth() {
+            const selector = document.getElementById('monthSelector');
+            currentMonth = selector.value;
+            refreshDashboard();
+        }
+
+        function openTracker() {
+            window.open('kpi_tracker.html', '_blank');
+        }
+
+        // Auto-refresh every 30 seconds
+        setInterval(() => {
+            const savedData = localStorage.getItem('kpiTrackerData');
+            if (savedData) {
+                const newData = JSON.parse(savedData);
+                if (JSON.stringify(newData) !== JSON.stringify(kpiData)) {
+                    kpiData = newData;
+                    refreshDashboard();
+                }
+            }
+        }, 30000);
+
+        // Initialize
+        refreshDashboard();
+    </script>
+</body>
+</html>

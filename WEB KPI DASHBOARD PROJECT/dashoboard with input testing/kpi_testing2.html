@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2026 KPI Tracker - Pioneer (Complete)</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+        body {
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 100%;
+            overflow-x: auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            margin: 0 0 5px 0;
+            font-size: 24px;
+        }
+        .subtitle {
+            color: #7f8c8d;
+            margin-top: 0;
+            font-size: 14px;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            font-size: 11px;
+            border: 1px solid #b0c4de;
+        }
+        th {
+            background-color: #2c3e50;
+            color: white;
+            font-weight: 600;
+            padding: 8px 4px;
+            text-align: center;
+            border: 1px solid #34495e;
+            white-space: nowrap;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        td {
+            border: 1px solid #b0c4de;
+            padding: 4px;
+            vertical-align: middle;
+        }
+        .category-header {
+            background-color: #3498db;
+            color: white;
+            font-weight: bold;
+            text-align: left;
+            padding: 8px 10px;
+            font-size: 14px;
+        }
+        .subcategory-header {
+            background-color: #85c1e9;
+            font-weight: bold;
+            text-align: left;
+            padding: 6px 10px;
+            font-size: 13px;
+        }
+        .subsubcategory-header {
+            background-color: #d4e6f1;
+            font-weight: 600;
+            text-align: left;
+            padding: 4px 20px;
+            font-style: italic;
+        }
+        .kpi-row {
+            background-color: #ffffff;
+        }
+        .kpi-name {
+            font-weight: 500;
+            background-color: #ebf5fb;
+            width: 220px;
+            padding-left: 25px !important;
+        }
+        .indented-kpi {
+            padding-left: 40px !important;
+            background-color: #f8f9f9;
+        }
+        .uom {
+            text-align: center;
+            background-color: #f8f9f9;
+            width: 50px;
+        }
+        .target {
+            background-color: #fef9e7;
+            text-align: center;
+            font-weight: 500;
+            width: 70px;
+        }
+        .month-input {
+            width: 60px;
+            text-align: center;
+            border: 1px solid #d5dbdb;
+            border-radius: 3px;
+            padding: 4px 2px;
+            font-size: 11px;
+        }
+        .month-input:focus {
+            outline: 2px solid #3498db;
+            border-color: transparent;
+        }
+        .actual-cell {
+            background-color: #e8f8f5;
+            text-align: center;
+            font-weight: 500;
+            width: 70px;
+        }
+        .formula-badge {
+            background-color: #f39c12;
+            color: white;
+            font-size: 8px;
+            padding: 2px 4px;
+            border-radius: 10px;
+            margin-left: 4px;
+        }
+        .control-panel {
+            margin-bottom: 15px;
+            padding: 10px;
+            background-color: #ecf0f1;
+            border-radius: 5px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        .export-btn {
+            background-color: #27ae60;
+        }
+        .export-btn:hover {
+            background-color: #229954;
+        }
+        .reset-btn {
+            background-color: #e74c3c;
+        }
+        .reset-btn:hover {
+            background-color: #c0392b;
+        }
+        .summary-btn {
+            background-color: #8e44ad;
+        }
+        .summary-btn:hover {
+            background-color: #7d3c98;
+        }
+        .warning-badge {
+            background-color: #f39c12;
+            color: white;
+            border-radius: 10px;
+            padding: 2px 6px;
+            font-size: 9px;
+        }
+        .footer {
+            margin-top: 15px;
+            color: #7f8c8d;
+            font-size: 11px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .stats {
+            background-color: #f0f7fb;
+            padding: 5px 10px;
+            border-radius: 15px;
+        }
+        .formula-cell {
+            background-color: #fef5e7;
+            color: #e67e22;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>PIONEER</h1>
+        <div class="subtitle">2026 KPI TRACKER - Complete Version (All KPIs Included)</div>
+        
+        <div class="control-panel">
+            <button onclick="calculateFormulas()">🔄 Calculate Formulas</button>
+            <button class="export-btn" onclick="exportToCSV()">📥 Export to CSV</button>
+            <button class="reset-btn" onclick="resetToDefault()">↺ Reset Values</button>
+            <button class="summary-btn" onclick="showSummary()">📊 Summary View</button>
+            <span id="saveStatus" style="margin-left: auto; color: #27ae60;"></span>
+            <span class="stats" id="kpiCount">Loading KPIs...</span>
+        </div>
+
+        <table id="kpiTable">
+            <thead>
+                <tr>
+                    <th style="width: 30px;">#</th>
+                    <th style="width: 250px;">KPI</th>
+                    <th style="width: 50px;">UoM</th>
+                    <th style="width: 70px;">2026 TARGET</th>
+                    <th style="width: 65px;">OCT</th>
+                    <th style="width: 65px;">NOV</th>
+                    <th style="width: 65px;">DEC</th>
+                    <th style="width: 65px;">JAN</th>
+                    <th style="width: 65px;">FEB</th>
+                    <th style="width: 65px;">MAR</th>
+                    <th style="width: 65px;">APR</th>
+                    <th style="width: 65px;">MAY</th>
+                    <th style="width: 65px;">JUN</th>
+                    <th style="width: 65px;">JUL</th>
+                    <th style="width: 65px;">AUG</th>
+                    <th style="width: 65px;">SEP</th>
+                    <th style="width: 70px;">2026 ACTUAL</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                <!-- Table will be populated by JavaScript -->
+            </tbody>
+        </table>
+        <div class="footer">
+            <div><span class="warning-badge">⚡</span> Yellow cells contain formulas - Click "Calculate Formulas" to update</div>
+            <div>Total KPIs: <span id="totalKpis">0</span> | Last updated: <span id="lastUpdated">Just now</span></div>
+        </div>
+    </div>
+
+    <script>
+        // Complete KPI Data Structure with all requested KPIs
+        const kpiData = [
+            // ==================== BUSINESS GOALS ====================
+            { id: 1, category: 'BUSINESS GOALS', subcategory: 'FINANCIALS', kpi: 'Conversion Cost (SC only)', uom: 'PHP/KG', target: 15.5,
+              months: { OCT: 14.2, NOV: 14.8, DEC: 15.1, JAN: 13.9, FEB: 14.5, MAR: 15.2, APR: 14.7, MAY: 15.0, JUN: 14.9, JUL: 15.3, AUG: 14.6, SEP: 15.1 },
+              actual: 177.3, hasFormula: false },
+            
+            { id: 2, category: 'BUSINESS GOALS', subcategory: 'FINANCIALS', kpi: 'Conversion Cost (Overall)', uom: 'PHP/KG', target: 16.2,
+              months: { OCT: 15.1, NOV: 15.6, DEC: 15.9, JAN: 14.8, FEB: 15.3, MAR: 16.0, APR: 15.5, MAY: 15.8, JUN: 15.7, JUL: 16.1, AUG: 15.4, SEP: 15.9 },
+              actual: 187.1, hasFormula: false },
+            
+            { id: 3, category: 'BUSINESS GOALS', subcategory: 'FINANCIALS', kpi: 'Conversion Cost vs Target', uom: '%', target: null,
+              months: { OCT: '=IFERROR(E1/D1,0)', NOV: '=IFERROR(F1/E1,0)', DEC: '=IFERROR(G1/F1,0)', JAN: '=IFERROR(H1/G1,0)', 
+                       FEB: '=IFERROR(I1/H1,0)', MAR: '=IFERROR(J1/I1,0)', APR: '=IFERROR(K1/J1,0)', MAY: '=IFERROR(L1/K1,0)',
+                       JUN: '=IFERROR(M1/L1,0)', JUL: '=IFERROR(N1/M1,0)', AUG: '=IFERROR(O1/N1,0)', SEP: '=IFERROR(P1/O1,0)' },
+              actual: null, hasFormula: true, formulaRef: 'SC only' },
+            
+            { id: 4, category: 'BUSINESS GOALS', subcategory: 'FINANCIALS', kpi: 'Volume produced (MT) Actual', uom: 'MT', target: 1200,
+              months: { OCT: 98.5, NOV: 102.3, DEC: 105.7, JAN: 95.2, FEB: 103.8, MAR: 108.4, APR: 101.2, MAY: 107.5, JUN: 104.9, JUL: 110.2, AUG: 106.3, SEP: 109.8 },
+              actual: 1253.8, hasFormula: false },
+            
+            { id: 5, category: 'BUSINESS GOALS', subcategory: 'FINANCIALS', kpi: 'Volume produced (MT) Target', uom: 'MT', target: 1200,
+              months: { OCT: 100, NOV: 100, DEC: 100, JAN: 100, FEB: 100, MAR: 100, APR: 100, MAY: 100, JUN: 100, JUL: 100, AUG: 100, SEP: 100 },
+              actual: 1200, hasFormula: false },
+            
+            { id: 6, category: 'BUSINESS GOALS', subcategory: 'FINANCIALS', kpi: 'Volume produced %', uom: '%', target: 1.0,
+              months: { OCT: 0.985, NOV: 1.023, DEC: 1.057, JAN: 0.952, FEB: 1.038, MAR: 1.084, APR: 1.012, MAY: 1.075, JUN: 1.049, JUL: 1.102, AUG: 1.063, SEP: 1.098 },
+              actual: 1.0448, hasFormula: false },
+            
+            { id: 7, category: 'BUSINESS GOALS', subcategory: 'FILL RATE', kpi: 'Achievement (Value)', uom: '%', target: 0.99,
+              months: { OCT: 0.97, NOV: 0.98, DEC: 0.985, JAN: 0.975, FEB: 0.98, MAR: 0.99, APR: 0.985, MAY: 0.98, JUN: 0.99, JUL: 0.985, AUG: 0.99, SEP: 0.99 },
+              actual: 0.985, hasFormula: false },
+            
+            { id: 8, category: 'BUSINESS GOALS', subcategory: 'OTIF', kpi: 'OTIF Rate', uom: '%', target: 0.7,
+              months: { OCT: 0.65, NOV: 0.68, DEC: 0.7, JAN: 0.66, FEB: 0.69, MAR: 0.71, APR: 0.7, MAY: 0.72, JUN: 0.71, JUL: 0.73, AUG: 0.72, SEP: 0.74 },
+              actual: 0.701, hasFormula: false },
+            
+            { id: 9, category: 'BUSINESS GOALS', subcategory: 'FINANCIALS', kpi: 'Operational Cost - Actual', uom: 'PHP', target: 500000,
+              months: { OCT: 42500, NOV: 43800, DEC: 45200, JAN: 41500, FEB: 44500, MAR: 46800, APR: 43200, MAY: 45500, JUN: 44200, JUL: 47200, AUG: 44800, SEP: 46500 },
+              actual: 535700, hasFormula: false },
+            
+            { id: 10, category: 'BUSINESS GOALS', subcategory: 'FINANCIALS', kpi: 'Operational Cost - Budget', uom: 'PHP', target: 500000,
+              months: { OCT: 42000, NOV: 42000, DEC: 42000, JAN: 42000, FEB: 42000, MAR: 42000, APR: 42000, MAY: 42000, JUN: 42000, JUL: 42000, AUG: 42000, SEP: 42000 },
+              actual: 504000, hasFormula: false },
+            
+            { id: 11, category: 'BUSINESS GOALS', subcategory: 'FINANCIALS', kpi: 'Operational Cost %', uom: '%', target: null,
+              months: { OCT: '=IFERROR(E9/E10,0)', NOV: '=IFERROR(F9/F10,0)', DEC: '=IFERROR(G9/G10,0)', JAN: '=IFERROR(H9/H10,0)',
+                       FEB: '=IFERROR(I9/I10,0)', MAR: '=IFERROR(J9/J10,0)', APR: '=IFERROR(K9/K10,0)', MAY: '=IFERROR(L9/L10,0)',
+                       JUN: '=IFERROR(M9/M10,0)', JUL: '=IFERROR(N9/N10,0)', AUG: '=IFERROR(O9/O10,0)', SEP: '=IFERROR(P9/P10,0)' },
+              actual: null, hasFormula: true },
+            
+            { id: 12, category: 'BUSINESS GOALS', subcategory: 'FINANCIALS', kpi: 'Capital Expenditures - Actual', uom: 'PHP', target: 250000,
+              months: { OCT: 18500, NOV: 22300, DEC: 31200, JAN: 15800, FEB: 27800, MAR: 34200, APR: 19500, MAY: 28700, JUN: 26400, JUL: 35600, AUG: 24300, SEP: 33800 },
+              actual: 318100, hasFormula: false },
+            
+            { id: 13, category: 'BUSINESS GOALS', subcategory: 'FINANCIALS', kpi: 'Capital Expenditures - Budget', uom: 'PHP', target: 250000,
+              months: { OCT: 20833, NOV: 20833, DEC: 20833, JAN: 20833, FEB: 20833, MAR: 20833, APR: 20833, MAY: 20833, JUN: 20833, JUL: 20833, AUG: 20833, SEP: 20833 },
+              actual: 250000, hasFormula: false },
+            
+            { id: 14, category: 'BUSINESS GOALS', subcategory: 'FINANCIALS', kpi: 'Capital Expenditure %', uom: '%', target: null,
+              months: { OCT: '=IFERROR(E12/E13,0)', NOV: '=IFERROR(F12/F13,0)', DEC: '=IFERROR(G12/G13,0)', JAN: '=IFERROR(H12/H13,0)',
+                       FEB: '=IFERROR(I12/I13,0)', MAR: '=IFERROR(J12/J13,0)', APR: '=IFERROR(K12/K13,0)', MAY: '=IFERROR(L12/L13,0)',
+                       JUN: '=IFERROR(M12/M13,0)', JUL: '=IFERROR(N12/N13,0)', AUG: '=IFERROR(O12/O13,0)', SEP: '=IFERROR(P12/P13,0)' },
+              actual: null, hasFormula: true },
+            
+            // ==================== OPERATIONAL OBJECTIVES ====================
+            // Production Reports
+            { id: 15, category: 'OPERATIONAL OBJECTIVES', subcategory: 'Production Reports', kpi: 'Output vs Target (planned)', uom: '%', target: 0.9,
+              months: { OCT: 0.88, NOV: 0.92, DEC: 0.94, JAN: 0.87, FEB: 0.91, MAR: 0.93, APR: 0.9, MAY: 0.92, JUN: 0.91, JUL: 0.94, AUG: 0.92, SEP: 0.95 },
+              actual: 0.915, hasFormula: false },
+            
+            { id: 16, category: 'OPERATIONAL OBJECTIVES', subcategory: 'Production Reports', kpi: 'Output Actual', uom: 'MT', target: null,
+              months: { OCT: 98.5, NOV: 102.3, DEC: 105.7, JAN: 95.2, FEB: 103.8, MAR: 108.4, APR: 101.2, MAY: 107.5, JUN: 104.9, JUL: 110.2, AUG: 106.3, SEP: 109.8 },
+              actual: 1253.8, hasFormula: false },
+            
+            { id: 17, category: 'OPERATIONAL OBJECTIVES', subcategory: 'Production Reports', kpi: 'Output Target', uom: 'MT', target: null,
+              months: { OCT: 100, NOV: 100, DEC: 100, JAN: 100, FEB: 100, MAR: 100, APR: 100, MAY: 100, JUN: 100, JUL: 100, AUG: 100, SEP: 100 },
+              actual: 1200, hasFormula: false },
+            
+            // Downtime Analysis Components
+            { id: 18, category: 'OPERATIONAL OBJECTIVES', subcategory: 'Downtime Analysis', kpi: 'Change Over Time', uom: '%', target: 0.05,
+              months: { OCT: 0.048, NOV: 0.052, DEC: 0.045, JAN: 0.055, FEB: 0.05, MAR: 0.047, APR: 0.051, MAY: 0.049, JUN: 0.046, JUL: 0.044, AUG: 0.048, SEP: 0.043 },
+              actual: 0.578, hasFormula: false },
+            
+            { id: 19, category: 'OPERATIONAL OBJECTIVES', subcategory: 'Downtime Analysis', kpi: 'Meeting', uom: '%', target: 0.03,
+              months: { OCT: 0.028, NOV: 0.032, DEC: 0.027, JAN: 0.033, FEB: 0.03, MAR: 0.029, APR: 0.031, MAY: 0.028, JUN: 0.03, JUL: 0.027, AUG: 0.029, SEP: 0.026 },
+              actual: 0.35, hasFormula: false },
+            
+            { id: 20, category: 'OPERATIONAL OBJECTIVES', subcategory: 'Downtime Analysis', kpi: 'Sanitation Time', uom: '%', target: 0.04,
+              months: { OCT: 0.038, NOV: 0.042, DEC: 0.037, JAN: 0.043, FEB: 0.04, MAR: 0.039, APR: 0.041, MAY: 0.038, JUN: 0.04, JUL: 0.037, AUG: 0.039, SEP: 0.036 },
+              actual: 0.47, hasFormula: false },
+            
+            { id: 21, category: 'OPERATIONAL OBJECTIVES', subcategory: 'Downtime Analysis', kpi: 'Start-up Time/Setup', uom: '%', target: 0.06,
+              months: { OCT: 0.058, NOV: 0.062, DEC: 0.057, JAN: 0.063, FEB: 0.06, MAR: 0.059, APR: 0.061, MAY: 0.058, JUN: 0.06, JUL: 0.057, AUG: 0.059, SEP: 0.056 },
+              actual: 0.71, hasFormula: false },
+            
+            { id: 22, category: 'OPERATIONAL OBJECTIVES', subcategory: 'Downtime Analysis', kpi: 'Testing Time', uom: '%', target: 0.02,
+              months: { OCT: 0.018, NOV: 0.022, DEC: 0.017, JAN: 0.023, FEB: 0.02, MAR: 0.019, APR: 0.021, MAY: 0.018, JUN: 0.02, JUL: 0.017, AUG: 0.019, SEP: 0.016 },
+              actual: 0.23, hasFormula: false },
+            
+            { id: 23, category: 'OPERATIONAL OBJECTIVES', subcategory: 'Downtime Analysis', kpi: 'Breaktime', uom: '%', target: 0.08,
+              months: { OCT: 0.078, NOV: 0.082, DEC: 0.077, JAN: 0.083, FEB: 0.08, MAR: 0.079, APR: 0.081, MAY: 0.078, JUN: 0.08, JUL: 0.077, AUG: 0.079, SEP: 0.076 },
+              actual: 0.95, hasFormula: false },
+            
+            { id: 24, category: 'OPERATIONAL OBJECTIVES', subcategory: 'Downtime Analysis', kpi: 'Breakdown', uom: '%', target: 0.03,
+              months: { OCT: 0.028, NOV: 0.032, DEC: 0.027, JAN: 0.033, FEB: 0.03, MAR: 0.029, APR: 0.031, MAY: 0.028, JUN: 0.03, JUL: 0.027, AUG: 0.029, SEP: 0.026 },
+              actual: 0.35, hasFormula: false },
+            
+            { id: 25, category: 'OPERATIONAL OBJECTIVES', subcategory: 'Downtime Analysis', kpi: 'Idle time', uom: '%', target: 0.04,
+              months: { OCT: 0.038, NOV: 0.042, DEC: 0.037, JAN: 0.043, FEB: 0.04, MAR: 0.039, APR: 0.041, MAY: 0.038, JUN: 0.04, JUL: 0.037, AUG: 0.039, SEP: 0.036 },
+              actual: 0.47, hasFormula: false },
+            
+            { id: 26, category: 'OPERATIONAL OBJECTIVES', subcategory: 'Downtime Analysis', kpi: 'Preventive Maintenance', uom: '%', target: 0.07,
+              months: { OCT: 0.068, NOV: 0.072, DEC: 0.067, JAN: 0.073, FEB: 0.07, MAR: 0.069, APR: 0.071, MAY: 0.068, JUN: 0.07, JUL: 0.067, AUG: 0.069, SEP: 0.066 },
+              actual: 0.83, hasFormula: false },
+            
+            { id: 27, category: 'OPERATIONAL OBJECTIVES', subcategory: 'Production Reports', kpi: 'Productive Time', uom: '%', target: 0.8,
+              months: { OCT: 0.78, NOV: 0.79, DEC: 0.81, JAN: 0.77, FEB: 0.79, MAR: 0.8, APR: 0.79, MAY: 0.81, JUN: 0.8, JUL: 0.82, AUG: 0.81, SEP: 0.83 },
+              actual: 9.6, hasFormula: false },
+            
+            { id: 28, category: 'OPERATIONAL OBJECTIVES', subcategory: 'Production Reports', kpi: 'Machine Utilization', uom: '%', target: 0.85,
+              months: { OCT: 0.83, NOV: 0.84, DEC: 0.86, JAN: 0.82, FEB: 0.84, MAR: 0.85, APR: 0.84, MAY: 0.85, JUN: 0.84, JUL: 0.86, AUG: 0.85, SEP: 0.87 },
+              actual: 10.15, hasFormula: false },
+            
+            // Inventory Reports
+            { id: 29, category: 'OPERATIONAL OBJECTIVES', subcategory: 'Inventory Reports', kpi: 'DIO', uom: 'days', target: 70,
+              months: { OCT: 68, NOV: 71, DEC: 74, JAN: 69, FEB: 72, MAR: 70, APR: 71, MAY: 73, JUN: 70, JUL: 72, AUG: 71, SEP: 70 },
+              actual: 851, hasFormula: false },
+            
+            { id: 30, category: 'OPERATIONAL OBJECTIVES', subcategory: 'Inventory Reports', kpi: 'Inventory Accuracy FG', uom: '%', target: 1.0,
+              months: { OCT: 0.98, NOV: 0.985, DEC: 0.99, JAN: 0.98, FEB: 0.99, MAR: 0.99, APR: 0.985, MAY: 0.99, JUN: 0.99, JUL: 0.995, AUG: 0.99, SEP: 0.995 },
+              actual: 11.86, hasFormula: false },
+            
+            { id: 31, category: 'OPERATIONAL OBJECTIVES', subcategory: 'Inventory Reports', kpi: 'Inventory Accuracy RMPM', uom: '%', target: 1.0,
+              months: { OCT: 0.97, NOV: 0.975, DEC: 0.98, JAN: 0.97, FEB: 0.98, MAR: 0.98, APR: 0.975, MAY: 0.98, JUN: 0.98, JUL: 0.985, AUG: 0.98, SEP: 0.985 },
+              actual: 11.74, hasFormula: false },
+            
+            // Warehouse Utilization
+            { id: 32, category: 'OPERATIONAL OBJECTIVES', subcategory: 'Warehouse Utilization', kpi: 'Warehouse Utilization FG', uom: '%', target: 0.85,
+              months: { OCT: 0.82, NOV: 0.84, DEC: 0.86, JAN: 0.81, FEB: 0.83, MAR: 0.85, APR: 0.84, MAY: 0.85, JUN: 0.84, JUL: 0.86, AUG: 0.85, SEP: 0.87 },
+              actual: 10.12, hasFormula: false },
+            
+            { id: 33, category: 'OPERATIONAL OBJECTIVES', subcategory: 'Warehouse Utilization', kpi: 'Warehouse Utilization RMPM', uom: '%', target: 0.80,
+              months: { OCT: 0.78, NOV: 0.79, DEC: 0.81, JAN: 0.77, FEB: 0.78, MAR: 0.8, APR: 0.79, MAY: 0.8, JUN: 0.79, JUL: 0.81, AUG: 0.8, SEP: 0.82 },
+              actual: 9.54, hasFormula: false },
+            
+            // S&OP Reports - Forecast Accuracy by Product
+            { id: 34, category: 'OPERATIONAL OBJECTIVES', subcategory: 'S&OP Reports - Product Forecast', kpi: 'EPOXY (MARINE + CONSTRUCTION)', uom: '%', target: 0.85,
+              months: { OCT: 0.82, NOV: 0.83, DEC: 0.85, JAN: 0.81, FEB: 0.84, MAR: 0.85, APR: 0.83, MAY: 0.84, JUN: 0.83, JUL: 0.86, AUG: 0.84, SEP: 0.87 },
+              actual: 10.07, hasFormula: false },
+            
+            { id: 35, category: 'OPERATIONAL OBJECTIVES', subcategory: 'S&OP Reports - Product Forecast', kpi: 'ELASTOSEAL', uom: '%', target: 0.83,
+              months: { OCT: 0.81, NOV: 0.82, DEC: 0.84, JAN: 0.8, FEB: 0.83, MAR: 0.84, APR: 0.82, MAY: 0.83, JUN: 0.82, JUL: 0.85, AUG: 0.83, SEP: 0.86 },
+              actual: 9.95, hasFormula: false },
+            
+            { id: 36, category: 'OPERATIONAL OBJECTIVES', subcategory: 'S&OP Reports - Product Forecast', kpi: 'MIGHTY BOND', uom: '%', target: 0.84,
+              months: { OCT: 0.82, NOV: 0.83, DEC: 0.85, JAN: 0.81, FEB: 0.84, MAR: 0.85, APR: 0.83, MAY: 0.84, JUN: 0.83, JUL: 0.86, AUG: 0.84, SEP: 0.87 },
+              actual: 10.07, hasFormula: false },
+            
+            { id: 37, category: 'OPERATIONAL OBJECTIVES', subcategory: 'S&OP Reports - Product Forecast', kpi: 'PRO-EPOXY', uom: '%', target: 0.86,
+              months: { OCT: 0.84, NOV: 0.85, DEC: 0.87, JAN: 0.83, FEB: 0.86, MAR: 0.87, APR: 0.85, MAY: 0.86, JUN: 0.85, JUL: 0.88, AUG: 0.86, SEP: 0.89 },
+              actual: 10.31, hasFormula: false },
+            
+            { id: 38, category: 'OPERATIONAL OBJECTIVES', subcategory: 'S&OP Reports - Product Forecast', kpi: 'BUILDERS BOND', uom: '%', target: 0.82,
+              months: { OCT: 0.8, NOV: 0.81, DEC: 0.83, JAN: 0.79, FEB: 0.82, MAR: 0.83, APR: 0.81, MAY: 0.82, JUN: 0.81, JUL: 0.84, AUG: 0.82, SEP: 0.85 },
+              actual: 9.83, hasFormula: false },
+            
+            { id: 39, category: 'OPERATIONAL OBJECTIVES', subcategory: 'S&OP Reports - Product Forecast', kpi: 'COATING MARINE', uom: '%', target: 0.87,
+              months: { OCT: 0.85, NOV: 0.86, DEC: 0.88, JAN: 0.84, FEB: 0.87, MAR: 0.88, APR: 0.86, MAY: 0.87, JUN: 0.86, JUL: 0.89, AUG: 0.87, SEP: 0.9 },
+              actual: 10.43, hasFormula: false },
+            
+            { id: 40, category: 'OPERATIONAL OBJECTIVES', subcategory: 'S&OP Reports - Product Forecast', kpi: 'TRASPORTATION', uom: '%', target: 0.81,
+              months: { OCT: 0.79, NOV: 0.8, DEC: 0.82, JAN: 0.78, FEB: 0.81, MAR: 0.82, APR: 0.8, MAY: 0.81, JUN: 0.8, JUL: 0.83, AUG: 0.81, SEP: 0.84 },
+              actual: 9.71, hasFormula: false },
+            
+            { id: 41, category: 'OPERATIONAL OBJECTIVES', subcategory: 'S&OP Reports - Product Forecast', kpi: 'OTHER CONSUMER', uom: '%', target: 0.79,
+              months: { OCT: 0.77, NOV: 0.78, DEC: 0.8, JAN: 0.76, FEB: 0.79, MAR: 0.8, APR: 0.78, MAY: 0.79, JUN: 0.78, JUL: 0.81, AUG: 0.79, SEP: 0.82 },
+              actual: 9.47, hasFormula: false },
+            
+            { id: 42, category: 'OPERATIONAL OBJECTIVES', subcategory: 'S&OP Reports - Product Forecast', kpi: 'PRO-SEALANT', uom: '%', target: 0.83,
+              months: { OCT: 0.81, NOV: 0.82, DEC: 0.84, JAN: 0.8, FEB: 0.83, MAR: 0.84, APR: 0.82, MAY: 0.83, JUN: 0.82, JUL: 0.85, AUG: 0.83, SEP: 0.86 },
+              actual: 9.95, hasFormula: false },
+            
+            { id: 43, category: 'OPERATIONAL OBJECTIVES', subcategory: 'S&OP Reports - Product Forecast', kpi: 'PRO-WATERPROOFING', uom: '%', target: 0.84,
+              months: { OCT: 0.82, NOV: 0.83, DEC: 0.85, JAN: 0.81, FEB: 0.84, MAR: 0.85, APR: 0.83, MAY: 0.84, JUN: 0.83, JUL: 0.86, AUG: 0.84, SEP: 0.87 },
+              actual: 10.07, hasFormula: false },
+            
+            { id: 44, category: 'OPERATIONAL OBJECTIVES', subcategory: 'S&OP Reports - Product Forecast', kpi: 'PRO-PAINTING', uom: '%', target: 0.85,
+              months: { OCT: 0.83, NOV: 0.84, DEC: 0.86, JAN: 0.82, FEB: 0.85, MAR: 0.86, APR: 0.84, MAY: 0.85, JUN: 0.84, JUL: 0.87, AUG: 0.85, SEP: 0.88 },
+              actual: 10.19, hasFormula: false },
+            
+            { id: 45, category: 'OPERATIONAL OBJECTIVES', subcategory: 'S&OP Reports - Product Forecast', kpi: 'PRO-ADHESIVES', uom: '%', target: 0.86,
+              months: { OCT: 0.84, NOV: 0.85, DEC: 0.87, JAN: 0.83, FEB: 0.86, MAR: 0.87, APR: 0.85, MAY: 0.86, JUN: 0.85, JUL: 0.88, AUG: 0.86, SEP: 0.89 },
+              actual: 10.31, hasFormula: false },
+            
+            { id: 46, category: 'OPERATIONAL OBJECTIVES', subcategory: 'S&OP Reports - Product Forecast', kpi: 'MINING', uom: '%', target: 0.88,
+              months: { OCT: 0.86, NOV: 0.87, DEC: 0.89, JAN: 0.85, FEB: 0.88, MAR: 0.89, APR: 0.87, MAY: 0.88, JUN: 0.87, JUL: 0.9, AUG: 0.88, SEP: 0.91 },
+              actual: 10.55, hasFormula: false },
+            
+            // S&OP Reports - Forecast Accuracy by Location - Philippines
+            { id: 47, category: 'OPERATIONAL OBJECTIVES', subcategory: 'S&OP Reports - Location: PHILIPPINES', kpi: 'LOCAL PHILIPPINES (Overall)', uom: '%', target: 0.82,
+              months: { OCT: 0.8, NOV: 0.81, DEC: 0.83, JAN: 0.79, FEB: 0.82, MAR: 0.83, APR: 0.81, MAY: 0.82, JUN: 0.81, JUL: 0.84, AUG: 0.82, SEP: 0.85 },
+              actual: 9.83, hasFormula: false },
+            
+            { id: 48, category: 'OPERATIONAL OBJECTIVES', subcategory: 'S&OP Reports - Location: PHILIPPINES', kpi: 'GMA', uom: '%', target: 0.83,
+              months: { OCT: 0.81, NOV: 0.82, DEC: 0.84, JAN: 0.8, FEB: 0.83, MAR: 0.84, APR: 0.82, MAY: 0.83, JUN: 0.82, JUL: 0.85, AUG: 0.83, SEP: 0.86 },
+              actual: 9.95, hasFormula: false },
+            
+            { id: 49, category: 'OPERATIONAL OBJECTIVES', subcategory: 'S&OP Reports - Location: PHILIPPINES', kpi: 'NORTH LUZON', uom: '%', target: 0.84,
+              months: { OCT: 0.82, NOV: 0.83, DEC: 0.85, JAN: 0.81, FEB: 0.84, MAR: 0.85, APR: 0.83, MAY: 0.84, JUN: 0.83, JUL: 0.86, AUG: 0.84, SEP: 0.87 },
+              actual: 10.07, hasFormula: false },
+            
+            { id: 50, category: 'OPERATIONAL OBJECTIVES', subcategory: 'S&OP Reports - Location: PHILIPPINES', kpi: 'SOUTH LUZON', uom: '%', target: 0.85,
+              months: { OCT: 0.83, NOV: 0.84, DEC: 0.86, JAN: 0.82, FEB: 0.85, MAR: 0.86, APR: 0.84, MAY: 0.85, JUN: 0.84, JUL: 0.87, AUG: 0.85, SEP: 0.88 },
+              actual: 10.19, hasFormula: false },
+            
+            { id: 51, category: 'OPERATIONAL OBJECTIVES', subcategory: 'S&OP Reports - Location: PHILIPPINES', kpi: 'VISAYAS', uom: '%', target: 0.81,
+              months: { OCT: 0.79, NOV: 0.8, DEC: 0.82, JAN: 0.78, FEB: 0.81, MAR: 0.82, APR: 0.8, MAY: 0.81, JUN: 0.8, JUL: 0.83, AUG: 0.81, SEP: 0.84 },
+              actual: 9.71, hasFormula: false },
+            
+            { id: 52, category: 'OPERATIONAL OBJECTIVES', subcategory: 'S&OP Reports - Location: PHILIPPINES', kpi: 'MINDANAO', uom: '%', target: 0.8,
+              months: { OCT: 0.78, NOV: 0.79, DEC: 0.81, JAN: 0.77, FEB: 0.8, MAR: 0.81, APR: 0.79, MAY: 0.8, JUN: 0.79, JUL: 0.82, AUG: 0.8, SEP: 0.83 },
+              actual: 9.59, hasFormula: false },
+            
+            { id: 53, category: 'OPERATIONAL OBJECTIVES', subcategory: 'S&OP Reports - Location: PHILIPPINES', kpi: 'MODERN TRADE', uom: '%', target: 0.86,
+              months: { OCT: 0.84, NOV: 0.85, DEC: 0.87, JAN: 0.83, FEB: 0.86, MAR: 0.87, APR: 0.85, MAY: 0.86, JUN: 0.85, JUL: 0.88, AUG: 0.86, SEP: 0.89 },
+              actual: 10.31, hasFormula: false },
+            
+            { id: 54, category: 'OPERATIONAL OBJECTIVES', subcategory: 'S&OP Reports - Location: PHILIPPINES', kpi: 'PSBSI', uom: '%', target: 0.87,
+              months: { OCT: 0.85, NOV: 0.86, DEC: 0.88, JAN: 0.84, FEB: 0.87, MAR: 0.88, APR: 0.86, MAY: 0.87, JUN: 0.86, JUL: 0.89, AUG: 0.87, SEP: 0.9 },
+              actual: 10.43, hasFormula: false },
+            
+            // S&OP Reports - Export Locations
+            { id: 55, category: 'OPERATIONAL OBJECTIVES', subcategory: 'S&OP Reports - Location: EXPORT', kpi: 'EXPORT (Overall)', uom: '%', target: 0.79,
+              months: { OCT: 0.77, NOV: 0.78, DEC: 0.8, JAN: 0.76, FEB: 0.79, MAR: 0.8, APR: 0.78, MAY: 0.79, JUN: 0.78, JUL: 0.81, AUG: 0.79, SEP: 0.82 },
+              actual: 9.47, hasFormula: false },
+            
+            { id: 56, category: 'OPERATIONAL OBJECTIVES', subcategory: 'S&OP Reports - Location: EXPORT', kpi: 'INDONESIA', uom: '%', target: 0.78,
+              months: { OCT: 0.76, NOV: 0.77, DEC: 0.79, JAN: 0.75, FEB: 0.78, MAR: 0.79, APR: 0.77, MAY: 0.78, JUN: 0.77, JUL: 0.8, AUG: 0.78, SEP: 0.81 },
+              actual: 9.35, hasFormula: false },
+            
+            { id: 57, category: 'OPERATIONAL OBJECTIVES', subcategory: 'S&OP Reports - Location: EXPORT', kpi: 'INDIA', uom: '%', target: 0.77,
+              months: { OCT: 0.75, NOV: 0.76, DEC: 0.78, JAN: 0.74, FEB: 0.77, MAR: 0.78, APR: 0.76, MAY: 0.77, JUN: 0.76, JUL: 0.79, AUG: 0.77, SEP: 0.8 },
+              actual: 9.23, hasFormula: false },
+            
+            { id: 58, category: 'OPERATIONAL OBJECTIVES', subcategory: 'S&OP Reports - Location: EXPORT', kpi: 'DIRECT EXPORT', uom: '%', target: 0.8,
+              months: { OCT: 0.78, NOV: 0.79, DEC: 0.81, JAN: 0.77, FEB: 0.8, MAR: 0.81, APR: 0.79, MAY: 0.8, JUN: 0.79, JUL: 0.82, AUG: 0.8, SEP: 0.83 },
+              actual: 9.59, hasFormula: false },
+            
+            // ==================== WORKFORCE & LABOR REPORTS ====================
+            { id: 59, category: 'WORKFORCE & LABOR', subcategory: 'Labor Productivity', kpi: 'Regular hours', uom: 'hrs', target: 2080,
+              months: { OCT: 176, NOV: 168, DEC: 184, JAN: 176, FEB: 168, MAR: 184, APR: 176, MAY: 176, JUN: 168, JUL: 184, AUG: 176, SEP: 176 },
+              actual: 2112, hasFormula: false },
+            
+            { id: 60, category: 'WORKFORCE & LABOR', subcategory: 'Labor Productivity', kpi: 'Overtime hours', uom: 'hrs', target: 160,
+              months: { OCT: 14, NOV: 12, DEC: 18, JAN: 13, FEB: 12, MAR: 17, APR: 14, MAY: 13, JUN: 12, JUL: 16, AUG: 14, SEP: 15 },
+              actual: 170, hasFormula: false },
+            
+            { id: 61, category: 'WORKFORCE & LABOR', subcategory: 'Labor Productivity', kpi: 'Overtime %', uom: '%', target: 0.08,
+              months: { OCT: 0.0795, NOV: 0.0714, DEC: 0.0978, JAN: 0.0739, FEB: 0.0714, MAR: 0.0924, APR: 0.0795, MAY: 0.0739, JUN: 0.0714, JUL: 0.087, AUG: 0.0795, SEP: 0.0852 },
+              actual: 0.963, hasFormula: false },
+            
+            { id: 62, category: 'WORKFORCE & LABOR', subcategory: 'Labor Productivity - DL', kpi: 'Regular hours DL', uom: 'hrs', target: 1664,
+              months: { OCT: 140, NOV: 134, DEC: 148, JAN: 140, FEB: 134, MAR: 148, APR: 140, MAY: 140, JUN: 134, JUL: 148, AUG: 140, SEP: 140 },
+              actual: 1686, hasFormula: false },
+            
+            { id: 63, category: 'WORKFORCE & LABOR', subcategory: 'Labor Productivity - DL', kpi: 'Overtime hours DL', uom: 'hrs', target: 128,
+              months: { OCT: 11, NOV: 10, DEC: 15, JAN: 10, FEB: 9, MAR: 14, APR: 11, MAY: 10, JUN: 9, JUL: 13, AUG: 11, SEP: 12 },
+              actual: 135, hasFormula: false },
+            
+            { id: 64, category: 'WORKFORCE & LABOR', subcategory: 'Labor Productivity - DL', kpi: 'Overtime % DL', uom: '%', target: 0.08,
+              months: { OCT: 0.0786, NOV: 0.0746, DEC: 0.1014, JAN: 0.0714, FEB: 0.0672, MAR: 0.0946, APR: 0.0786, MAY: 0.0714, JUN: 0.0672, JUL: 0.0878, AUG: 0.0786, SEP: 0.0857 },
+              actual: 0.958, hasFormula: false },
+            
+            { id: 65, category: 'WORKFORCE & LABOR', subcategory: 'Labor Productivity - IL', kpi: 'Regular hours IL', uom: 'hrs', target: 416,
+              months: { OCT: 36, NOV: 34, DEC: 36, JAN: 36, FEB: 34, MAR: 36, APR: 36, MAY: 36, JUN: 34, JUL: 36, AUG: 36, SEP: 36 },
+              actual: 426, hasFormula: false },
+            
+            { id: 66, category: 'WORKFORCE & LABOR', subcategory: 'Labor Productivity - IL', kpi: 'Overtime hours IL', uom: 'hrs', target: 32,
+              months: { OCT: 3, NOV: 2, DEC: 3, JAN: 3, FEB: 3, MAR: 3, APR: 3, MAY: 3, JUN: 3, JUL: 3, AUG: 3, SEP: 3 },
+              actual: 35, hasFormula: false },
+            
+            { id: 67, category: 'WORKFORCE & LABOR', subcategory: 'Labor Productivity - IL', kpi: 'Overtime % IL', uom: '%', target: 0.08,
+              months: { OCT: 0.0833, NOV: 0.0588, DEC: 0.0833, JAN: 0.0833, FEB: 0.0882, MAR: 0.0833, APR: 0.0833, MAY: 0.0833, JUN: 0.0882, JUL: 0.0833, AUG: 0.0833, SEP: 0.0833 },
+              actual: 0.985, hasFormula: false },
+            
+            { id: 68, category: 'WORKFORCE & LABOR', subcategory: 'Attendance', kpi: 'Absenteeism', uom: '%', target: 0.03,
+              months: { OCT: 0.032, NOV: 0.028, DEC: 0.035, JAN: 0.03, FEB: 0.029, MAR: 0.027, APR: 0.031, MAY: 0.028, JUN: 0.03, JUL: 0.026, AUG: 0.028, SEP: 0.025 },
+              actual: 0.349, hasFormula: false },
+            
+            { id: 69, category: 'WORKFORCE & LABOR', subcategory: 'Attendance', kpi: '# of Manpower', uom: 'count', target: 50,
+              months: { OCT: 48, NOV: 48, DEC: 49, JAN: 48, FEB: 48, MAR: 49, APR: 48, MAY: 48, JUN: 48, JUL: 49, AUG: 48, SEP: 49 },
+              actual: 580, hasFormula: false },
+            
+            { id: 70, category: 'WORKFORCE & LABOR', subcategory: 'Attendance', kpi: '# of Absences', uom: 'count', target: 15,
+              months: { OCT: 1.5, NOV: 1.3, DEC: 1.7, JAN: 1.4, FEB: 1.4, MAR: 1.3, APR: 1.5, MAY: 1.3, JUN: 1.4, JUL: 1.3, AUG: 1.3, SEP: 1.2 },
+              actual: 16.6, hasFormula: false },
+            
+            { id: 71, category: 'WORKFORCE & LABOR', subcategory: 'Attendance', kpi: '# of Working days', uom: 'count', target: 260,
+              months: { OCT: 22, NOV: 21, DEC: 22, JAN: 22, FEB: 20, MAR: 22, APR: 21, MAY: 22, JUN: 21, JUL: 22, AUG: 22, SEP: 22 },
+              actual: 259, hasFormula: false },
+            
+            // Production Lines Productivity
+            { id: 72, category: 'WORKFORCE & LABOR', subcategory: 'Line Productivity', kpi: 'L06 - EPOXY', uom: '%', target: 0.92,
+              months: { OCT: 0.9, NOV: 0.91, DEC: 0.93, JAN: 0.89, FEB: 0.91, MAR: 0.92, APR: 0.91, MAY: 0.92, JUN: 0.91, JUL: 0.93, AUG: 0.92, SEP: 0.94 },
+              actual: 10.99, hasFormula: false },
+            
+            { id: 73, category: 'WORKFORCE & LABOR', subcategory: 'Line Productivity', kpi: 'L04B - ELASTO', uom: '%', target: 0.9,
+              months: { OCT: 0.88, NOV: 0.89, DEC: 0.91, JAN: 0.87, FEB: 0.89, MAR: 0.9, APR: 0.89, MAY: 0.9, JUN: 0.89, JUL: 0.91, AUG: 0.9, SEP: 0.92 },
+              actual: 10.75, hasFormula: false },
+            
+            { id: 74, category: 'WORKFORCE & LABOR', subcategory: 'Line Productivity', kpi: 'L03 - CYANO TUBE', uom: '%', target: 0.88,
+              months: { OCT: 0.86, NOV: 0.87, DEC: 0.89, JAN: 0.85, FEB: 0.87, MAR: 0.88, APR: 0.87, MAY: 0.88, JUN: 0.87, JUL: 0.89, AUG: 0.88, SEP: 0.9 },
+              actual: 10.51, hasFormula: false },
+            
+            { id: 75, category: 'WORKFORCE & LABOR', subcategory: 'Line Productivity', kpi: 'L01 - COATINGS', uom: '%', target: 0.89,
+              months: { OCT: 0.87, NOV: 0.88, DEC: 0.9, JAN: 0.86, FEB: 0.88, MAR: 0.89, APR: 0.88, MAY: 0.89, JUN: 0.88, JUL: 0.9, AUG: 0.89, SEP: 0.91 },
+              actual: 10.63, hasFormula: false },
+            
+            { id: 76, category: 'WORKFORCE & LABOR', subcategory: 'Line Productivity', kpi: 'L07 - EPOXY TUBE', uom: '%', target: 0.91,
+              months: { OCT: 0.89, NOV: 0.9, DEC: 0.92, JAN: 0.88, FEB: 0.9, MAR: 0.91, APR: 0.9, MAY: 0.91, JUN: 0.9, JUL: 0.92, AUG: 0.91, SEP: 0.93 },
+              actual: 10.87, hasFormula: false },
+            
+            { id: 77, category: 'WORKFORCE & LABOR', subcategory: 'Line Productivity', kpi: 'LINE 9 - EPS', uom: '%', target: 0.87,
+              months: { OCT: 0.85, NOV: 0.86, DEC: 0.88, JAN: 0.84, FEB: 0.86, MAR: 0.87, APR: 0.86, MAY: 0.87, JUN: 0.86, JUL: 0.88, AUG: 0.87, SEP: 0.89 },
+              actual: 10.39, hasFormula: false },
+            
+            { id: 78, category: 'WORKFORCE & LABOR', subcategory: 'Line Productivity', kpi: 'L10 - CONTACT BOND', uom: '%', target: 0.86,
+              months: { OCT: 0.84, NOV: 0.85, DEC: 0.87, JAN: 0.83, FEB: 0.85, MAR: 0.86, APR: 0.85, MAY: 0.86, JUN: 0.85, JUL: 0.87, AUG: 0.86, SEP: 0.88 },
+              actual: 10.27, hasFormula: false },
+            
+            { id: 79, category: 'WORKFORCE & LABOR', subcategory: 'Line Productivity', kpi: 'GIP L11 - SILICONE', uom: '%', target: 0.85,
+              months: { OCT: 0.83, NOV: 0.84, DEC: 0.86, JAN: 0.82, FEB: 0.84, MAR: 0.85, APR: 0.84, MAY: 0.85, JUN: 0.84, JUL: 0.86, AUG: 0.85, SEP: 0.87 },
+              actual: 10.15, hasFormula: false },
+            
+            { id: 80, category: 'WORKFORCE & LABOR', subcategory: 'Line Productivity', kpi: 'L12 - SPECIAL - EPOXY BASED', uom: '%', target: 0.93,
+              months: { OCT: 0.91, NOV: 0.92, DEC: 0.94, JAN: 0.9, FEB: 0.92, MAR: 0.93, APR: 0.92, MAY: 0.93, JUN: 0.92, JUL: 0.94, AUG: 0.93, SEP: 0.95 },
+              actual: 11.11, hasFormula: false },
+            
+            { id: 81, category: 'WORKFORCE & LABOR', subcategory: 'Line Productivity', kpi: 'L13 - SPECIAL', uom: '%', target: 0.9,
+              months: { OCT: 0.88, NOV: 0.89, DEC: 0.91, JAN: 0.87, FEB: 0.89, MAR: 0.9, APR: 0.89, MAY: 0.9, JUN: 0.89, JUL: 0.91, AUG: 0.9, SEP: 0.92 },
+              actual: 10.75, hasFormula: false },
+            
+            { id: 82, category: 'WORKFORCE & LABOR', subcategory: 'Line Productivity', kpi: 'LINE 14', uom: '%', target: 0.88,
+              months: { OCT: 0.86, NOV: 0.87, DEC: 0.89, JAN: 0.85, FEB: 0.87, MAR: 0.88, APR: 0.87, MAY: 0.88, JUN: 0.87, JUL: 0.89, AUG: 0.88, SEP: 0.9 },
+              actual: 10.51, hasFormula: false },
+            
+            { id: 83, category: 'WORKFORCE & LABOR', subcategory: 'Line Productivity', kpi: 'L02 - CYNO BOTTLE / L05- EPOXY CLAY', uom: '%', target: 0.89,
+              months: { OCT: 0.87, NOV: 0.88, DEC: 0.9, JAN: 0.86, FEB: 0.88, MAR: 0.89, APR: 0.88, MAY: 0.89, JUN: 0.88, JUL: 0.9, AUG: 0.89, SEP: 0.91 },
+              actual: 10.63, hasFormula: false },
+            
+            { id: 84, category: 'WORKFORCE & LABOR', subcategory: 'Line Productivity', kpi: 'LABELING LINE', uom: '%', target: 0.95,
+              months: { OCT: 0.93, NOV: 0.94, DEC: 0.96, JAN: 0.92, FEB: 0.94, MAR: 0.95, APR: 0.94, MAY: 0.95, JUN: 0.94, JUL: 0.96, AUG: 0.95, SEP: 0.97 },
+              actual: 11.35, hasFormula: false },
+            
+            // ==================== PROCUREMENT ====================
+            { id: 85, category: 'PROCUREMENT', subcategory: 'Savings', kpi: 'Savings (Actual)', uom: 'Php', target: 50000,
+              months: { OCT: 5200, NOV: 4800, DEC: 5100, JAN: 4900, FEB: 5300, MAR: 4700, APR: 5100, MAY: 4900, JUN: 5200, JUL: 4800, AUG: 5100, SEP: 5300 },
+              actual: 60400, hasFormula: false },
+            
+            { id: 86, category: 'PROCUREMENT', subcategory: 'Savings', kpi: 'Savings (Target)', uom: 'Php', target: 50000,
+              months: { OCT: 4167, NOV: 4167, DEC: 4167, JAN: 4167, FEB: 4167, MAR: 4167, APR: 4167, MAY: 4167, JUN: 4167, JUL: 4167, AUG: 4167, SEP: 4167 },
+              actual: 50004, hasFormula: false },
+            
+            { id: 87, category: 'PROCUREMENT', subcategory: 'Savings', kpi: 'Savings (%)', uom: '%', target: 0.05,
+              months: { OCT: '=IFERROR(E85/E86,0)', NOV: '=IFERROR(F85/F86,0)', DEC: '=IFERROR(G85/G86,0)', JAN: '=IFERROR(H85/H86,0)',
+                       FEB: '=IFERROR(I85/I86,0)', MAR: '=IFERROR(J85/J86,0)', APR: '=IFERROR(K85/K86,0)', MAY: '=IFERROR(L85/L86,0)',
+                       JUN: '=IFERROR(M85/M86,0)', JUL: '=IFERROR(N85/N86,0)', AUG: '=IFERROR(O85/O86,0)', SEP: '=IFERROR(P85/P86,0)' },
+              actual: null, hasFormula: true }
+        ];
+
+        const months = ['OCT', 'NOV', 'DEC', 'JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP'];
+
+        function renderTable() {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+            
+            let lastCategory = '';
+            let lastSubcategory = '';
+            let lastSubSubcategory = '';
+            
+            kpiData.forEach((item, index) => {
+                const row = document.createElement('tr');
+                row.className = 'kpi-row';
+                
+                // Add category header if new category
+                if (item.category !== lastCategory) {
+                    const categoryRow = document.createElement('tr');
+                    categoryRow.innerHTML = `<td colspan="17" class="category-header">${item.category}</td>`;
+                    tbody.appendChild(categoryRow);
+                    lastCategory = item.category;
+                    lastSubcategory = '';
+                    lastSubSubcategory = '';
+                }
+                
+                // Add subcategory header if new subcategory
+                if (item.subcategory !== lastSubcategory) {
+                    const subRow = document.createElement('tr');
+                    subRow.innerHTML = `<td colspan="17" class="subcategory-header">${item.subcategory}</td>`;
+                    tbody.appendChild(subRow);
+                    lastSubcategory = item.subcategory;
+                }
+                
+                // Row number
+                const numCell = document.createElement('td');
+                numCell.textContent = item.id;
+                numCell.style.textAlign = 'center';
+                row.appendChild(numCell);
+                
+                // KPI Name (with indentation for hierarchical display)
+                const nameCell = document.createElement('td');
+                if (item.kpi.startsWith(' ') || item.subcategory.includes('Downtime') || 
+                    item.subcategory.includes('Location') || item.subcategory.includes('Productivity')) {
+                    nameCell.className = 'indented-kpi';
+                } else {
+                    nameCell.className = 'kpi-name';
+                }
+                nameCell.textContent = item.kpi;
+                if (item.hasFormula) {
+                    nameCell.innerHTML += ' <span class="formula-badge">fx</span>';
+                }
+                row.appendChild(nameCell);
+                
+                // UoM
+                const uomCell = document.createElement('td');
+                uomCell.className = 'uom';
+                uomCell.textContent = item.uom;
+                row.appendChild(uomCell);
+                
+                // Target
+                const targetCell = document.createElement('td');
+                targetCell.className = 'target';
+                targetCell.textContent = item.target !== null ? item.target : '-';
+                row.appendChild(targetCell);
+                
+                // Month columns
+                months.forEach(month => {
+                    const monthCell = document.createElement('td');
+                    monthCell.style.padding = '2px';
+                    
+                    let value = item.months[month];
+                    const isFormula = typeof value === 'string' && value.startsWith('=');
+                    
+                    const input = document.createElement('input');
+                    input.type = 'text';
+                    input.className = 'month-input';
+                    input.dataset.id = item.id;
+                    input.dataset.month = month;
+                    
+                    if (isFormula) {
+                        input.value = 'formula';
+                        input.classList.add('formula-cell');
+                        input.readOnly = true;
+                        input.title = value; // Show formula on hover
+                    } else {
+                        input.value = value !== undefined ? value : '';
+                        input.addEventListener('change', function(e) {
+                            updateMonthValue(item.id, month, e.target.value);
+                        });
+                    }
+                    
+                    monthCell.appendChild(input);
+                    row.appendChild(monthCell);
+                });
+                
+                // Actual
+                const actualCell = document.createElement('td');
+                actualCell.className = 'actual-cell';
+                const actualInput = document.createElement('input');
+                actualInput.type = 'text';
+                actualInput.className = 'month-input';
+                actualInput.value = item.actual !== null ? item.actual : '';
+                actualInput.style.backgroundColor = '#e8f8f5';
+                actualInput.addEventListener('change', function(e) {
+                    updateActualValue(item.id, e.target.value);
+                });
+                actualCell.appendChild(actualInput);
+                row.appendChild(actualCell);
+                
+                tbody.appendChild(row);
+            });
+            
+            // Update counters
+            document.getElementById('totalKpis').textContent = kpiData.length;
+            document.getElementById('kpiCount').textContent = `Total KPIs: ${kpiData.length}`;
+        }
+
+        function updateMonthValue(id, month, value) {
+            const item = kpiData.find(k => k.id === id);
+            if (item) {
+                item.months[month] = value ? (isNaN(value) ? value : parseFloat(value)) : '';
+                document.getElementById('saveStatus').textContent = 'Changes saved ✓';
+                document.getElementById('lastUpdated').textContent = new Date().toLocaleTimeString();
+                setTimeout(() => document.getElementById('saveStatus').textContent = '', 2000);
+            }
+        }
+
+        function updateActualValue(id, value) {
+            const item = kpiData.find(k => k.id === id);
+            if (item) {
+                item.actual = value ? (isNaN(value) ? value : parseFloat(value)) : '';
+            }
+        }
+
+        function calculateFormulas() {
+            kpiData.forEach(item => {
+                if (item.hasFormula) {
+                    months.forEach((month, idx) => {
+                        let formula = item.months[month];
+                        if (typeof formula === 'string' && formula.startsWith('=')) {
+                            // Parse formula references
+                            if (item.id === 3) { // Conversion Cost vs Target
+                                const ref1 = kpiData[0].months[month] || 0; // SC only
+                                const ref2 = kpiData[0].target || 1;
+                                item.months[month] = ref2 !== 0 ? Number((ref1 / ref2).toFixed(3)) : 0;
+                            }
+                            else if (item.id === 11) { // Operational Cost %
+                                const actual = kpiData[8].months[month] || 0; // Op Cost Actual
+                                const budget = kpiData[9].months[month] || 1; // Op Cost Budget
+                                item.months[month] = budget !== 0 ? Number((actual / budget).toFixed(3)) : 0;
+                            }
+                            else if (item.id === 14) { // Capital Expenditure %
+                                const actual = kpiData[11].months[month] || 0; // CapEx Actual
+                                const budget = kpiData[12].months[month] || 1; // CapEx Budget
+                                item.months[month] = budget !== 0 ? Number((actual / budget).toFixed(3)) : 0;
+                            }
+                            else if (item.id === 87) { // Savings %
+                                const actual = kpiData[84].months[month] || 0; // Savings Actual
+                                const budget = kpiData[85].months[month] || 1; // Savings Target
+                                item.months[month] = budget !== 0 ? Number((actual / budget).toFixed(3)) : 0;
+                            }
+                        }
+                    });
+                }
+            });
+            renderTable();
+            document.getElementById('saveStatus').textContent = 'Formulas calculated ✓';
+            document.getElementById('lastUpdated').textContent = new Date().toLocaleTimeString();
+            setTimeout(() => document.getElementById('saveStatus').textContent = '', 2000);
+        }
+
+        function exportToCSV() {
+            let csv = 'Category,Subcategory,KPI,UoM,2026 TARGET,Month,Month Value,2026 ACTUAL\n';
+            
+            kpiData.forEach(item => {
+                months.forEach(month => {
+                    const monthValue = item.months[month];
+                    // Skip formula strings in export
+                    const valueToExport = typeof monthValue === 'string' && monthValue.startsWith('=') ? '' : monthValue;
+                    
+                    csv += `"${item.category}","${item.subcategory}","${item.kpi}","${item.uom}",${item.target || ''},${month},${valueToExport || ''},${item.actual || ''}\n`;
+                });
+            });
+            
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `kpi_tracker_2026_complete_${new Date().toISOString().slice(0,10)}.csv`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+            
+            document.getElementById('saveStatus').textContent = 'CSV exported ✓';
+            document.getElementById('lastUpdated').textContent = new Date().toLocaleTimeString();
+            setTimeout(() => document.getElementById('saveStatus').textContent = '', 2000);
+        }
+
+        function resetToDefault() {
+            if (confirm('Reset all values to default?')) {
+                location.reload();
+            }
+        }
+
+        function showSummary() {
+            const totalKpis = kpiData.length;
+            const categories = [...new Set(kpiData.map(k => k.category))];
+            const subcategories = [...new Set(kpiData.map(k => k.subcategory))];
+            
+            let summary = `=== KPI TRACKER SUMMARY ===\n`;
+            summary += `Total KPIs: ${totalKpis}\n`;
+            summary += `Categories: ${categories.length}\n`;
+            summary += `Subcategories: ${subcategories.length}\n\n`;
+            
+            categories.forEach(cat => {
+                const catKpis = kpiData.filter(k => k.category === cat);
+                summary += `${cat}: ${catKpis.length} KPIs\n`;
+            });
+            
+            alert(summary);
+        }
+
+        // Initialize table
+        renderTable();
+    </script>
+</body>
+</html>

@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PIONEER · 2026 KPI TRACKER (HTML v1.0)</title>
+    <style>
+        * { box-sizing: border-box; font-family: 'Segoe UI', Roboto, system-ui, sans-serif; }
+        body { background: #f3f5f9; margin: 0; padding: 20px; color: #1e293b; }
+        .kpi-app { max-width: 1600px; margin: 0 auto; }
+        
+        /* header / brand */
+        .brand { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; flex-wrap: wrap; }
+        .brand h1 { font-size: 2rem; font-weight: 600; background: linear-gradient(145deg, #0f2b4b, #1b4a7a); 
+                    -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin:0; }
+        .badge { background: #1e3a5f; color: white; padding: 6px 16px; border-radius: 40px; font-weight: 500; 
+                 font-size: 0.9rem; letter-spacing: 0.3px; box-shadow: 0 4px 8px rgba(0,40,80,0.1); }
+        .tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; border-bottom: 2px solid #d0dae8; padding-bottom: 6px; }
+        .tab-btn { background: white; border: none; padding: 10px 22px; font-weight: 600; border-radius: 40px 40px 0 0; 
+                   color: #334155; cursor: pointer; font-size: 0.9rem; border: 1px solid #dde3ed; border-bottom: none; 
+                   transition: all 0.1s; box-shadow: 0 -2px 4px rgba(0,0,0,0.02); }
+        .tab-btn.active { background: #1e3a5f; color: white; border-color: #1e3a5f; transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,60,120,0.2); }
+        .tab-btn:hover:not(.active) { background: #e6edf8; }
+        
+        /* card style */
+        .card { background: white; border-radius: 24px; padding: 20px 24px; box-shadow: 0 12px 30px rgba(0,20,50,0.08); 
+                margin-bottom: 30px; border: 1px solid #eef2f8; backdrop-filter: blur(2px); }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; }
+        .card-header h2 { font-size: 1.5rem; font-weight: 600; margin:0; background: linear-gradient(135deg,#132b46,#264d7c); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+        .card-header h3 { font-size: 1.2rem; font-weight: 600; color: #0c4a6e; margin:0; }
+        .pill { background: #ecfdf3; color: #0f6e3f; padding: 4px 12px; border-radius: 40px; font-size: 0.8rem; font-weight: 600; }
+        
+        /* tables */
+        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
+        th { background: #f8fafd; color: #1e405e; font-weight: 600; padding: 14px 8px; border-bottom: 2px solid #cbd5e1; }
+        td { padding: 10px 8px; border-bottom: 1px solid #e9eef3; vertical-align: middle; }
+        tr:hover td { background: #fafcff; }
+        .kpi-hierarchy td:first-child { font-weight: 500; color: #164863; }
+        .level1 { background-color: #f1f6fe; font-weight: 600; }
+        .level2 { padding-left: 28px !important; }
+        .level3 { padding-left: 52px !important; color: #2c3e50; }
+        .level4 { padding-left: 76px !important; color: #4b5f73; font-style: italic; }
+        
+        /* badges & indicators */
+        .trend-up { color: #118c4a; background: #e0ffe9; padding: 2px 10px; border-radius: 40px; font-weight: 600; }
+        .trend-down { color: #b02a37; background: #ffe6e9; padding: 2px 10px; border-radius: 40px; font-weight: 600; }
+        .trend-flat { color: #6c6f78; background: #edf0f5; padding: 2px 10px; border-radius: 40px; }
+        .target-met { background: #dff0d8; color: #1f7840; font-weight: 600; border-radius: 20px; padding: 3px 10px; }
+        .target-miss { background: #f8dddd; color: #ab3030; font-weight: 600; border-radius: 20px; padding: 3px 10px; }
+        
+        /* mini dashboard numbers */
+        .big-number { font-size: 2rem; font-weight: 700; color: #1e3a5f; line-height: 1; }
+        .progress-bar { background: #e3eaf2; height: 12px; border-radius: 30px; overflow: hidden; width: 100%; }
+        .progress-fill { background: linear-gradient(90deg, #2d6bb8, #4a9eff); height: 12px; border-radius: 30px; width: 0%; }
+        
+        .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
+        .stat-card { background: #fbfdff; border: 1px solid #dee9f2; border-radius: 20px; padding: 18px; }
+        
+        .footer-note { font-size: 0.8rem; color: #8896a8; text-align: center; margin-top: 40px; border-top: 1px dashed #bcc9db; padding-top: 20px; }
+        input, select { padding: 8px 12px; border: 1px solid #bdc9db; border-radius: 60px; font-size: 0.85rem; background: white; }
+        .data-entry-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-bottom: 16px; background: #f6faff; padding: 16px; border-radius: 60px; }
+        .btn { background: #1e3a5f; color: white; border: none; padding: 10px 24px; border-radius: 40px; font-weight: 600; cursor: pointer; }
+        .btn-outline { background: white; color: #1e3a5f; border: 1px solid #1e3a5f; }
+    </style>
+</head>
+<body>
+<div class="kpi-app">
+    <div class="brand">
+        <h1>📊 PIONEER · 2026 KPI TRACKER</h1>
+        <span class="badge">operational + financial hierarchy</span>
+        <span class="badge" style="background:#256f4a;">csv ready</span>
+    </div>
+
+    <!-- tabs navigation (sheets) -->
+    <div class="tabs" id="tabHeaders">
+        <button class="tab-btn active" data-tab="hierarchy">🗂️ KPI HIERARCHY</button>
+        <button class="tab-btn" data-tab="dataEntry">📝 DATA ENTRY</button>
+        <button class="tab-btn" data-tab="monthly">📅 MONTHLY PIVOT</button>
+        <button class="tab-btn" data-tab="deptSummary">🏢 DEPT SUMMARY</button>
+        <button class="tab-btn" data-tab="lineProd">⚙️ LINE PRODUCTIVITY</button>
+        <button class="tab-btn" data-tab="forecast">📈 FORECAST ACCURACY</button>
+        <button class="tab-btn" data-tab="inventory">📦 AGING INVENTORY</button>
+        <button class="tab-btn" data-tab="dashboard">📌 DASHBOARD</button>
+    </div>
+
+    <!-- ******************* SHEET 1: HIERARCHY (full KPI tree) ******************* -->
+    <div id="hierarchy" class="tab-content active">
+        <div class="card">
+            <div class="card-header"><h2>📋 complete KPI hierarchy (master structure)</h2><span class="pill">level 1–4</span></div>
+            <div style="overflow-x: auto; max-height: 600px;">
+                <table class="kpi-hierarchy">
+                    <thead><tr><th>Level1</th><th>Level2</th><th>Level3</th><th>Level4</th><th>UOM</th><th>target</th></tr></thead>
+                    <tbody id="hierarchyBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ******************* SHEET 2: DATA ENTRY ******************* -->
+    <div id="dataEntry" class="tab-content" style="display:none;">
+        <div class="card">
+            <div class="card-header"><h2>➕ monthly data entry</h2><span class="pill">add new row</span></div>
+            <div class="data-entry-row">
+                <input type="date" id="entryDate" value="2025-10-01" style="width:140px;">
+                <select id="deptCode"><option value="FIN">FIN - Finance</option><option value="WHSE">WHSE - Warehouse</option><option value="PROD">PROD - Production</option><option value="INV">INV - Inventory</option><option value="SCM">SCM - S&OP</option><option value="WF">WF - Workforce</option><option value="PROC">PROC - Procurement</option></select>
+                <input type="text" id="kpiName" placeholder="KPI name" list="kpiList" style="width:240px;">
+                <datalist id="kpiList"></datalist>
+                <select id="uomSelect"><option>%</option><option>PHP/KG</option><option>MT</option><option>days</option><option>hrs</option><option>count</option><option>PHP</option></select>
+                <input type="number" id="targetVal" placeholder="target" step="0.1" style="width:100px;">
+                <input type="number" id="actualVal" placeholder="actual" step="0.1" style="width:100px;">
+                <button class="btn" id="addEntryBtn">➕ add row</button>
+            </div>
+            <div style="overflow-x: auto; max-height: 400px;">
+                <table id="dataEntryTable">
+                    <thead><tr><th>Date</th><th>Dept</th><th>KPI Name</th><th>UOM</th><th>Target</th><th>Actual</th><th>Var</th><th>Status</th></tr></thead>
+                    <tbody id="dataEntryBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ******************* SHEET 3: MONTHLY PIVOT ******************* -->
+    <div id="monthly" class="tab-content" style="display:none;">
+        <div class="card">
+            <div class="card-header"><h2>📆 monthly pivot (actuals by KPI)</h2></div>
+            <div style="overflow-x: auto; max-height: 500px;">
+                <table id="monthlyPivotTable">
+                    <thead><tr id="monthPivotHeader"><th>KPI Name</th><th>UOM</th><th>Target</th><th>Oct-25</th><th>Nov-25</th><th>Dec-25</th><th>Q1 avg</th></tr></thead>
+                    <tbody id="monthlyPivotBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ******************* SHEET 4: DEPT SUMMARY ******************* -->
+    <div id="deptSummary" class="tab-content" style="display:none;">
+        <div class="card">
+            <div class="card-header"><h2>🏢 department summary (oct 2025)</h2></div>
+            <table>
+                <thead><tr><th>Dept</th><th>KPI</th><th>Target</th><th>Actual</th><th>Status</th></tr></thead>
+                <tbody id="deptSummaryBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ******************* SHEET 5: LINE PRODUCTIVITY ******************* -->
+    <div id="lineProd" class="tab-content" style="display:none;">
+        <div class="card">
+            <div class="card-header"><h2>⚙️ production line productivity</h2></div>
+            <table>
+                <thead><tr><th>Line</th><th>Target</th><th>Oct-25</th><th>Nov-25</th><th>Dec-25</th><th>avg</th></tr></thead>
+                <tbody id="lineProdBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ******************* SHEET 6: FORECAST ACCURACY ******************* -->
+    <div id="forecast" class="tab-content" style="display:none;">
+        <div class="card">
+            <div class="card-header"><h2>📊 forecast accuracy by product / location</h2></div>
+            <table>
+                <thead><tr><th>Product/Location</th><th>Target</th><th>Oct-25</th><th>Nov-25</th><th>Dec-25</th></tr></thead>
+                <tbody id="forecastBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ******************* SHEET 7: AGING INVENTORY ******************* -->
+    <div id="inventory" class="tab-content" style="display:none;">
+        <div class="card">
+            <div class="card-header"><h2>📦 aging inventory (FG, RM, PM)</h2></div>
+            <table>
+                <thead><tr><th>Category</th><th>Target</th><th>Oct-25</th><th>Nov-25</th><th>Dec-25</th></tr></thead>
+                <tbody id="inventoryBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ******************* SHEET 8: DASHBOARD ******************* -->
+    <div id="dashboard" class="tab-content" style="display:none;">
+        <div class="card">
+            <div class="card-header"><h2>📌 executive dashboard</h2><span class="pill">as of oct 2025</span></div>
+            <div class="grid-2">
+                <div class="stat-card">
+                    <h3>overall health</h3>
+                    <div class="big-number" id="healthPercent">76%</div>
+                    <div class="progress-bar" style="margin:10px 0"><div class="progress-fill" id="healthFill" style="width:76%"></div></div>
+                    <div>✅ on target: <span id="onTargetCount">18</span> &nbsp;&nbsp; ⚠️ below: <span id="belowCount">7</span> &nbsp;&nbsp; 🔴 critical: <span id="criticalCount">2</span></div>
+                </div>
+                <div class="stat-card">
+                    <h3>critical alerts</h3>
+                    <ul style="color:#b02a37;" id="alertList">
+                        <li>⚠️ OTIF Rate (68% vs 70%)</li>
+                        <li>⚠️ Total Downtime (12.5% vs 10%)</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="grid-3" style="margin-top:20px;">
+                <div class="stat-card"><h4>dept performance</h4><table id="deptPerfTable"><tr><td>Finance</td><td>82%</td><td>🟡</td></tr><tr><td>Warehouse</td><td>75%</td><td>🔴</td></tr><tr><td>Production</td><td>94%</td><td>🟢</td></tr></table></div>
+                <div class="stat-card"><h4>top 5 performers</h4><ol id="top5List"><li>Savings ▲120%</li><li>Output vs T ▲103%</li><li>Overall FA ▲100%</li><li>DIO ▲107%</li><li>FG Acc ▼98.5%</li></ol></div>
+                <div class="stat-card"><h4>bottom 5</h4><ol id="bottom5List"><li>OTIF 68%</li><li>Total downtime 12.5%</li><li>Productive time 78.5%</li><li>Absenteeism 2.3%</li><li>Reg hours 1840</li></ol></div>
+            </div>
+        </div>
+    </div>
+    <div class="footer-note">✅ CSV compatible · click tabs to explore · all data realistic preview</div>
+</div>
+
+<script>
+    (function() {
+        // ---------- populate hierarchy from your exact list ----------
+        const hierarchyData = [
+            ["FINANCIALS","Conversion Cost","Conversion Cost SC Only","","PHP/KG","2.5"],
+            ["FINANCIALS","Conversion Cost","Conversion Cost Actual","","PHP/KG","2.4"],
+            ["FINANCIALS","Conversion Cost","Conversion Cost vs Target","","%","100%"],
+            ["FINANCIALS","Volume","Volume Produced Actual","","MT","12000"],
+            ["FINANCIALS","Volume","Volume Produced Target","","MT","12000"],
+            ["FINANCIALS","Volume","Volume Achievement %","","%","100%"],
+            ["FINANCIALS","Operational Cost","Operational Cost Actual","","PHP","500000"],
+            ["FINANCIALS","Operational Cost","Operational Cost Budget","","PHP","480000"],
+            ["FINANCIALS","Operational Cost","Operational Cost %","","%","100%"],
+            ["FINANCIALS","Capital Expenditure","CapEx Actual","","PHP","100000"],
+            ["FINANCIALS","Capital Expenditure","CapEx Budget","","PHP","100000"],
+            ["FINANCIALS","Capital Expenditure","CapEx %","","%","100%"],
+            ["FINANCIALS","Variance Analysis","Efficiency Ratio","","%","95%"],
+            ["PROJECT STATUS","Strategic Initiatives","Progress Status","","%","100%"],
+            ["PROJECT STATUS","Risk Assessment","Risk Level","","#","0"],
+            ["PROJECT STATUS","Resource Allocation","Allocation %","","%","100%"],
+            ["FILL RATE","Achievement","Fill Rate Value","","%","99%"],
+            ["OTIF","OTIF Rate","OTIF Achievement","","%","70%"],
+            ["PRODUCTION REPORTS","Output","Output vs Target","","%","90%"],
+            ["PRODUCTION REPORTS","Output","Output Actual","","MT","11000"],
+            ["PRODUCTION REPORTS","Output","Output Target","","MT","12000"],
+            ["PRODUCTION REPORTS","Downtime","Total Downtime","","%","10%"],
+            ["PRODUCTION REPORTS","Downtime","Change Over Time","","%","3%"],
+            ["PRODUCTION REPORTS","Downtime","Meeting Time","","%","1%"],
+            ["PRODUCTION REPORTS","Downtime","Sanitation Time","","%","2%"],
+            ["PRODUCTION REPORTS","Downtime","Start-up/Setup Time","","%","1%"],
+            ["PRODUCTION REPORTS","Downtime","Testing Time","","%","1%"],
+            ["PRODUCTION REPORTS","Downtime","Break Time","","%","1.5%"],
+            ["PRODUCTION REPORTS","Downtime","Breakdown Time","","%","0.5%"],
+            ["PRODUCTION REPORTS","Downtime","Idle Time","","%","1%"],
+            ["PRODUCTION REPORTS","Downtime","Preventive Maintenance","","%","2%"],
+            ["PRODUCTION REPORTS","Efficiency","Productive Time","","%","80%"],
+            ["PRODUCTION REPORTS","Efficiency","Machine Utilization","","%","85%"],
+            ["PRODUCTION REPORTS","Material Usage","Yield Rate","","%","95%"],
+            ["PRODUCTION REPORTS","Quality","Internal Rejection","","%","2%"],
+            ["PRODUCTION REPORTS","Quality","Scrap Rate","","%","1%"],
+            ["PRODUCTION REPORTS","Calendar","Working Days","","days","22"],
+            ["INVENTORY REPORTS","Stock Levels","DIO (Days Inventory)","","days","70"],
+            ["INVENTORY REPORTS","Stock Levels","Safety Stock FG","","days","15"],
+            ["INVENTORY REPORTS","Stock Levels","Safety Stock RM","","days","20"],
+            ["INVENTORY REPORTS","Stock Levels","Safety Stock PM","","days","10"],
+            ["INVENTORY REPORTS","Turnover","Inventory Turnover Rate","","#","6"],
+            ["INVENTORY REPORTS","Aging FG","Fast Moving GOOD A&B","","%","60%"],
+            ["INVENTORY REPORTS","Aging FG","Fast Moving NTE A&B","","%","20%"],
+            ["INVENTORY REPORTS","Aging FG","Slow Moving Class C","","%","10%"],
+            ["INVENTORY REPORTS","Aging FG","No Movement Class C","","%","5%"],
+            ["INVENTORY REPORTS","Aging FG","Expired Stocks","","%","0%"],
+            ["INVENTORY REPORTS","Aging FG","Total FG Inventory","","PHP","1000000"],
+            ["INVENTORY REPORTS","Aging RM","Fast Moving GOOD A&B","","%","70%"],
+            ["INVENTORY REPORTS","Aging RM","Fast Moving NTE A&B","","%","15%"],
+            ["INVENTORY REPORTS","Aging RM","Slow Moving Class C","","%","8%"],
+            ["INVENTORY REPORTS","Aging RM","No Movement Class C","","%","4%"],
+            ["INVENTORY REPORTS","Aging RM","Expired Stocks","","%","0%"],
+            ["INVENTORY REPORTS","Aging RM","Total RM Inventory","","PHP","800000"],
+            ["INVENTORY REPORTS","Aging PM","Fast Moving GOOD A&B","","%","75%"],
+            ["INVENTORY REPORTS","Aging PM","Fast Moving NTE A&B","","%","12%"],
+            ["INVENTORY REPORTS","Aging PM","Slow Moving Class C","","%","7%"],
+            ["INVENTORY REPORTS","Aging PM","No Movement Class C","","%","3%"],
+            ["INVENTORY REPORTS","Aging PM","Expired Stocks","","%","0%"],
+            ["INVENTORY REPORTS","Aging PM","Total PM Inventory","","PHP","400000"],
+            ["INVENTORY REPORTS","Accuracy","Inventory Accuracy FG","","%","100%"],
+            ["INVENTORY REPORTS","Accuracy","Inventory Accuracy RM/PM","","%","100%"],
+            ["INVENTORY REPORTS","Accuracy","Inventory Accuracy Prod","","%","100%"],
+            ["INVENTORY REPORTS","Warehouse Util","Warehouse Util FG","","%","85%"],
+            ["INVENTORY REPORTS","Warehouse Util","Warehouse Util RM/PM","","%","80%"],
+            ["SCM & LOGISTICS","Supplier Perf","Supplier Lead Time","","days","7"],
+            ["SCM & LOGISTICS","Supplier Perf","Supplier Quality %","","%","98%"],
+            ["SCM & LOGISTICS","Freight","Freight Cost","","PHP","5000"],
+            ["S&OP REPORTS","Demand vs Supply","Alignment Rate","","%","95%"],
+            ["S&OP REPORTS","Forecast Accuracy","Overall FA","","%","85%"],
+            ["S&OP REPORTS","Forecast Accuracy","EPOXY FA","","%","85%"],
+            ["S&OP REPORTS","Forecast Accuracy","ELASTOSEAL FA","","%","85%"],
+            ["S&OP REPORTS","Forecast Accuracy","MIGHTY BOND FA","","%","85%"],
+            ["S&OP REPORTS","Forecast Accuracy","PRO-EPOXY FA","","%","85%"],
+            ["S&OP REPORTS","Forecast Accuracy","BUILDERS BOND FA","","%","85%"],
+            ["S&OP REPORTS","Forecast Accuracy","COATING MARINE FA","","%","85%"],
+            ["S&OP REPORTS","Forecast Accuracy","TRANSPORTATION FA","","%","85%"],
+            ["S&OP REPORTS","Forecast Accuracy","OTHER CONSUMER FA","","%","85%"],
+            ["S&OP REPORTS","Forecast Accuracy","PRO-SEALANT FA","","%","85%"],
+            ["S&OP REPORTS","Forecast Accuracy","PRO-WATERPROOFING FA","","%","85%"],
+            ["S&OP REPORTS","Forecast Accuracy","PRO-PAINTING FA","","%","85%"],
+            ["S&OP REPORTS","Forecast Accuracy","PRO-ADHESIVES FA","","%","85%"],
+            ["S&OP REPORTS","Forecast Accuracy","MINING FA","","%","85%"],
+            ["S&OP REPORTS","Forecast Accuracy","OTHERS FA","","%","85%"],
+            ["S&OP REPORTS","FA by Location","LOCAL PHILIPPINES","","%","85%"],
+            ["S&OP REPORTS","FA by Location","  - GMA","","%","85%"],
+            ["S&OP REPORTS","FA by Location","  - NORTH LUZON","","%","85%"],
+            ["S&OP REPORTS","FA by Location","  - SOUTH LUZON","","%","85%"],
+            ["S&OP REPORTS","FA by Location","  - VISAYAS","","%","85%"],
+            ["S&OP REPORTS","FA by Location","  - MINDANAO","","%","85%"],
+            ["S&OP REPORTS","FA by Location","  - MODERN TRADE","","%","85%"],
+            ["S&OP REPORTS","FA by Location","  - PSBSI","","%","85%"],
+            ["S&OP REPORTS","FA by Location","EXPORT","","%","85%"],
+            ["S&OP REPORTS","FA by Location","  - INDONESIA","","%","85%"],
+            ["S&OP REPORTS","FA by Location","  - INDIA","","%","85%"],
+            ["S&OP REPORTS","FA by Location","  - DIRECT EXPORT","","%","85%"],
+            ["WORKFORCE REPORTS","Labor Productivity","Regular Hours Total","","hrs","1800"],
+            ["WORKFORCE REPORTS","Labor Productivity","Overtime Hours Total","","hrs","100"],
+            ["WORKFORCE REPORTS","Labor Productivity","Overtime %","","%","5.5%"],
+            ["WORKFORCE REPORTS","Labor Productivity","Regular Hours DL","","hrs","1400"],
+            ["WORKFORCE REPORTS","Labor Productivity","Overtime Hours DL","","hrs","80"],
+            ["WORKFORCE REPORTS","Labor Productivity","Overtime % DL","","%","5.7%"],
+            ["WORKFORCE REPORTS","Labor Productivity","Regular Hours IL","","hrs","400"],
+            ["WORKFORCE REPORTS","Labor Productivity","Overtime Hours IL","","hrs","20"],
+            ["WORKFORCE REPORTS","Labor Productivity","Overtime % IL","","%","5.0%"],
+            ["WORKFORCE REPORTS","Attendance","Absenteeism Rate","","%","2%"],
+            ["WORKFORCE REPORTS","Attendance","Total Manpower","","count","85"],
+            ["WORKFORCE REPORTS","Attendance","Number of Absences","","count","0"],
+            ["WORKFORCE REPORTS","Attendance","Working Days","","days","22"],
+            ["WORKFORCE REPORTS","Line Productivity","L06 - EPOXY","","%","95%"],
+            ["WORKFORCE REPORTS","Line Productivity","L04B - ELASTO","","%","93%"],
+            ["WORKFORCE REPORTS","Line Productivity","L03 - CYANO TUBE","","%","94%"],
+            ["WORKFORCE REPORTS","Line Productivity","L01 - COATINGS","","%","92%"],
+            ["WORKFORCE REPORTS","Line Productivity","L07 - EPOXY TUBE","","%","93%"],
+            ["WORKFORCE REPORTS","Line Productivity","LINE 9 - EPS","","%","91%"],
+            ["WORKFORCE REPORTS","Line Productivity","L10 - CONTACT BOND","","%","92%"],
+            ["WORKFORCE REPORTS","Line Productivity","GIP L11 - SILICONE","","%","90%"],
+            ["WORKFORCE REPORTS","Line Productivity","L12 - SPECIAL EPOXY","","%","89%"],
+            ["WORKFORCE REPORTS","Line Productivity","L13 - SPECIAL","","%","88%"],
+            ["WORKFORCE REPORTS","Line Productivity","LINE 14","","%","87%"],
+            ["WORKFORCE REPORTS","Line Productivity","L02 - CYNO/EPOXY CLAY","","%","86%"],
+            ["WORKFORCE REPORTS","Line Productivity","LABELING LINE","","%","98%"],
+            ["WORKFORCE REPORTS","Training","Training Compliance %","","%","100%"],
+            ["PROCUREMENT","Savings","Savings Actual","","PHP","120000"],
+            ["PROCUREMENT","Savings","Savings Target","","PHP","100000"],
+            ["PROCUREMENT","Savings","Savings Achievement %","","%","120%"]
+        ];
+
+        const hierarchyTbody = document.getElementById('hierarchyBody');
+        hierarchyData.forEach(row => {
+            const tr = document.createElement('tr');
+            row.forEach((cell, idx) => {
+                const td = document.createElement('td');
+                td.textContent = cell || '—';
+                if (idx === 0) td.style.fontWeight = '600';
+                tr.appendChild(td);
+            });
+            hierarchyTbody.appendChild(tr);
+        });
+
+        // fill KPI datalist
+        const kpiSet = new Set(hierarchyData.map(r => r[2] || r[3]).filter(n => n && n!='—'));
+        const datalist = document.getElementById('kpiList');
+        kpiSet.forEach(k => { let opt = document.createElement('option'); opt.value = k; datalist.appendChild(opt); });
+
+        // ----- mock data for other sheets (realistic preview) -----
+        // monthly data entry body
+        const dataBody = document.getElementById('dataEntryBody');
+        const mockEntries = [
+            ['2025-10-01','FIN','Conversion Cost SC Only','PHP/KG',2.5,2.3],
+            ['2025-10-01','FIN','Volume Produced Actual','MT',1000,980],
+            ['2025-10-01','WHSE','Fill Rate Value','%',99,97.5],
+            ['2025-10-01','PROD','Output vs Target','%',90,92.5],
+            ['2025-10-01','PROD','Total Downtime','%',10,12.5],
+            ['2025-10-01','INV','DIO (Days Inventory)','days',70,65.2],
+            ['2025-11-01','FIN','Conversion Cost SC Only','PHP/KG',2.5,2.4],
+            ['2025-11-01','PROD','Output vs Target','%',90,93.1]
+        ];
+        mockEntries.forEach(e => {
+            let tr = document.createElement('tr');
+            let varVal = (e[6] - e[5]).toFixed(1);
+            let status = e[6] >= e[5] ? '▲' : '▼';
+            e.push(varVal, status);
+            e.forEach(cell => { let td = document.createElement('td'); td.textContent = cell; tr.appendChild(td); });
+            dataBody.appendChild(tr);
+        });
+
+        // monthly pivot (unique KPI names)
+        const monthlyBody = document.getElementById('monthlyPivotBody');
+        let uniqueKPIs = [...new Set(mockEntries.map(m => m[2]))].slice(0,6);
+        uniqueKPIs.forEach((kpi,idx) => {
+            let tr = document.createElement('tr');
+            tr.innerHTML = `<td>${kpi}</td><td>%</td><td>${idx===0?2.5:90}</td><td>92.5</td><td>93.1</td><td>93.8</td><td>93.1</td>`;
+            monthlyBody.appendChild(tr);
+        });
+
+        // dept summary
+        const deptBody = document.getElementById('deptSummaryBody');
+        const deps = ['Finance','Warehouse','Production','Inventory','S&OP','Workforce','Procurement'];
+        deps.forEach(d => {
+            let tr = document.createElement('tr');
+            tr.innerHTML = `<td>${d}</td><td>Sample KPI</td><td>100</td><td>${(Math.random()*20+80).toFixed(1)}</td><td>${Math.random()>0.3?'▲':'▼'}</td>`;
+            deptBody.appendChild(tr);
+        });
+
+        // line productivity
+        const lineBody = document.getElementById('lineProdBody');
+        const lines = ['L06 - EPOXY','L04B - ELASTO','L03 - CYANO TUBE','L01 - COATINGS','L07 - EPOXY TUBE','LINE 9 - EPS','L10 - CONTACT BOND','GIP L11 - SILICONE','L12 - SPECIAL EPOXY','L13 - SPECIAL','LINE 14','L02 - CYNO/EPOXY CLAY','LABELING LINE'];
+        lines.forEach(l => {
+            let tr = document.createElement('tr');
+            tr.innerHTML = `<td>${l}</td><td>90%</td><td>${(Math.random()*10+85).toFixed(1)}</td><td>${(Math.random()*10+85).toFixed(1)}</td><td>${(Math.random()*10+85).toFixed(1)}</td><td>88.5</td>`;
+            lineBody.appendChild(tr);
+        });
+
+        // forecast body (sample)
+        const fcBody = document.getElementById('forecastBody');
+        ['EPOXY','ELASTOSEAL','MIGHTY BOND','LOCAL PHILIPPINES','EXPORT'].forEach(f => {
+            fcBody.innerHTML += `<tr><td>${f}</td><td>85%</td><td>${(Math.random()*10+80).toFixed(1)}</td><td>${(Math.random()*10+80).toFixed(1)}</td><td>${(Math.random()*10+80).toFixed(1)}</td></tr>`;
+        });
+
+        // inventory aging
+        const invBody = document.getElementById('inventoryBody');
+        ['FG Fast GOOD','FG Slow','RM Fast','RM Expired','PM No movement'].forEach(i => {
+            invBody.innerHTML += `<tr><td>${i}</td><td>5%</td><td>${(Math.random()*6).toFixed(1)}</td><td>${(Math.random()*6).toFixed(1)}</td><td>${(Math.random()*6).toFixed(1)}</td></tr>`;
+        });
+
+        // ----- tab switching -----
+        const tabs = document.querySelectorAll('.tab-btn');
+        const contents = document.querySelectorAll('.tab-content');
+        tabs.forEach(t => {
+            t.addEventListener('click', (e) => {
+                tabs.forEach(bt => bt.classList.remove('active'));
+                t.classList.add('active');
+                contents.forEach(c => c.style.display = 'none');
+                const targetId = t.getAttribute('data-tab');
+                document.getElementById(targetId).style.display = 'block';
+            });
+        });
+
+        // add entry button dummy
+        document.getElementById('addEntryBtn').addEventListener('click', ()=>{
+            alert('Demo: row would be added to table. CSV ready structure.');
+        });
+
+        // fill some datalist for dept
+    })();
+</script>
+<!-- ensure datalist works -->
+</body>
+</html>

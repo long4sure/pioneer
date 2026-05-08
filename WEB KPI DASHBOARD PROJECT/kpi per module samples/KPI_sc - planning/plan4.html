@@ -1,0 +1,1372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SC Planning Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            padding: 24px;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #2d2f33;
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 16px;
+            background-color: #fafbfc;
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: 1px solid #eef2f5;
+        }
+
+        .filter-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .filter-item label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #5f6775;
+            text-transform: uppercase;
+        }
+
+        .filter-item select {
+            padding: 6px 12px;
+            border: 1px solid #d0d5dd;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #2d2f33;
+            background-color: white;
+            cursor: pointer;
+        }
+
+        /* Tab Navigation - Now only 2 tabs */
+        .tab-nav {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 24px;
+            border-bottom: 2px solid #eef2f5;
+            padding-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 8px 16px;
+            border: none;
+            background: none;
+            font-size: 13px;
+            font-weight: 600;
+            color: #5f6775;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .tab-btn:hover {
+            color: #01b8aa;
+            background-color: #f0f7f7;
+        }
+
+        .tab-btn.active {
+            color: #01b8aa;
+            background-color: #e6f3f2;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* KPI Cards */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .kpi-card {
+            background-color: white;
+            border: 1px solid #eef2f5;
+            border-radius: 8px;
+            padding: 20px;
+            transition: all 0.2s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+        }
+
+        .kpi-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border-color: #01b8aa;
+        }
+
+        .kpi-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .kpi-card-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #5f6775;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .kpi-card-main-value {
+            font-size: 32px;
+            font-weight: 600;
+            color: #2d2f33;
+            margin-bottom: 8px;
+        }
+
+        .kpi-card-details {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .kpi-card-detail-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            color: #5f6775;
+            padding: 4px 0;
+            border-bottom: 1px dashed #f0f0f0;
+        }
+
+        .kpi-card-detail-label {
+            color: #5f6775;
+        }
+
+        .kpi-card-detail-value {
+            font-weight: 600;
+            color: #2d2f33;
+        }
+
+        .kpi-card-progress {
+            height: 6px;
+            background-color: #eef2f5;
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 12px 0 8px;
+        }
+
+        .kpi-card-progress-bar {
+            height: 100%;
+            background-color: #01b8aa;
+            border-radius: 3px;
+        }
+
+        .kpi-card-footer {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #5f6775;
+            margin-top: 8px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-excellent {
+            background-color: #e6f9ed;
+            color: #107c41;
+        }
+
+        .status-good {
+            background-color: #e3f2fd;
+            color: #0d47a1;
+        }
+
+        .status-warning {
+            background-color: #fff1e0;
+            color: #d83b01;
+        }
+
+        .status-critical {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+
+        .status-neutral {
+            background-color: #fef7e0;
+            color: #966c00;
+        }
+
+        /* Section Headers */
+        .section-header {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2d2f33;
+            margin: 30px 0 20px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #01b8aa;
+        }
+
+        /* Two Column Layout */
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        /* Three Column Layout */
+        .three-col {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        /* Input Panel */
+        .input-panel {
+            background-color: white;
+            border: 1px solid #eef2f5;
+            border-radius: 6px;
+            margin: 24px 0;
+        }
+
+        .panel-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #eef2f5;
+            background-color: #fafbfc;
+            font-size: 14px;
+            font-weight: 600;
+            color: #2d2f33;
+        }
+
+        .input-sections {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .input-section {
+            background-color: #fafbfc;
+            border: 1px solid #eef2f5;
+            border-radius: 6px;
+            padding: 20px;
+        }
+
+        .input-section h4 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #5f6775;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #eef2f5;
+        }
+
+        .input-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .input-field {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .input-field label {
+            font-size: 11px;
+            font-weight: 600;
+            color: #5f6775;
+            text-transform: uppercase;
+        }
+
+        .input-field input {
+            padding: 8px 12px;
+            border: 1px solid #d0d5dd;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #2d2f33;
+            background-color: white;
+        }
+
+        .input-field input:focus {
+            outline: none;
+            border-color: #01b8aa;
+        }
+
+        .input-field input::placeholder {
+            color: #aaa;
+            font-style: italic;
+        }
+
+        .button-group {
+            padding: 16px 20px;
+            border-top: 1px solid #eef2f5;
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: 1px solid #d0d5dd;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            background: white;
+            color: #2d2f33;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            background-color: #f0f0f0;
+        }
+
+        .btn-primary {
+            background-color: #01b8aa;
+            border-color: #01b8aa;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #019f92;
+        }
+
+        .btn-danger {
+            background-color: #d83b01;
+            border-color: #d83b01;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #b32e01;
+        }
+
+        .footer {
+            text-align: right;
+            font-size: 12px;
+            color: #5f6775;
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid #eef2f5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header with Filters -->
+        <div class="header">
+            <h1>SC PLANNING DASHBOARD</h1>
+            <div class="filter-group">
+                <div class="filter-item">
+                    <label>Year:</label>
+                    <select id="yearSelect">
+                        <option value="2023">2023</option>
+                        <option value="2024" selected>2024</option>
+                        <option value="2025">2025</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label>Month:</label>
+                    <select id="monthSelect">
+                        <option value="January">January</option>
+                        <option value="February">February</option>
+                        <option value="March">March</option>
+                        <option value="April">April</option>
+                        <option value="May">May</option>
+                        <option value="June">June</option>
+                        <option value="July">July</option>
+                        <option value="August">August</option>
+                        <option value="September">September</option>
+                        <option value="October" selected>October</option>
+                        <option value="November">November</option>
+                        <option value="December">December</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab Navigation - Only 2 tabs -->
+        <div class="tab-nav">
+            <button class="tab-btn active" onclick="switchTab('overview')">Overview</button>
+            <button class="tab-btn" onclick="switchTab('input')">Data Input</button>
+        </div>
+
+        <!-- OVERVIEW TAB - All metrics in one place -->
+        <div id="tab-overview" class="tab-content active">
+            <!-- Top KPI Cards -->
+            <div class="kpi-grid">
+                <!-- Safety Stocks Summary -->
+                <div class="kpi-card">
+                    <div class="kpi-card-header">
+                        <span class="kpi-card-title">Safety Stocks (Days)</span>
+                    </div>
+                    <div class="kpi-card-details">
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">FG Total</span>
+                            <span class="kpi-card-detail-value" id="safetyFgTotal">0</span>
+                        </div>
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">RM Total</span>
+                            <span class="kpi-card-detail-value" id="safetyRmTotal">0</span>
+                        </div>
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">PM Total</span>
+                            <span class="kpi-card-detail-value" id="safetyPmTotal">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Inventory Summary -->
+                <div class="kpi-card">
+                    <div class="kpi-card-header">
+                        <span class="kpi-card-title">Total Inventory</span>
+                    </div>
+                    <div class="kpi-card-details">
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">FG (kgs)</span>
+                            <span class="kpi-card-detail-value" id="invFgKgs">0</span>
+                        </div>
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">FG (PHP)</span>
+                            <span class="kpi-card-detail-value" id="invFgPhp">₱0</span>
+                        </div>
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">RM/PM (kgs)</span>
+                            <span class="kpi-card-detail-value" id="invRmPmKgs">0</span>
+                        </div>
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">RM/PM (PHP)</span>
+                            <span class="kpi-card-detail-value" id="invRmPmPhp">₱0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Accuracy Summary -->
+                <div class="kpi-card">
+                    <div class="kpi-card-header">
+                        <span class="kpi-card-title">Inventory Accuracy</span>
+                    </div>
+                    <div class="kpi-card-details">
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">FG Accuracy</span>
+                            <span class="kpi-card-detail-value" id="accFg">0%</span>
+                        </div>
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">RM/PM Accuracy</span>
+                            <span class="kpi-card-detail-value" id="accRmPm">0%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Forecast Accuracy Summary - Updated with Product -->
+                <div class="kpi-card">
+                    <div class="kpi-card-header">
+                        <span class="kpi-card-title">Forecast Accuracy</span>
+                    </div>
+                    <div class="kpi-card-details">
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Local PH</span>
+                            <span class="kpi-card-detail-value" id="forecastLocal">0%</span>
+                        </div>
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Export</span>
+                            <span class="kpi-card-detail-value" id="forecastExport">0%</span>
+                        </div>
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Product</span>
+                            <span class="kpi-card-detail-value" id="forecastProduct">0%</span>
+                        </div>
+                        <div class="kpi-card-detail-row" style="border-top: 2px solid #eef2f5; margin-top: 4px; padding-top: 8px;">
+                            <span class="kpi-card-detail-label"><strong>Overall</strong></span>
+                            <span class="kpi-card-detail-value" id="forecastOverall">0%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detailed Safety Stocks Section -->
+            <div class="section-header">Safety Stocks (Days) - Detailed</div>
+            <div class="three-col">
+                <!-- FG Safety Stocks -->
+                <div class="kpi-card">
+                    <div class="kpi-card-header">
+                        <span class="kpi-card-title">Finished Goods</span>
+                    </div>
+                    <div class="kpi-card-details">
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Class A</span>
+                            <span class="kpi-card-detail-value" id="displayFgClassA">0</span>
+                        </div>
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Class B</span>
+                            <span class="kpi-card-detail-value" id="displayFgClassB">0</span>
+                        </div>
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Class C</span>
+                            <span class="kpi-card-detail-value" id="displayFgClassC">0</span>
+                        </div>
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">All In</span>
+                            <span class="kpi-card-detail-value" id="displayFgAllIn">0</span>
+                        </div>
+                        <div class="kpi-card-detail-row" style="border-top: 2px solid #eef2f5; margin-top: 8px; padding-top: 8px;">
+                            <span class="kpi-card-detail-label"><strong>Grand Total</strong></span>
+                            <span class="kpi-card-detail-value" id="displayFgGrandTotal">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RM Safety Stocks -->
+                <div class="kpi-card">
+                    <div class="kpi-card-header">
+                        <span class="kpi-card-title">Raw Materials</span>
+                    </div>
+                    <div class="kpi-card-details">
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Class A</span>
+                            <span class="kpi-card-detail-value" id="displayRmClassA">0</span>
+                        </div>
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Class B</span>
+                            <span class="kpi-card-detail-value" id="displayRmClassB">0</span>
+                        </div>
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Class C</span>
+                            <span class="kpi-card-detail-value" id="displayRmClassC">0</span>
+                        </div>
+                        <div class="kpi-card-detail-row" style="border-top: 2px solid #eef2f5; margin-top: 8px; padding-top: 8px;">
+                            <span class="kpi-card-detail-label"><strong>Grand Total</strong></span>
+                            <span class="kpi-card-detail-value" id="displayRmGrandTotal">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PM Safety Stocks -->
+                <div class="kpi-card">
+                    <div class="kpi-card-header">
+                        <span class="kpi-card-title">Packaging Materials</span>
+                    </div>
+                    <div class="kpi-card-details">
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Core</span>
+                            <span class="kpi-card-detail-value" id="displayPmCore">0</span>
+                        </div>
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">M7</span>
+                            <span class="kpi-card-detail-value" id="displayPmM7">0</span>
+                        </div>
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Others</span>
+                            <span class="kpi-card-detail-value" id="displayPmOthers">0</span>
+                        </div>
+                        <div class="kpi-card-detail-row" style="border-top: 2px solid #eef2f5; margin-top: 8px; padding-top: 8px;">
+                            <span class="kpi-card-detail-label"><strong>Grand Total</strong></span>
+                            <span class="kpi-card-detail-value" id="displayPmGrandTotal">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FG Inventory Section -->
+            <div class="section-header">FG Inventory</div>
+            <div class="two-col">
+                <!-- FG by KGS -->
+                <div class="kpi-card">
+                    <div class="kpi-card-header">
+                        <span class="kpi-card-title">By Weight (KGS)</span>
+                    </div>
+                    <div class="kpi-card-details">
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Fast Moving (GOOD) A&B</span>
+                            <span class="kpi-card-detail-value" id="displayFgKgsFastGood">0</span>
+                        </div>
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Fast Moving (NTE) A&B</span>
+                            <span class="kpi-card-detail-value" id="displayFgKgsFastNte">0</span>
+                        </div>
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Slow Moving/NTE Class C</span>
+                            <span class="kpi-card-detail-value" id="displayFgKgsSlow">0</span>
+                        </div>
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">No Movement Class C</span>
+                            <span class="kpi-card-detail-value" id="displayFgKgsNoMove">0</span>
+                        </div>
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Expired Stocks</span>
+                            <span class="kpi-card-detail-value" id="displayFgKgsExpired">0</span>
+                        </div>
+                        <div class="kpi-card-detail-row" style="border-top: 2px solid #eef2f5; margin-top: 8px; padding-top: 8px;">
+                            <span class="kpi-card-detail-label"><strong>Total Inventory</strong></span>
+                            <span class="kpi-card-detail-value" id="displayFgKgsTotal">0</span>
+                        </div>
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Inventory Days</span>
+                            <span class="kpi-card-detail-value" id="displayFgKgsDays">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FG by PHP -->
+                <div class="kpi-card">
+                    <div class="kpi-card-header">
+                        <span class="kpi-card-title">By Value (PHP)</span>
+                    </div>
+                    <div class="kpi-card-details">
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Fast Moving (GOOD) A&B</span>
+                            <span class="kpi-card-detail-value" id="displayFgPhpFastGood">₱0</span>
+                        </div>
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Fast Moving (NTE) A&B</span>
+                            <span class="kpi-card-detail-value" id="displayFgPhpFastNte">₱0</span>
+                        </div>
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Slow Moving/NTE Class C</span>
+                            <span class="kpi-card-detail-value" id="displayFgPhpSlow">₱0</span>
+                        </div>
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">No Movement Class C</span>
+                            <span class="kpi-card-detail-value" id="displayFgPhpNoMove">₱0</span>
+                        </div>
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Expired Stocks</span>
+                            <span class="kpi-card-detail-value" id="displayFgPhpExpired">₱0</span>
+                        </div>
+                        <div class="kpi-card-detail-row" style="border-top: 2px solid #eef2f5; margin-top: 8px; padding-top: 8px;">
+                            <span class="kpi-card-detail-label"><strong>Total Inventory</strong></span>
+                            <span class="kpi-card-detail-value" id="displayFgPhpTotal">₱0</span>
+                        </div>
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Inventory Days</span>
+                            <span class="kpi-card-detail-value" id="displayFgPhpDays">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RM/PM Inventory Section -->
+            <div class="section-header">RM/PM Inventory</div>
+            <div class="two-col">
+                <!-- RM/PM by KGS -->
+                <div class="kpi-card">
+                    <div class="kpi-card-header">
+                        <span class="kpi-card-title">By Weight (KGS)</span>
+                    </div>
+                    <div class="kpi-card-details">
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Fast Moving (GOOD) A&B</span>
+                            <span class="kpi-card-detail-value" id="displayRmKgsFastGood">0</span>
+                        </div>
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Fast Moving (NTE) A&B</span>
+                            <span class="kpi-card-detail-value" id="displayRmKgsFastNte">0</span>
+                        </div>
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Slow Moving/NTE Class C</span>
+                            <span class="kpi-card-detail-value" id="displayRmKgsSlow">0</span>
+                        </div>
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">No Movement Class C</span>
+                            <span class="kpi-card-detail-value" id="displayRmKgsNoMove">0</span>
+                        </div>
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Expired Stocks</span>
+                            <span class="kpi-card-detail-value" id="displayRmKgsExpired">0</span>
+                        </div>
+                        <div class="kpi-card-detail-row" style="border-top: 2px solid #eef2f5; margin-top: 8px; padding-top: 8px;">
+                            <span class="kpi-card-detail-label"><strong>Total Inventory</strong></span>
+                            <span class="kpi-card-detail-value" id="displayRmKgsTotal">0</span>
+                        </div>
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Inventory Days</span>
+                            <span class="kpi-card-detail-value" id="displayRmKgsDays">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RM/PM by PHP -->
+                <div class="kpi-card">
+                    <div class="kpi-card-header">
+                        <span class="kpi-card-title">By Value (PHP)</span>
+                    </div>
+                    <div class="kpi-card-details">
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Fast Moving (GOOD) A&B</span>
+                            <span class="kpi-card-detail-value" id="displayRmPhpFastGood">₱0</span>
+                        </div>
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Fast Moving (NTE) A&B</span>
+                            <span class="kpi-card-detail-value" id="displayRmPhpFastNte">₱0</span>
+                        </div>
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Slow Moving/NTE Class C</span>
+                            <span class="kpi-card-detail-value" id="displayRmPhpSlow">₱0</span>
+                        </div>
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">No Movement Class C</span>
+                            <span class="kpi-card-detail-value" id="displayRmPhpNoMove">₱0</span>
+                        </div>
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Expired Stocks</span>
+                            <span class="kpi-card-detail-value" id="displayRmPhpExpired">₱0</span>
+                        </div>
+                        <div class="kpi-card-detail-row" style="border-top: 2px solid #eef2f5; margin-top: 8px; padding-top: 8px;">
+                            <span class="kpi-card-detail-label"><strong>Total Inventory</strong></span>
+                            <span class="kpi-card-detail-value" id="displayRmPhpTotal">₱0</span>
+                        </div>
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Inventory Days</span>
+                            <span class="kpi-card-detail-value" id="displayRmPhpDays">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Accuracy Section -->
+            <div class="section-header">Inventory Accuracy</div>
+            <div class="two-col">
+                <!-- FG Accuracy -->
+                <div class="kpi-card">
+                    <div class="kpi-card-header">
+                        <span class="kpi-card-title">Finished Goods</span>
+                    </div>
+                    <div class="kpi-card-details">
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Total Count</span>
+                            <span class="kpi-card-detail-value" id="displayFgCount">0</span>
+                        </div>
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Total Missed</span>
+                            <span class="kpi-card-detail-value" id="displayFgMissed">0</span>
+                        </div>
+                        <div class="kpi-card-detail-row" style="border-top: 2px solid #eef2f5; margin-top: 8px; padding-top: 8px;">
+                            <span class="kpi-card-detail-label"><strong>Accuracy</strong></span>
+                            <span class="kpi-card-detail-value" id="displayFgAccuracy">0%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RM/PM Accuracy -->
+                <div class="kpi-card">
+                    <div class="kpi-card-header">
+                        <span class="kpi-card-title">RM/PM</span>
+                    </div>
+                    <div class="kpi-card-details">
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Total Count</span>
+                            <span class="kpi-card-detail-value" id="displayRmCount">0</span>
+                        </div>
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Total Missed</span>
+                            <span class="kpi-card-detail-value" id="displayRmMissed">0</span>
+                        </div>
+                        <div class="kpi-card-detail-row" style="border-top: 2px solid #eef2f5; margin-top: 8px; padding-top: 8px;">
+                            <span class="kpi-card-detail-label"><strong>Accuracy</strong></span>
+                            <span class="kpi-card-detail-value" id="displayRmAccuracy">0%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Forecast Section -->
+            <div class="section-header">Forecast Accuracy</div>
+            <div class="two-col">
+                <!-- Local Philippines -->
+                <div class="kpi-card">
+                    <div class="kpi-card-header">
+                        <span class="kpi-card-title">Local Philippines</span>
+                    </div>
+                    <div class="kpi-card-details">
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">GMA</span>
+                            <span class="kpi-card-detail-value" id="displayForecastGma">0%</span>
+                        </div>
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">North Luzon</span>
+                            <span class="kpi-card-detail-value" id="displayForecastNorth">0%</span>
+                        </div>
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">South Luzon</span>
+                            <span class="kpi-card-detail-value" id="displayForecastSouth">0%</span>
+                        </div>
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Visayas</span>
+                            <span class="kpi-card-detail-value" id="displayForecastVisayas">0%</span>
+                        </div>
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Mindanao</span>
+                            <span class="kpi-card-detail-value" id="displayForecastMindanao">0%</span>
+                        </div>
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Modern Trade</span>
+                            <span class="kpi-card-detail-value" id="displayForecastModern">0%</span>
+                        </div>
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">PSBSI</span>
+                            <span class="kpi-card-detail-value" id="displayForecastPsbsi">0%</span>
+                        </div>
+                        <div class="kpi-card-detail-row" style="border-top: 2px solid #eef2f5; margin-top: 8px; padding-top: 8px;">
+                            <span class="kpi-card-detail-label"><strong>Local Average</strong></span>
+                            <span class="kpi-card-detail-value" id="displayForecastLocalAvg">0%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Export -->
+                <div class="kpi-card">
+                    <div class="kpi-card-header">
+                        <span class="kpi-card-title">Export</span>
+                    </div>
+                    <div class="kpi-card-details">
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Indonesia</span>
+                            <span class="kpi-card-detail-value" id="displayForecastIndonesia">0%</span>
+                        </div>
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">India</span>
+                            <span class="kpi-card-detail-value" id="displayForecastIndia">0%</span>
+                        </div>
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Direct Export</span>
+                            <span class="kpi-card-detail-value" id="displayForecastDirect">0%</span>
+                        </div>
+                        <div class="kpi-card-detail-row" style="border-top: 2px solid #eef2f5; margin-top: 8px; padding-top: 8px;">
+                            <span class="kpi-card-detail-label"><strong>Export Average</strong></span>
+                            <span class="kpi-card-detail-value" id="displayForecastExportAvg">0%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product Forecast -->
+            <div class="kpi-card" style="margin-top: 20px;">
+                <div class="kpi-card-header">
+                    <span class="kpi-card-title">Forecast Accuracy by Product</span>
+                </div>
+                <div class="kpi-card-details" style="max-height: 300px; overflow-y: auto;">
+                    <div class="kpi-card-detail-row">
+                        <span class="kpi-card-detail-label">Epoxy (Marine + Construction)</span>
+                        <span class="kpi-card-detail-value" id="displayProdEpoxy">0%</span>
+                    </div>
+                    <div class="kpi-card-detail-row">
+                        <span class="kpi-card-detail-label">Elastoseal</span>
+                        <span class="kpi-card-detail-value" id="displayProdElastoseal">0%</span>
+                    </div>
+                    <div class="kpi-card-detail-row">
+                        <span class="kpi-card-detail-label">Mighty Bond</span>
+                        <span class="kpi-card-detail-value" id="displayProdMighty">0%</span>
+                    </div>
+                    <div class="kpi-card-detail-row">
+                        <span class="kpi-card-detail-label">Pro-Epoxy</span>
+                        <span class="kpi-card-detail-value" id="displayProdProEpoxy">0%</span>
+                    </div>
+                    <div class="kpi-card-detail-row">
+                        <span class="kpi-card-detail-label">Builders Bond</span>
+                        <span class="kpi-card-detail-value" id="displayProdBuilders">0%</span>
+                    </div>
+                    <div class="kpi-card-detail-row">
+                        <span class="kpi-card-detail-label">Coating Marine</span>
+                        <span class="kpi-card-detail-value" id="displayProdCoating">0%</span>
+                    </div>
+                    <div class="kpi-card-detail-row">
+                        <span class="kpi-card-detail-label">Transportation</span>
+                        <span class="kpi-card-detail-value" id="displayProdTransport">0%</span>
+                    </div>
+                    <div class="kpi-card-detail-row">
+                        <span class="kpi-card-detail-label">Other Consumer</span>
+                        <span class="kpi-card-detail-value" id="displayProdOther">0%</span>
+                    </div>
+                    <div class="kpi-card-detail-row">
+                        <span class="kpi-card-detail-label">Pro-Sealant</span>
+                        <span class="kpi-card-detail-value" id="displayProdSealant">0%</span>
+                    </div>
+                    <div class="kpi-card-detail-row">
+                        <span class="kpi-card-detail-label">Pro-Waterproofing</span>
+                        <span class="kpi-card-detail-value" id="displayProdWaterproof">0%</span>
+                    </div>
+                    <div class="kpi-card-detail-row">
+                        <span class="kpi-card-detail-label">Pro-Painting</span>
+                        <span class="kpi-card-detail-value" id="displayProdPainting">0%</span>
+                    </div>
+                    <div class="kpi-card-detail-row">
+                        <span class="kpi-card-detail-label">Pro-Adhesives</span>
+                        <span class="kpi-card-detail-value" id="displayProdAdhesives">0%</span>
+                    </div>
+                    <div class="kpi-card-detail-row">
+                        <span class="kpi-card-detail-label">Mining</span>
+                        <span class="kpi-card-detail-value" id="displayProdMining">0%</span>
+                    </div>
+                    <div class="kpi-card-detail-row">
+                        <span class="kpi-card-detail-label">Others</span>
+                        <span class="kpi-card-detail-value" id="displayProdOthers">0%</span>
+                    </div>
+                    <div class="kpi-card-detail-row" style="border-top: 2px solid #eef2f5; margin-top: 8px; padding-top: 8px;">
+                        <span class="kpi-card-detail-label"><strong>Product Average</strong></span>
+                        <span class="kpi-card-detail-value" id="displayForecastProductAvg">0%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- DATA INPUT TAB - All inputs in one place -->
+        <div id="tab-input" class="tab-content">
+            <div class="input-panel">
+                <div class="panel-header">Complete Data Input - All Fields</div>
+                <div class="input-sections">
+                    <!-- Safety Stocks Section -->
+                    <div class="input-section">
+                        <h4>Safety Stocks (Days)</h4>
+                        <div class="input-grid">
+                            <div class="input-field"><label>FG Class A</label><input type="number" id="inputFgClassA" step="0.1" placeholder="Days"></div>
+                            <div class="input-field"><label>FG Class B</label><input type="number" id="inputFgClassB" step="0.1" placeholder="Days"></div>
+                            <div class="input-field"><label>FG Class C</label><input type="number" id="inputFgClassC" step="0.1" placeholder="Days"></div>
+                            <div class="input-field"><label>FG All In</label><input type="number" id="inputFgAllIn" step="0.1" placeholder="Days"></div>
+                            <div class="input-field"><label>RM Class A</label><input type="number" id="inputRmClassA" step="0.1" placeholder="Days"></div>
+                            <div class="input-field"><label>RM Class B</label><input type="number" id="inputRmClassB" step="0.1" placeholder="Days"></div>
+                            <div class="input-field"><label>RM Class C</label><input type="number" id="inputRmClassC" step="0.1" placeholder="Days"></div>
+                            <div class="input-field"><label>PM Core</label><input type="number" id="inputPmCore" step="0.1" placeholder="Days"></div>
+                            <div class="input-field"><label>PM M7</label><input type="number" id="inputPmM7" step="0.1" placeholder="Days"></div>
+                            <div class="input-field"><label>PM Others</label><input type="number" id="inputPmOthers" step="0.1" placeholder="Days"></div>
+                        </div>
+                    </div>
+
+                    <!-- FG Inventory KGS -->
+                    <div class="input-section">
+                        <h4>FG Inventory (KGS)</h4>
+                        <div class="input-grid">
+                            <div class="input-field"><label>Fast Good A&B</label><input type="number" id="inputFgKgsFastGood" step="0.1" placeholder="kgs"></div>
+                            <div class="input-field"><label>Fast NTE A&B</label><input type="number" id="inputFgKgsFastNte" step="0.1" placeholder="kgs"></div>
+                            <div class="input-field"><label>Slow/NTE C</label><input type="number" id="inputFgKgsSlow" step="0.1" placeholder="kgs"></div>
+                            <div class="input-field"><label>No Move C</label><input type="number" id="inputFgKgsNoMove" step="0.1" placeholder="kgs"></div>
+                            <div class="input-field"><label>Expired</label><input type="number" id="inputFgKgsExpired" step="0.1" placeholder="kgs"></div>
+                            <div class="input-field"><label>Inventory Days</label><input type="number" id="inputFgKgsDays" step="0.1" placeholder="days"></div>
+                        </div>
+                    </div>
+
+                    <!-- FG Inventory PHP -->
+                    <div class="input-section">
+                        <h4>FG Inventory (PHP)</h4>
+                        <div class="input-grid">
+                            <div class="input-field"><label>Fast Good A&B</label><input type="number" id="inputFgPhpFastGood" step="0.1" placeholder="₱"></div>
+                            <div class="input-field"><label>Fast NTE A&B</label><input type="number" id="inputFgPhpFastNte" step="0.1" placeholder="₱"></div>
+                            <div class="input-field"><label>Slow/NTE C</label><input type="number" id="inputFgPhpSlow" step="0.1" placeholder="₱"></div>
+                            <div class="input-field"><label>No Move C</label><input type="number" id="inputFgPhpNoMove" step="0.1" placeholder="₱"></div>
+                            <div class="input-field"><label>Expired</label><input type="number" id="inputFgPhpExpired" step="0.1" placeholder="₱"></div>
+                        </div>
+                    </div>
+
+                    <!-- RM/PM Inventory KGS -->
+                    <div class="input-section">
+                        <h4>RM/PM Inventory (KGS)</h4>
+                        <div class="input-grid">
+                            <div class="input-field"><label>Fast Good A&B</label><input type="number" id="inputRmKgsFastGood" step="0.1" placeholder="kgs"></div>
+                            <div class="input-field"><label>Fast NTE A&B</label><input type="number" id="inputRmKgsFastNte" step="0.1" placeholder="kgs"></div>
+                            <div class="input-field"><label>Slow/NTE C</label><input type="number" id="inputRmKgsSlow" step="0.1" placeholder="kgs"></div>
+                            <div class="input-field"><label>No Move C</label><input type="number" id="inputRmKgsNoMove" step="0.1" placeholder="kgs"></div>
+                            <div class="input-field"><label>Expired</label><input type="number" id="inputRmKgsExpired" step="0.1" placeholder="kgs"></div>
+                            <div class="input-field"><label>Inventory Days</label><input type="number" id="inputRmKgsDays" step="0.1" placeholder="days"></div>
+                        </div>
+                    </div>
+
+                    <!-- RM/PM Inventory PHP -->
+                    <div class="input-section">
+                        <h4>RM/PM Inventory (PHP)</h4>
+                        <div class="input-grid">
+                            <div class="input-field"><label>Fast Good A&B</label><input type="number" id="inputRmPhpFastGood" step="0.1" placeholder="₱"></div>
+                            <div class="input-field"><label>Fast NTE A&B</label><input type="number" id="inputRmPhpFastNte" step="0.1" placeholder="₱"></div>
+                            <div class="input-field"><label>Slow/NTE C</label><input type="number" id="inputRmPhpSlow" step="0.1" placeholder="₱"></div>
+                            <div class="input-field"><label>No Move C</label><input type="number" id="inputRmPhpNoMove" step="0.1" placeholder="₱"></div>
+                            <div class="input-field"><label>Expired</label><input type="number" id="inputRmPhpExpired" step="0.1" placeholder="₱"></div>
+                        </div>
+                    </div>
+
+                    <!-- Accuracy Section -->
+                    <div class="input-section">
+                        <h4>Inventory Accuracy</h4>
+                        <div class="input-grid">
+                            <div class="input-field"><label>FG Count</label><input type="number" id="inputFgCount" step="0.1" placeholder="count"></div>
+                            <div class="input-field"><label>FG Missed</label><input type="number" id="inputFgMissed" step="0.1" placeholder="count"></div>
+                            <div class="input-field"><label>RM Count</label><input type="number" id="inputRmCount" step="0.1" placeholder="count"></div>
+                            <div class="input-field"><label>RM Missed</label><input type="number" id="inputRmMissed" step="0.1" placeholder="count"></div>
+                        </div>
+                    </div>
+
+                    <!-- Forecast Local Section -->
+                    <div class="input-section">
+                        <h4>Forecast - Local (%)</h4>
+                        <div class="input-grid">
+                            <div class="input-field"><label>GMA</label><input type="number" id="inputForecastGma" step="0.1" placeholder="%"></div>
+                            <div class="input-field"><label>North Luzon</label><input type="number" id="inputForecastNorth" step="0.1" placeholder="%"></div>
+                            <div class="input-field"><label>South Luzon</label><input type="number" id="inputForecastSouth" step="0.1" placeholder="%"></div>
+                            <div class="input-field"><label>Visayas</label><input type="number" id="inputForecastVisayas" step="0.1" placeholder="%"></div>
+                            <div class="input-field"><label>Mindanao</label><input type="number" id="inputForecastMindanao" step="0.1" placeholder="%"></div>
+                            <div class="input-field"><label>Modern Trade</label><input type="number" id="inputForecastModern" step="0.1" placeholder="%"></div>
+                            <div class="input-field"><label>PSBSI</label><input type="number" id="inputForecastPsbsi" step="0.1" placeholder="%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Forecast Export Section -->
+                    <div class="input-section">
+                        <h4>Forecast - Export (%)</h4>
+                        <div class="input-grid">
+                            <div class="input-field"><label>Indonesia</label><input type="number" id="inputForecastIndonesia" step="0.1" placeholder="%"></div>
+                            <div class="input-field"><label>India</label><input type="number" id="inputForecastIndia" step="0.1" placeholder="%"></div>
+                            <div class="input-field"><label>Direct Export</label><input type="number" id="inputForecastDirect" step="0.1" placeholder="%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Forecast Product Section -->
+                    <div class="input-section">
+                        <h4>Forecast - Product (%)</h4>
+                        <div class="input-grid">
+                            <div class="input-field"><label>Epoxy</label><input type="number" id="inputProdEpoxy" step="0.1" placeholder="%"></div>
+                            <div class="input-field"><label>Elastoseal</label><input type="number" id="inputProdElastoseal" step="0.1" placeholder="%"></div>
+                            <div class="input-field"><label>Mighty Bond</label><input type="number" id="inputProdMighty" step="0.1" placeholder="%"></div>
+                            <div class="input-field"><label>Pro-Epoxy</label><input type="number" id="inputProdProEpoxy" step="0.1" placeholder="%"></div>
+                            <div class="input-field"><label>Builders Bond</label><input type="number" id="inputProdBuilders" step="0.1" placeholder="%"></div>
+                            <div class="input-field"><label>Coating Marine</label><input type="number" id="inputProdCoating" step="0.1" placeholder="%"></div>
+                            <div class="input-field"><label>Transportation</label><input type="number" id="inputProdTransport" step="0.1" placeholder="%"></div>
+                            <div class="input-field"><label>Other Consumer</label><input type="number" id="inputProdOther" step="0.1" placeholder="%"></div>
+                            <div class="input-field"><label>Pro-Sealant</label><input type="number" id="inputProdSealant" step="0.1" placeholder="%"></div>
+                            <div class="input-field"><label>Pro-Waterproofing</label><input type="number" id="inputProdWaterproof" step="0.1" placeholder="%"></div>
+                            <div class="input-field"><label>Pro-Painting</label><input type="number" id="inputProdPainting" step="0.1" placeholder="%"></div>
+                            <div class="input-field"><label>Pro-Adhesives</label><input type="number" id="inputProdAdhesives" step="0.1" placeholder="%"></div>
+                            <div class="input-field"><label>Mining</label><input type="number" id="inputProdMining" step="0.1" placeholder="%"></div>
+                            <div class="input-field"><label>Others</label><input type="number" id="inputProdOthers" step="0.1" placeholder="%"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="button-group">
+                    <button class="btn btn-danger" onclick="clearAll()">Clear All</button>
+                    <button class="btn btn-primary" onclick="updateFromInputs()">Update Dashboard</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            Last updated: <span id="lastUpdate">Just now</span>
+        </div>
+    </div>
+
+    <script>
+        function formatNumber(num, decimals = 2) {
+            if (!num || isNaN(num) || num === 0) return '0';
+            return num.toLocaleString(undefined, {
+                minimumFractionDigits: decimals,
+                maximumFractionDigits: decimals
+            });
+        }
+
+        function formatCurrency(num) {
+            if (!num || isNaN(num) || num === 0) return '₱0';
+            if (num >= 1000000) return '₱' + (num/1000000).toFixed(1) + 'M';
+            if (num >= 1000) return '₱' + (num/1000).toFixed(1) + 'K';
+            return '₱' + num.toFixed(2);
+        }
+
+        function formatPercent(num) {
+            if (!num || isNaN(num) || num === 0) return '0%';
+            return num.toFixed(1) + '%';
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        function updateFromInputs() {
+            // Safety Stocks
+            const fgClassA = parseFloat(document.getElementById('inputFgClassA').value) || 0;
+            const fgClassB = parseFloat(document.getElementById('inputFgClassB').value) || 0;
+            const fgClassC = parseFloat(document.getElementById('inputFgClassC').value) || 0;
+            const fgAllIn = parseFloat(document.getElementById('inputFgAllIn').value) || 0;
+            const rmClassA = parseFloat(document.getElementById('inputRmClassA').value) || 0;
+            const rmClassB = parseFloat(document.getElementById('inputRmClassB').value) || 0;
+            const rmClassC = parseFloat(document.getElementById('inputRmClassC').value) || 0;
+            const pmCore = parseFloat(document.getElementById('inputPmCore').value) || 0;
+            const pmM7 = parseFloat(document.getElementById('inputPmM7').value) || 0;
+            const pmOthers = parseFloat(document.getElementById('inputPmOthers').value) || 0;
+
+            // Update display values
+            document.getElementById('displayFgClassA').textContent = fgClassA.toFixed(1);
+            document.getElementById('displayFgClassB').textContent = fgClassB.toFixed(1);
+            document.getElementById('displayFgClassC').textContent = fgClassC.toFixed(1);
+            document.getElementById('displayFgAllIn').textContent = fgAllIn.toFixed(1);
+            
+            const fgTotal = fgClassA + fgClassB + fgClassC + fgAllIn;
+            document.getElementById('displayFgGrandTotal').textContent = fgTotal.toFixed(1);
+            document.getElementById('safetyFgTotal').textContent = fgTotal.toFixed(1);
+
+            document.getElementById('displayRmClassA').textContent = rmClassA.toFixed(1);
+            document.getElementById('displayRmClassB').textContent = rmClassB.toFixed(1);
+            document.getElementById('displayRmClassC').textContent = rmClassC.toFixed(1);
+            
+            const rmTotal = rmClassA + rmClassB + rmClassC;
+            document.getElementById('displayRmGrandTotal').textContent = rmTotal.toFixed(1);
+            document.getElementById('safetyRmTotal').textContent = rmTotal.toFixed(1);
+
+            document.getElementById('displayPmCore').textContent = pmCore.toFixed(1);
+            document.getElementById('displayPmM7').textContent = pmM7.toFixed(1);
+            document.getElementById('displayPmOthers').textContent = pmOthers.toFixed(1);
+            
+            const pmTotal = pmCore + pmM7 + pmOthers;
+            document.getElementById('displayPmGrandTotal').textContent = pmTotal.toFixed(1);
+            document.getElementById('safetyPmTotal').textContent = pmTotal.toFixed(1);
+
+            // FG Inventory KGS
+            const fgKgsFastGood = parseFloat(document.getElementById('inputFgKgsFastGood').value) || 0;
+            const fgKgsFastNte = parseFloat(document.getElementById('inputFgKgsFastNte').value) || 0;
+            const fgKgsSlow = parseFloat(document.getElementById('inputFgKgsSlow').value) || 0;
+            const fgKgsNoMove = parseFloat(document.getElementById('inputFgKgsNoMove').value) || 0;
+            const fgKgsExpired = parseFloat(document.getElementById('inputFgKgsExpired').value) || 0;
+            const fgKgsDays = parseFloat(document.getElementById('inputFgKgsDays').value) || 0;
+
+            document.getElementById('displayFgKgsFastGood').textContent = formatNumber(fgKgsFastGood);
+            document.getElementById('displayFgKgsFastNte').textContent = formatNumber(fgKgsFastNte);
+            document.getElementById('displayFgKgsSlow').textContent = formatNumber(fgKgsSlow);
+            document.getElementById('displayFgKgsNoMove').textContent = formatNumber(fgKgsNoMove);
+            document.getElementById('displayFgKgsExpired').textContent = formatNumber(fgKgsExpired);
+            
+            const fgKgsTotal = fgKgsFastGood + fgKgsFastNte + fgKgsSlow + fgKgsNoMove + fgKgsExpired;
+            document.getElementById('displayFgKgsTotal').textContent = formatNumber(fgKgsTotal);
+            document.getElementById('invFgKgs').textContent = formatNumber(fgKgsTotal);
+            
+            document.getElementById('displayFgKgsDays').textContent = fgKgsDays.toFixed(1);
+            document.getElementById('displayFgPhpDays').textContent = fgKgsDays.toFixed(1);
+
+            // FG Inventory PHP
+            const fgPhpFastGood = parseFloat(document.getElementById('inputFgPhpFastGood').value) || 0;
+            const fgPhpFastNte = parseFloat(document.getElementById('inputFgPhpFastNte').value) || 0;
+            const fgPhpSlow = parseFloat(document.getElementById('inputFgPhpSlow').value) || 0;
+            const fgPhpNoMove = parseFloat(document.getElementById('inputFgPhpNoMove').value) || 0;
+            const fgPhpExpired = parseFloat(document.getElementById('inputFgPhpExpired').value) || 0;
+
+            document.getElementById('displayFgPhpFastGood').textContent = formatCurrency(fgPhpFastGood);
+            document.getElementById('displayFgPhpFastNte').textContent = formatCurrency(fgPhpFastNte);
+            document.getElementById('displayFgPhpSlow').textContent = formatCurrency(fgPhpSlow);
+            document.getElementById('displayFgPhpNoMove').textContent = formatCurrency(fgPhpNoMove);
+            document.getElementById('displayFgPhpExpired').textContent = formatCurrency(fgPhpExpired);
+            
+            const fgPhpTotal = fgPhpFastGood + fgPhpFastNte + fgPhpSlow + fgPhpNoMove + fgPhpExpired;
+            document.getElementById('displayFgPhpTotal').textContent = formatCurrency(fgPhpTotal);
+            document.getElementById('invFgPhp').textContent = formatCurrency(fgPhpTotal);
+
+            // RM/PM Inventory KGS
+            const rmKgsFastGood = parseFloat(document.getElementById('inputRmKgsFastGood').value) || 0;
+            const rmKgsFastNte = parseFloat(document.getElementById('inputRmKgsFastNte').value) || 0;
+            const rmKgsSlow = parseFloat(document.getElementById('inputRmKgsSlow').value) || 0;
+            const rmKgsNoMove = parseFloat(document.getElementById('inputRmKgsNoMove').value) || 0;
+            const rmKgsExpired = parseFloat(document.getElementById('inputRmKgsExpired').value) || 0;
+            const rmKgsDays = parseFloat(document.getElementById('inputRmKgsDays').value) || 0;
+
+            document.getElementById('displayRmKgsFastGood').textContent = formatNumber(rmKgsFastGood);
+            document.getElementById('displayRmKgsFastNte').textContent = formatNumber(rmKgsFastNte);
+            document.getElementById('displayRmKgsSlow').textContent = formatNumber(rmKgsSlow);
+            document.getElementById('displayRmKgsNoMove').textContent = formatNumber(rmKgsNoMove);
+            document.getElementById('displayRmKgsExpired').textContent = formatNumber(rmKgsExpired);
+            
+            const rmKgsTotal = rmKgsFastGood + rmKgsFastNte + rmKgsSlow + rmKgsNoMove + rmKgsExpired;
+            document.getElementById('displayRmKgsTotal').textContent = formatNumber(rmKgsTotal);
+            document.getElementById('invRmPmKgs').textContent = formatNumber(rmKgsTotal);
+            
+            document.getElementById('displayRmKgsDays').textContent = rmKgsDays.toFixed(1);
+            document.getElementById('displayRmPhpDays').textContent = rmKgsDays.toFixed(1);
+
+            // RM/PM Inventory PHP
+            const rmPhpFastGood = parseFloat(document.getElementById('inputRmPhpFastGood').value) || 0;
+            const rmPhpFastNte = parseFloat(document.getElementById('inputRmPhpFastNte').value) || 0;
+            const rmPhpSlow = parseFloat(document.getElementById('inputRmPhpSlow').value) || 0;
+            const rmPhpNoMove = parseFloat(document.getElementById('inputRmPhpNoMove').value) || 0;
+            const rmPhpExpired = parseFloat(document.getElementById('inputRmPhpExpired').value) || 0;
+
+            document.getElementById('displayRmPhpFastGood').textContent = formatCurrency(rmPhpFastGood);
+            document.getElementById('displayRmPhpFastNte').textContent = formatCurrency(rmPhpFastNte);
+            document.getElementById('displayRmPhpSlow').textContent = formatCurrency(rmPhpSlow);
+            document.getElementById('displayRmPhpNoMove').textContent = formatCurrency(rmPhpNoMove);
+            document.getElementById('displayRmPhpExpired').textContent = formatCurrency(rmPhpExpired);
+            
+            const rmPhpTotal = rmPhpFastGood + rmPhpFastNte + rmPhpSlow + rmPhpNoMove + rmPhpExpired;
+            document.getElementById('displayRmPhpTotal').textContent = formatCurrency(rmPhpTotal);
+            document.getElementById('invRmPmPhp').textContent = formatCurrency(rmPhpTotal);
+
+            // Accuracy
+            const fgCount = parseFloat(document.getElementById('inputFgCount').value) || 0;
+            const fgMissed = parseFloat(document.getElementById('inputFgMissed').value) || 0;
+            const rmCount = parseFloat(document.getElementById('inputRmCount').value) || 0;
+            const rmMissed = parseFloat(document.getElementById('inputRmMissed').value) || 0;
+
+            document.getElementById('displayFgCount').textContent = formatNumber(fgCount);
+            document.getElementById('displayFgMissed').textContent = formatNumber(fgMissed);
+            document.getElementById('displayRmCount').textContent = formatNumber(rmCount);
+            document.getElementById('displayRmMissed').textContent = formatNumber(rmMissed);
+
+            const fgAccuracy = fgCount > 0 ? ((fgCount - fgMissed) / fgCount) * 100 : 0;
+            const rmAccuracy = rmCount > 0 ? ((rmCount - rmMissed) / rmCount) * 100 : 0;
+
+            document.getElementById('displayFgAccuracy').textContent = formatPercent(fgAccuracy);
+            document.getElementById('displayRmAccuracy').textContent = formatPercent(rmAccuracy);
+            document.getElementById('accFg').textContent = formatPercent(fgAccuracy);
+            document.getElementById('accRmPm').textContent = formatPercent(rmAccuracy);
+
+            // Forecast Local (values are entered as percentages)
+            const forecastGma = parseFloat(document.getElementById('inputForecastGma').value) || 0;
+            const forecastNorth = parseFloat(document.getElementById('inputForecastNorth').value) || 0;
+            const forecastSouth = parseFloat(document.getElementById('inputForecastSouth').value) || 0;
+            const forecastVisayas = parseFloat(document.getElementById('inputForecastVisayas').value) || 0;
+            const forecastMindanao = parseFloat(document.getElementById('inputForecastMindanao').value) || 0;
+            const forecastModern = parseFloat(document.getElementById('inputForecastModern').value) || 0;
+            const forecastPsbsi = parseFloat(document.getElementById('inputForecastPsbsi').value) || 0;
+
+            document.getElementById('displayForecastGma').textContent = formatPercent(forecastGma);
+            document.getElementById('displayForecastNorth').textContent = formatPercent(forecastNorth);
+            document.getElementById('displayForecastSouth').textContent = formatPercent(forecastSouth);
+            document.getElementById('displayForecastVisayas').textContent = formatPercent(forecastVisayas);
+            document.getElementById('displayForecastMindanao').textContent = formatPercent(forecastMindanao);
+            document.getElementById('displayForecastModern').textContent = formatPercent(forecastModern);
+            document.getElementById('displayForecastPsbsi').textContent = formatPercent(forecastPsbsi);
+
+            const localValues = [forecastGma, forecastNorth, forecastSouth, forecastVisayas, forecastMindanao, forecastModern, forecastPsbsi];
+            const localSum = localValues.reduce((a, b) => a + b, 0);
+            const localAvg = localSum / 7;
+            
+            document.getElementById('displayForecastLocalAvg').textContent = formatPercent(localAvg);
+            document.getElementById('forecastLocal').textContent = formatPercent(localAvg);
+
+            // Forecast Export
+            const forecastIndonesia = parseFloat(document.getElementById('inputForecastIndonesia').value) || 0;
+            const forecastIndia = parseFloat(document.getElementById('inputForecastIndia').value) || 0;
+            const forecastDirect = parseFloat(document.getElementById('inputForecastDirect').value) || 0;
+
+            document.getElementById('displayForecastIndonesia').textContent = formatPercent(forecastIndonesia);
+            document.getElementById('displayForecastIndia').textContent = formatPercent(forecastIndia);
+            document.getElementById('displayForecastDirect').textContent = formatPercent(forecastDirect);
+
+            const exportValues = [forecastIndonesia, forecastIndia, forecastDirect];
+            const exportSum = exportValues.reduce((a, b) => a + b, 0);
+            const exportAvg = exportSum / 3;
+            
+            document.getElementById('displayForecastExportAvg').textContent = formatPercent(exportAvg);
+            document.getElementById('forecastExport').textContent = formatPercent(exportAvg);
+
+            // Forecast Product
+            const prodEpoxy = parseFloat(document.getElementById('inputProdEpoxy').value) || 0;
+            const prodElastoseal = parseFloat(document.getElementById('inputProdElastoseal').value) || 0;
+            const prodMighty = parseFloat(document.getElementById('inputProdMighty').value) || 0;
+            const prodProEpoxy = parseFloat(document.getElementById('inputProdProEpoxy').value) || 0;
+            const prodBuilders = parseFloat(document.getElementById('inputProdBuilders').value) || 0;
+            const prodCoating = parseFloat(document.getElementById('inputProdCoating').value) || 0;
+            const prodTransport = parseFloat(document.getElementById('inputProdTransport').value) || 0;
+            const prodOther = parseFloat(document.getElementById('inputProdOther').value) || 0;
+            const prodSealant = parseFloat(document.getElementById('inputProdSealant').value) || 0;
+            const prodWaterproof = parseFloat(document.getElementById('inputProdWaterproof').value) || 0;
+            const prodPainting = parseFloat(document.getElementById('inputProdPainting').value) || 0;
+            const prodAdhesives = parseFloat(document.getElementById('inputProdAdhesives').value) || 0;
+            const prodMining = parseFloat(document.getElementById('inputProdMining').value) || 0;
+            const prodOthers = parseFloat(document.getElementById('inputProdOthers').value) || 0;
+
+            document.getElementById('displayProdEpoxy').textContent = formatPercent(prodEpoxy);
+            document.getElementById('displayProdElastoseal').textContent = formatPercent(prodElastoseal);
+            document.getElementById('displayProdMighty').textContent = formatPercent(prodMighty);
+            document.getElementById('displayProdProEpoxy').textContent = formatPercent(prodProEpoxy);
+            document.getElementById('displayProdBuilders').textContent = formatPercent(prodBuilders);
+            document.getElementById('displayProdCoating').textContent = formatPercent(prodCoating);
+            document.getElementById('displayProdTransport').textContent = formatPercent(prodTransport);
+            document.getElementById('displayProdOther').textContent = formatPercent(prodOther);
+            document.getElementById('displayProdSealant').textContent = formatPercent(prodSealant);
+            document.getElementById('displayProdWaterproof').textContent = formatPercent(prodWaterproof);
+            document.getElementById('displayProdPainting').textContent = formatPercent(prodPainting);
+            document.getElementById('displayProdAdhesives').textContent = formatPercent(prodAdhesives);
+            document.getElementById('displayProdMining').textContent = formatPercent(prodMining);
+            document.getElementById('displayProdOthers').textContent = formatPercent(prodOthers);
+
+            const productValues = [
+                prodEpoxy, prodElastoseal, prodMighty, prodProEpoxy, prodBuilders,
+                prodCoating, prodTransport, prodOther, prodSealant, prodWaterproof,
+                prodPainting, prodAdhesives, prodMining, prodOthers
+            ];
+            const productSum = productValues.reduce((a, b) => a + b, 0);
+            const productAvg = productSum / 14;
+            
+            document.getElementById('displayForecastProductAvg').textContent = formatPercent(productAvg);
+            document.getElementById('forecastProduct').textContent = formatPercent(productAvg);
+
+            // Overall Forecast (Local + Export + Product)
+            const overall = (localAvg + exportAvg + productAvg) / 3;
+            document.getElementById('forecastOverall').textContent = formatPercent(overall);
+
+            // Update timestamp
+            const year = document.getElementById('yearSelect').value;
+            const month = document.getElementById('monthSelect').value;
+            document.getElementById('lastUpdate').textContent = new Date().toLocaleString() + ` (${month} ${year})`;
+        }
+
+        function clearAll() {
+            document.querySelectorAll('input[type="number"]').forEach(input => input.value = '');
+            updateFromInputs();
+        }
+
+        // Add event listeners for real-time updates
+        document.querySelectorAll('input[type="number"]').forEach(input => {
+            input.addEventListener('input', updateFromInputs);
+        });
+
+        document.getElementById('yearSelect').addEventListener('change', updateFromInputs);
+        document.getElementById('monthSelect').addEventListener('change', updateFromInputs);
+
+        // Initialize with empty values
+        window.onload = function() {
+            // Everything starts empty
+            updateFromInputs();
+        };
+    </script>
+</body>
+</html>

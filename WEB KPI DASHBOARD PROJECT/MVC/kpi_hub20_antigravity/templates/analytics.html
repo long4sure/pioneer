@@ -1,0 +1,86 @@
+<!-- ── Toolbar ── -->
+            <div class="analytics-toolbar">
+
+                <!-- Range mode -->
+                <span class="analytics-toolbar-label">View by</span>
+                <div class="view-toggle">
+                    <button class="view-toggle-btn active" id="an-mode-month" onclick="anSetRangeMode('month')" title="Month range">Mo</button>
+                    <button class="view-toggle-btn"        id="an-mode-year"  onclick="anSetRangeMode('year')"  title="Year range">Yr</button>
+                </div>
+
+                <div class="analytics-toolbar-sep"></div>
+
+                <!-- From range -->
+                <span class="analytics-toolbar-label">From</span>
+                <div class="analytics-range-group">
+                    <select class="analytics-range-select" id="an-from-year" onchange="anApplyRange()">
+                        <option>2020</option><option>2021</option><option>2022</option><option>2023</option>
+                        <option>2024</option><option>2025</option><option selected>2026</option>
+                        <option>2027</option><option>2028</option><option>2029</option><option>2030</option>
+                    </select>
+                    <select class="analytics-range-select" id="an-from-month" onchange="anApplyRange()">
+                        <option selected>January</option><option>February</option><option>March</option><option>April</option>
+                        <option>May</option><option>June</option><option>July</option><option>August</option>
+                        <option>September</option><option>October</option><option>November</option><option>December</option>
+                    </select>
+                </div>
+
+                <span class="analytics-range-arrow">→</span>
+
+                <!-- To range -->
+                <span class="analytics-toolbar-label">To</span>
+                <div class="analytics-range-group">
+                    <select class="analytics-range-select" id="an-to-year" onchange="anApplyRange()">
+                        <option>2020</option><option>2021</option><option>2022</option><option>2023</option>
+                        <option>2024</option><option>2025</option><option selected>2026</option>
+                        <option>2027</option><option>2028</option><option>2029</option><option>2030</option>
+                    </select>
+                    <select class="analytics-range-select" id="an-to-month" onchange="anApplyRange()">
+                        <option>January</option><option>February</option><option>March</option><option>April</option>
+                        <option>May</option><option>June</option><option>July</option><option>August</option>
+                        <option>September</option><option selected>October</option><option>November</option><option>December</option>
+                    </select>
+                </div>
+
+                <div class="analytics-toolbar-sep"></div>
+
+                <!-- Card view toggle -->
+                <span class="analytics-toolbar-label">Layout</span>
+                <div class="view-toggle">
+                    <button class="view-toggle-btn active" onclick="anSetView('grid',this)"    title="Grid">⊞</button>
+                    <button class="view-toggle-btn"        onclick="anSetView('compact',this)" title="Compact">⊟</button>
+                    <button class="view-toggle-btn"        onclick="anSetView('list',this)"    title="List">☰</button>
+                </div>
+            </div>
+
+            <!-- ── Module filter chips ── -->
+            <div class="analytics-filter-row">
+                <span class="analytics-filter-label">Show:</span>
+                <div class="filter-chip active" onclick="anToggleModule('Finance',this)">
+                    <span class="filter-chip-dot"></span>Finance
+                </div>
+                <div class="filter-chip active" onclick="anToggleModule('SC Planning',this)">
+                    <span class="filter-chip-dot"></span>SC Planning
+                </div>
+                <div class="filter-chip active" onclick="anToggleModule('Procurement',this)">
+                    <span class="filter-chip-dot"></span>Procurement
+                </div>
+                <div class="filter-chip active" onclick="anToggleModule('Production',this)">
+                    <span class="filter-chip-dot"></span>Production
+                </div>
+                <div class="filter-chip active" onclick="anToggleModule('Warehouse',this)">
+                    <span class="filter-chip-dot"></span>Warehouse
+                </div>
+            </div>
+
+            <!-- ── Summary bar ── -->
+            <div class="analytics-summary-bar" id="an-summary-bar"></div>
+
+            <!-- ── KPI Card Grid ── -->
+            <div class="analytics-grid" id="analytics-grid">
+                <div class="analytics-empty">
+                    <div class="analytics-empty-icon">📊</div>
+                    <div class="analytics-empty-title">Loading Analytics…</div>
+                    <div class="analytics-empty-sub">Calculating KPI trends across selected period.</div>
+                </div>
+            </div>

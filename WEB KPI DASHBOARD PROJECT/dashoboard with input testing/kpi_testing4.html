@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2026 KPI Tracker - October Only</title>
+    <style>
+        * { font-family: 'Segoe UI', Arial, sans-serif; }
+        body { margin: 20px; background-color: #f5f5f5; }
+        .container {
+            max-width: 100%;
+            overflow-x: auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        h1 { color: #2c3e50; margin: 0; }
+        .subtitle {
+            color: #7f8c8d;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            font-size: 12px;
+            border: 1px solid #b0c4de;
+        }
+        th {
+            background-color: #2c3e50;
+            color: white;
+            padding: 8px 4px;
+            border: 1px solid #34495e;
+        }
+        td { border: 1px solid #b0c4de; padding: 4px; }
+        .category-header {
+            background-color: #3498db;
+            color: white;
+            font-weight: bold;
+            padding: 8px 10px;
+        }
+        .subcategory-header {
+            background-color: #85c1e9;
+            font-weight: bold;
+            padding: 6px 10px;
+        }
+        .kpi-name { background-color: #ebf5fb; width: 250px; }
+        .month-input {
+            width: 80px;
+            text-align: center;
+            border: 1px solid #d5dbdb;
+            border-radius: 3px;
+            padding: 4px;
+        }
+        button {
+            margin-bottom: 15px;
+            padding: 8px 16px;
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>PIONEER</h1>
+        <div class="subtitle">2026 KPI TRACKER - OCTOBER ONLY</div>
+        
+        <button onclick="exportToCSV()">📥 Export to CSV</button>
+
+        <table id="kpiTable">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>KPI</th>
+                    <th>UoM</th>
+                    <th>Target</th>
+                    <th>OCT Value</th>
+                    <th>2026 YTD Actual</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+    </div>
+
+    <script>
+        const kpiData = [
+            // BUSINESS GOALS
+            { id:1, cat:'BUSINESS GOALS', sub:'FINANCIALS', kpi:'Conversion Cost (SC only)', uom:'PHP/KG' },
+            { id:2, cat:'BUSINESS GOALS', sub:'FINANCIALS', kpi:'Conversion Cost (Overall)', uom:'PHP/KG' },
+            { id:3, cat:'BUSINESS GOALS', sub:'FINANCIALS', kpi:'Conversion Cost vs Target', uom:'%' },
+            { id:4, cat:'BUSINESS GOALS', sub:'FINANCIALS', kpi:'Volume produced (MT) Actual', uom:'MT' },
+            { id:5, cat:'BUSINESS GOALS', sub:'FINANCIALS', kpi:'Volume produced (MT) Target', uom:'MT' },
+            { id:6, cat:'BUSINESS GOALS', sub:'FINANCIALS', kpi:'Volume produced %', uom:'%' },
+            { id:7, cat:'BUSINESS GOALS', sub:'FILL RATE', kpi:'Achievement (Value)', uom:'%' },
+            { id:8, cat:'BUSINESS GOALS', sub:'OTIF', kpi:'OTIF Rate', uom:'%' },
+            { id:9, cat:'BUSINESS GOALS', sub:'FINANCIALS', kpi:'Operational Cost - Actual', uom:'PHP' },
+            { id:10, cat:'BUSINESS GOALS', sub:'FINANCIALS', kpi:'Operational Cost - Budget', uom:'PHP' },
+            { id:11, cat:'BUSINESS GOALS', sub:'FINANCIALS', kpi:'Operational Cost %', uom:'%' },
+            { id:12, cat:'BUSINESS GOALS', sub:'FINANCIALS', kpi:'Capital Expenditures - Actual', uom:'PHP' },
+            { id:13, cat:'BUSINESS GOALS', sub:'FINANCIALS', kpi:'Capital Expenditures - Budget', uom:'PHP' },
+            { id:14, cat:'BUSINESS GOALS', sub:'FINANCIALS', kpi:'Capital Expenditure %', uom:'%' },
+            
+            // OPERATIONAL OBJECTIVES
+            { id:15, cat:'OPERATIONAL OBJECTIVES', sub:'Production Reports', kpi:'Output vs Target (planned)', uom:'%' },
+            { id:16, cat:'OPERATIONAL OBJECTIVES', sub:'Production Reports', kpi:'Output Actual', uom:'MT' },
+            { id:17, cat:'OPERATIONAL OBJECTIVES', sub:'Production Reports', kpi:'Output Target', uom:'MT' },
+            { id:18, cat:'OPERATIONAL OBJECTIVES', sub:'Downtime Analysis', kpi:'Change Over Time', uom:'%' },
+            { id:19, cat:'OPERATIONAL OBJECTIVES', sub:'Downtime Analysis', kpi:'Meeting', uom:'%' },
+            { id:20, cat:'OPERATIONAL OBJECTIVES', sub:'Downtime Analysis', kpi:'Sanitation Time', uom:'%' },
+            { id:21, cat:'OPERATIONAL OBJECTIVES', sub:'Downtime Analysis', kpi:'Start-up Time/Setup', uom:'%' },
+            { id:22, cat:'OPERATIONAL OBJECTIVES', sub:'Downtime Analysis', kpi:'Testing Time', uom:'%' },
+            { id:23, cat:'OPERATIONAL OBJECTIVES', sub:'Downtime Analysis', kpi:'Breaktime', uom:'%' },
+            { id:24, cat:'OPERATIONAL OBJECTIVES', sub:'Downtime Analysis', kpi:'Breakdown', uom:'%' },
+            { id:25, cat:'OPERATIONAL OBJECTIVES', sub:'Downtime Analysis', kpi:'Idle time', uom:'%' },
+            { id:26, cat:'OPERATIONAL OBJECTIVES', sub:'Downtime Analysis', kpi:'Preventive Maintenance', uom:'%' },
+            { id:27, cat:'OPERATIONAL OBJECTIVES', sub:'Production Reports', kpi:'Productive Time', uom:'%' },
+            { id:28, cat:'OPERATIONAL OBJECTIVES', sub:'Production Reports', kpi:'Machine Utilization', uom:'%' },
+            { id:29, cat:'OPERATIONAL OBJECTIVES', sub:'Inventory Reports', kpi:'DIO', uom:'days' },
+            { id:30, cat:'OPERATIONAL OBJECTIVES', sub:'Inventory Reports', kpi:'Inventory Accuracy FG', uom:'%' },
+            { id:31, cat:'OPERATIONAL OBJECTIVES', sub:'Inventory Reports', kpi:'Inventory Accuracy RMPM', uom:'%' },
+            { id:32, cat:'OPERATIONAL OBJECTIVES', sub:'Warehouse Utilization', kpi:'Warehouse Utilization FG', uom:'%' },
+            { id:33, cat:'OPERATIONAL OBJECTIVES', sub:'Warehouse Utilization', kpi:'Warehouse Utilization RMPM', uom:'%' },
+            { id:34, cat:'OPERATIONAL OBJECTIVES', sub:'S&OP Reports - Product Forecast', kpi:'EPOXY (MARINE + CONSTRUCTION)', uom:'%' },
+            { id:35, cat:'OPERATIONAL OBJECTIVES', sub:'S&OP Reports - Product Forecast', kpi:'ELASTOSEAL', uom:'%' },
+            { id:36, cat:'OPERATIONAL OBJECTIVES', sub:'S&OP Reports - Product Forecast', kpi:'MIGHTY BOND', uom:'%' },
+            { id:37, cat:'OPERATIONAL OBJECTIVES', sub:'S&OP Reports - Product Forecast', kpi:'PRO-EPOXY', uom:'%' },
+            { id:38, cat:'OPERATIONAL OBJECTIVES', sub:'S&OP Reports - Product Forecast', kpi:'BUILDERS BOND', uom:'%' },
+            { id:39, cat:'OPERATIONAL OBJECTIVES', sub:'S&OP Reports - Product Forecast', kpi:'COATING MARINE', uom:'%' },
+            { id:40, cat:'OPERATIONAL OBJECTIVES', sub:'S&OP Reports - Product Forecast', kpi:'TRASPORTATION', uom:'%' },
+            { id:41, cat:'OPERATIONAL OBJECTIVES', sub:'S&OP Reports - Product Forecast', kpi:'OTHER CONSUMER', uom:'%' },
+            { id:42, cat:'OPERATIONAL OBJECTIVES', sub:'S&OP Reports - Product Forecast', kpi:'PRO-SEALANT', uom:'%' },
+            { id:43, cat:'OPERATIONAL OBJECTIVES', sub:'S&OP Reports - Product Forecast', kpi:'PRO-WATERPROOFING', uom:'%' },
+            { id:44, cat:'OPERATIONAL OBJECTIVES', sub:'S&OP Reports - Product Forecast', kpi:'PRO-PAINTING', uom:'%' },
+            { id:45, cat:'OPERATIONAL OBJECTIVES', sub:'S&OP Reports - Product Forecast', kpi:'PRO-ADHESIVES', uom:'%' },
+            { id:46, cat:'OPERATIONAL OBJECTIVES', sub:'S&OP Reports - Product Forecast', kpi:'MINING', uom:'%' },
+            { id:47, cat:'OPERATIONAL OBJECTIVES', sub:'S&OP Reports - Location: PHILIPPINES', kpi:'LOCAL PHILIPPINES (Overall)', uom:'%' },
+            { id:48, cat:'OPERATIONAL OBJECTIVES', sub:'S&OP Reports - Location: PHILIPPINES', kpi:'GMA', uom:'%' },
+            { id:49, cat:'OPERATIONAL OBJECTIVES', sub:'S&OP Reports - Location: PHILIPPINES', kpi:'NORTH LUZON', uom:'%' },
+            { id:50, cat:'OPERATIONAL OBJECTIVES', sub:'S&OP Reports - Location: PHILIPPINES', kpi:'SOUTH LUZON', uom:'%' },
+            { id:51, cat:'OPERATIONAL OBJECTIVES', sub:'S&OP Reports - Location: PHILIPPINES', kpi:'VISAYAS', uom:'%' },
+            { id:52, cat:'OPERATIONAL OBJECTIVES', sub:'S&OP Reports - Location: PHILIPPINES', kpi:'MINDANAO', uom:'%' },
+            { id:53, cat:'OPERATIONAL OBJECTIVES', sub:'S&OP Reports - Location: PHILIPPINES', kpi:'MODERN TRADE', uom:'%' },
+            { id:54, cat:'OPERATIONAL OBJECTIVES', sub:'S&OP Reports - Location: PHILIPPINES', kpi:'PSBSI', uom:'%' },
+            { id:55, cat:'OPERATIONAL OBJECTIVES', sub:'S&OP Reports - Location: EXPORT', kpi:'EXPORT (Overall)', uom:'%' },
+            { id:56, cat:'OPERATIONAL OBJECTIVES', sub:'S&OP Reports - Location: EXPORT', kpi:'INDONESIA', uom:'%' },
+            { id:57, cat:'OPERATIONAL OBJECTIVES', sub:'S&OP Reports - Location: EXPORT', kpi:'INDIA', uom:'%' },
+            { id:58, cat:'OPERATIONAL OBJECTIVES', sub:'S&OP Reports - Location: EXPORT', kpi:'DIRECT EXPORT', uom:'%' },
+            
+            // WORKFORCE & LABOR
+            { id:59, cat:'WORKFORCE & LABOR', sub:'Labor Productivity', kpi:'Regular hours', uom:'hrs' },
+            { id:60, cat:'WORKFORCE & LABOR', sub:'Labor Productivity', kpi:'Overtime hours', uom:'hrs' },
+            { id:61, cat:'WORKFORCE & LABOR', sub:'Labor Productivity', kpi:'Overtime %', uom:'%' },
+            { id:62, cat:'WORKFORCE & LABOR', sub:'Labor Productivity - DL', kpi:'Regular hours DL', uom:'hrs' },
+            { id:63, cat:'WORKFORCE & LABOR', sub:'Labor Productivity - DL', kpi:'Overtime hours DL', uom:'hrs' },
+            { id:64, cat:'WORKFORCE & LABOR', sub:'Labor Productivity - DL', kpi:'Overtime % DL', uom:'%' },
+            { id:65, cat:'WORKFORCE & LABOR', sub:'Labor Productivity - IL', kpi:'Regular hours IL', uom:'hrs' },
+            { id:66, cat:'WORKFORCE & LABOR', sub:'Labor Productivity - IL', kpi:'Overtime hours IL', uom:'hrs' },
+            { id:67, cat:'WORKFORCE & LABOR', sub:'Labor Productivity - IL', kpi:'Overtime % IL', uom:'%' },
+            { id:68, cat:'WORKFORCE & LABOR', sub:'Attendance', kpi:'Absenteeism', uom:'%' },
+            { id:69, cat:'WORKFORCE & LABOR', sub:'Attendance', kpi:'# of Manpower', uom:'count' },
+            { id:70, cat:'WORKFORCE & LABOR', sub:'Attendance', kpi:'# of Absences', uom:'count' },
+            { id:71, cat:'WORKFORCE & LABOR', sub:'Attendance', kpi:'# of Working days', uom:'count' },
+            { id:72, cat:'WORKFORCE & LABOR', sub:'Line Productivity', kpi:'L06 - EPOXY', uom:'%' },
+            { id:73, cat:'WORKFORCE & LABOR', sub:'Line Productivity', kpi:'L04B - ELASTO', uom:'%' },
+            { id:74, cat:'WORKFORCE & LABOR', sub:'Line Productivity', kpi:'L03 - CYANO TUBE', uom:'%' },
+            { id:75, cat:'WORKFORCE & LABOR', sub:'Line Productivity', kpi:'L01 - COATINGS', uom:'%' },
+            { id:76, cat:'WORKFORCE & LABOR', sub:'Line Productivity', kpi:'L07 - EPOXY TUBE', uom:'%' },
+            { id:77, cat:'WORKFORCE & LABOR', sub:'Line Productivity', kpi:'LINE 9 - EPS', uom:'%' },
+            { id:78, cat:'WORKFORCE & LABOR', sub:'Line Productivity', kpi:'L10 - CONTACT BOND', uom:'%' },
+            { id:79, cat:'WORKFORCE & LABOR', sub:'Line Productivity', kpi:'GIP L11 - SILICONE', uom:'%' },
+            { id:80, cat:'WORKFORCE & LABOR', sub:'Line Productivity', kpi:'L12 - SPECIAL - EPOXY BASED', uom:'%' },
+            { id:81, cat:'WORKFORCE & LABOR', sub:'Line Productivity', kpi:'L13 - SPECIAL', uom:'%' },
+            { id:82, cat:'WORKFORCE & LABOR', sub:'Line Productivity', kpi:'LINE 14', uom:'%' },
+            { id:83, cat:'WORKFORCE & LABOR', sub:'Line Productivity', kpi:'L02 - CYNO BOTTLE / L05- EPOXY CLAY', uom:'%' },
+            { id:84, cat:'WORKFORCE & LABOR', sub:'Line Productivity', kpi:'LABELING LINE', uom:'%' },
+            
+            // PROCUREMENT
+            { id:85, cat:'PROCUREMENT', sub:'Savings', kpi:'Savings (Actual)', uom:'Php' },
+            { id:86, cat:'PROCUREMENT', sub:'Savings', kpi:'Savings (Target)', uom:'Php' },
+            { id:87, cat:'PROCUREMENT', sub:'Savings', kpi:'Savings (%)', uom:'%' }
+        ];
+
+        // Initialize all values to zero
+        kpiData.forEach(item => {
+            item.target = 0;
+            item.octValue = 0;
+            item.ytdActual = 0;
+        });
+
+        function renderTable() {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+            
+            let lastCat = '', lastSub = '';
+            
+            kpiData.forEach(item => {
+                if (item.cat !== lastCat) {
+                    const catRow = document.createElement('tr');
+                    catRow.innerHTML = `<td colspan="6" class="category-header">${item.cat}</td>`;
+                    tbody.appendChild(catRow);
+                    lastCat = item.cat;
+                    lastSub = '';
+                }
+                
+                if (item.sub !== lastSub) {
+                    const subRow = document.createElement('tr');
+                    subRow.innerHTML = `<td colspan="6" class="subcategory-header">${item.sub}</td>`;
+                    tbody.appendChild(subRow);
+                    lastSub = item.sub;
+                }
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td style="text-align:center">${item.id}</td>
+                    <td class="kpi-name">${item.kpi}</td>
+                    <td style="text-align:center">${item.uom}</td>
+                    <td><input type="number" value="${item.target}" style="width:80px; padding:4px;" onchange="updateTarget(${item.id}, this.value)"></td>
+                    <td><input type="number" value="${item.octValue}" style="width:80px; padding:4px;" onchange="updateOctValue(${item.id}, this.value)"></td>
+                    <td><input type="number" value="${item.ytdActual}" style="width:80px; padding:4px; background-color:#e8f8f5;" onchange="updateYTD(${item.id}, this.value)"></td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        window.updateTarget = (id, val) => {
+            const item = kpiData.find(k => k.id === id);
+            if (item) item.target = val === '' ? 0 : parseFloat(val);
+        };
+        
+        window.updateOctValue = (id, val) => {
+            const item = kpiData.find(k => k.id === id);
+            if (item) item.octValue = val === '' ? 0 : parseFloat(val);
+        };
+        
+        window.updateYTD = (id, val) => {
+            const item = kpiData.find(k => k.id === id);
+            if (item) item.ytdActual = val === '' ? 0 : parseFloat(val);
+        };
+
+        window.exportToCSV = () => {
+            let csv = 'Category,Subcategory,KPI,UoM,Target,OCT_Value,2026_YTD_Actual,KPI_ID\n';
+            kpiData.forEach(item => {
+                csv += `"${item.cat}","${item.sub}","${item.kpi}","${item.uom}",${item.target},${item.octValue},${item.ytdActual},${item.id}\n`;
+            });
+            
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'kpi_tracker_october_2026.csv';
+            a.click();
+        };
+
+        renderTable();
+    </script>
+</body>
+</html>

@@ -1,0 +1,1271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finance Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            padding: 24px;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #2d2f33;
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 16px;
+            background-color: #fafbfc;
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: 1px solid #eef2f5;
+        }
+
+        .filter-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .filter-item label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #5f6775;
+            text-transform: uppercase;
+        }
+
+        .filter-item select {
+            padding: 6px 12px;
+            border: 1px solid #d0d5dd;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #2d2f33;
+            background-color: white;
+            cursor: pointer;
+        }
+
+        /* Tab Navigation */
+        .tab-nav {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 24px;
+            border-bottom: 2px solid #eef2f5;
+            padding-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 8px 16px;
+            border: none;
+            background: none;
+            font-size: 13px;
+            font-weight: 600;
+            color: #5f6775;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .tab-btn:hover {
+            color: #01b8aa;
+            background-color: #f0f7f7;
+        }
+
+        .tab-btn.active {
+            color: #01b8aa;
+            background-color: #e6f3f2;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* KPI Cards */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .kpi-card {
+            background-color: white;
+            border: 1px solid #eef2f5;
+            border-radius: 8px;
+            padding: 20px;
+            transition: all 0.2s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+        }
+
+        .kpi-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border-color: #01b8aa;
+        }
+
+        .kpi-card-header {
+            margin-bottom: 15px;
+        }
+
+        .kpi-card-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #5f6775;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .kpi-card-main-value {
+            font-size: 32px;
+            font-weight: 600;
+            color: #2d2f33;
+            margin-bottom: 8px;
+        }
+
+        .kpi-card-details {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .kpi-card-detail-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            color: #5f6775;
+            padding: 4px 0;
+            border-bottom: 1px dashed #f0f0f0;
+        }
+
+        .kpi-card-detail-label {
+            color: #5f6775;
+        }
+
+        .kpi-card-detail-value {
+            font-weight: 600;
+            color: #2d2f33;
+        }
+
+        .kpi-card-progress {
+            height: 6px;
+            background-color: #eef2f5;
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 12px 0 8px;
+        }
+
+        .kpi-card-progress-bar {
+            height: 100%;
+            background-color: #01b8aa;
+            border-radius: 3px;
+        }
+
+        .kpi-card-footer {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #5f6775;
+            margin-top: 8px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-excellent {
+            background-color: #e6f9ed;
+            color: #107c41;
+        }
+
+        .status-good {
+            background-color: #e3f2fd;
+            color: #0d47a1;
+        }
+
+        .status-warning {
+            background-color: #fff1e0;
+            color: #d83b01;
+        }
+
+        .status-critical {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+
+        .status-neutral {
+            background-color: #fef7e0;
+            color: #966c00;
+        }
+
+        /* Section Headers */
+        .section-header {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2d2f33;
+            margin: 30px 0 20px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #01b8aa;
+        }
+
+        /* Tables */
+        .table-container {
+            background-color: white;
+            border: 1px solid #eef2f5;
+            border-radius: 6px;
+            margin-bottom: 24px;
+            overflow-x: auto;
+        }
+
+        .table-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #eef2f5;
+            background-color: #fafbfc;
+            font-size: 14px;
+            font-weight: 600;
+            color: #2d2f33;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .table-total {
+            font-size: 13px;
+            color: #5f6775;
+            background-color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            border: 1px solid #d0d5dd;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            padding: 14px 16px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #5f6775;
+            text-transform: uppercase;
+            border-bottom: 2px solid #eef2f5;
+            background-color: #fafbfc;
+        }
+
+        td {
+            padding: 12px 16px;
+            font-size: 13px;
+            color: #2d2f33;
+            border-bottom: 1px solid #eef2f5;
+        }
+
+        /* Input Panel */
+        .input-panel {
+            background-color: white;
+            border: 1px solid #eef2f5;
+            border-radius: 6px;
+            margin: 24px 0;
+        }
+
+        .panel-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #eef2f5;
+            background-color: #fafbfc;
+            font-size: 14px;
+            font-weight: 600;
+            color: #2d2f33;
+        }
+
+        .input-controls {
+            display: flex;
+            gap: 20px;
+            padding: 20px;
+            background-color: #fafbfc;
+            border-bottom: 1px solid #eef2f5;
+            flex-wrap: wrap;
+        }
+
+        .input-selector {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 2;
+        }
+
+        .input-selector label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #5f6775;
+            text-transform: uppercase;
+            min-width: 100px;
+        }
+
+        .input-selector select {
+            padding: 8px 16px;
+            border: 1px solid #d0d5dd;
+            border-radius: 4px;
+            font-size: 13px;
+            flex: 1;
+            max-width: 500px;
+        }
+
+        .input-sections {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            padding: 20px;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .input-section {
+            background-color: #fafbfc;
+            border: 1px solid #eef2f5;
+            border-radius: 6px;
+            padding: 20px;
+        }
+
+        .input-section h4 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #5f6775;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #eef2f5;
+        }
+
+        .input-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .input-field {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .input-field label {
+            font-size: 11px;
+            font-weight: 600;
+            color: #5f6775;
+            text-transform: uppercase;
+        }
+
+        .input-field input {
+            padding: 8px 12px;
+            border: 1px solid #d0d5dd;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #2d2f33;
+            background-color: white;
+        }
+
+        .input-field input:focus {
+            outline: none;
+            border-color: #01b8aa;
+        }
+
+        .input-field input::placeholder {
+            color: #aaa;
+            font-style: italic;
+        }
+
+        .button-group {
+            padding: 16px 20px;
+            border-top: 1px solid #eef2f5;
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: 1px solid #d0d5dd;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            background: white;
+            color: #2d2f33;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            background-color: #f0f0f0;
+        }
+
+        .btn-primary {
+            background-color: #01b8aa;
+            border-color: #01b8aa;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #019f92;
+        }
+
+        .btn-danger {
+            background-color: #d83b01;
+            border-color: #d83b01;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #b32e01;
+        }
+
+        .footer {
+            text-align: right;
+            font-size: 12px;
+            color: #5f6775;
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid #eef2f5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>FINANCE DASHBOARD</h1>
+            <div class="filter-group">
+                <div class="filter-item">
+                    <label>Year:</label>
+                    <select id="yearSelect" onchange="loadMonthData()">
+                        <option value="2020">2020</option>
+                        <option value="2021">2021</option>
+                        <option value="2022">2022</option>
+                        <option value="2023">2023</option>
+                        <option value="2024">2024</option>
+                        <option value="2025">2025</option>
+                        <option value="2026" selected>2026</option>
+                        <option value="2027">2027</option>
+                        <option value="2028">2028</option>
+                        <option value="2029">2029</option>
+                        <option value="2030">2030</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label>Month:</label>
+                    <select id="monthSelect" onchange="loadMonthData()">
+                        <option value="January">January</option>
+                        <option value="February">February</option>
+                        <option value="March">March</option>
+                        <option value="April">April</option>
+                        <option value="May">May</option>
+                        <option value="June">June</option>
+                        <option value="July">July</option>
+                        <option value="August">August</option>
+                        <option value="September">September</option>
+                        <option value="October" selected>October</option>
+                        <option value="November">November</option>
+                        <option value="December">December</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab Navigation -->
+        <div class="tab-nav">
+            <button class="tab-btn active" onclick="switchTab('dashboard')">Dashboard</button>
+            <button class="tab-btn" onclick="switchTab('cost-details')">Cost Analysis</button>
+            <button class="tab-btn" onclick="switchTab('labor-details')">Labor Reports</button>
+            <button class="tab-btn" onclick="switchTab('input')">Data Input</button>
+        </div>
+
+        <!-- DASHBOARD TAB -->
+        <div id="tab-dashboard" class="tab-content active">
+            <!-- Top KPI Cards -->
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-card-header"><span class="kpi-card-title">Production Volume</span></div>
+                    <div class="kpi-card-main-value" id="dash-prodValue">0 MT</div>
+                    <div class="kpi-card-details">
+                        <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Target</span><span class="kpi-card-detail-value" id="dash-prodTarget">0 MT</span></div>
+                    </div>
+                    <div class="kpi-card-progress"><div class="kpi-card-progress-bar" id="dash-prodProgress" style="width: 0%"></div></div>
+                    <div class="kpi-card-footer"><span id="dash-prodPercent">0%</span><span>Achieved</span></div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-card-header"><span class="kpi-card-title">Operational Cost</span></div>
+                    <div class="kpi-card-main-value" id="dash-opValue">₱0</div>
+                    <div class="kpi-card-details">
+                        <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Budget</span><span class="kpi-card-detail-value" id="dash-opBudget">₱0</span></div>
+                    </div>
+                    <div class="kpi-card-progress"><div class="kpi-card-progress-bar" id="dash-opProgress" style="width: 0%"></div></div>
+                    <div class="kpi-card-footer"><span id="dash-opPercent">0%</span><span>of budget</span></div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-card-header"><span class="kpi-card-title">Capital Expenditure</span></div>
+                    <div class="kpi-card-main-value" id="dash-capValue">₱0</div>
+                    <div class="kpi-card-details">
+                        <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Budget</span><span class="kpi-card-detail-value" id="dash-capBudget">₱0</span></div>
+                    </div>
+                    <div class="kpi-card-progress"><div class="kpi-card-progress-bar" id="dash-capProgress" style="width: 0%"></div></div>
+                    <div class="kpi-card-footer"><span id="dash-capPercent">0%</span><span>of budget</span></div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-card-header"><span class="kpi-card-title">Other Expenses</span></div>
+                    <div class="kpi-card-main-value" id="dash-expValue">₱0</div>
+                    <div class="kpi-card-details">
+                        <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Budget</span><span class="kpi-card-detail-value" id="dash-expBudget">₱0</span></div>
+                    </div>
+                    <div class="kpi-card-progress"><div class="kpi-card-progress-bar" id="dash-expProgress" style="width: 0%"></div></div>
+                    <div class="kpi-card-footer"><span id="dash-expPercent">0%</span><span>of budget</span></div>
+                </div>
+            </div>
+
+            <!-- Second Row - Financial Summary & Cost Efficiency -->
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-card-header"><span class="kpi-card-title">Financial Summary</span></div>
+                    <div class="kpi-card-main-value" id="dash-totalActual">₱0</div>
+                    <div class="kpi-card-details">
+                        <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Total Budget</span><span class="kpi-card-detail-value" id="dash-totalBudget">₱0</span></div>
+                        <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Variance</span><span class="kpi-card-detail-value" id="dash-totalVariance">₱0</span></div>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-card-header"><span class="kpi-card-title">Cost Efficiency</span></div>
+                    <div class="kpi-card-main-value" id="dash-totalPercent">0%</div>
+                    <div class="kpi-card-details">
+                        <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Under Budget</span><span class="kpi-card-detail-value" id="dash-underCount">0</span></div>
+                        <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Over Budget</span><span class="kpi-card-detail-value" id="dash-overCount">0</span></div>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-card-header"><span class="kpi-card-title">Labor Summary</span></div>
+                    <div class="kpi-card-main-value" id="dash-totalHours">0 hrs</div>
+                    <div class="kpi-card-details">
+                        <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Regular</span><span class="kpi-card-detail-value" id="dash-regHours">0 hrs</span></div>
+                        <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Overtime</span><span class="kpi-card-detail-value" id="dash-otHours">0 hrs</span></div>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-card-header"><span class="kpi-card-title">Labor Overview</span></div>
+                    <div class="kpi-card-main-value" id="dash-totalWorkforce">0</div>
+                    <div class="kpi-card-details">
+                        <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">OT Rate</span><span class="kpi-card-detail-value" id="dash-otRate">0%</span></div>
+                        <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">DL OT %</span><span class="kpi-card-detail-value" id="dash-dlOTPct">0%</span></div>
+                        <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">IL OT %</span><span class="kpi-card-detail-value" id="dash-ilOTPct">0%</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cost Analysis Table -->
+            <div class="section-header">Cost Analysis</div>
+            <div class="table-container">
+                <div class="table-header"><span>Cost Breakdown by Category</span><span class="table-total" id="dash-costTotal">Total: ₱0</span></div>
+                 <table>
+                    <thead> <tr> <th>Category</th> <th>Actual</th> <th>Budget</th> <th>Variance</th> <th>%</th> <th>Status</th> </tr> </thead>
+                    <tbody id="dash-costTable"></tbody>
+                 </table>
+            </div>
+
+            <!-- Labor Analysis Table -->
+            <div class="section-header">Labor Analysis</div>
+            <div class="table-container">
+                <div class="table-header"><span>Labor Breakdown by Type</span><span class="table-total" id="dash-laborTotal">Total Hours: 0</span></div>
+                 <table>
+                    <thead> <tr> <th>Labor Type</th> <th>Regular</th> <th>Overtime</th> <th>Total</th> <th>OT %</th> <th>Status</th> </tr> </thead>
+                    <tbody id="dash-laborTable"></tbody>
+                 </table>
+            </div>
+        </div>
+
+        <!-- COST DETAILS TAB -->
+        <div id="tab-cost-details" class="tab-content">
+            <div class="section-header">Cost Analysis - Detailed View</div>
+            
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-card-header"><span class="kpi-card-title">Total Costs</span></div>
+                    <div class="kpi-card-main-value" id="cost-totalActual">₱0</div>
+                    <div class="kpi-card-details">
+                        <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Total Budget</span><span class="kpi-card-detail-value" id="cost-totalBudget">₱0</span></div>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-card-header"><span class="kpi-card-title">Operational</span></div>
+                    <div class="kpi-card-main-value" id="cost-opActual">₱0</div>
+                    <div class="kpi-card-details">
+                        <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Budget</span><span class="kpi-card-detail-value" id="cost-opBudget">₱0</span></div>
+                        <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Variance</span><span class="kpi-card-detail-value" id="cost-opVariance">₱0</span></div>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-card-header"><span class="kpi-card-title">Capital</span></div>
+                    <div class="kpi-card-main-value" id="cost-capActual">₱0</div>
+                    <div class="kpi-card-details">
+                        <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Budget</span><span class="kpi-card-detail-value" id="cost-capBudget">₱0</span></div>
+                        <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Variance</span><span class="kpi-card-detail-value" id="cost-capVariance">₱0</span></div>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-card-header"><span class="kpi-card-title">Other</span></div>
+                    <div class="kpi-card-main-value" id="cost-otherActual">₱0</div>
+                    <div class="kpi-card-details">
+                        <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Budget</span><span class="kpi-card-detail-value" id="cost-otherBudget">₱0</span></div>
+                        <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Variance</span><span class="kpi-card-detail-value" id="cost-otherVariance">₱0</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <div class="table-header"><span>Cost Analysis - All Categories</span><span class="table-total" id="cost-detailTotal">Total: ₱0</span></div>
+                 <table>
+                    <thead> <tr> <th>Category</th> <th>Actual</th> <th>Budget</th> <th>Variance</th> <th>%</th> <th>Status</th> </tr> </thead>
+                    <tbody id="cost-detailTable"></tbody>
+                 </table>
+            </div>
+
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-card-header"><span class="kpi-card-title">Best Performing</span></div>
+                    <div class="kpi-card-details" id="cost-bestPerformer">
+                        <div class="kpi-card-detail-row"><span>No Data</span></div>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-card-header"><span class="kpi-card-title">Needs Attention</span></div>
+                    <div class="kpi-card-details" id="cost-needsAttention">
+                        <div class="kpi-card-detail-row"><span>No Data</span></div>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-card-header"><span class="kpi-card-title">Summary</span></div>
+                    <div class="kpi-card-details" id="cost-summary">
+                        <div class="kpi-card-detail-row"><span>Categories with Data</span><span id="cost-categoriesWithData">0/3</span></div>
+                        <div class="kpi-card-detail-row"><span>Avg Variance</span><span id="cost-avgVariance">0%</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- LABOR DETAILS TAB -->
+        <div id="tab-labor-details" class="tab-content">
+            <div class="section-header">Labor Reports - Detailed View</div>
+            
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-card-header"><span class="kpi-card-title">Total Hours</span></div>
+                    <div class="kpi-card-main-value" id="lab-totalHours">0 hrs</div>
+                    <div class="kpi-card-details">
+                        <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Regular</span><span class="kpi-card-detail-value" id="lab-regHours">0 hrs</span></div>
+                        <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Overtime</span><span class="kpi-card-detail-value" id="lab-otHours">0 hrs</span></div>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-card-header"><span class="kpi-card-title">Direct Labor</span></div>
+                    <div class="kpi-card-main-value" id="lab-dlTotal">0 hrs</div>
+                    <div class="kpi-card-details">
+                        <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Regular</span><span class="kpi-card-detail-value" id="lab-dlReg">0 hrs</span></div>
+                        <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Overtime</span><span class="kpi-card-detail-value" id="lab-dlOT">0 hrs</span></div>
+                        <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">OT Rate</span><span class="kpi-card-detail-value" id="lab-dlRate">0%</span></div>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-card-header"><span class="kpi-card-title">Indirect Labor</span></div>
+                    <div class="kpi-card-main-value" id="lab-ilTotal">0 hrs</div>
+                    <div class="kpi-card-details">
+                        <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Regular</span><span class="kpi-card-detail-value" id="lab-ilReg">0 hrs</span></div>
+                        <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Overtime</span><span class="kpi-card-detail-value" id="lab-ilOT">0 hrs</span></div>
+                        <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">OT Rate</span><span class="kpi-card-detail-value" id="lab-ilRate">0%</span></div>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-card-header"><span class="kpi-card-title">Overtime Analysis</span></div>
+                    <div class="kpi-card-main-value" id="lab-otRate">0%</div>
+                    <div class="kpi-card-details">
+                        <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">DL OT %</span><span class="kpi-card-detail-value" id="lab-dlOTPct">0%</span></div>
+                        <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">IL OT %</span><span class="kpi-card-detail-value" id="lab-ilOTPct">0%</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <div class="table-header"><span>Labor Analysis - All Types</span><span class="table-total" id="lab-detailTotal">Total Hours: 0</span></div>
+                 <table>
+                    <thead> <tr> <th>Labor Type</th> <th>Regular</th> <th>Overtime</th> <th>Total</th> <th>OT %</th> <th>Status</th> </tr> </thead>
+                    <tbody id="lab-detailTable"></tbody>
+                 </table>
+            </div>
+        </div>
+
+        <!-- DATA INPUT TAB -->
+        <div id="tab-input" class="tab-content">
+            <div class="input-panel">
+                <div class="panel-header">FINANCIAL DATA INPUT</div>
+                <div class="input-controls">
+                    <div class="input-selector">
+                        <label>Select Category:</label>
+                        <select id="inputCategory" onchange="loadInputCategory()">
+                            <option value="production">Production Volume</option>
+                            <option value="operational">Operational Cost</option>
+                            <option value="capital">Capital Expenditure</option>
+                            <option value="other">Other Expenses</option>
+                            <option value="labor-dl">Direct Labor</option>
+                            <option value="labor-il">Indirect Labor</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="input-sections" id="inputSections">
+                    <!-- Filled by JavaScript -->
+                </div>
+                <div class="button-group">
+                    <button class="btn btn-danger" onclick="clearCurrentInput()">Clear This Field</button>
+                    <button class="btn" onclick="clearAllInputs()">Clear All</button>
+                    <button class="btn btn-primary" onclick="saveInputData()">Save Data</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">Last updated: <span id="lastUpdate">Just now</span></div>
+    </div>
+
+    <script>
+        // ==================== DATA STRUCTURES ====================
+        let database = {};
+        const years = ['2020', '2021', '2022', '2023', '2024', '2025', '2026', '2027', '2028', '2029', '2030'];
+        const months = ['January', 'February', 'March', 'April', 'May', 'June', 
+                       'July', 'August', 'September', 'October', 'November', 'December'];
+        
+        // Initialize database with empty values
+        years.forEach(year => {
+            database[year] = {};
+            months.forEach(month => {
+                database[year][month] = {
+                    production: { actual: '', target: '' },
+                    operational: { actual: '', budget: '' },
+                    capital: { actual: '', budget: '' },
+                    other: { actual: '', budget: '' },
+                    labor: { 
+                        dl: { regular: '', overtime: '' },
+                        il: { regular: '', overtime: '' }
+                    }
+                };
+            });
+        });
+
+        // ==================== UTILITY FUNCTIONS ====================
+        function formatNumber(num, decimals = 2) {
+            if (!num || isNaN(num) || parseFloat(num) === 0) return '0';
+            return parseFloat(num).toLocaleString(undefined, {
+                minimumFractionDigits: decimals,
+                maximumFractionDigits: decimals
+            });
+        }
+
+        function formatCurrency(num) {
+            if (!num || isNaN(num) || parseFloat(num) === 0) return '₱0';
+            if (Math.abs(num) >= 1000000) return '₱' + (parseFloat(num)/1000000).toFixed(1) + 'M';
+            if (Math.abs(num) >= 1000) return '₱' + (parseFloat(num)/1000).toFixed(1) + 'K';
+            return '₱' + parseFloat(num).toFixed(2);
+        }
+
+        function getCurrentData() {
+            const year = document.getElementById('yearSelect').value;
+            const month = document.getElementById('monthSelect').value;
+            return database[year][month];
+        }
+
+        function updateTimestamp() {
+            const year = document.getElementById('yearSelect').value;
+            const month = document.getElementById('monthSelect').value;
+            document.getElementById('lastUpdate').textContent = new Date().toLocaleString() + ` (${month} ${year})`;
+        }
+
+        // ==================== TAB SWITCHING ====================
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(`tab-${tab}`).classList.add('active');
+            
+            if (tab === 'input') {
+                loadInputCategory();
+            }
+        }
+
+        function loadMonthData() {
+            calculateAll();
+        }
+
+        // ==================== INPUT FUNCTIONS ====================
+        let currentCategory = 'production';
+
+        function loadInputCategory() {
+            const selector = document.getElementById('inputCategory');
+            currentCategory = selector.value;
+            
+            const data = getCurrentData();
+            let html = '';
+
+            if (currentCategory === 'production') {
+                html = `
+                    <div class="input-section" style="grid-column: span 3;">
+                        <h4>PRODUCTION VOLUME</h4>
+                        <div class="input-grid" style="grid-template-columns: repeat(2, 1fr);">
+                            <div class="input-field"><label>Volume Produced (MT)</label><input type="number" id="input_prod_actual" value="${data.production.actual}" step="0.01" placeholder="MT"></div>
+                            <div class="input-field"><label>Volume Target (MT)</label><input type="number" id="input_prod_target" value="${data.production.target}" step="0.01" placeholder="MT"></div>
+                        </div>
+                    </div>
+                `;
+            } else if (currentCategory === 'operational') {
+                html = `
+                    <div class="input-section" style="grid-column: span 3;">
+                        <h4>OPERATIONAL COST</h4>
+                        <div class="input-grid" style="grid-template-columns: repeat(2, 1fr);">
+                            <div class="input-field"><label>Actual (₱)</label><input type="number" id="input_op_actual" value="${data.operational.actual}" step="0.01" placeholder="₱"></div>
+                            <div class="input-field"><label>Budget (₱)</label><input type="number" id="input_op_budget" value="${data.operational.budget}" step="0.01" placeholder="₱"></div>
+                        </div>
+                    </div>
+                `;
+            } else if (currentCategory === 'capital') {
+                html = `
+                    <div class="input-section" style="grid-column: span 3;">
+                        <h4>CAPITAL EXPENDITURE</h4>
+                        <div class="input-grid" style="grid-template-columns: repeat(2, 1fr);">
+                            <div class="input-field"><label>Actual (₱)</label><input type="number" id="input_cap_actual" value="${data.capital.actual}" step="0.01" placeholder="₱"></div>
+                            <div class="input-field"><label>Budget (₱)</label><input type="number" id="input_cap_budget" value="${data.capital.budget}" step="0.01" placeholder="₱"></div>
+                        </div>
+                    </div>
+                `;
+            } else if (currentCategory === 'other') {
+                html = `
+                    <div class="input-section" style="grid-column: span 3;">
+                        <h4>OTHER EXPENSES</h4>
+                        <div class="input-grid" style="grid-template-columns: repeat(2, 1fr);">
+                            <div class="input-field"><label>Actual (₱)</label><input type="number" id="input_other_actual" value="${data.other.actual}" step="0.01" placeholder="₱"></div>
+                            <div class="input-field"><label>Budget (₱)</label><input type="number" id="input_other_budget" value="${data.other.budget}" step="0.01" placeholder="₱"></div>
+                        </div>
+                    </div>
+                `;
+            } else if (currentCategory === 'labor-dl') {
+                html = `
+                    <div class="input-section" style="grid-column: span 3;">
+                        <h4>DIRECT LABOR</h4>
+                        <div class="input-grid" style="grid-template-columns: repeat(2, 1fr);">
+                            <div class="input-field"><label>Regular Hours</label><input type="number" id="input_dl_reg" value="${data.labor.dl.regular}" step="0.01" placeholder="hrs"></div>
+                            <div class="input-field"><label>Overtime Hours</label><input type="number" id="input_dl_ot" value="${data.labor.dl.overtime}" step="0.01" placeholder="hrs"></div>
+                        </div>
+                    </div>
+                `;
+            } else if (currentCategory === 'labor-il') {
+                html = `
+                    <div class="input-section" style="grid-column: span 3;">
+                        <h4>INDIRECT LABOR</h4>
+                        <div class="input-grid" style="grid-template-columns: repeat(2, 1fr);">
+                            <div class="input-field"><label>Regular Hours</label><input type="number" id="input_il_reg" value="${data.labor.il.regular}" step="0.01" placeholder="hrs"></div>
+                            <div class="input-field"><label>Overtime Hours</label><input type="number" id="input_il_ot" value="${data.labor.il.overtime}" step="0.01" placeholder="hrs"></div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            document.getElementById('inputSections').innerHTML = html;
+        }
+
+        function saveInputData() {
+            const data = getCurrentData();
+            
+            if (document.getElementById('input_prod_actual')) {
+                data.production.actual = document.getElementById('input_prod_actual').value;
+                data.production.target = document.getElementById('input_prod_target').value;
+            } else if (document.getElementById('input_op_actual')) {
+                data.operational.actual = document.getElementById('input_op_actual').value;
+                data.operational.budget = document.getElementById('input_op_budget').value;
+            } else if (document.getElementById('input_cap_actual')) {
+                data.capital.actual = document.getElementById('input_cap_actual').value;
+                data.capital.budget = document.getElementById('input_cap_budget').value;
+            } else if (document.getElementById('input_other_actual')) {
+                data.other.actual = document.getElementById('input_other_actual').value;
+                data.other.budget = document.getElementById('input_other_budget').value;
+            } else if (document.getElementById('input_dl_reg')) {
+                data.labor.dl.regular = document.getElementById('input_dl_reg').value;
+                data.labor.dl.overtime = document.getElementById('input_dl_ot').value;
+            } else if (document.getElementById('input_il_reg')) {
+                data.labor.il.regular = document.getElementById('input_il_reg').value;
+                data.labor.il.overtime = document.getElementById('input_il_ot').value;
+            }
+            
+            alert('Data saved successfully');
+            calculateAll();
+        }
+
+        function clearCurrentInput() {
+            if (document.getElementById('input_prod_actual')) {
+                document.getElementById('input_prod_actual').value = '';
+                document.getElementById('input_prod_target').value = '';
+            } else if (document.getElementById('input_op_actual')) {
+                document.getElementById('input_op_actual').value = '';
+                document.getElementById('input_op_budget').value = '';
+            } else if (document.getElementById('input_cap_actual')) {
+                document.getElementById('input_cap_actual').value = '';
+                document.getElementById('input_cap_budget').value = '';
+            } else if (document.getElementById('input_other_actual')) {
+                document.getElementById('input_other_actual').value = '';
+                document.getElementById('input_other_budget').value = '';
+            } else if (document.getElementById('input_dl_reg')) {
+                document.getElementById('input_dl_reg').value = '';
+                document.getElementById('input_dl_ot').value = '';
+            } else if (document.getElementById('input_il_reg')) {
+                document.getElementById('input_il_reg').value = '';
+                document.getElementById('input_il_ot').value = '';
+            }
+            
+            saveInputData();
+        }
+
+        function clearAllInputs() {
+            if (confirm('Clear ALL financial data for this month?')) {
+                const data = getCurrentData();
+                data.production = { actual: '', target: '' };
+                data.operational = { actual: '', budget: '' };
+                data.capital = { actual: '', budget: '' };
+                data.other = { actual: '', budget: '' };
+                data.labor = { 
+                    dl: { regular: '', overtime: '' },
+                    il: { regular: '', overtime: '' }
+                };
+                
+                loadInputCategory();
+                calculateAll();
+            }
+        }
+
+        // ==================== MAIN CALCULATION FUNCTION ====================
+        function calculateAll() {
+            const data = getCurrentData();
+            
+            // Production
+            const prodActual = parseFloat(data.production.actual) || 0;
+            const prodTarget = parseFloat(data.production.target) || 0;
+            const prodPercent = prodTarget > 0 ? (prodActual / prodTarget) * 100 : 0;
+            
+            document.getElementById('dash-prodValue').textContent = prodActual ? formatNumber(prodActual, 2) + ' MT' : '0 MT';
+            document.getElementById('dash-prodTarget').textContent = prodTarget ? formatNumber(prodTarget, 2) + ' MT' : '0 MT';
+            document.getElementById('dash-prodProgress').style.width = Math.min(prodPercent, 100) + '%';
+            document.getElementById('dash-prodPercent').textContent = prodPercent.toFixed(1) + '%';
+
+            // Costs
+            const opActual = parseFloat(data.operational.actual) || 0;
+            const opBudget = parseFloat(data.operational.budget) || 0;
+            const capActual = parseFloat(data.capital.actual) || 0;
+            const capBudget = parseFloat(data.capital.budget) || 0;
+            const otherActual = parseFloat(data.other.actual) || 0;
+            const otherBudget = parseFloat(data.other.budget) || 0;
+            
+            const opPercent = opBudget > 0 ? (opActual / opBudget) * 100 : 0;
+            const capPercent = capBudget > 0 ? (capActual / capBudget) * 100 : 0;
+            const otherPercent = otherBudget > 0 ? (otherActual / otherBudget) * 100 : 0;
+            
+            document.getElementById('dash-opValue').textContent = formatCurrency(opActual);
+            document.getElementById('dash-opBudget').textContent = formatCurrency(opBudget);
+            document.getElementById('dash-opProgress').style.width = opBudget > 0 ? Math.min(opPercent, 100) + '%' : '0%';
+            document.getElementById('dash-opPercent').textContent = opPercent.toFixed(1) + '%';
+            
+            document.getElementById('dash-capValue').textContent = formatCurrency(capActual);
+            document.getElementById('dash-capBudget').textContent = formatCurrency(capBudget);
+            document.getElementById('dash-capProgress').style.width = capBudget > 0 ? Math.min(capPercent, 100) + '%' : '0%';
+            document.getElementById('dash-capPercent').textContent = capPercent.toFixed(1) + '%';
+            
+            document.getElementById('dash-expValue').textContent = formatCurrency(otherActual);
+            document.getElementById('dash-expBudget').textContent = formatCurrency(otherBudget);
+            document.getElementById('dash-expProgress').style.width = otherBudget > 0 ? Math.min(otherPercent, 100) + '%' : '0%';
+            document.getElementById('dash-expPercent').textContent = otherPercent.toFixed(1) + '%';
+
+            // Financial Summary
+            const totalActual = opActual + capActual + otherActual;
+            const totalBudget = opBudget + capBudget + otherBudget;
+            const totalVariance = totalActual - totalBudget;
+            const totalPercent = totalBudget > 0 ? (totalActual / totalBudget) * 100 : 0;
+            
+            document.getElementById('dash-totalActual').textContent = formatCurrency(totalActual);
+            document.getElementById('dash-totalBudget').textContent = formatCurrency(totalBudget);
+            document.getElementById('dash-totalVariance').textContent = (totalVariance >= 0 ? '+' : '') + formatCurrency(totalVariance);
+            document.getElementById('dash-totalPercent').textContent = totalPercent.toFixed(1) + '%';
+
+            // Count under/over budget
+            let underCount = 0, overCount = 0;
+            if (opBudget > 0) opActual <= opBudget ? underCount++ : overCount++;
+            if (capBudget > 0) capActual <= capBudget ? underCount++ : overCount++;
+            if (otherBudget > 0) otherActual <= otherBudget ? underCount++ : overCount++;
+            
+            document.getElementById('dash-underCount').textContent = underCount;
+            document.getElementById('dash-overCount').textContent = overCount;
+
+            // Labor
+            const dlReg = parseFloat(data.labor.dl.regular) || 0;
+            const dlOT = parseFloat(data.labor.dl.overtime) || 0;
+            const ilReg = parseFloat(data.labor.il.regular) || 0;
+            const ilOT = parseFloat(data.labor.il.overtime) || 0;
+            
+            const totalWorkforce = dlReg + dlOT + ilReg + ilOT;
+            const totalReg = dlReg + ilReg;
+            const totalOT = dlOT + ilOT;
+            const totalHours = totalReg + totalOT;
+            const overallOTPercent = totalHours > 0 ? (totalOT / totalHours) * 100 : 0;
+            const dlOTPct = dlReg > 0 ? (dlOT / dlReg) * 100 : 0;
+            const ilOTPct = ilReg > 0 ? (ilOT / ilReg) * 100 : 0;
+            
+            document.getElementById('dash-totalWorkforce').textContent = formatNumber(totalWorkforce, 0);
+            document.getElementById('dash-otRate').textContent = overallOTPercent.toFixed(1) + '%';
+            document.getElementById('dash-totalHours').textContent = formatNumber(totalHours) + ' hrs';
+            document.getElementById('dash-regHours').textContent = formatNumber(totalReg) + ' hrs';
+            document.getElementById('dash-otHours').textContent = formatNumber(totalOT) + ' hrs';
+            document.getElementById('dash-dlOTPct').textContent = dlOTPct.toFixed(1) + '%';
+            document.getElementById('dash-ilOTPct').textContent = ilOTPct.toFixed(1) + '%';
+
+            // Cost Analysis Table
+            let costHtml = '';
+            const costs = [
+                { name: 'Operational', actual: opActual, budget: opBudget },
+                { name: 'Capital', actual: capActual, budget: capBudget },
+                { name: 'Other', actual: otherActual, budget: otherBudget }
+            ];
+            
+            costs.forEach(cost => {
+                const variance = cost.actual - cost.budget;
+                const percent = cost.budget > 0 ? (cost.actual / cost.budget) * 100 : 0;
+                let statusClass = 'status-neutral';
+                let statusText = 'No Budget';
+                if (cost.budget > 0) {
+                    statusText = cost.actual <= cost.budget ? 'Under' : 'Over';
+                    statusClass = cost.actual <= cost.budget ? 'status-good' : 'status-warning';
+                }
+                
+                costHtml += `
+                    <tr>
+                        <td>${cost.name}</td>
+                        <td>${formatCurrency(cost.actual)}</td>
+                        <td>${formatCurrency(cost.budget)}</td>
+                        <td>${variance >= 0 ? '+' : ''}${formatCurrency(variance)}</td>
+                        <td>${percent.toFixed(1)}%</td>
+                        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                    </tr>
+                `;
+            });
+            
+            document.getElementById('dash-costTable').innerHTML = costHtml;
+            document.getElementById('dash-costTotal').textContent = `Total: ${formatCurrency(totalActual)}`;
+
+            // Labor Analysis Table
+            let laborHtml = '';
+            const labors = [
+                { name: 'Direct Labor', reg: dlReg, ot: dlOT },
+                { name: 'Indirect Labor', reg: ilReg, ot: ilOT }
+            ];
+            
+            labors.forEach(labor => {
+                const total = labor.reg + labor.ot;
+                const pct = labor.reg > 0 ? (labor.ot / labor.reg) * 100 : 0;
+                let statusClass = 'status-neutral';
+                let statusText = 'No Data';
+                if (labor.reg > 0) {
+                    if (pct <= 25) { statusClass = 'status-good'; statusText = 'Normal'; }
+                    else if (pct <= 35) { statusClass = 'status-neutral'; statusText = 'High'; }
+                    else { statusClass = 'status-warning'; statusText = 'Critical'; }
+                }
+                
+                laborHtml += `
+                    <tr>
+                        <td>${labor.name}</td>
+                        <td>${formatNumber(labor.reg, 0)}</td>
+                        <td>${formatNumber(labor.ot, 0)}</td>
+                        <td>${formatNumber(total, 0)}</td>
+                        <td>${pct.toFixed(1)}%</td>
+                        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                    </tr>
+                `;
+            });
+            
+            laborHtml += `
+                <tr style="background-color: #fafbfc; font-weight: 600;">
+                    <td>TOTAL</td>
+                    <td>${formatNumber(totalReg, 0)}</td>
+                    <td>${formatNumber(totalOT, 0)}</td>
+                    <td>${formatNumber(totalHours, 0)}</td>
+                    <td>${overallOTPercent.toFixed(1)}%</td>
+                    <td><span class="status-badge ${totalHours === 0 ? 'status-neutral' : (overallOTPercent <= 25 ? 'status-good' : (overallOTPercent <= 35 ? 'status-neutral' : 'status-warning'))}">${totalHours === 0 ? 'No Data' : (overallOTPercent <= 25 ? 'Normal' : (overallOTPercent <= 35 ? 'High' : 'Critical'))}</span></td>
+                </tr>
+            `;
+            
+            document.getElementById('dash-laborTable').innerHTML = laborHtml;
+            document.getElementById('dash-laborTotal').textContent = `Total Hours: ${formatNumber(totalHours)}`;
+
+            // ========== COST DETAILS TAB ==========
+            document.getElementById('cost-totalActual').textContent = formatCurrency(totalActual);
+            document.getElementById('cost-totalBudget').textContent = formatCurrency(totalBudget);
+            
+            document.getElementById('cost-opActual').textContent = formatCurrency(opActual);
+            document.getElementById('cost-opBudget').textContent = formatCurrency(opBudget);
+            document.getElementById('cost-opVariance').textContent = (opActual - opBudget >= 0 ? '+' : '') + formatCurrency(opActual - opBudget);
+            
+            document.getElementById('cost-capActual').textContent = formatCurrency(capActual);
+            document.getElementById('cost-capBudget').textContent = formatCurrency(capBudget);
+            document.getElementById('cost-capVariance').textContent = (capActual - capBudget >= 0 ? '+' : '') + formatCurrency(capActual - capBudget);
+            
+            document.getElementById('cost-otherActual').textContent = formatCurrency(otherActual);
+            document.getElementById('cost-otherBudget').textContent = formatCurrency(otherBudget);
+            document.getElementById('cost-otherVariance').textContent = (otherActual - otherBudget >= 0 ? '+' : '') + formatCurrency(otherActual - otherBudget);
+
+            // Cost detail table
+            let costDetailHtml = '';
+            let categoriesWithData = 0;
+            let bestPerformer = { name: '', percent: 0 };
+            let worstPerformer = { name: '', percent: 100 };
+            
+            costs.forEach(cost => {
+                const variance = cost.actual - cost.budget;
+                const percent = cost.budget > 0 ? (cost.actual / cost.budget) * 100 : 0;
+                if (cost.budget > 0) {
+                    categoriesWithData++;
+                    if (percent <= bestPerformer.percent || bestPerformer.percent === 0) {
+                        bestPerformer = { name: cost.name, percent: percent };
+                    }
+                    if (percent >= worstPerformer.percent) {
+                        worstPerformer = { name: cost.name, percent: percent };
+                    }
+                }
+                
+                let statusClass = 'status-neutral';
+                let statusText = 'No Budget';
+                if (cost.budget > 0) {
+                    statusText = cost.actual <= cost.budget ? 'Under' : 'Over';
+                    statusClass = cost.actual <= cost.budget ? 'status-good' : 'status-warning';
+                }
+                
+                costDetailHtml += `
+                    <tr>
+                        <td>${cost.name}</td>
+                        <td>${formatCurrency(cost.actual)}</td>
+                        <td>${formatCurrency(cost.budget)}</td>
+                        <td>${variance >= 0 ? '+' : ''}${formatCurrency(variance)}</td>
+                        <td>${percent.toFixed(1)}%</td>
+                        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                    </tr>
+                `;
+            });
+            
+            document.getElementById('cost-detailTable').innerHTML = costDetailHtml;
+            document.getElementById('cost-detailTotal').textContent = `Total: ${formatCurrency(totalActual)}`;
+            document.getElementById('cost-categoriesWithData').textContent = `${categoriesWithData}/3`;
+            
+            const avgVariance = categoriesWithData > 0 ? (opPercent + capPercent + otherPercent) / categoriesWithData : 0;
+            document.getElementById('cost-avgVariance').textContent = avgVariance.toFixed(1) + '%';
+            
+            document.getElementById('cost-bestPerformer').innerHTML = bestPerformer.name ? 
+                `<div class="kpi-card-detail-row"><span>${bestPerformer.name}</span><span>${bestPerformer.percent.toFixed(1)}%</span></div>` :
+                '<div class="kpi-card-detail-row"><span>No Data</span></div>';
+            
+            document.getElementById('cost-needsAttention').innerHTML = worstPerformer.name && worstPerformer.percent > 100 ?
+                `<div class="kpi-card-detail-row"><span>${worstPerformer.name}</span><span>${worstPerformer.percent.toFixed(1)}%</span></div>` :
+                '<div class="kpi-card-detail-row"><span>All within budget</span></div>';
+
+            // ========== LABOR DETAILS TAB ==========
+            const dlTotal = dlReg + dlOT;
+            const ilTotal = ilReg + ilOT;
+            
+            document.getElementById('lab-totalHours').textContent = formatNumber(totalHours) + ' hrs';
+            document.getElementById('lab-regHours').textContent = formatNumber(totalReg) + ' hrs';
+            document.getElementById('lab-otHours').textContent = formatNumber(totalOT) + ' hrs';
+            
+            document.getElementById('lab-dlTotal').textContent = formatNumber(dlTotal) + ' hrs';
+            document.getElementById('lab-dlReg').textContent = formatNumber(dlReg) + ' hrs';
+            document.getElementById('lab-dlOT').textContent = formatNumber(dlOT) + ' hrs';
+            document.getElementById('lab-dlRate').textContent = dlOTPct.toFixed(1) + '%';
+            
+            document.getElementById('lab-ilTotal').textContent = formatNumber(ilTotal) + ' hrs';
+            document.getElementById('lab-ilReg').textContent = formatNumber(ilReg) + ' hrs';
+            document.getElementById('lab-ilOT').textContent = formatNumber(ilOT) + ' hrs';
+            document.getElementById('lab-ilRate').textContent = ilOTPct.toFixed(1) + '%';
+            
+            document.getElementById('lab-otRate').textContent = overallOTPercent.toFixed(1) + '%';
+            document.getElementById('lab-dlOTPct').textContent = dlOTPct.toFixed(1) + '%';
+            document.getElementById('lab-ilOTPct').textContent = ilOTPct.toFixed(1) + '%';
+
+            // Labor detail table
+            let laborDetailHtml = '';
+            labors.forEach(labor => {
+                const total = labor.reg + labor.ot;
+                const pct = labor.reg > 0 ? (labor.ot / labor.reg) * 100 : 0;
+                let statusClass = 'status-neutral';
+                let statusText = 'No Data';
+                if (labor.reg > 0) {
+                    if (pct <= 25) { statusClass = 'status-good'; statusText = 'Normal'; }
+                    else if (pct <= 35) { statusClass = 'status-neutral'; statusText = 'High'; }
+                    else { statusClass = 'status-warning'; statusText = 'Critical'; }
+                }
+                
+                laborDetailHtml += `
+                    <tr>
+                        <td>${labor.name}</td>
+                        <td>${formatNumber(labor.reg, 0)}</td>
+                        <td>${formatNumber(labor.ot, 0)}</td>
+                        <td>${formatNumber(total, 0)}</td>
+                        <td>${pct.toFixed(1)}%</td>
+                        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                    </tr>
+                `;
+            });
+            
+            document.getElementById('lab-detailTable').innerHTML = laborDetailHtml;
+            document.getElementById('lab-detailTotal').textContent = `Total Hours: ${formatNumber(totalHours)}`;
+
+            updateTimestamp();
+        }
+
+        // Initialize
+        window.onload = function() {
+            calculateAll();
+            loadInputCategory();
+        };
+    </script>
+</body>
+</html>

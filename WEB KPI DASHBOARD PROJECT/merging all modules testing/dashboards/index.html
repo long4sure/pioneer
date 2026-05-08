@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise Dashboard Hub</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="main-header">
+            <div class="logo-section">
+                <h1>📊 ENTERPRISE DASHBOARD HUB</h1>
+                <p>Integrated Performance Management Platform</p>
+            </div>
+            <div class="header-controls">
+                <button class="btn-icon" id="refreshAllBtn" title="Refresh All Dashboards">
+                    🔄
+                </button>
+                <button class="btn-icon" id="settingsBtn" title="Settings">
+                    ⚙️
+                </button>
+            </div>
+        </header>
+
+        <!-- Filter Bar -->
+        <div class="filter-bar">
+            <div class="filter-group">
+                <label>🔍 Filter Dashboards:</label>
+                <div class="filter-buttons">
+                    <button class="filter-btn active" data-filter="all">All</button>
+                    <button class="filter-btn" data-filter="finance">💰 Finance</button>
+                    <button class="filter-btn" data-filter="sc-planning">📦 SC Planning</button>
+                    <button class="filter-btn" data-filter="procurement">🛒 Procurement</button>
+                    <button class="filter-btn" data-filter="production">🏭 Production</button>
+                    <button class="filter-btn" data-filter="warehouse">🏢 Warehouse & Logistics</button>
+                </div>
+            </div>
+            
+            <div class="filter-group">
+                <label>📅 Time Period:</label>
+                <select id="globalYearSelect">
+                    <option value="2023">2023</option>
+                    <option value="2024" selected>2024</option>
+                    <option value="2025">2025</option>
+                </select>
+                <select id="globalMonthSelect">
+                    <option value="January">January</option>
+                    <option value="February">February</option>
+                    <option value="March">March</option>
+                    <option value="April">April</option>
+                    <option value="May">May</option>
+                    <option value="June">June</option>
+                    <option value="July">July</option>
+                    <option value="August">August</option>
+                    <option value="September">September</option>
+                    <option value="October" selected>October</option>
+                    <option value="November">November</option>
+                    <option value="December">December</option>
+                </select>
+                <button class="btn-secondary" id="applyGlobalFilter">Apply to All</button>
+            </div>
+        </div>
+
+        <!-- Dashboard Grid -->
+        <div class="dashboard-grid" id="dashboardGrid"></div>
+
+        <!-- Modal for Dashboard Preview -->
+        <div id="dashboardModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="modalTitle">Dashboard Title</h2>
+                    <button class="modal-close">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <iframe id="dashboardFrame" src="" frameborder="0"></iframe>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-primary" id="openFullDashboard">Open Full Dashboard</button>
+                    <button class="btn-secondary modal-close">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

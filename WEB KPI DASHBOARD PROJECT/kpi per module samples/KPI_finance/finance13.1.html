@@ -1,0 +1,1772 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finance Dashboard - Multi Module</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            padding: 24px;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #2d2f33;
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 16px;
+            background-color: #fafbfc;
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: 1px solid #eef2f5;
+            flex-wrap: wrap;
+        }
+
+        .filter-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .filter-item label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #5f6775;
+            text-transform: uppercase;
+        }
+
+        .filter-item select {
+            padding: 6px 12px;
+            border: 1px solid #d0d5dd;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #2d2f33;
+            background-color: white;
+            cursor: pointer;
+        }
+
+        /* Module Selector */
+        .module-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 24px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 8px;
+            flex-wrap: wrap;
+        }
+
+        .module-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            background-color: white;
+            color: #5f6775;
+            flex: 1;
+            min-width: 150px;
+            transition: all 0.2s;
+        }
+
+        .module-btn:hover {
+            background-color: #e0e0e0;
+        }
+
+        .module-btn.active {
+            background-color: #01b8aa;
+            color: white;
+        }
+
+        .module-content {
+            display: none;
+        }
+
+        .module-content.active {
+            display: block;
+        }
+
+        /* Tab Navigation */
+        .tab-nav {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 24px;
+            border-bottom: 2px solid #eef2f5;
+            padding-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 8px 16px;
+            border: none;
+            background: none;
+            font-size: 13px;
+            font-weight: 600;
+            color: #5f6775;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .tab-btn:hover {
+            color: #01b8aa;
+            background-color: #f0f7f7;
+        }
+
+        .tab-btn.active {
+            color: #01b8aa;
+            background-color: #e6f3f2;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* KPI Cards */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .kpi-card {
+            background-color: white;
+            border: 1px solid #eef2f5;
+            border-radius: 8px;
+            padding: 20px;
+            transition: all 0.2s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+        }
+
+        .kpi-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border-color: #01b8aa;
+        }
+
+        .kpi-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .kpi-card-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #5f6775;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .kpi-card-main-value {
+            font-size: 32px;
+            font-weight: 600;
+            color: #2d2f33;
+            margin-bottom: 8px;
+        }
+
+        .kpi-card-details {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .kpi-card-detail-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            color: #5f6775;
+            padding: 4px 0;
+            border-bottom: 1px dashed #f0f0f0;
+        }
+
+        .kpi-card-detail-label {
+            color: #5f6775;
+        }
+
+        .kpi-card-detail-value {
+            font-weight: 600;
+            color: #2d2f33;
+        }
+
+        .kpi-card-progress {
+            height: 6px;
+            background-color: #eef2f5;
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 12px 0 8px;
+        }
+
+        .kpi-card-progress-bar {
+            height: 100%;
+            background-color: #01b8aa;
+            border-radius: 3px;
+        }
+
+        .kpi-card-footer {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #5f6775;
+            margin-top: 8px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-excellent {
+            background-color: #e6f9ed;
+            color: #107c41;
+        }
+
+        .status-good {
+            background-color: #e3f2fd;
+            color: #0d47a1;
+        }
+
+        .status-warning {
+            background-color: #fff1e0;
+            color: #d83b01;
+        }
+
+        .status-critical {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+
+        .status-neutral {
+            background-color: #fef7e0;
+            color: #966c00;
+        }
+
+        /* Section Headers */
+        .section-header {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2d2f33;
+            margin: 30px 0 20px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #01b8aa;
+        }
+
+        /* Tables */
+        .table-container {
+            background-color: white;
+            border: 1px solid #eef2f5;
+            border-radius: 6px;
+            margin-bottom: 24px;
+            overflow-x: auto;
+        }
+
+        .table-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #eef2f5;
+            background-color: #fafbfc;
+            font-size: 14px;
+            font-weight: 600;
+            color: #2d2f33;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .table-total {
+            font-size: 13px;
+            color: #5f6775;
+            background-color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            border: 1px solid #d0d5dd;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            padding: 14px 16px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #5f6775;
+            text-transform: uppercase;
+            border-bottom: 2px solid #eef2f5;
+            background-color: #fafbfc;
+        }
+
+        td {
+            padding: 12px 16px;
+            font-size: 13px;
+            color: #2d2f33;
+            border-bottom: 1px solid #eef2f5;
+        }
+
+        /* Input Panel */
+        .input-panel {
+            background-color: white;
+            border: 1px solid #eef2f5;
+            border-radius: 6px;
+            margin: 24px 0;
+        }
+
+        .panel-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #eef2f5;
+            background-color: #fafbfc;
+            font-size: 14px;
+            font-weight: 600;
+            color: #2d2f33;
+        }
+
+        .input-controls {
+            display: flex;
+            gap: 20px;
+            padding: 20px;
+            background-color: #fafbfc;
+            border-bottom: 1px solid #eef2f5;
+            flex-wrap: wrap;
+        }
+
+        .input-selector {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 2;
+        }
+
+        .input-selector label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #5f6775;
+            text-transform: uppercase;
+            min-width: 100px;
+        }
+
+        .input-selector select {
+            padding: 8px 16px;
+            border: 1px solid #d0d5dd;
+            border-radius: 4px;
+            font-size: 13px;
+            flex: 1;
+            max-width: 500px;
+        }
+
+        .input-sections {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            padding: 20px;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .input-section {
+            background-color: #fafbfc;
+            border: 1px solid #eef2f5;
+            border-radius: 6px;
+            padding: 20px;
+        }
+
+        .input-section h4 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #5f6775;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #eef2f5;
+        }
+
+        .input-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .input-field {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .input-field label {
+            font-size: 11px;
+            font-weight: 600;
+            color: #5f6775;
+            text-transform: uppercase;
+        }
+
+        .input-field input {
+            padding: 8px 12px;
+            border: 1px solid #d0d5dd;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #2d2f33;
+            background-color: white;
+        }
+
+        .input-field input:focus {
+            outline: none;
+            border-color: #01b8aa;
+        }
+
+        .input-field input::placeholder {
+            color: #aaa;
+            font-style: italic;
+        }
+
+        .button-group {
+            padding: 16px 20px;
+            border-top: 1px solid #eef2f5;
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: 1px solid #d0d5dd;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            background: white;
+            color: #2d2f33;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            background-color: #f0f0f0;
+        }
+
+        .btn-primary {
+            background-color: #01b8aa;
+            border-color: #01b8aa;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #019f92;
+        }
+
+        .btn-danger {
+            background-color: #d83b01;
+            border-color: #d83b01;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #b32e01;
+        }
+
+        .footer {
+            text-align: right;
+            font-size: 12px;
+            color: #5f6775;
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid #eef2f5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>FINANCE DASHBOARD</h1>
+            <div class="filter-group">
+                <div class="filter-item">
+                    <label>Year:</label>
+                    <select id="yearSelect" onchange="handlers.loadMonthData()">
+                        <option value="2020">2020</option>
+                        <option value="2021">2021</option>
+                        <option value="2022">2022</option>
+                        <option value="2023">2023</option>
+                        <option value="2024">2024</option>
+                        <option value="2025">2025</option>
+                        <option value="2026" selected>2026</option>
+                        <option value="2027">2027</option>
+                        <option value="2028">2028</option>
+                        <option value="2029">2029</option>
+                        <option value="2030">2030</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label>Month:</label>
+                    <select id="monthSelect" onchange="handlers.loadMonthData()">
+                        <option value="January">January</option>
+                        <option value="February">February</option>
+                        <option value="March">March</option>
+                        <option value="April">April</option>
+                        <option value="May">May</option>
+                        <option value="June">June</option>
+                        <option value="July">July</option>
+                        <option value="August">August</option>
+                        <option value="September">September</option>
+                        <option value="October" selected>October</option>
+                        <option value="November">November</option>
+                        <option value="December">December</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="module-selector">
+            <button class="module-btn active" onclick="handlers.switchModule('overview')">📊 Financial Overview</button>
+            <button class="module-btn" onclick="handlers.switchModule('cost')">💰 Cost Analysis</button>
+            <button class="module-btn" onclick="handlers.switchModule('labor')">👥 Labor Reports</button>
+        </div>
+
+        <!-- FINANCIAL OVERVIEW MODULE -->
+        <div id="module-overview" class="module-content active">
+            <div class="tab-nav">
+                <button class="tab-btn active" onclick="handlers.switchTab('overview', 'dashboard')">Dashboard</button>
+                <button class="tab-btn" onclick="handlers.switchTab('overview', 'details')">Details</button>
+                <button class="tab-btn" onclick="handlers.switchTab('overview', 'input')">Data Input</button>
+            </div>
+
+            <div id="overview-dashboard" class="tab-content active">
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-card-header"><span class="kpi-card-title">Production Volume</span></div>
+                        <div class="kpi-card-main-value" id="ov-prodValue">0 MT</div>
+                        <div class="kpi-card-details">
+                            <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Target</span><span class="kpi-card-detail-value" id="ov-prodTarget">0 MT</span></div>
+                        </div>
+                        <div class="kpi-card-progress"><div class="kpi-card-progress-bar" id="ov-prodProgress" style="width: 0%"></div></div>
+                        <div class="kpi-card-footer"><span id="ov-prodPercent">0%</span><span>Achieved</span></div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-card-header"><span class="kpi-card-title">Operational Cost</span></div>
+                        <div class="kpi-card-main-value" id="ov-opValue">₱0</div>
+                        <div class="kpi-card-details">
+                            <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Budget</span><span class="kpi-card-detail-value" id="ov-opBudget">₱0</span></div>
+                        </div>
+                        <div class="kpi-card-progress"><div class="kpi-card-progress-bar" id="ov-opProgress" style="width: 0%"></div></div>
+                        <div class="kpi-card-footer"><span id="ov-opPercent">0%</span><span>of budget</span></div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-card-header"><span class="kpi-card-title">Capital Expenditure</span></div>
+                        <div class="kpi-card-main-value" id="ov-capValue">₱0</div>
+                        <div class="kpi-card-details">
+                            <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Budget</span><span class="kpi-card-detail-value" id="ov-capBudget">₱0</span></div>
+                        </div>
+                        <div class="kpi-card-progress"><div class="kpi-card-progress-bar" id="ov-capProgress" style="width: 0%"></div></div>
+                        <div class="kpi-card-footer"><span id="ov-capPercent">0%</span><span>of budget</span></div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-card-header"><span class="kpi-card-title">Other Expenses</span></div>
+                        <div class="kpi-card-main-value" id="ov-expValue">₱0</div>
+                        <div class="kpi-card-details">
+                            <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Budget</span><span class="kpi-card-detail-value" id="ov-expBudget">₱0</span></div>
+                        </div>
+                        <div class="kpi-card-progress"><div class="kpi-card-progress-bar" id="ov-expProgress" style="width: 0%"></div></div>
+                        <div class="kpi-card-footer"><span id="ov-expPercent">0%</span><span>of budget</span></div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-card-header"><span class="kpi-card-title">Labor Report</span></div>
+                        <div class="kpi-card-main-value" id="ov-totalWorkforce">0</div>
+                        <div class="kpi-card-details">
+                            <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">OT Rate</span><span class="kpi-card-detail-value" id="ov-otRate">0%</span></div>
+                        </div>
+                        <div class="kpi-card-progress"><div class="kpi-card-progress-bar" id="ov-otProgress" style="width: 0%"></div></div>
+                        <div class="kpi-card-footer"><span id="ov-laborStatus" class="status-badge status-neutral">Normal</span><span>OT %</span></div>
+                    </div>
+                </div>
+                <div class="section-header">Financial Summary</div>
+                <div class="table-container">
+                    <div class="table-header"><span>Cost Analysis Summary</span><span class="table-total" id="ov-totalCost">Total: ₱0</span></div>
+                    <table>
+                        <thead><tr><th>Category</th><th>Actual</th><th>Budget</th><th>Variance</th><th>%</th><th>Status</th></tr></thead>
+                        <tbody id="ov-summaryTable"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="overview-details" class="tab-content">
+                <div class="section-header">Detailed Breakdown</div>
+                <div class="kpi-grid" style="grid-template-columns: repeat(2, 1fr);">
+                    <div class="kpi-card">
+                        <div class="kpi-card-header"><span class="kpi-card-title">Production Details</span></div>
+                        <div class="kpi-card-details" id="ov-detailProd">
+                            <div class="kpi-card-detail-row"><span>Volume Produced</span><span id="ov-detailVolume">0 MT</span></div>
+                            <div class="kpi-card-detail-row"><span>Volume Target</span><span id="ov-detailTarget">0 MT</span></div>
+                            <div class="kpi-card-detail-row"><span>Achievement</span><span id="ov-detailAchievement">0%</span></div>
+                        </div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-card-header"><span class="kpi-card-title">Cost Summary</span></div>
+                        <div class="kpi-card-details" id="ov-detailCost">
+                            <div class="kpi-card-detail-row"><span>Total Actual</span><span id="ov-detailTotalActual">₱0</span></div>
+                            <div class="kpi-card-detail-row"><span>Total Budget</span><span id="ov-detailTotalBudget">₱0</span></div>
+                            <div class="kpi-card-detail-row"><span>Total Variance</span><span id="ov-detailTotalVariance">₱0</span></div>
+                        </div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-card-header"><span class="kpi-card-title">Labor Summary</span></div>
+                        <div class="kpi-card-details" id="ov-detailLabor">
+                            <div class="kpi-card-detail-row"><span>Total Workforce</span><span id="ov-detailWorkforce">0</span></div>
+                            <div class="kpi-card-detail-row"><span>Total Hours</span><span id="ov-detailHours">0 hrs</span></div>
+                            <div class="kpi-card-detail-row"><span>OT Hours</span><span id="ov-detailOT">0 hrs</span></div>
+                            <div class="kpi-card-detail-row"><span>OT Rate</span><span id="ov-detailOTRate">0%</span></div>
+                        </div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-card-header"><span class="kpi-card-title">Labor Breakdown</span></div>
+                        <div class="kpi-card-details" id="ov-detailLaborBreakdown">
+                            <div class="kpi-card-detail-row"><span>DL Regular</span><span id="ov-detailDLReg">0 hrs</span></div>
+                            <div class="kpi-card-detail-row"><span>DL Overtime</span><span id="ov-detailDLOT">0 hrs</span></div>
+                            <div class="kpi-card-detail-row"><span>IL Regular</span><span id="ov-detailILReg">0 hrs</span></div>
+                            <div class="kpi-card-detail-row"><span>IL Overtime</span><span id="ov-detailILOT">0 hrs</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="overview-input" class="tab-content">
+                <div class="input-panel">
+                    <div class="panel-header">FINANCIAL OVERVIEW DATA INPUT</div>
+                    <div class="input-controls">
+                        <div class="input-selector">
+                            <label>Select Category:</label>
+                            <select id="ov-lineSelector" onchange="handlers.loadOVLineData()">
+                                <option value="summary">📊 SUMMARY</option>
+                                <option value="production">📦 Production</option>
+                                <option value="operational">💰 Operational Cost</option>
+                                <option value="capital">🏭 Capital Expenditure</option>
+                                <option value="other">📋 Other Expenses</option>
+                                <option value="labor">👥 Labor</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="input-sections" id="ov-inputSections"></div>
+                    <div class="button-group">
+                        <button class="btn btn-danger" onclick="handlers.clearOVCurrentLine()">Clear This Category</button>
+                        <button class="btn" onclick="handlers.clearOVAllLines()">Clear All</button>
+                        <button class="btn btn-primary" onclick="handlers.saveOVLineData()">Save Data</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- COST ANALYSIS MODULE -->
+        <div id="module-cost" class="module-content">
+            <div class="tab-nav">
+                <button class="tab-btn active" onclick="handlers.switchTab('cost', 'overview')">Overview</button>
+                <button class="tab-btn" onclick="handlers.switchTab('cost', 'details')">Details</button>
+                <button class="tab-btn" onclick="handlers.switchTab('cost', 'input')">Data Input</button>
+            </div>
+
+            <div id="cost-overview" class="tab-content active">
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-card-header"><span class="kpi-card-title">Total Costs</span></div>
+                        <div class="kpi-card-main-value" id="cost-totalActual">₱0</div>
+                        <div class="kpi-card-details">
+                            <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Total Budget</span><span class="kpi-card-detail-value" id="cost-totalBudget">₱0</span></div>
+                        </div>
+                        <div class="kpi-card-progress"><div class="kpi-card-progress-bar" id="cost-totalProgress" style="width: 0%"></div></div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-card-header"><span class="kpi-card-title">Operational</span></div>
+                        <div class="kpi-card-main-value" id="cost-opActual">₱0</div>
+                        <div class="kpi-card-details">
+                            <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Budget</span><span class="kpi-card-detail-value" id="cost-opBudget">₱0</span></div>
+                            <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Variance</span><span class="kpi-card-detail-value" id="cost-opVariance">₱0</span></div>
+                        </div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-card-header"><span class="kpi-card-title">Capital</span></div>
+                        <div class="kpi-card-main-value" id="cost-capActual">₱0</div>
+                        <div class="kpi-card-details">
+                            <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Budget</span><span class="kpi-card-detail-value" id="cost-capBudget">₱0</span></div>
+                            <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Variance</span><span class="kpi-card-detail-value" id="cost-capVariance">₱0</span></div>
+                        </div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-card-header"><span class="kpi-card-title">Other</span></div>
+                        <div class="kpi-card-main-value" id="cost-expActual">₱0</div>
+                        <div class="kpi-card-details">
+                            <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Budget</span><span class="kpi-card-detail-value" id="cost-expBudget">₱0</span></div>
+                            <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Variance</span><span class="kpi-card-detail-value" id="cost-expVariance">₱0</span></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="section-header">Cost Analysis by Category</div>
+                <div class="table-container">
+                    <div class="table-header"><span>Cost Breakdown</span><span class="table-total" id="cost-totalDisplay">Total: ₱0</span></div>
+                    <table>
+                        <thead><tr><th>Category</th><th>Actual</th><th>Budget</th><th>Variance</th><th>%</th><th>Status</th></tr></thead>
+                        <tbody id="cost-summaryTable"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="cost-details" class="tab-content">
+                <div class="section-header">Cost Details</div>
+                <div class="input-controls" style="margin-bottom: 20px;">
+                    <div class="input-selector">
+                        <label>View Category:</label>
+                        <select id="cost-detailLine" onchange="handlers.loadCostDetails()">
+                            <option value="summary">📊 ALL CATEGORIES</option>
+                            <option value="operational">💰 Operational Cost</option>
+                            <option value="capital">🏭 Capital Expenditure</option>
+                            <option value="other">📋 Other Expenses</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="kpi-grid" style="grid-template-columns: repeat(2, 1fr);">
+                    <div class="kpi-card">
+                        <div class="kpi-card-header"><span class="kpi-card-title" id="cost-detailTitle">Category Details</span></div>
+                        <div class="kpi-card-details" id="cost-detailInfo">
+                            <div class="kpi-card-detail-row"><span>Actual</span><span id="cost-detailActual">₱0</span></div>
+                            <div class="kpi-card-detail-row"><span>Budget</span><span id="cost-detailBudget">₱0</span></div>
+                            <div class="kpi-card-detail-row"><span>Variance</span><span id="cost-detailVariance">₱0</span></div>
+                            <div class="kpi-card-detail-row"><span>% of Budget</span><span id="cost-detailPercent">0%</span></div>
+                        </div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-card-header"><span class="kpi-card-title">Status</span></div>
+                        <div class="kpi-card-details">
+                            <div class="kpi-card-detail-row"><span>Status</span><span id="cost-detailStatus" class="status-badge status-neutral">No Data</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="cost-input" class="tab-content">
+                <div class="input-panel">
+                    <div class="panel-header">COST ANALYSIS DATA INPUT</div>
+                    <div class="input-controls">
+                        <div class="input-selector">
+                            <label>Select Category:</label>
+                            <select id="cost-lineSelector" onchange="handlers.loadCostLineData()">
+                                <option value="summary">📊 SUMMARY</option>
+                                <option value="operational">💰 Operational Cost</option>
+                                <option value="capital">🏭 Capital Expenditure</option>
+                                <option value="other">📋 Other Expenses</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="input-sections" id="cost-inputSections"></div>
+                    <div class="button-group">
+                        <button class="btn btn-danger" onclick="handlers.clearCostCurrentLine()">Clear This Category</button>
+                        <button class="btn" onclick="handlers.clearCostAllLines()">Clear All</button>
+                        <button class="btn btn-primary" onclick="handlers.saveCostLineData()">Save Data</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- LABOR REPORTS MODULE -->
+        <div id="module-labor" class="module-content">
+            <div class="tab-nav">
+                <button class="tab-btn active" onclick="handlers.switchTab('labor', 'overview')">Overview</button>
+                <button class="tab-btn" onclick="handlers.switchTab('labor', 'details')">Details</button>
+                <button class="tab-btn" onclick="handlers.switchTab('labor', 'input')">Data Input</button>
+            </div>
+
+            <div id="labor-overview" class="tab-content active">
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-card-header"><span class="kpi-card-title">Total Workforce</span></div>
+                        <div class="kpi-card-main-value" id="lab-totalWorkforce">0</div>
+                        <div class="kpi-card-details">
+                            <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Direct Labor</span><span class="kpi-card-detail-value" id="lab-dlTotal">0</span></div>
+                            <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Indirect Labor</span><span class="kpi-card-detail-value" id="lab-ilTotal">0</span></div>
+                        </div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-card-header"><span class="kpi-card-title">Total Hours</span></div>
+                        <div class="kpi-card-main-value" id="lab-totalHours">0 hrs</div>
+                        <div class="kpi-card-details">
+                            <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Regular</span><span class="kpi-card-detail-value" id="lab-regHours">0 hrs</span></div>
+                            <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Overtime</span><span class="kpi-card-detail-value" id="lab-otHours">0 hrs</span></div>
+                        </div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-card-header"><span class="kpi-card-title">Overtime Rate</span></div>
+                        <div class="kpi-card-main-value" id="lab-otRate">0%</div>
+                        <div class="kpi-card-progress"><div class="kpi-card-progress-bar" id="lab-otProgress" style="width: 0%"></div></div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-card-header"><span class="kpi-card-title">Labor Categories</span></div>
+                        <div class="kpi-card-main-value" id="lab-categories">2</div>
+                        <div class="kpi-card-details">
+                            <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">DL OT %</span><span class="kpi-card-detail-value" id="lab-dlOTPct">0%</span></div>
+                            <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">IL OT %</span><span class="kpi-card-detail-value" id="lab-ilOTPct">0%</span></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="section-header">Labor Analysis by Type</div>
+                <div class="table-container">
+                    <div class="table-header"><span>Labor Breakdown</span><span class="table-total" id="lab-totalDisplay">Total Hours: 0</span></div>
+                    <table>
+                        <thead><tr><th>Labor Type</th><th>Regular</th><th>Overtime</th><th>Total</th><th>OT %</th><th>Status</th></tr></thead>
+                        <tbody id="lab-summaryTable"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="labor-details" class="tab-content">
+                <div class="section-header">Labor Details</div>
+                <div class="input-controls" style="margin-bottom: 20px;">
+                    <div class="input-selector">
+                        <label>View Type:</label>
+                        <select id="lab-detailLine" onchange="handlers.loadLabDetails()">
+                            <option value="summary">📊 ALL LABOR</option>
+                            <option value="dl">👤 Direct Labor</option>
+                            <option value="il">👥 Indirect Labor</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="kpi-grid" style="grid-template-columns: repeat(2, 1fr);">
+                    <div class="kpi-card">
+                        <div class="kpi-card-header"><span class="kpi-card-title" id="lab-detailTitle">Labor Details</span></div>
+                        <div class="kpi-card-details" id="lab-detailInfo">
+                            <div class="kpi-card-detail-row"><span>Regular Hours</span><span id="lab-detailReg">0 hrs</span></div>
+                            <div class="kpi-card-detail-row"><span>Overtime Hours</span><span id="lab-detailOT">0 hrs</span></div>
+                            <div class="kpi-card-detail-row"><span>Total Hours</span><span id="lab-detailTotal">0 hrs</span></div>
+                            <div class="kpi-card-detail-row"><span>OT %</span><span id="lab-detailPct">0%</span></div>
+                        </div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-card-header"><span class="kpi-card-title">Status</span></div>
+                        <div class="kpi-card-details">
+                            <div class="kpi-card-detail-row"><span>Status</span><span id="lab-detailStatus" class="status-badge status-neutral">No Data</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="labor-input" class="tab-content">
+                <div class="input-panel">
+                    <div class="panel-header">LABOR DATA INPUT</div>
+                    <div class="input-controls">
+                        <div class="input-selector">
+                            <label>Select Type:</label>
+                            <select id="lab-lineSelector" onchange="handlers.loadLabLineData()">
+                                <option value="summary">📊 SUMMARY</option>
+                                <option value="dl">👤 Direct Labor</option>
+                                <option value="il">👥 Indirect Labor</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="input-sections" id="lab-inputSections"></div>
+                    <div class="button-group">
+                        <button class="btn btn-danger" onclick="handlers.clearLabCurrentLine()">Clear This Type</button>
+                        <button class="btn" onclick="handlers.clearLabAllLines()">Clear All</button>
+                        <button class="btn btn-primary" onclick="handlers.saveLabLineData()">Save Data</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">Last updated: <span id="lastUpdate">Just now</span></div>
+    </div>
+
+    <script>
+        // ==================== DATA STRUCTURES ====================
+        // All values default to empty
+        const overviewLines = ['production', 'operational', 'capital', 'other', 'labor'];
+        const costLines = ['operational', 'capital', 'other'];
+        const laborLines = ['dl', 'il'];
+
+        const overviewLineNames = {
+            summary: 'SUMMARY',
+            production: 'Production Volume',
+            operational: 'Operational Cost',
+            capital: 'Capital Expenditure',
+            other: 'Other Expenses',
+            labor: 'Labor Report'
+        };
+
+        const costLineNames = {
+            summary: 'SUMMARY',
+            operational: 'Operational Cost',
+            capital: 'Capital Expenditure',
+            other: 'Other Expenses'
+        };
+
+        const laborLineNames = {
+            summary: 'SUMMARY',
+            dl: 'Direct Labor',
+            il: 'Indirect Labor'
+        };
+
+        // Empty data templates
+        const emptyProductionLine = {
+            volumeActual: '', volumeTarget: ''
+        };
+
+        const emptyCostLine = {
+            actual: '', budget: ''
+        };
+
+        const emptyLaborLine = {
+            regular: '', overtime: ''
+        };
+
+        // 3D Database
+        let database = {};
+        const years = ['2020', '2021', '2022', '2023', '2024', '2025', '2026', '2027', '2028', '2029', '2030'];
+        const months = ['January', 'February', 'March', 'April', 'May', 'June', 
+                       'July', 'August', 'September', 'October', 'November', 'December'];
+        
+        years.forEach(year => {
+            database[year] = {};
+            months.forEach(month => {
+                database[year][month] = {
+                    overview: { summary: { name: 'SUMMARY' } },
+                    cost: { summary: { name: 'SUMMARY' } },
+                    labor: { summary: { name: 'SUMMARY' } }
+                };
+                
+                // Overview module
+                database[year][month].overview.production = { 
+                    name: 'Production Volume', 
+                    volumeActual: '', volumeTarget: '' 
+                };
+                database[year][month].overview.operational = { 
+                    name: 'Operational Cost', 
+                    actual: '', budget: '' 
+                };
+                database[year][month].overview.capital = { 
+                    name: 'Capital Expenditure', 
+                    actual: '', budget: '' 
+                };
+                database[year][month].overview.other = { 
+                    name: 'Other Expenses', 
+                    actual: '', budget: '' 
+                };
+                database[year][month].overview.labor = { 
+                    name: 'Labor Report', 
+                    dlReg: '', dlOT: '', ilReg: '', ilOT: '' 
+                };
+                
+                // Cost module
+                database[year][month].cost.operational = { 
+                    name: 'Operational Cost', 
+                    actual: '', budget: '' 
+                };
+                database[year][month].cost.capital = { 
+                    name: 'Capital Expenditure', 
+                    actual: '', budget: '' 
+                };
+                database[year][month].cost.other = { 
+                    name: 'Other Expenses', 
+                    actual: '', budget: '' 
+                };
+                
+                // Labor module
+                database[year][month].labor.dl = { 
+                    name: 'Direct Labor', 
+                    regular: '', overtime: '' 
+                };
+                database[year][month].labor.il = { 
+                    name: 'Indirect Labor', 
+                    regular: '', overtime: '' 
+                };
+            });
+        });
+
+        // ==================== UTILITY FUNCTIONS ====================
+        function formatNumber(num, decimals = 2) {
+            if (!num || isNaN(num) || parseFloat(num) === 0) return '0';
+            return parseFloat(num).toLocaleString(undefined, {
+                minimumFractionDigits: decimals,
+                maximumFractionDigits: decimals
+            });
+        }
+
+        function formatCurrency(num) {
+            if (!num || isNaN(num) || parseFloat(num) === 0) return '₱0';
+            if (Math.abs(num) >= 1000000) return '₱' + (parseFloat(num)/1000000).toFixed(1) + 'M';
+            if (Math.abs(num) >= 1000) return '₱' + (parseFloat(num)/1000).toFixed(1) + 'K';
+            return '₱' + parseFloat(num).toFixed(2);
+        }
+
+        function getCurrentData() {
+            const year = document.getElementById('yearSelect').value;
+            const month = document.getElementById('monthSelect').value;
+            return database[year][month];
+        }
+
+        function updateTimestamp() {
+            const year = document.getElementById('yearSelect').value;
+            const month = document.getElementById('monthSelect').value;
+            document.getElementById('lastUpdate').textContent = new Date().toLocaleString() + ` (${month} ${year})`;
+        }
+
+        // ==================== MODULE & TAB SWITCHING ====================
+        const handlers = {
+            switchModule: function(module) {
+                document.querySelectorAll('.module-btn').forEach(btn => btn.classList.remove('active'));
+                event.target.classList.add('active');
+                
+                document.querySelectorAll('.module-content').forEach(content => content.classList.remove('active'));
+                document.getElementById(`module-${module}`).classList.add('active');
+                
+                this.loadMonthData();
+            },
+
+            switchTab: function(module, tab) {
+                document.querySelectorAll(`#module-${module} .tab-btn`).forEach(btn => btn.classList.remove('active'));
+                event.target.classList.add('active');
+                
+                document.querySelectorAll(`#module-${module} .tab-content`).forEach(content => content.classList.remove('active'));
+                document.getElementById(`${module}-${tab}`).classList.add('active');
+                
+                if (tab === 'input') {
+                    if (module === 'overview') this.loadOVLineData();
+                    else if (module === 'cost') this.loadCostLineData();
+                    else this.loadLabLineData();
+                } else if (tab === 'details') {
+                    if (module === 'overview') this.loadOVDetails();
+                    else if (module === 'cost') this.loadCostDetails();
+                    else this.loadLabDetails();
+                }
+            },
+
+            loadMonthData: function() {
+                if (document.getElementById('module-overview').classList.contains('active')) {
+                    this.calculateOVAll();
+                    if (document.getElementById('overview-input').classList.contains('active')) this.loadOVLineData();
+                    if (document.getElementById('overview-details').classList.contains('active')) this.loadOVDetails();
+                } else if (document.getElementById('module-cost').classList.contains('active')) {
+                    this.calculateCostAll();
+                    if (document.getElementById('cost-input').classList.contains('active')) this.loadCostLineData();
+                    if (document.getElementById('cost-details').classList.contains('active')) this.loadCostDetails();
+                } else {
+                    this.calculateLabAll();
+                    if (document.getElementById('labor-input').classList.contains('active')) this.loadLabLineData();
+                    if (document.getElementById('labor-details').classList.contains('active')) this.loadLabDetails();
+                }
+                updateTimestamp();
+            },
+
+            // ==================== OVERVIEW FUNCTIONS ====================
+            currentOVLine: 'summary',
+
+            loadOVLineData: function() {
+                const selector = document.getElementById('ov-lineSelector');
+                if (!selector) return;
+                this.currentOVLine = selector.value;
+                const data = getCurrentData().overview[this.currentOVLine];
+                
+                if (this.currentOVLine === 'summary') {
+                    document.getElementById('ov-inputSections').innerHTML = `
+                        <div class="input-section" style="grid-column: span 3; text-align: center; padding: 40px;">
+                            <h4>SUMMARY</h4>
+                            <p>The Summary line is automatically calculated from all categories.</p>
+                            <p>Please select a specific category to input data.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                let html = '';
+                if (this.currentOVLine === 'production') {
+                    html = `
+                        <div class="input-section" style="grid-column: span 3;">
+                            <h4>PRODUCTION VOLUME</h4>
+                            <div class="input-grid" style="grid-template-columns: repeat(2, 1fr);">
+                                <div class="input-field"><label>Volume Produced (MT)</label><input type="number" id="ov_input_volumeActual" value="${data.volumeActual || ''}" step="0.01" placeholder="MT"></div>
+                                <div class="input-field"><label>Volume Target (MT)</label><input type="number" id="ov_input_volumeTarget" value="${data.volumeTarget || ''}" step="0.01" placeholder="MT"></div>
+                            </div>
+                        </div>
+                    `;
+                } else if (this.currentOVLine === 'labor') {
+                    html = `
+                        <div class="input-section" style="grid-column: span 3;">
+                            <h4>LABOR REPORT</h4>
+                            <div class="input-grid" style="grid-template-columns: repeat(2, 1fr);">
+                                <div class="input-field"><label>DL Regular Hours</label><input type="number" id="ov_input_dlReg" value="${data.dlReg || ''}" step="0.01" placeholder="hrs"></div>
+                                <div class="input-field"><label>DL Overtime Hours</label><input type="number" id="ov_input_dlOT" value="${data.dlOT || ''}" step="0.01" placeholder="hrs"></div>
+                                <div class="input-field"><label>IL Regular Hours</label><input type="number" id="ov_input_ilReg" value="${data.ilReg || ''}" step="0.01" placeholder="hrs"></div>
+                                <div class="input-field"><label>IL Overtime Hours</label><input type="number" id="ov_input_ilOT" value="${data.ilOT || ''}" step="0.01" placeholder="hrs"></div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    html = `
+                        <div class="input-section" style="grid-column: span 3;">
+                            <h4>${data.name}</h4>
+                            <div class="input-grid" style="grid-template-columns: repeat(2, 1fr);">
+                                <div class="input-field"><label>Actual (₱)</label><input type="number" id="ov_input_actual" value="${data.actual || ''}" step="0.01" placeholder="₱"></div>
+                                <div class="input-field"><label>Budget (₱)</label><input type="number" id="ov_input_budget" value="${data.budget || ''}" step="0.01" placeholder="₱"></div>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                document.getElementById('ov-inputSections').innerHTML = html;
+            },
+
+            loadOVDetails: function() {
+                const data = getCurrentData().overview;
+                
+                // Production
+                const prod = data.production;
+                const volumeActual = parseFloat(prod.volumeActual) || 0;
+                const volumeTarget = parseFloat(prod.volumeTarget) || 0;
+                const volumePct = volumeTarget > 0 ? (volumeActual / volumeTarget) * 100 : 0;
+                
+                document.getElementById('ov-detailVolume').textContent = formatNumber(volumeActual, 2) + ' MT';
+                document.getElementById('ov-detailTarget').textContent = formatNumber(volumeTarget, 2) + ' MT';
+                document.getElementById('ov-detailAchievement').textContent = volumePct.toFixed(1) + '%';
+
+                // Costs
+                const op = data.operational;
+                const cap = data.capital;
+                const other = data.other;
+                
+                const opActual = parseFloat(op.actual) || 0;
+                const capActual = parseFloat(cap.actual) || 0;
+                const otherActual = parseFloat(other.actual) || 0;
+                const totalActual = opActual + capActual + otherActual;
+                
+                const opBudget = parseFloat(op.budget) || 0;
+                const capBudget = parseFloat(cap.budget) || 0;
+                const otherBudget = parseFloat(other.budget) || 0;
+                const totalBudget = opBudget + capBudget + otherBudget;
+                const totalVariance = totalActual - totalBudget;
+
+                document.getElementById('ov-detailTotalActual').textContent = formatCurrency(totalActual);
+                document.getElementById('ov-detailTotalBudget').textContent = formatCurrency(totalBudget);
+                document.getElementById('ov-detailTotalVariance').textContent = (totalVariance >= 0 ? '+' : '') + formatCurrency(totalVariance);
+
+                // Labor
+                const lab = data.labor;
+                const dlReg = parseFloat(lab.dlReg) || 0;
+                const dlOT = parseFloat(lab.dlOT) || 0;
+                const ilReg = parseFloat(lab.ilReg) || 0;
+                const ilOT = parseFloat(lab.ilOT) || 0;
+                
+                const totalWorkforce = dlReg + dlOT + ilReg + ilOT;
+                const totalReg = dlReg + ilReg;
+                const totalOT = dlOT + ilOT;
+                const totalHours = totalReg + totalOT;
+                const otRate = totalHours > 0 ? (totalOT / totalHours) * 100 : 0;
+
+                document.getElementById('ov-detailWorkforce').textContent = formatNumber(totalWorkforce, 0);
+                document.getElementById('ov-detailHours').textContent = formatNumber(totalHours) + ' hrs';
+                document.getElementById('ov-detailOT').textContent = formatNumber(totalOT) + ' hrs';
+                document.getElementById('ov-detailOTRate').textContent = otRate.toFixed(1) + '%';
+                document.getElementById('ov-detailDLReg').textContent = formatNumber(dlReg) + ' hrs';
+                document.getElementById('ov-detailDLOT').textContent = formatNumber(dlOT) + ' hrs';
+                document.getElementById('ov-detailILReg').textContent = formatNumber(ilReg) + ' hrs';
+                document.getElementById('ov-detailILOT').textContent = formatNumber(ilOT) + ' hrs';
+            },
+
+            saveOVLineData: function() {
+                if (this.currentOVLine === 'summary') { alert('Cannot save to Summary.'); return; }
+
+                const data = getCurrentData().overview[this.currentOVLine];
+                
+                if (this.currentOVLine === 'production') {
+                    if (document.getElementById('ov_input_volumeActual')) data.volumeActual = document.getElementById('ov_input_volumeActual').value;
+                    if (document.getElementById('ov_input_volumeTarget')) data.volumeTarget = document.getElementById('ov_input_volumeTarget').value;
+                } else if (this.currentOVLine === 'labor') {
+                    if (document.getElementById('ov_input_dlReg')) data.dlReg = document.getElementById('ov_input_dlReg').value;
+                    if (document.getElementById('ov_input_dlOT')) data.dlOT = document.getElementById('ov_input_dlOT').value;
+                    if (document.getElementById('ov_input_ilReg')) data.ilReg = document.getElementById('ov_input_ilReg').value;
+                    if (document.getElementById('ov_input_ilOT')) data.ilOT = document.getElementById('ov_input_ilOT').value;
+                } else {
+                    if (document.getElementById('ov_input_actual')) data.actual = document.getElementById('ov_input_actual').value;
+                    if (document.getElementById('ov_input_budget')) data.budget = document.getElementById('ov_input_budget').value;
+                }
+                
+                alert(`Data saved for ${data.name}`);
+                this.calculateOVAll();
+                this.loadOVDetails();
+            },
+
+            clearOVCurrentLine: function() {
+                if (this.currentOVLine === 'summary') { alert('Cannot clear Summary.'); return; }
+
+                const data = getCurrentData().overview[this.currentOVLine];
+                
+                if (this.currentOVLine === 'production') {
+                    data.volumeActual = ''; data.volumeTarget = '';
+                } else if (this.currentOVLine === 'labor') {
+                    data.dlReg = ''; data.dlOT = ''; data.ilReg = ''; data.ilOT = '';
+                } else {
+                    data.actual = ''; data.budget = '';
+                }
+                
+                this.loadOVLineData();
+                this.calculateOVAll();
+            },
+
+            clearOVAllLines: function() {
+                if (confirm('Clear ALL overview data for this month?')) {
+                    const data = getCurrentData().overview;
+                    data.production.volumeActual = ''; data.production.volumeTarget = '';
+                    data.operational.actual = ''; data.operational.budget = '';
+                    data.capital.actual = ''; data.capital.budget = '';
+                    data.other.actual = ''; data.other.budget = '';
+                    data.labor.dlReg = ''; data.labor.dlOT = ''; data.labor.ilReg = ''; data.labor.ilOT = '';
+                    
+                    this.loadOVLineData();
+                    this.calculateOVAll();
+                    this.loadOVDetails();
+                }
+            },
+
+            calculateOVAll: function() {
+                const data = getCurrentData().overview;
+                
+                // Production
+                const volumeActual = parseFloat(data.production.volumeActual) || 0;
+                const volumeTarget = parseFloat(data.production.volumeTarget) || 0;
+                const volumePercent = volumeTarget > 0 ? (volumeActual / volumeTarget) * 100 : 0;
+                
+                document.getElementById('ov-prodValue').textContent = volumeActual ? formatNumber(volumeActual, 2) + ' MT' : '0 MT';
+                document.getElementById('ov-prodTarget').textContent = volumeTarget ? formatNumber(volumeTarget, 2) + ' MT' : '0 MT';
+                document.getElementById('ov-prodProgress').style.width = Math.min(volumePercent, 100) + '%';
+                document.getElementById('ov-prodPercent').textContent = volumePercent.toFixed(1) + '%';
+
+                // Operational Cost
+                const opActual = parseFloat(data.operational.actual) || 0;
+                const opBudget = parseFloat(data.operational.budget) || 0;
+                const opPercent = opBudget > 0 ? (opActual / opBudget) * 100 : 0;
+                document.getElementById('ov-opValue').textContent = formatCurrency(opActual);
+                document.getElementById('ov-opBudget').textContent = formatCurrency(opBudget);
+                document.getElementById('ov-opProgress').style.width = opBudget > 0 ? Math.min(opPercent, 100) + '%' : '0%';
+                document.getElementById('ov-opPercent').textContent = opPercent.toFixed(1) + '%';
+
+                // Capital
+                const capActual = parseFloat(data.capital.actual) || 0;
+                const capBudget = parseFloat(data.capital.budget) || 0;
+                const capPercent = capBudget > 0 ? (capActual / capBudget) * 100 : 0;
+                document.getElementById('ov-capValue').textContent = formatCurrency(capActual);
+                document.getElementById('ov-capBudget').textContent = formatCurrency(capBudget);
+                document.getElementById('ov-capProgress').style.width = capBudget > 0 ? Math.min(capPercent, 100) + '%' : '0%';
+                document.getElementById('ov-capPercent').textContent = capPercent.toFixed(1) + '%';
+
+                // Other Expenses
+                const expActual = parseFloat(data.other.actual) || 0;
+                const expBudget = parseFloat(data.other.budget) || 0;
+                const expPercent = expBudget > 0 ? (expActual / expBudget) * 100 : 0;
+                document.getElementById('ov-expValue').textContent = formatCurrency(expActual);
+                document.getElementById('ov-expBudget').textContent = formatCurrency(expBudget);
+                document.getElementById('ov-expProgress').style.width = expBudget > 0 ? Math.min(expPercent, 100) + '%' : '0%';
+                document.getElementById('ov-expPercent').textContent = expPercent.toFixed(1) + '%';
+
+                // Labor
+                const dlReg = parseFloat(data.labor.dlReg) || 0;
+                const dlOT = parseFloat(data.labor.dlOT) || 0;
+                const ilReg = parseFloat(data.labor.ilReg) || 0;
+                const ilOT = parseFloat(data.labor.ilOT) || 0;
+                
+                const totalWorkforce = dlReg + dlOT + ilReg + ilOT;
+                const totalReg = dlReg + ilReg;
+                const totalOT = dlOT + ilOT;
+                const totalHours = totalReg + totalOT;
+                const overallOTPercent = totalHours > 0 ? (totalOT / totalHours) * 100 : 0;
+                
+                document.getElementById('ov-totalWorkforce').textContent = formatNumber(totalWorkforce, 0);
+                document.getElementById('ov-otRate').textContent = overallOTPercent.toFixed(1) + '%';
+                document.getElementById('ov-otProgress').style.width = Math.min(overallOTPercent, 100) + '%';
+                
+                let laborStatus = 'Normal';
+                let statusClass = 'status-good';
+                if (overallOTPercent > 35) {
+                    laborStatus = 'Critical';
+                    statusClass = 'status-warning';
+                } else if (overallOTPercent > 25) {
+                    laborStatus = 'High';
+                    statusClass = 'status-neutral';
+                }
+                document.getElementById('ov-laborStatus').textContent = laborStatus;
+                document.getElementById('ov-laborStatus').className = 'status-badge ' + statusClass;
+
+                // Summary table
+                const totalActual = opActual + capActual + expActual;
+                const totalBudget = opBudget + capBudget + expBudget;
+                const totalVariance = totalActual - totalBudget;
+                const totalPercent = totalBudget > 0 ? (totalActual / totalBudget) * 100 : 0;
+                
+                document.getElementById('ov-totalCost').textContent = `Total: ${formatCurrency(totalActual)}`;
+
+                let tableHtml = '';
+                const categories = [
+                    { name: 'Operational', actual: opActual, budget: opBudget, percent: opPercent },
+                    { name: 'Capital', actual: capActual, budget: capBudget, percent: capPercent },
+                    { name: 'Other', actual: expActual, budget: expBudget, percent: expPercent }
+                ];
+                
+                categories.forEach(cat => {
+                    const variance = cat.actual - cat.budget;
+                    let statusClass = 'status-neutral';
+                    let statusText = 'No Budget';
+                    if (cat.budget > 0) {
+                        statusText = cat.actual <= cat.budget ? 'Under' : 'Over';
+                        statusClass = cat.actual <= cat.budget ? 'status-good' : 'status-warning';
+                    }
+                    
+                    tableHtml += `<tr>
+                        <td>${cat.name}</td>
+                        <td>${formatCurrency(cat.actual)}</td>
+                        <td>${formatCurrency(cat.budget)}</td>
+                        <td>${variance >= 0 ? '+' : ''}${formatCurrency(variance)}</td>
+                        <td>${cat.percent.toFixed(1)}%</td>
+                        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                    </tr>`;
+                });
+                
+                tableHtml += `<tr style="background-color: #fafbfc; font-weight: 600;">
+                    <td>TOTAL</td>
+                    <td>${formatCurrency(totalActual)}</td>
+                    <td>${formatCurrency(totalBudget)}</td>
+                    <td>${totalVariance >= 0 ? '+' : ''}${formatCurrency(totalVariance)}</td>
+                    <td>${totalPercent.toFixed(1)}%</td>
+                    <td><span class="status-badge ${totalBudget === 0 ? 'status-neutral' : (totalActual <= totalBudget ? 'status-good' : 'status-warning')}">${totalBudget === 0 ? 'No Budget' : (totalActual <= totalBudget ? 'Under' : 'Over')}</span></td>
+                </tr>`;
+                
+                document.getElementById('ov-summaryTable').innerHTML = tableHtml;
+            },
+
+            // ==================== COST FUNCTIONS ====================
+            currentCostLine: 'summary',
+
+            loadCostLineData: function() {
+                const selector = document.getElementById('cost-lineSelector');
+                if (!selector) return;
+                this.currentCostLine = selector.value;
+                const data = getCurrentData().cost[this.currentCostLine];
+                
+                if (this.currentCostLine === 'summary') {
+                    document.getElementById('cost-inputSections').innerHTML = `
+                        <div class="input-section" style="grid-column: span 3; text-align: center; padding: 40px;">
+                            <h4>SUMMARY</h4>
+                            <p>The Summary line is automatically calculated from all categories.</p>
+                            <p>Please select a specific category to input data.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                let html = `
+                    <div class="input-section" style="grid-column: span 3;">
+                        <h4>${data.name}</h4>
+                        <div class="input-grid" style="grid-template-columns: repeat(2, 1fr);">
+                            <div class="input-field"><label>Actual (₱)</label><input type="number" id="cost_input_actual" value="${data.actual || ''}" step="0.01" placeholder="₱"></div>
+                            <div class="input-field"><label>Budget (₱)</label><input type="number" id="cost_input_budget" value="${data.budget || ''}" step="0.01" placeholder="₱"></div>
+                        </div>
+                    </div>
+                `;
+
+                document.getElementById('cost-inputSections').innerHTML = html;
+            },
+
+            loadCostDetails: function() {
+                const selector = document.getElementById('cost-detailLine');
+                const lineKey = selector ? selector.value : 'summary';
+                const data = getCurrentData().cost;
+                
+                if (lineKey === 'summary') {
+                    document.getElementById('cost-detailTitle').textContent = 'All Categories';
+                    
+                    const op = parseFloat(data.operational.actual) || 0;
+                    const cap = parseFloat(data.capital.actual) || 0;
+                    const other = parseFloat(data.other.actual) || 0;
+                    const totalActual = op + cap + other;
+                    
+                    const opBudget = parseFloat(data.operational.budget) || 0;
+                    const capBudget = parseFloat(data.capital.budget) || 0;
+                    const otherBudget = parseFloat(data.other.budget) || 0;
+                    const totalBudget = opBudget + capBudget + otherBudget;
+                    const totalVariance = totalActual - totalBudget;
+                    const totalPercent = totalBudget > 0 ? (totalActual / totalBudget) * 100 : 0;
+                    
+                    document.getElementById('cost-detailActual').textContent = formatCurrency(totalActual);
+                    document.getElementById('cost-detailBudget').textContent = formatCurrency(totalBudget);
+                    document.getElementById('cost-detailVariance').textContent = (totalVariance >= 0 ? '+' : '') + formatCurrency(totalVariance);
+                    document.getElementById('cost-detailPercent').textContent = totalPercent.toFixed(1) + '%';
+                    
+                    let statusClass = 'status-neutral';
+                    let statusText = 'No Budget';
+                    if (totalBudget > 0) {
+                        statusText = totalActual <= totalBudget ? 'Under Budget' : 'Over Budget';
+                        statusClass = totalActual <= totalBudget ? 'status-good' : 'status-warning';
+                    }
+                    document.getElementById('cost-detailStatus').textContent = statusText;
+                    document.getElementById('cost-detailStatus').className = 'status-badge ' + statusClass;
+                    return;
+                }
+
+                const lineData = data[lineKey];
+                const actual = parseFloat(lineData.actual) || 0;
+                const budget = parseFloat(lineData.budget) || 0;
+                const variance = actual - budget;
+                const percent = budget > 0 ? (actual / budget) * 100 : 0;
+
+                document.getElementById('cost-detailTitle').textContent = lineData.name;
+                document.getElementById('cost-detailActual').textContent = formatCurrency(actual);
+                document.getElementById('cost-detailBudget').textContent = formatCurrency(budget);
+                document.getElementById('cost-detailVariance').textContent = (variance >= 0 ? '+' : '') + formatCurrency(variance);
+                document.getElementById('cost-detailPercent').textContent = percent.toFixed(1) + '%';
+                
+                let statusClass = 'status-neutral';
+                let statusText = 'No Budget';
+                if (budget > 0) {
+                    statusText = actual <= budget ? 'Under Budget' : 'Over Budget';
+                    statusClass = actual <= budget ? 'status-good' : 'status-warning';
+                }
+                document.getElementById('cost-detailStatus').textContent = statusText;
+                document.getElementById('cost-detailStatus').className = 'status-badge ' + statusClass;
+            },
+
+            saveCostLineData: function() {
+                if (this.currentCostLine === 'summary') { alert('Cannot save to Summary.'); return; }
+
+                const data = getCurrentData().cost[this.currentCostLine];
+                
+                if (document.getElementById('cost_input_actual')) data.actual = document.getElementById('cost_input_actual').value;
+                if (document.getElementById('cost_input_budget')) data.budget = document.getElementById('cost_input_budget').value;
+                
+                alert(`Data saved for ${data.name}`);
+                this.calculateCostAll();
+                this.loadCostDetails();
+            },
+
+            clearCostCurrentLine: function() {
+                if (this.currentCostLine === 'summary') { alert('Cannot clear Summary.'); return; }
+
+                const data = getCurrentData().cost[this.currentCostLine];
+                data.actual = ''; data.budget = '';
+                
+                this.loadCostLineData();
+                this.calculateCostAll();
+            },
+
+            clearCostAllLines: function() {
+                if (confirm('Clear ALL cost data for this month?')) {
+                    const data = getCurrentData().cost;
+                    data.operational.actual = ''; data.operational.budget = '';
+                    data.capital.actual = ''; data.capital.budget = '';
+                    data.other.actual = ''; data.other.budget = '';
+                    
+                    this.loadCostLineData();
+                    this.calculateCostAll();
+                    this.loadCostDetails();
+                }
+            },
+
+            calculateCostAll: function() {
+                const data = getCurrentData().cost;
+                
+                const opActual = parseFloat(data.operational.actual) || 0;
+                const capActual = parseFloat(data.capital.actual) || 0;
+                const otherActual = parseFloat(data.other.actual) || 0;
+                const totalActual = opActual + capActual + otherActual;
+                
+                const opBudget = parseFloat(data.operational.budget) || 0;
+                const capBudget = parseFloat(data.capital.budget) || 0;
+                const otherBudget = parseFloat(data.other.budget) || 0;
+                const totalBudget = opBudget + capBudget + otherBudget;
+                const totalPercent = totalBudget > 0 ? (totalActual / totalBudget) * 100 : 0;
+
+                document.getElementById('cost-totalActual').textContent = formatCurrency(totalActual);
+                document.getElementById('cost-totalBudget').textContent = formatCurrency(totalBudget);
+                document.getElementById('cost-totalProgress').style.width = Math.min(totalPercent, 100) + '%';
+
+                const opVariance = opActual - opBudget;
+                const capVariance = capActual - capBudget;
+                const otherVariance = otherActual - otherBudget;
+
+                document.getElementById('cost-opActual').textContent = formatCurrency(opActual);
+                document.getElementById('cost-opBudget').textContent = formatCurrency(opBudget);
+                document.getElementById('cost-opVariance').textContent = (opVariance >= 0 ? '+' : '') + formatCurrency(opVariance);
+                
+                document.getElementById('cost-capActual').textContent = formatCurrency(capActual);
+                document.getElementById('cost-capBudget').textContent = formatCurrency(capBudget);
+                document.getElementById('cost-capVariance').textContent = (capVariance >= 0 ? '+' : '') + formatCurrency(capVariance);
+                
+                document.getElementById('cost-expActual').textContent = formatCurrency(otherActual);
+                document.getElementById('cost-expBudget').textContent = formatCurrency(otherBudget);
+                document.getElementById('cost-expVariance').textContent = (otherVariance >= 0 ? '+' : '') + formatCurrency(otherVariance);
+
+                // Summary table
+                let tableHtml = '';
+                const categories = [
+                    { name: 'Operational', actual: opActual, budget: opBudget, percent: opBudget > 0 ? (opActual / opBudget) * 100 : 0 },
+                    { name: 'Capital', actual: capActual, budget: capBudget, percent: capBudget > 0 ? (capActual / capBudget) * 100 : 0 },
+                    { name: 'Other', actual: otherActual, budget: otherBudget, percent: otherBudget > 0 ? (otherActual / otherBudget) * 100 : 0 }
+                ];
+                
+                categories.forEach(cat => {
+                    const variance = cat.actual - cat.budget;
+                    let statusClass = 'status-neutral';
+                    let statusText = 'No Budget';
+                    if (cat.budget > 0) {
+                        statusText = cat.actual <= cat.budget ? 'Under' : 'Over';
+                        statusClass = cat.actual <= cat.budget ? 'status-good' : 'status-warning';
+                    }
+                    
+                    tableHtml += `<tr>
+                        <td>${cat.name}</td>
+                        <td>${formatCurrency(cat.actual)}</td>
+                        <td>${formatCurrency(cat.budget)}</td>
+                        <td>${variance >= 0 ? '+' : ''}${formatCurrency(variance)}</td>
+                        <td>${cat.percent.toFixed(1)}%</td>
+                        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                    </tr>`;
+                });
+                
+                document.getElementById('cost-summaryTable').innerHTML = tableHtml;
+                document.getElementById('cost-totalDisplay').textContent = `Total: ${formatCurrency(totalActual)}`;
+            },
+
+            // ==================== LABOR FUNCTIONS ====================
+            currentLabLine: 'summary',
+
+            loadLabLineData: function() {
+                const selector = document.getElementById('lab-lineSelector');
+                if (!selector) return;
+                this.currentLabLine = selector.value;
+                const data = getCurrentData().labor[this.currentLabLine];
+                
+                if (this.currentLabLine === 'summary') {
+                    document.getElementById('lab-inputSections').innerHTML = `
+                        <div class="input-section" style="grid-column: span 3; text-align: center; padding: 40px;">
+                            <h4>SUMMARY</h4>
+                            <p>The Summary line is automatically calculated from all labor types.</p>
+                            <p>Please select a specific labor type to input data.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                let html = `
+                    <div class="input-section" style="grid-column: span 3;">
+                        <h4>${data.name}</h4>
+                        <div class="input-grid" style="grid-template-columns: repeat(2, 1fr);">
+                            <div class="input-field"><label>Regular Hours</label><input type="number" id="lab_input_regular" value="${data.regular || ''}" step="0.01" placeholder="hrs"></div>
+                            <div class="input-field"><label>Overtime Hours</label><input type="number" id="lab_input_overtime" value="${data.overtime || ''}" step="0.01" placeholder="hrs"></div>
+                        </div>
+                    </div>
+                `;
+
+                document.getElementById('lab-inputSections').innerHTML = html;
+            },
+
+            loadLabDetails: function() {
+                const selector = document.getElementById('lab-detailLine');
+                const lineKey = selector ? selector.value : 'summary';
+                const data = getCurrentData().labor;
+                
+                if (lineKey === 'summary') {
+                    document.getElementById('lab-detailTitle').textContent = 'All Labor';
+                    
+                    const dlReg = parseFloat(data.dl.regular) || 0;
+                    const dlOT = parseFloat(data.dl.overtime) || 0;
+                    const ilReg = parseFloat(data.il.regular) || 0;
+                    const ilOT = parseFloat(data.il.overtime) || 0;
+                    
+                    const totalReg = dlReg + ilReg;
+                    const totalOT = dlOT + ilOT;
+                    const totalHours = totalReg + totalOT;
+                    const otRate = totalHours > 0 ? (totalOT / totalHours) * 100 : 0;
+                    
+                    document.getElementById('lab-detailReg').textContent = formatNumber(totalReg) + ' hrs';
+                    document.getElementById('lab-detailOT').textContent = formatNumber(totalOT) + ' hrs';
+                    document.getElementById('lab-detailTotal').textContent = formatNumber(totalHours) + ' hrs';
+                    document.getElementById('lab-detailPct').textContent = otRate.toFixed(1) + '%';
+                    
+                    let statusClass = 'status-neutral';
+                    let statusText = 'No Data';
+                    if (totalHours > 0) {
+                        if (otRate <= 25) { statusClass = 'status-good'; statusText = 'Normal'; }
+                        else if (otRate <= 35) { statusClass = 'status-neutral'; statusText = 'High'; }
+                        else { statusClass = 'status-warning'; statusText = 'Critical'; }
+                    }
+                    document.getElementById('lab-detailStatus').textContent = statusText;
+                    document.getElementById('lab-detailStatus').className = 'status-badge ' + statusClass;
+                    return;
+                }
+
+                const lineData = data[lineKey];
+                const reg = parseFloat(lineData.regular) || 0;
+                const ot = parseFloat(lineData.overtime) || 0;
+                const total = reg + ot;
+                const otRate = total > 0 ? (ot / total) * 100 : 0;
+
+                document.getElementById('lab-detailTitle').textContent = lineData.name;
+                document.getElementById('lab-detailReg').textContent = formatNumber(reg) + ' hrs';
+                document.getElementById('lab-detailOT').textContent = formatNumber(ot) + ' hrs';
+                document.getElementById('lab-detailTotal').textContent = formatNumber(total) + ' hrs';
+                document.getElementById('lab-detailPct').textContent = otRate.toFixed(1) + '%';
+                
+                let statusClass = 'status-neutral';
+                let statusText = 'No Data';
+                if (total > 0) {
+                    if (otRate <= 25) { statusClass = 'status-good'; statusText = 'Normal'; }
+                    else if (otRate <= 35) { statusClass = 'status-neutral'; statusText = 'High'; }
+                    else { statusClass = 'status-warning'; statusText = 'Critical'; }
+                }
+                document.getElementById('lab-detailStatus').textContent = statusText;
+                document.getElementById('lab-detailStatus').className = 'status-badge ' + statusClass;
+            },
+
+            saveLabLineData: function() {
+                if (this.currentLabLine === 'summary') { alert('Cannot save to Summary.'); return; }
+
+                const data = getCurrentData().labor[this.currentLabLine];
+                
+                if (document.getElementById('lab_input_regular')) data.regular = document.getElementById('lab_input_regular').value;
+                if (document.getElementById('lab_input_overtime')) data.overtime = document.getElementById('lab_input_overtime').value;
+                
+                alert(`Data saved for ${data.name}`);
+                this.calculateLabAll();
+                this.loadLabDetails();
+            },
+
+            clearLabCurrentLine: function() {
+                if (this.currentLabLine === 'summary') { alert('Cannot clear Summary.'); return; }
+
+                const data = getCurrentData().labor[this.currentLabLine];
+                data.regular = ''; data.overtime = '';
+                
+                this.loadLabLineData();
+                this.calculateLabAll();
+            },
+
+            clearLabAllLines: function() {
+                if (confirm('Clear ALL labor data for this month?')) {
+                    const data = getCurrentData().labor;
+                    data.dl.regular = ''; data.dl.overtime = '';
+                    data.il.regular = ''; data.il.overtime = '';
+                    
+                    this.loadLabLineData();
+                    this.calculateLabAll();
+                    this.loadLabDetails();
+                }
+            },
+
+            calculateLabAll: function() {
+                const data = getCurrentData().labor;
+                
+                const dlReg = parseFloat(data.dl.regular) || 0;
+                const dlOT = parseFloat(data.dl.overtime) || 0;
+                const ilReg = parseFloat(data.il.regular) || 0;
+                const ilOT = parseFloat(data.il.overtime) || 0;
+                
+                const dlTotal = dlReg + dlOT;
+                const ilTotal = ilReg + ilOT;
+                const totalReg = dlReg + ilReg;
+                const totalOT = dlOT + ilOT;
+                const totalHours = totalReg + totalOT;
+                const totalWorkforce = dlTotal + ilTotal;
+                
+                const overallOTRate = totalHours > 0 ? (totalOT / totalHours) * 100 : 0;
+                const dlOTRate = dlReg > 0 ? (dlOT / dlReg) * 100 : 0;
+                const ilOTRate = ilReg > 0 ? (ilOT / ilReg) * 100 : 0;
+
+                document.getElementById('lab-totalWorkforce').textContent = formatNumber(totalWorkforce, 0);
+                document.getElementById('lab-dlTotal').textContent = formatNumber(dlTotal, 0);
+                document.getElementById('lab-ilTotal').textContent = formatNumber(ilTotal, 0);
+                document.getElementById('lab-totalHours').textContent = formatNumber(totalHours) + ' hrs';
+                document.getElementById('lab-regHours').textContent = formatNumber(totalReg) + ' hrs';
+                document.getElementById('lab-otHours').textContent = formatNumber(totalOT) + ' hrs';
+                document.getElementById('lab-otRate').textContent = overallOTRate.toFixed(1) + '%';
+                document.getElementById('lab-otProgress').style.width = Math.min(overallOTRate, 100) + '%';
+                document.getElementById('lab-dlOTPct').textContent = dlOTRate.toFixed(1) + '%';
+                document.getElementById('lab-ilOTPct').textContent = ilOTRate.toFixed(1) + '%';
+
+                // Summary table
+                let tableHtml = '';
+                const laborTypes = [
+                    { name: 'Direct Labor', reg: dlReg, ot: dlOT, total: dlTotal, pct: dlOTRate },
+                    { name: 'Indirect Labor', reg: ilReg, ot: ilOT, total: ilTotal, pct: ilOTRate }
+                ];
+                
+                laborTypes.forEach(type => {
+                    let statusClass = 'status-neutral';
+                    let statusText = 'No Data';
+                    if (type.reg > 0) {
+                        if (type.pct <= 25) { statusClass = 'status-good'; statusText = 'Normal'; }
+                        else if (type.pct <= 35) { statusClass = 'status-neutral'; statusText = 'High'; }
+                        else { statusClass = 'status-warning'; statusText = 'Critical'; }
+                    }
+                    
+                    tableHtml += `<tr>
+                        <td>${type.name}</td>
+                        <td>${formatNumber(type.reg, 0)}</td>
+                        <td>${formatNumber(type.ot, 0)}</td>
+                        <td>${formatNumber(type.total, 0)}</td>
+                        <td>${type.pct.toFixed(1)}%</td>
+                        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                    </tr>`;
+                });
+                
+                tableHtml += `<tr style="background-color: #fafbfc; font-weight: 600;">
+                    <td>TOTAL</td>
+                    <td>${formatNumber(totalReg, 0)}</td>
+                    <td>${formatNumber(totalOT, 0)}</td>
+                    <td>${formatNumber(totalHours, 0)}</td>
+                    <td>${overallOTRate.toFixed(1)}%</td>
+                    <td><span class="status-badge ${totalHours === 0 ? 'status-neutral' : (overallOTRate <= 25 ? 'status-good' : (overallOTRate <= 35 ? 'status-neutral' : 'status-warning'))}">${totalHours === 0 ? 'No Data' : (overallOTRate <= 25 ? 'Normal' : (overallOTRate <= 35 ? 'High' : 'Critical'))}</span></td>
+                </tr>`;
+                
+                document.getElementById('lab-summaryTable').innerHTML = tableHtml;
+                document.getElementById('lab-totalDisplay').textContent = `Total Hours: ${formatNumber(totalHours)}`;
+            }
+        };
+
+        // Initialize
+        window.onload = function() {
+            handlers.calculateOVAll();
+            handlers.calculateCostAll();
+            handlers.calculateLabAll();
+            updateTimestamp();
+        };
+    </script>
+</body>
+</html>

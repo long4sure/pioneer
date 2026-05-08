@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProdMAX | Production Command Center</title>
+    <!-- Bootstrap 5 CSS + Icons + Font -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        :root {
+            --primary-dark: #0a2f2a;
+            --primary-teal: #1e9f8c;
+            --primary-light: #e6f4f2;
+            --warning-soft: #fff3e0;
+            --danger-soft: #ffe8e6;
+        }
+        body {
+            background: #eef2f5;
+            font-family: 'Segoe UI', system-ui, -apple-system, 'Inter', sans-serif;
+        }
+        .dashboard-card {
+            border: none;
+            border-radius: 24px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.03), 0 2px 4px rgba(0,0,0,0.05);
+            transition: transform 0.1s ease, box-shadow 0.2s;
+        }
+        .dashboard-card:hover {
+            box-shadow: 0 12px 28px rgba(0,0,0,0.08);
+        }
+        .stat-value {
+            font-size: 2.2rem;
+            font-weight: 800;
+            line-height: 1.2;
+            color: #1a4a42;
+        }
+        .progress-thin {
+            height: 6px;
+            border-radius: 10px;
+        }
+        .badge-status {
+            padding: 5px 12px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.7rem;
+        }
+        .bg-excellent { background: #d4edda; color: #0f5c2f; }
+        .bg-good { background: #d1ecf1; color: #0c6b7e; }
+        .bg-warning-custom { background: #fff3e0; color: #b95b0d; }
+        .bg-critical { background: #fce4e4; color: #bc3f2e; }
+        .bg-neutral { background: #eef2f5; color: #5f6c6e; }
+        .nav-module-btn {
+            border-radius: 50px;
+            padding: 10px 28px;
+            font-weight: 600;
+            transition: all 0.2s;
+            background: white;
+            border: 1px solid #dee2e6;
+            color: #2c5a52;
+        }
+        .nav-module-btn.active {
+            background: var(--primary-teal);
+            border-color: var(--primary-teal);
+            color: white;
+            box-shadow: 0 4px 10px rgba(30,159,140,0.2);
+        }
+        .nav-module-btn:hover:not(.active) {
+            background: #f1f9f7;
+            border-color: #cbdcd8;
+        }
+        .tab-custom .nav-link {
+            border: none;
+            color: #5a7670;
+            font-weight: 600;
+            padding: 10px 20px;
+            border-radius: 40px;
+            margin-right: 6px;
+        }
+        .tab-custom .nav-link.active {
+            background: var(--primary-light);
+            color: var(--primary-teal);
+        }
+        .input-group-custom input, .input-group-custom select {
+            border-radius: 20px;
+            border: 1px solid #e2e8f0;
+            padding: 8px 16px;
+        }
+        .table thead th {
+            background: #f9fbfc;
+            color: #2c6e63;
+            font-weight: 700;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            border-bottom: 2px solid #e4edf0;
+        }
+        .footer-note {
+            font-size: 0.7rem;
+            color: #8da39c;
+        }
+        .kpi-icon {
+            font-size: 2rem;
+            color: var(--primary-teal);
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container-lg py-4">
+    <!-- Header with filters -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
+        <div class="d-flex align-items-center gap-3">
+            <i class="bi bi-speedometer2 fs-1" style="color: #1e9f8c;"></i>
+            <h1 class="display-6 fw-bold" style="color: #1a4a42;">PRODMAX <span class="fw-light text-secondary">| Command Center</span></h1>
+        </div>
+        <div class="d-flex gap-3 mt-2 mt-sm-0">
+            <div class="bg-white rounded-pill px-3 py-2 shadow-sm">
+                <i class="bi bi-calendar3 me-1 text-teal"></i>
+                <select id="globalYear" class="border-0 bg-transparent fw-semibold" style="outline: none;"></select>
+                <span class="mx-1 text-muted">/</span>
+                <select id="globalMonth" class="border-0 bg-transparent fw-semibold" style="outline: none;"></select>
+            </div>
+            <div class="bg-white rounded-pill px-3 py-2 shadow-sm">
+                <i class="bi bi-clock-history me-1"></i>
+                <span id="liveTimestamp" class="small">—</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Module Selector (3 pillars) -->
+    <div class="d-flex flex-wrap gap-2 mb-4">
+        <button class="btn nav-module-btn" data-module="utilization"><i class="bi bi-cpu me-2"></i>Machine Utilization</button>
+        <button class="btn nav-module-btn" data-module="wastage"><i class="bi bi-trash3 me-2"></i>Output & Waste</button>
+        <button class="btn nav-module-btn" data-module="scheduling"><i class="bi bi-calendar-check me-2"></i>Scheduling Attainment</button>
+    </div>
+
+    <!-- Dynamic content panel -->
+    <div id="dynamicPanel"></div>
+
+    <div class="footer-note text-end mt-4 pt-2 border-top">
+        <i class="bi bi-database"></i> Persistent per month/year | Auto-calculated KPIs | Real-time insights
+    </div>
+</div>
+
+<script>
+    // ======================= DATA STRUCTURES =======================
+    const YEARS = ['2023', '2024', '2025'];
+    const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    
+    // --- LINE DEFINITIONS ---
+    const UTIL_LINES = ['L06_FILLING','L06_MIXER','L04_FILLING','L04_MIXING','L03_ITALY','L03_KOREA','L01_MIXER','L01_MILLING','L07_TUBE','L09_EPS','L10_BOND','L11_SILICONE','L12_EPOXY','L13_WATER','L14_FILLING','L14_MIXING'];
+    const WASTE_LINES = ['L06_EPOXY','L04B_ELASTO','L03_CYANO','L01_COATINGS','L07_TUBE','L09_EPS','L10_BOND','L11_SILICONE','L12_EPOXY','L13_WATER','L14','L05_CLAY','L02_BOTTLE','LABELING'];
+    const SCHED_LINES = ['L06_EPOXY','L04B_ELASTO','L03_CYANO','L01_COATINGS','L07_TUBE','L09_EPS','L10_BOND','L11_SILICONE','L12_EPOXY','L13_WATER','L14','L05_CLAY','L02_BOTTLE'];
+    
+    // Names mapping
+    const utilNames = { summary:'All Lines', L06_FILLING:'LINE6 Filling', L06_MIXER:'LINE6 Mixer', L04_FILLING:'LINE4 Filling', L04_MIXING:'LINE4 Mixing', L03_ITALY:'LINE3 Italy', L03_KOREA:'LINE3 Korea', L01_MIXER:'L01 Mixer', L01_MILLING:'L01 Milling', L07_TUBE:'LINE7 Tube', L09_EPS:'LINE9 EPS', L10_BOND:'LINE10 Bond', L11_SILICONE:'LINE11 Silicone', L12_EPOXY:'LINE12 Epoxy', L13_WATER:'LINE13 Water', L14_FILLING:'LINE14 Filling', L14_MIXING:'LINE14 Mixing' };
+    const wasteNames = { summary:'All Lines', L06_EPOXY:'Epoxy L06', L04B_ELASTO:'Elasto L04B', L03_CYANO:'Cyano Tube', L01_COATINGS:'Coatings L01', L07_TUBE:'Epoxy Tube', L09_EPS:'EPS Line', L10_BOND:'Contact Bond', L11_SILICONE:'Silicone', L12_EPOXY:'Epoxy Based', L13_WATER:'Water Based', L14:'Line14', L05_CLAY:'Epoxy Clay', L02_BOTTLE:'Cyno Bottle', LABELING:'Labeling' };
+    const schedNames = { summary:'All Lines', L06_EPOXY:'Epoxy L06', L04B_ELASTO:'Elasto L04B', L03_CYANO:'Cyano Tube', L01_COATINGS:'Coatings L01', L07_TUBE:'Epoxy Tube', L09_EPS:'EPS Line', L10_BOND:'Contact Bond', L11_SILICONE:'Silicone', L12_EPOXY:'Epoxy Special', L13_WATER:'Water Special', L14:'Line14', L05_CLAY:'Epoxy Clay', L02_BOTTLE:'Cyno Bottle' };
+    
+    const utilCategories = ['Actual Productive Time','No Production Plan','No Head Count Allocation','Change Over Time','Meeting','Sanitation Time','Start-up Time/Setup','Shutdown/cooldown','Testing Time','Breaktime','Preventive Maintenance','Force Majeure','Electrical Breakdown','Mechanical Breakdown','Materials Supply','Sorting/Reworking','Technical Downtime(QA & RND)','No Manpower','UDT-Meeting','No OT','No Bulkmix/No Kettle','Transfer','Idle time'];
+    const utilKeys = ['productive','noPlan','noHc','changeOver','meeting','sanitation','startup','shutdown','testing','breaktime','pm','forceMajeure','elecBreakdown','mechBreakdown','materialsSupply','sorting','techDowntime','noManpower','udtMeeting','noOt','noBulkmix','transfer','idle'];
+    
+    // --- GLOBAL 3D DATABASE ---
+    let DB = {};
+    function initDatabase() {
+        YEARS.forEach(y => {
+            DB[y] = {};
+            MONTHS.forEach(m => {
+                DB[y][m] = { utilization: {}, wastage: {}, scheduling: {} };
+                // Utilization lines
+                UTIL_LINES.forEach(line => {
+                    let obj = { name: utilNames[line] || line };
+                    utilKeys.forEach(k => obj[k] = '');
+                    obj.machinesAvail = ''; obj.machinesUsed = ''; obj.prodDays = '';
+                    DB[y][m].utilization[line] = obj;
+                });
+                DB[y][m].utilization.summary = { name: 'SUMMARY' };
+                // Waste lines
+                WASTE_LINES.forEach(line => {
+                    DB[y][m].wastage[line] = { name: wasteNames[line] || line, fgOutput: '', reprocess: '', rejection: '', waste: '' };
+                });
+                DB[y][m].wastage.summary = { name: 'SUMMARY' };
+                // Scheduling lines
+                SCHED_LINES.forEach(line => {
+                    DB[y][m].scheduling[line] = { name: schedNames[line] || line, actualOutput: '', plannedOutput: '' };
+                });
+                DB[y][m].scheduling.summary = { name: 'SUMMARY' };
+            });
+        });
+    }
+    initDatabase();
+    
+    let currentModule = 'utilization';
+    let currentTab = 'overview';
+    let currentSelectedLine = null; // for input/details
+    
+    // helpers
+    function getCurrentData() {
+        let y = document.getElementById('globalYear').value;
+        let m = document.getElementById('globalMonth').value;
+        return DB[y][m];
+    }
+    function updateTimestamp() {
+        let now = new Date();
+        document.getElementById('liveTimestamp').innerText = now.toLocaleString();
+    }
+    
+    // =============== RENDER ENGINE ===============
+    function render() {
+        const panel = document.getElementById('dynamicPanel');
+        if (currentModule === 'utilization') panel.innerHTML = renderUtilizationModule();
+        else if (currentModule === 'wastage') panel.innerHTML = renderWastageModule();
+        else panel.innerHTML = renderSchedulingModule();
+        
+        // attach tab events dynamically
+        document.querySelectorAll('.module-tab-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                currentTab = btn.dataset.tab;
+                render();
+            });
+        });
+        // attach line selectors for input/details after render
+        if (currentModule === 'utilization' && (currentTab === 'input' || currentTab === 'details')) attachUtilSelectors();
+        if (currentModule === 'wastage' && (currentTab === 'input' || currentTab === 'details')) attachWasteSelectors();
+        if (currentModule === 'scheduling' && (currentTab === 'input' || currentTab === 'details')) attachSchedSelectors();
+    }
+    
+    // ------------------- UTILIZATION MODULE ------------------
+    function renderUtilizationModule() {
+        let tabs = `
+            <ul class="nav nav-tabs tab-custom mb-4 border-0 gap-2">
+                <li class="nav-item"><button class="nav-link ${currentTab === 'overview' ? 'active' : ''} module-tab-btn" data-tab="overview"><i class="bi bi-speedometer2"></i> Overview</button></li>
+                <li class="nav-item"><button class="nav-link ${currentTab === 'details' ? 'active' : ''} module-tab-btn" data-tab="details"><i class="bi bi-table"></i> Line Details</button></li>
+                <li class="nav-item"><button class="nav-link ${currentTab === 'input' ? 'active' : ''} module-tab-btn" data-tab="input"><i class="bi bi-pencil-square"></i> Data Input</button></li>
+            </ul>
+        `;
+        if (currentTab === 'overview') return tabs + renderUtilOverview();
+        if (currentTab === 'details') return tabs + renderUtilDetails();
+        return tabs + renderUtilInput();
+    }
+    
+    function renderUtilOverview() {
+        const dataSet = getCurrentData().utilization;
+        let totalProd = 0, totalTime = 0, linesWithData = 0, totalMachAvail = 0, totalMachUsed = 0;
+        let lineUtilPercentages = [];
+        UTIL_LINES.forEach(line => {
+            let d = dataSet[line];
+            let prod = parseFloat(d.productive) || 0;
+            let lineTotal = utilKeys.reduce((sum,k) => sum + (parseFloat(d[k])||0), 0);
+            if (lineTotal > 0) linesWithData++;
+            totalProd += prod;
+            totalTime += lineTotal;
+            if (lineTotal > 0) lineUtilPercentages.push((prod/lineTotal)*100);
+            totalMachAvail += parseFloat(d.machinesAvail) || 0;
+            totalMachUsed += parseFloat(d.machinesUsed) || 0;
+        });
+        let overallUtil = totalTime > 0 ? (totalProd/totalTime)*100 : 0;
+        let avgUtil = lineUtilPercentages.length ? lineUtilPercentages.reduce((a,b)=>a+b,0)/lineUtilPercentages.length : 0;
+        
+        // Top downtime causes
+        let downtimeSum = {};
+        utilKeys.forEach((key, idx) => {
+            if (key === 'productive') return;
+            let sum = 0;
+            UTIL_LINES.forEach(line => sum += parseFloat(dataSet[line][key]) || 0);
+            if (sum > 0) downtimeSum[utilCategories[idx]] = sum;
+        });
+        let topDowntime = Object.entries(downtimeSum).sort((a,b)=>b[1]-a[1]).slice(0,4);
+        
+        let tableRows = UTIL_LINES.map(line => {
+            let d = dataSet[line];
+            let prod = parseFloat(d.productive) || 0;
+            let total = utilKeys.reduce((s,k)=> s + (parseFloat(d[k])||0),0);
+            let utilPct = total > 0 ? (prod/total)*100 : 0;
+            let statusClass = total===0 ? 'bg-neutral' : (utilPct>=70 ? 'bg-excellent' : utilPct>=50 ? 'bg-good' : utilPct>=30 ? 'bg-warning-custom' : 'bg-critical');
+            let statusText = total===0 ? 'No Data' : (utilPct>=70 ? 'Excellent' : utilPct>=50 ? 'Good' : utilPct>=30 ? 'Warning' : 'Critical');
+            return ` 
+                <tr>
+                    <td class="fw-semibold">${d.name}</td>
+                    <td>${prod.toFixed(1)} hrs</td>
+                    <td>${total.toFixed(1)} hrs</td>
+                    <td>${utilPct.toFixed(1)}%</td>
+                    <td><span class="badge-status ${statusClass}">${statusText}</span></td>
+                </tr>
+            `;
+        }).join('');
+        
+        return `
+            <div class="row g-4 mb-4">
+                <div class="col-md-6 col-lg-3"><div class="dashboard-card card p-3 h-100"><div class="d-flex justify-content-between"><span class="text-muted">Overall Utilization</span><i class="bi bi-graph-up kpi-icon"></i></div><div class="stat-value">${overallUtil.toFixed(1)}%</div><div class="progress progress-thin mt-2"><div class="progress-bar bg-success" style="width: ${overallUtil}%"></div></div><div class="mt-2 small">Productive: ${totalProd.toFixed(1)} hrs / Total: ${totalTime.toFixed(1)} hrs</div></div></div>
+                <div class="col-md-6 col-lg-3"><div class="dashboard-card card p-3 h-100"><div class="d-flex justify-content-between"><span class="text-muted">Machine Summary</span><i class="bi bi-cpu kpi-icon"></i></div><div class="stat-value">${UTIL_LINES.length}</div><div>Lines with data: ${linesWithData}</div><div>Avg Utilization/Line: ${avgUtil.toFixed(1)}%</div><div>Machines avail: ${totalMachAvail.toFixed(0)}</div></div></div>
+                <div class="col-md-6 col-lg-3"><div class="dashboard-card card p-3 h-100"><div class="d-flex justify-content-between"><span class="text-muted">⏱️ Top Downtime</span><i class="bi bi-stopwatch kpi-icon"></i></div><div class="mt-1">${topDowntime.map(([name,val])=>`<div class="d-flex justify-content-between small"><span>${name}</span><span class="fw-bold">${val.toFixed(1)} hrs</span></div>`).join('') || '<div class="text-muted">— no downtime recorded —</div>'}</div></div></div>
+            </div>
+            <div class="dashboard-card card p-0 overflow-hidden"><div class="card-header bg-white fw-bold"><i class="bi bi-view-list me-2"></i>Machine Utilization by Line</div><div class="table-responsive"><table class="table table-hover align-middle mb-0"><thead><tr><th>Line</th><th>Productive (hrs)</th><th>Total Time</th><th>Utilization</th><th>Status</th></tr></thead><tbody>${tableRows}</tbody></table></div></div>
+        `;
+    }
+    
+    function renderUtilDetails() {
+        return `
+            <div class="dashboard-card card p-4">
+                <label class="fw-semibold mb-2"><i class="bi bi-filter"></i> Select Production Line</label>
+                <select id="utilDetailLineSelect" class="form-select w-auto mb-4 rounded-pill" style="max-width: 300px;">${UTIL_LINES.map(l=>`<option value="${l}">${utilNames[l]}</option>`).join('')}</select>
+                <div id="utilDetailContent"></div>
+            </div>
+        `;
+    }
+    
+    function attachUtilSelectors() {
+        let sel = document.getElementById('utilDetailLineSelect');
+        if(sel) {
+            sel.addEventListener('change', () => updateUtilDetail(sel.value));
+            updateUtilDetail(sel.value);
+        }
+        // input selector
+        let inputSel = document.getElementById('utilInputLineSelect');
+        if(inputSel) {
+            inputSel.addEventListener('change', () => loadUtilInputFields(inputSel.value));
+            loadUtilInputFields(inputSel.value);
+            document.getElementById('saveUtilBtn')?.addEventListener('click', saveUtilData);
+            document.getElementById('clearUtilBtn')?.addEventListener('click', clearUtilLine);
+        }
+    }
+    
+    function updateUtilDetail(lineKey) {
+        let data = getCurrentData().utilization[lineKey];
+        let total = utilKeys.reduce((s,k)=> s + (parseFloat(data[k])||0),0);
+        let rows = utilCategories.map((cat,idx) => {
+            let val = parseFloat(data[utilKeys[idx]]) || 0;
+            let pct = total>0 ? (val/total*100) : 0;
+            return `<div class="d-flex justify-content-between border-bottom py-2"><span class="text-secondary">${cat}</span><span><strong>${val.toFixed(1)} hrs</strong> (${pct.toFixed(1)}%)</span></div>`;
+        }).join('');
+        let summaryHtml = `<div class="mt-3 p-3 bg-light rounded-3"><div class="row"><div class="col-4"><i class="bi bi-pc-display"></i> Machines Avail: ${data.machinesAvail || 0}</div><div class="col-4"><i class="bi bi-tools"></i> Machines Used: ${data.machinesUsed || 0}</div><div class="col-4"><i class="bi bi-calendar-week"></i> Prod Days: ${data.prodDays || 0}</div></div></div>`;
+        document.getElementById('utilDetailContent').innerHTML = `<div class="fw-bold fs-6 mb-2">📊 ${data.name} - Full breakdown</div>${rows}${summaryHtml}`;
+    }
+    
+    function renderUtilInput() {
+        return `
+            <div class="dashboard-card card p-4">
+                <h6 class="mb-3"><i class="bi bi-database-add"></i> Machine Utilization Data Entry</h6>
+                <select id="utilInputLineSelect" class="form-select mb-4 rounded-pill w-auto">${UTIL_LINES.map(l=>`<option value="${l}">${utilNames[l]}</option>`).join('')}</select>
+                <div id="utilInputFieldsContainer" class="row g-3"></div>
+                <div class="d-flex gap-2 mt-4"><button class="btn btn-outline-danger" id="clearUtilBtn"><i class="bi bi-eraser"></i> Clear Line</button><button class="btn btn-primary" id="saveUtilBtn" style="background:#1e9f8c; border:none;"><i class="bi bi-save"></i> Save Data</button></div>
+            </div>
+        `;
+    }
+    
+    function loadUtilInputFields(line) {
+        let data = getCurrentData().utilization[line];
+        let fieldsHtml = `<div class="col-md-12"><div class="row g-3">${utilKeys.map((k,idx)=>`<div class="col-md-4 col-lg-3"><label class="form-label small fw-semibold">${utilCategories[idx]}</label><input type="number" step="0.1" class="form-control rounded-pill" id="util_${k}" value="${data[k]||''}" placeholder="hrs"></div>`).join('')}</div></div>
+        <div class="col-md-4"><label>Machines Available</label><input class="form-control" id="util_machAvail" value="${data.machinesAvail||''}"></div>
+        <div class="col-md-4"><label>Machines Used</label><input class="form-control" id="util_machUsed" value="${data.machinesUsed||''}"></div>
+        <div class="col-md-4"><label>Production Days</label><input class="form-control" id="util_prodDays" value="${data.prodDays||''}"></div>`;
+        document.getElementById('utilInputFieldsContainer').innerHTML = fieldsHtml;
+    }
+    
+    function saveUtilData() {
+        let line = document.getElementById('utilInputLineSelect').value;
+        let target = getCurrentData().utilization[line];
+        utilKeys.forEach(k => { let inp = document.getElementById(`util_${k}`); if(inp) target[k] = inp.value; });
+        target.machinesAvail = document.getElementById('util_machAvail')?.value || '';
+        target.machinesUsed = document.getElementById('util_machUsed')?.value || '';
+        target.prodDays = document.getElementById('util_prodDays')?.value || '';
+        alert(`✅ Saved: ${target.name}`);
+        render();
+    }
+    function clearUtilLine() {
+        let line = document.getElementById('utilInputLineSelect').value;
+        let target = getCurrentData().utilization[line];
+        utilKeys.forEach(k => target[k] = '');
+        target.machinesAvail = target.machinesUsed = target.prodDays = '';
+        loadUtilInputFields(line);
+        alert(`Cleared ${target.name}`);
+        render();
+    }
+    
+    // ------------------- WASTAGE MODULE (condensed but full) ------------------
+    function renderWastageModule() {
+        let tabs = `<ul class="nav nav-tabs tab-custom mb-4 border-0 gap-2"><li><button class="nav-link ${currentTab==='overview'?'active':''} module-tab-btn" data-tab="overview"><i class="bi bi-pie-chart"></i> Overview</button></li><li><button class="nav-link ${currentTab==='details'?'active':''} module-tab-btn" data-tab="details"><i class="bi bi-info-circle"></i> Line Details</button></li><li><button class="nav-link ${currentTab==='input'?'active':''} module-tab-btn" data-tab="input"><i class="bi bi-pencil"></i> Input</button></li></ul>`;
+        if(currentTab==='overview') return tabs + renderWasteOverview();
+        if(currentTab==='details') return tabs + renderWasteDetails();
+        return tabs + renderWasteInput();
+    }
+    function renderWasteOverview() {
+        let dataSet = getCurrentData().wastage;
+        let totalFG=0, totalWaste=0, linesActive=0;
+        WASTE_LINES.forEach(l => { let fg=parseFloat(dataSet[l].fgOutput)||0; if(fg>0) linesActive++; totalFG+=fg; totalWaste+=parseFloat(dataSet[l].waste)||0; });
+        let wastePct = (totalFG+totalWaste)>0 ? (totalWaste/(totalFG+totalWaste))*100 : 0;
+        let rows = WASTE_LINES.map(l=>{
+            let d=dataSet[l]; let fg=parseFloat(d.fgOutput)||0; let waste=parseFloat(d.waste)||0; let pct=(fg+waste)>0?(waste/(fg+waste))*100:0;
+            let status=fg===0?'bg-neutral':(pct<=2?'bg-excellent':pct<=5?'bg-good':pct<=8?'bg-warning-custom':'bg-critical');
+            let text=fg===0?'No Data':(pct<=2?'Excellent':pct<=5?'Good':pct<=8?'Warning':'High Waste');
+            return `<tr><td class="fw-semibold">${d.name}</td><td>${fg.toFixed(1)}</td><td>${parseFloat(d.reprocess)||0}</td><td>${parseFloat(d.rejection)||0}</td><td>${(fg+parseFloat(d.reprocess||0)-parseFloat(d.rejection||0)).toFixed(1)}</td><td>${waste.toFixed(1)}</td><td>${pct.toFixed(1)}%</td><td><span class="badge-status ${status}">${text}</span></td></tr>`;
+        }).join('');
+        return `<div class="row g-4 mb-4"><div class="col-md-4"><div class="dashboard-card card p-3"><div>Total Output (FG)</div><div class="stat-value">${totalFG.toFixed(1)} kg</div><div>Waste: ${totalWaste.toFixed(1)} kg (${wastePct.toFixed(1)}%)</div><div class="progress progress-thin mt-2"><div class="progress-bar bg-danger" style="width: ${Math.min(wastePct,40)}%"></div></div></div></div><div class="col-md-4"><div class="dashboard-card card p-3"><div>Active Lines</div><div class="stat-value">${linesActive}/${WASTE_LINES.length}</div><div>Avg waste ratio: ${wastePct.toFixed(1)}%</div></div></div></div><div class="dashboard-card card p-0"><div class="table-responsive"><table class="table table-hover"><thead><tr><th>Line</th><th>FG</th><th>Reprocess</th><th>Rejection</th><th>Net</th><th>Waste</th><th>Waste%</th><th>Status</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
+    }
+    function renderWasteDetails() { return `<div class="dashboard-card card p-4"><select id="wasteDetailSelect" class="form-select w-auto rounded-pill mb-3">${WASTE_LINES.map(l=>`<option value="${l}">${wasteNames[l]}</option>`).join('')}</select><div id="wasteDetailPanel"></div></div>`; }
+    function renderWasteInput() { return `<div class="dashboard-card card p-4"><select id="wasteInputSelect" class="form-select w-auto rounded-pill mb-3">${WASTE_LINES.map(l=>`<option value="${l}">${wasteNames[l]}</option>`).join('')}</select><div id="wasteInputFields" class="row g-3"></div><div class="mt-3 d-flex gap-2"><button class="btn btn-outline-danger" id="clearWasteBtn">Clear</button><button class="btn btn-primary" id="saveWasteBtn" style="background:#1e9f8c;">Save</button></div></div>`; }
+    function attachWasteSelectors() {
+        let detSel = document.getElementById('wasteDetailSelect');
+        if(detSel) { detSel.onchange = () => updateWasteDetail(detSel.value); updateWasteDetail(detSel.value); }
+        let inpSel = document.getElementById('wasteInputSelect');
+        if(inpSel) { inpSel.onchange = () => loadWasteInputFields(inpSel.value); loadWasteInputFields(inpSel.value); document.getElementById('saveWasteBtn')?.addEventListener('click',saveWasteData); document.getElementById('clearWasteBtn')?.addEventListener('click',clearWasteLine); }
+    }
+    function updateWasteDetail(line) { let d=getCurrentData().wastage[line]; let fg=parseFloat(d.fgOutput)||0, waste=parseFloat(d.waste)||0, pct=(fg+waste)>0?(waste/(fg+waste))*100:0; document.getElementById('wasteDetailPanel').innerHTML=`<div class="card bg-light"><div class="card-body"><h6>${d.name}</h6><div>FG: ${fg.toFixed(1)} kg</div><div>Reprocess: ${parseFloat(d.reprocess)||0}</div><div>Rejection: ${parseFloat(d.rejection)||0}</div><div>Waste: ${waste.toFixed(1)} kg (${pct.toFixed(1)}%)</div></div></div>`; }
+    function loadWasteInputFields(line) { let d=getCurrentData().wastage[line]; document.getElementById('wasteInputFields').innerHTML=`<div class="col-md-3"><label>FG Output</label><input id="w_fg" class="form-control" value="${d.fgOutput||''}"></div><div class="col-md-3"><label>Reprocess</label><input id="w_reproc" class="form-control" value="${d.reprocess||''}"></div><div class="col-md-3"><label>Rejection</label><input id="w_reject" class="form-control" value="${d.rejection||''}"></div><div class="col-md-3"><label>Waste</label><input id="w_waste" class="form-control" value="${d.waste||''}"></div>`; }
+    function saveWasteData() { let line=document.getElementById('wasteInputSelect').value; let tgt=getCurrentData().wastage[line]; tgt.fgOutput=document.getElementById('w_fg').value; tgt.reprocess=document.getElementById('w_reproc').value; tgt.rejection=document.getElementById('w_reject').value; tgt.waste=document.getElementById('w_waste').value; alert(`Saved ${tgt.name}`); render(); }
+    function clearWasteLine() { let line=document.getElementById('wasteInputSelect').value; let tgt=getCurrentData().wastage[line]; tgt.fgOutput=tgt.reprocess=tgt.rejection=tgt.waste=''; loadWasteInputFields(line); render(); }
+    
+    // ------------------- SCHEDULING ------------------
+    function renderSchedulingModule() {
+        let tabs = `<ul class="nav nav-tabs tab-custom mb-4"><li><button class="nav-link ${currentTab==='overview'?'active':''} module-tab-btn" data-tab="overview">Overview</button></li><li><button class="nav-link ${currentTab==='details'?'active':''} module-tab-btn" data-tab="details">Details</button></li><li><button class="nav-link ${currentTab==='input'?'active':''} module-tab-btn" data-tab="input">Input</button></li></ul>`;
+        if(currentTab==='overview') return tabs + renderSchedOverview();
+        if(currentTab==='details') return tabs + `<div class="dashboard-card card p-4"><select id="schedDetailSelect" class="form-select w-auto">${SCHED_LINES.map(l=>`<option value="${l}">${schedNames[l]}</option>`).join('')}</select><div id="schedDetailPanel" class="mt-3"></div></div>`;
+        return tabs + `<div class="dashboard-card card p-4"><select id="schedInputSelect" class="form-select w-auto mb-3">${SCHED_LINES.map(l=>`<option value="${l}">${schedNames[l]}</option>`).join('')}</select><div id="schedInputFields" class="row g-3"></div><div class="mt-3 d-flex gap-2"><button class="btn btn-outline-danger" id="clearSchedBtn">Clear</button><button class="btn btn-primary" id="saveSchedBtn">Save</button></div></div>`;
+    }
+    function renderSchedOverview() {
+        let dataSet=getCurrentData().scheduling; let totalAct=0,totalPlan=0,active=0;
+        SCHED_LINES.forEach(l=>{ let a=parseFloat(dataSet[l].actualOutput)||0,p=parseFloat(dataSet[l].plannedOutput)||0; totalAct+=a; totalPlan+=p; if(a>0||p>0) active++; });
+        let comp=totalPlan>0?(totalAct/totalPlan)*100:0;
+        let rows=SCHED_LINES.map(l=>{ let a=parseFloat(dataSet[l].actualOutput)||0,p=parseFloat(dataSet[l].plannedOutput)||0,c=p>0?(a/p)*100:0; let cls=p===0?'bg-neutral':(c>=95?'bg-excellent':c>=85?'bg-good':c>=75?'bg-warning-custom':'bg-critical'); let txt=p===0?'No Data':(c>=95?'Excellent':c>=85?'Good':c>=75?'Warning':'Critical'); return `<tr><td>${dataSet[l].name}</td><td>${a.toFixed(1)}</td><td>${p.toFixed(1)}</td><td>${c.toFixed(1)}%</td><td><span class="badge-status ${cls}">${txt}</span></td></tr>`; }).join('');
+        return `<div class="row mb-4"><div class="col-md-4"><div class="dashboard-card card p-3"><div>Overall Attainment</div><div class="stat-value">${comp.toFixed(1)}%</div><div class="progress progress-thin mt-2"><div class="progress-bar bg-info" style="width:${comp}%"></div></div><div>Actual: ${totalAct.toFixed(1)} / Planned: ${totalPlan.toFixed(1)} kg</div></div></div><div class="col-md-4"><div class="dashboard-card card p-3"><div>Lines Active</div><div class="stat-value">${active}/${SCHED_LINES.length}</div><div>Avg compliance: ${comp.toFixed(1)}%</div></div></div></div><div class="dashboard-card card p-0"><div class="table-responsive"><table class="table"><thead><tr><th>Line</th><th>Actual(kg)</th><th>Planned(kg)</th><th>Compliance</th><th>Status</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
+    }
+    function attachSchedSelectors() {
+        let detSel=document.getElementById('schedDetailSelect'); if(detSel){ detSel.onchange=()=>{ let d=getCurrentData().scheduling[detSel.value]; let act=parseFloat(d.actualOutput)||0,plan=parseFloat(d.plannedOutput)||0,comp=plan>0?(act/plan)*100:0; document.getElementById('schedDetailPanel').innerHTML=`<div class="card bg-light"><div class="card-body"><h6>${d.name}</h6><div>Actual: ${act.toFixed(1)} kg</div><div>Planned: ${plan.toFixed(1)} kg</div><div>Compliance: ${comp.toFixed(1)}%</div></div></div>`; }; detSel.onchange(); }
+        let inpSel=document.getElementById('schedInputSelect'); if(inpSel){ inpSel.onchange=()=>loadSchedInputFields(inpSel.value); loadSchedInputFields(inpSel.value); document.getElementById('saveSchedBtn')?.addEventListener('click',saveSchedData); document.getElementById('clearSchedBtn')?.addEventListener('click',clearSchedLine); }
+    }
+    function loadSchedInputFields(line){ let d=getCurrentData().scheduling[line]; document.getElementById('schedInputFields').innerHTML=`<div class="col-md-6"><label>Actual Output (kg)</label><input id="s_act" class="form-control" value="${d.actualOutput||''}"></div><div class="col-md-6"><label>Planned Output (kg)</label><input id="s_plan" class="form-control" value="${d.plannedOutput||''}"></div>`; }
+    function saveSchedData(){ let line=document.getElementById('schedInputSelect').value; let tgt=getCurrentData().scheduling[line]; tgt.actualOutput=document.getElementById('s_act').value; tgt.plannedOutput=document.getElementById('s_plan').value; alert(`Saved ${tgt.name}`); render(); }
+    function clearSchedLine(){ let line=document.getElementById('schedInputSelect').value; let tgt=getCurrentData().scheduling[line]; tgt.actualOutput=tgt.plannedOutput=''; loadSchedInputFields(line); render(); }
+    
+    // Global event binding
+    function bindModuleButtons() {
+        document.querySelectorAll('[data-module]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('[data-module]').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentModule = btn.dataset.module;
+                currentTab = 'overview';
+                render();
+            });
+        });
+    }
+    function populateSelectors() {
+        let yearSel = document.getElementById('globalYear');
+        let monthSel = document.getElementById('globalMonth');
+        YEARS.forEach(y => { let opt = new Option(y, y); if(y==='2024') opt.selected=true; yearSel.appendChild(opt); });
+        MONTHS.forEach(m => { let opt = new Option(m, m); if(m==='October') opt.selected=true; monthSel.appendChild(opt); });
+        yearSel.addEventListener('change', () => { render(); updateTimestamp(); });
+        monthSel.addEventListener('change', () => { render(); updateTimestamp(); });
+    }
+    
+    populateSelectors();
+    bindModuleButtons();
+    render();
+    updateTimestamp();
+    setInterval(()=>updateTimestamp(), 60000);
+</script>
+</body>
+</html>

@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>LogiVision | Warehouse & Logistics Command Center</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(145deg, #eef2f9 0%, #e2e8f0 100%);
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            padding: 28px 24px;
+        }
+
+        /* modern scroll */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #eef2f5; border-radius: 8px; }
+        ::-webkit-scrollbar-thumb { background: #b9c3d0; border-radius: 8px; }
+        ::-webkit-scrollbar-thumb:hover { background: #01b8aa; }
+
+        .dashboard-container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: rgba(255,255,255,0.96);
+            backdrop-filter: blur(0px);
+            border-radius: 32px;
+            box-shadow: 0 20px 35px -12px rgba(0,0,0,0.12), 0 1px 3px rgba(0,0,0,0.02);
+            overflow: hidden;
+            transition: all 0.2s;
+        }
+
+        /* header area */
+        .dash-header {
+            padding: 20px 28px;
+            background: white;
+            border-bottom: 1px solid #eef2f8;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .title-section h1 {
+            font-size: 1.7rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #1a2a3a, #2c3e4e);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: -0.3px;
+        }
+        .title-section p { font-size: 0.8rem; color: #5f6c80; margin-top: 4px; letter-spacing: 0.3px; }
+
+        .filter-panel {
+            display: flex;
+            gap: 18px;
+            background: #f8fafd;
+            padding: 6px 18px;
+            border-radius: 60px;
+            border: 1px solid #e2e9f2;
+        }
+        .filter-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .filter-item label {
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: #3e4a5b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .filter-item select {
+            padding: 8px 16px;
+            border-radius: 32px;
+            border: 1px solid #cddae9;
+            background: white;
+            font-weight: 500;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .filter-item select:focus { border-color: #01b8aa; outline: none; box-shadow: 0 0 0 2px rgba(1,184,170,0.2); }
+
+        /* tab navigation modern */
+        .tab-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            padding: 0 28px;
+            background: white;
+            border-bottom: 1px solid #eef2f8;
+        }
+        .tab-btn {
+            padding: 14px 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            background: transparent;
+            border: none;
+            color: #5b6b82;
+            cursor: pointer;
+            transition: 0.2s;
+            border-radius: 40px 40px 0 0;
+            position: relative;
+        }
+        .tab-btn:hover { color: #01b8aa; background: #f0fbfa; }
+        .tab-btn.active {
+            color: #01b8aa;
+            background: #f0fbfa;
+        }
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 12px;
+            right: 12px;
+            height: 3px;
+            background: #01b8aa;
+            border-radius: 3px;
+        }
+
+        .tab-content { display: none; padding: 28px; background: #ffffff; }
+        .tab-content.active { display: block; animation: fade 0.25s ease; }
+        @keyframes fade { from { opacity: 0; transform: translateY(6px);} to { opacity: 1; transform: translateY(0);} }
+
+        /* KPI cards modern */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 22px;
+            margin-bottom: 32px;
+        }
+        .kpi-card {
+            background: #ffffff;
+            border-radius: 24px;
+            padding: 1.25rem 1.5rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.02), 0 1px 2px rgba(0,0,0,0.03);
+            border: 1px solid #eef2fa;
+            transition: all 0.25s;
+        }
+        .kpi-card:hover { border-color: #d0e2f0; box-shadow: 0 12px 20px -12px rgba(0,0,0,0.1); transform: translateY(-2px);}
+        .kpi-title { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; color: #6c7e97; margin-bottom: 12px; }
+        .kpi-main-value { font-size: 2.5rem; font-weight: 800; color: #1a2c3c; line-height: 1.2; margin-bottom: 12px; }
+        .detail-row { display: flex; justify-content: space-between; font-size: 0.8rem; padding: 8px 0; border-bottom: 1px dashed #eff3f8; }
+        .progress-bar-bg { background: #eef2f6; border-radius: 20px; height: 8px; margin: 14px 0 8px; overflow: hidden; }
+        .progress-fill { background: #01b8aa; width: 0%; height: 100%; border-radius: 20px; transition: width 0.4s ease; }
+        .status-badge {
+            display: inline-block; padding: 4px 12px; border-radius: 40px; font-size: 0.7rem; font-weight: 600;
+        }
+        .status-excellent { background: #dff9e6; color: #117f4a; }
+        .status-good { background: #e1f0fe; color: #146ebe; }
+        .status-warning { background: #fff0e0; color: #c65102; }
+        .status-critical { background: #ffe6e5; color: #bc1c2e; }
+        .status-neutral { background: #f1f4f9; color: #4a5b74; }
+
+        .section-header {
+            font-size: 1.25rem; font-weight: 700; margin: 32px 0 20px 0;
+            padding-left: 8px; border-left: 4px solid #01b8aa; color: #1f2e3f;
+        }
+
+        .table-wrapper { background: white; border-radius: 20px; border: 1px solid #eef2f8; overflow-x: auto; margin-bottom: 28px; }
+        .table-header-custom { padding: 14px 20px; background: #fafcff; border-bottom: 1px solid #eef2f8; font-weight: 700; display: flex; justify-content: space-between; align-items: center;}
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; padding: 14px 16px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; color: #6c7e97; background: #fafcff; border-bottom: 1px solid #eef2f8; }
+        td { padding: 12px 16px; font-size: 0.85rem; border-bottom: 1px solid #f0f4fa; color: #1f2e3f; }
+        .category-badge { background: #eef2fa; padding: 4px 8px; border-radius: 20px; font-size: 0.7rem; font-weight: 600; color: #2f4b6e;}
+
+        /* input panel */
+        .input-panel-modern { background: #fbfdff; border-radius: 24px; border: 1px solid #eef2f8; margin-top: 20px; }
+        .input-sections { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px,1fr)); gap: 24px; padding: 24px; max-height: 70vh; overflow-y: auto; }
+        .input-card { background: #ffffff; border: 1px solid #eef2fa; border-radius: 20px; padding: 20px; box-shadow: 0 1px 2px rgba(0,0,0,0.02);}
+        .input-card h4 { font-size: 0.9rem; font-weight: 700; margin-bottom: 18px; border-left: 3px solid #01b8aa; padding-left: 12px; }
+        .input-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 14px; }
+        .input-field { display: flex; flex-direction: column; gap: 5px; }
+        .input-field label { font-size: 0.7rem; font-weight: 600; color: #5c6f8c; text-transform: uppercase; }
+        .input-field input { padding: 10px 12px; border: 1px solid #dce5ef; border-radius: 14px; font-size: 0.85rem; transition: 0.2s; background: white; }
+        .input-field input:focus { border-color: #01b8aa; outline: none; box-shadow: 0 0 0 2px rgba(1,184,170,0.2); }
+        .button-group { display: flex; justify-content: flex-end; gap: 14px; padding: 18px 24px; border-top: 1px solid #eef2f8; background: #fafdff; border-radius: 0 0 24px 24px;}
+        .btn { padding: 9px 20px; border-radius: 40px; font-weight: 600; font-size: 0.8rem; border: 1px solid #cfddee; background: white; cursor: pointer; transition: 0.2s; }
+        .btn-primary { background: #01b8aa; border-color: #01b8aa; color: white; box-shadow: 0 2px 5px rgba(1,184,170,0.2);}
+        .btn-primary:hover { background: #019e91; transform: scale(0.97);}
+        .btn-danger { background: #fde7e5; border-color: #ffb7ae; color: #bc1c2e; }
+        .btn-danger:hover { background: #fbd8d4; }
+        .footer-note { text-align: right; font-size: 0.7rem; padding: 16px 28px; border-top: 1px solid #eef2f8; color: #7b8aa3; background: white;}
+
+        @media (max-width: 680px) {
+            body { padding: 16px; }
+            .kpi-main-value { font-size: 1.8rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="dashboard-container">
+    <div class="dash-header">
+        <div class="title-section">
+            <h1>📦 LogiVision · Command Center</h1>
+            <p>Warehouse performance · OTIF · Supply chain intelligence</p>
+        </div>
+        <div class="filter-panel">
+            <div class="filter-item"><label>📅 Year</label><select id="yearSelect"></select></div>
+            <div class="filter-item"><label>🗓️ Month</label><select id="monthSelect"></select></div>
+        </div>
+    </div>
+
+    <div class="tab-bar">
+        <button class="tab-btn active" data-tab="overview">📊 Overview</button>
+        <button class="tab-btn" data-tab="fillrates">📈 Fill Rates</button>
+        <button class="tab-btn" data-tab="nonotif">⚠️ Non-OTIF</button>
+        <button class="tab-btn" data-tab="stockouts">🚫 Stock Outs</button>
+        <button class="tab-btn" data-tab="warehouse">🏭 Warehouse</button>
+        <button class="tab-btn" data-tab="manpower">👥 Manpower</button>
+        <button class="tab-btn" data-tab="input">✏️ Data Input</button>
+    </div>
+
+    <!-- ========================= OVERVIEW TAB ========================= -->
+    <div id="tab-overview" class="tab-content active">
+        <div class="kpi-grid">
+            <div class="kpi-card"><div class="kpi-title">🎯 OTIF Rate (Line Item)</div><div class="kpi-main-value" id="otifValue">0%</div><div class="detail-row"><span>Served</span><span id="otifServed">0</span></div><div class="detail-row"><span>Total Lines</span><span id="otifTotal">0</span></div><div class="progress-bar-bg"><div class="progress-fill" id="otifProgress"></div></div><div><span id="otifStatus" class="status-badge status-neutral">No Data</span></div></div>
+            <div class="kpi-card"><div class="kpi-title">📦 Volume Fill (₱)</div><div class="kpi-main-value" id="volumeFillValue">0%</div><div class="detail-row"><span>Delivered</span><span id="volumeDelivered">₱0</span></div><div class="detail-row"><span>Order Value</span><span id="volumeOrders">₱0</span></div><div class="progress-bar-bg"><div class="progress-fill" id="volumeFillProgress"></div></div><div><span id="volumeFillStatus" class="status-badge status-neutral">No Data</span></div></div>
+            <div class="kpi-card"><div class="kpi-title">🏢 WH Utilization</div><div class="kpi-main-value" id="whUtilValue">0%</div><div class="detail-row"><span>Used pallets</span><span id="whUsed">0</span></div><div class="detail-row"><span>Total capacity</span><span id="whTotal">0</span></div><div class="progress-bar-bg"><div class="progress-fill" id="whUtilProgress"></div></div><div><span id="whUtilStatus" class="status-badge status-neutral">No Data</span></div></div>
+        </div>
+
+        <div class="section-header">📊 Fill Rates (Hit Rate by Category)</div>
+        <div class="kpi-grid">
+            <div class="kpi-card"><div class="kpi-title">Corporate</div><div class="kpi-main-value" id="corpValueHitRate">0%</div><div class="detail-row"><span>Delivered</span><span id="corpValueDelivered">₱0</span></div><div class="detail-row"><span>Orders</span><span id="corpValueOrders">₱0</span></div><span id="corpFillStatus" class="status-badge status-neutral">No Data</span></div>
+            <div class="kpi-card"><div class="kpi-title">SC Fill</div><div class="kpi-main-value" id="scHitRate">0%</div><div class="detail-row"><span>Delivered</span><span id="scDelivered">₱0</span></div><div class="detail-row"><span>Orders</span><span id="scOrders">₱0</span></div><span id="scFillStatus" class="status-badge status-neutral">No Data</span></div>
+            <div class="kpi-card"><div class="kpi-title">Core Products</div><div class="kpi-main-value" id="coreHitRate">0%</div><div class="detail-row"><span>Delivered</span><span id="coreDelivered">₱0</span></div><div class="detail-row"><span>Orders</span><span id="coreOrders">₱0</span></div><span id="coreFillStatus" class="status-badge status-neutral">No Data</span></div>
+            <div class="kpi-card"><div class="kpi-title">Emerging</div><div class="kpi-main-value" id="emergingHitRate">0%</div><div class="detail-row"><span>Delivered</span><span id="emergingDelivered">₱0</span></div><div class="detail-row"><span>Orders</span><span id="emergingOrders">₱0</span></div><span id="emergingFillStatus" class="status-badge status-neutral">No Data</span></div>
+        </div>
+
+        <div class="section-header">⚙️ Operational KPIs</div>
+        <div class="kpi-grid">
+            <div class="kpi-card"><div class="kpi-title">⚠️ Non-OTIF Issues</div><div class="kpi-main-value" id="nonOtifTotalIssues">0</div><div class="detail-row"><span>Top root cause</span><span id="nonOtifTopCategory">—</span></div></div>
+            <div class="kpi-card"><div class="kpi-title">📉 Stock Out Value</div><div class="kpi-main-value" id="stockOutTotalValue">₱0</div><div class="detail-row"><span>Weight (KGS)</span><span id="stockOutTotalWeight">0 KGS</span></div></div>
+            <div class="kpi-card"><div class="kpi-title">🚛 OTDL (Avg Days)</div><div class="kpi-main-value" id="otdlAvgDays">0 days</div><div class="detail-row"><span>Regions tracked</span><span id="otdlRegionCount">0</span></div></div>
+            <div class="kpi-card"><div class="kpi-title">📦 Truck Volume</div><div class="kpi-main-value" id="truckTotalVolume">0 cbm</div><div class="detail-row"><span>Active types</span><span id="truckTypeCount">0</span></div></div>
+        </div>
+
+        <div class="section-header">🧑‍💼 Workforce Metrics</div>
+        <div class="kpi-grid">
+            <div class="kpi-card"><div class="kpi-title">Headcount</div><div class="kpi-main-value" id="hcTotal">0</div><div class="detail-row"><span>Regular</span><span id="hcRegular">0</span></div><div class="detail-row"><span>Agency</span><span id="hcAgency">0</span></div><div class="detail-row"><span>Attrition</span><span id="hcAttrition">0%</span></div></div>
+            <div class="kpi-card"><div class="kpi-title">Manhours</div><div class="kpi-main-value" id="mhTotal">0</div><div class="detail-row"><span>Reg + Agency</span><span id="mhRegular">0</span>/<span id="mhAgency">0</span></div><div class="detail-row"><span>Overtime Rate</span><span id="mhOtRate">0%</span></div></div>
+            <div class="kpi-card"><div class="kpi-title">Absenteeism</div><div class="kpi-main-value" id="absRate">0%</div><div class="detail-row"><span>Absence days</span><span id="absCount">0</span></div><div class="detail-row"><span>Required days</span><span id="absRequiredDays">0</span></div></div>
+        </div>
+        <div class="kpi-grid"><div class="kpi-card"><div class="kpi-title">📍 OTDL by Region</div><div id="otdlRegions"></div><div class="detail-row"><span>Weighted Avg</span><span id="avgOtdl">0 days</span></div></div>
+        <div class="kpi-card"><div class="kpi-title">🚚 Truck Types (CBM)</div><div id="truckTypes"></div><div class="detail-row"><span>Total Volume</span><span id="totalTruckVolume">0 cbm</span></div></div></div>
+    </div>
+
+    <!-- FILL RATES TAB (condensed, but fully functional) -->
+    <div id="tab-fillrates" class="tab-content"><div class="section-header">Fill Rates Detail</div><div class="kpi-grid" id="fillRatesGrid"></div></div>
+    <div id="tab-nonotif" class="tab-content"><div class="table-wrapper"><div class="table-header-custom"><span>📋 Non-OTIF root cause analysis</span><span id="nonOtifTotalBadge">Total: 0</span></div><table><thead><tr><th>Category</th><th>Issue Type</th><th>Count</th></tr></thead><tbody id="nonOtifTable"></tbody></table></div></div>
+    <div id="tab-stockouts" class="tab-content"><div class="kpi-grid"><div class="table-wrapper"><div class="table-header-custom">Value Impact (₱)</div><table><thead><tr><th>Category</th><th>Issue</th><th>Amount</th></tr></thead><tbody id="stockOutsValueTable"></tbody></table></div><div class="table-wrapper"><div class="table-header-custom">Weight Impact (KGS)</div><table><thead><tr><th>Category</th><th>Issue</th><th>Weight</th></tr></thead><tbody id="stockOutsWeightTable"></tbody></table></div></div></div>
+    <div id="tab-warehouse" class="tab-content"><div class="kpi-grid"><div class="kpi-card"><div class="kpi-title">RM/PM Warehouse</div><div class="detail-row"><span>Positions</span><span id="rmPalletTotal">0</span></div><div class="detail-row"><span>Used</span><span id="rmPalletUsed">0</span></div><div class="detail-row"><span>Utilization</span><span id="rmUtilization">0%</span></div></div><div class="kpi-card"><div class="kpi-title">FG Warehouse</div><div class="detail-row"><span>Positions</span><span id="fgPalletTotal">0</span></div><div class="detail-row"><span>Used</span><span id="fgPalletUsed">0</span></div><div class="detail-row"><span>Utilization</span><span id="fgUtilization">0%</span></div></div><div class="kpi-card"><div class="kpi-title">External Warehouse</div><div class="detail-row"><span>Positions</span><span id="extPalletTotal">0</span></div><div class="detail-row"><span>Used</span><span id="extPalletUsed">0</span></div><div class="detail-row"><span>Utilization</span><span id="extUtilization">0%</span></div></div></div></div>
+    <div id="tab-manpower" class="tab-content"><div class="kpi-grid"><div class="kpi-card"><div class="kpi-title">Headcount</div><div class="detail-row"><span>Regular</span><span id="mp-regular">0</span></div><div class="detail-row"><span>Agency</span><span id="mp-agency">0</span></div><div class="detail-row"><span>Attrition</span><span id="mp-attrition">0%</span></div></div><div class="kpi-card"><div class="kpi-title">Manhours</div><div class="detail-row"><span>Regular</span><span id="mp-regHours">0</span></div><div class="detail-row"><span>Agency</span><span id="mp-agyHours">0</span></div><div class="detail-row"><span>OT Rate</span><span id="mp-otRate">0%</span></div></div><div class="kpi-card"><div class="kpi-title">Absences</div><div class="detail-row"><span>Count</span><span id="mp-absences">0</span></div><div class="detail-row"><span>Required days</span><span id="mp-days">0</span></div><div class="detail-row"><span>Rate</span><span id="mp-absRate">0%</span></div></div></div></div>
+
+    <!-- DATA INPUT TAB (enhanced) -->
+    <div id="tab-input" class="tab-content"><div class="input-panel-modern"><div class="table-header-custom" style="border-bottom:1px solid #eef2f8;"><span>✏️ Data Stewardship</span><span style="font-size:0.7rem;">Real-time persistent storage</span></div><div class="input-controls" style="padding:16px 24px; display:flex; gap:20px; align-items:center;"><div class="filter-item"><label>📂 Select Category</label><select id="inputCategory"></select></div></div><div id="inputSections" class="input-sections"></div><div class="button-group"><button class="btn btn-danger" id="clearCategoryBtn">🗑️ Clear this category</button><button class="btn" id="clearAllBtn">⚠️ Clear All Month Data</button><button class="btn btn-primary" id="saveDataBtn">💾 Save Changes</button></div></div></div>
+    <div class="footer-note">🔄 Last updated: <span id="lastUpdate">—</span> · Data persists per year/month</div>
+</div>
+
+<script>
+    // ---------- DATA MODELS ----------
+    const yearsList = ['2023','2024','2025'];
+    const monthsList = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    const categoriesMap = { PL:'Planning', FG:'Finished Goods', PR:'Production', TE:'Technical', SA:'Sales', FI:'Finance' };
+    const nonOtifIssues = [
+        {cat:'PL',issue:'Material constraint'},{cat:'PL',issue:'Planning error'},{cat:'PL',issue:'Capacity Constraint'},{cat:'PL',issue:'Acumatica Inventory Issue'},
+        {cat:'FG',issue:'Warehouse Constraint'},{cat:'FG',issue:'Truck unavailability'},{cat:'FG',issue:'Dispatch Issue'},{cat:'FG',issue:'Custom Issue'},{cat:'FG',issue:'Permits'},
+        {cat:'PR',issue:'Machine downtime'},{cat:'PR',issue:'Production Under run'},{cat:'PR',issue:'Manpower constraint'},{cat:'PR',issue:'Production delay'},
+        {cat:'PR',issue:'Acumatica Confirmation delay'},{cat:'PR',issue:'Subcon delay'},{cat:'TE',issue:'Developmental Issue'},{cat:'TE',issue:'Quality Issue'},
+        {cat:'SA',issue:'Cancelled Order'},{cat:'SA',issue:'Demand Shift'},{cat:'SA',issue:'CS Issue'},{cat:'FI',issue:'Pricing Issue'}
+    ];
+    const stockOutIssues = [...nonOtifIssues, {cat:'SA',issue:'Beyond forecast'}];
+
+    let db = {}; // db[year][month] = full object
+
+    function initDB() {
+        yearsList.forEach(y => { db[y] = {}; monthsList.forEach(m => {
+            db[y][m] = {
+                otif:{served:'',total:''}, volumeFill:{delivered:'',orders:''},
+                fillRates:{corporate:{delivered:'',orders:''}, sc:{delivered:'',orders:''}, core:{delivered:'',orders:''}, emerging:{delivered:'',orders:''}},
+                nonOtif:{}, stockOuts:{value:{}, weight:{}},
+                warehouse:{rmTotal:'',rmUsed:'',fgTotal:'',fgUsed:'',extTotal:'',extUsed:''},
+                otdl:{gma:'',north:'',central:'',south:'',visayas:'',mindanao:'',modernTrade:'',pai:''},
+                trucks:{truck10w:'',truckAuv:'',truck6w:'',truck4w:'',truck20ft:''},
+                manpower:{regular:'',agency:'',resigned:'',regHours:'',agyHours:'',otHours:'',absences:'',requiredDays:''}
+            };
+            nonOtifIssues.forEach((_,i)=> db[y][m].nonOtif[`nonOtif_${i}`] = '');
+            stockOutIssues.forEach((_,i)=> { db[y][m].stockOuts.value[`stockOutValue_${i}`]=''; db[y][m].stockOuts.weight[`stockOutWeight_${i}`]=''; });
+        })});
+    }
+    initDB();
+
+    function getCurrentData() { return db[document.getElementById('yearSelect').value][document.getElementById('monthSelect').value]; }
+    function formatNum(n, dec=2) { if(isNaN(n) || n==='' || n===null) return '0'; let v=parseFloat(n); return v.toLocaleString(undefined,{minimumFractionDigits:dec,maximumFractionDigits:dec}); }
+    function formatCurr(v) { let val=parseFloat(v)||0; if(val>=1e6) return '₱'+(val/1e6).toFixed(1)+'M'; if(val>=1e3) return '₱'+(val/1e3).toFixed(1)+'K'; return '₱'+val.toFixed(2); }
+    function updateTime() { document.getElementById('lastUpdate').innerText = new Date().toLocaleString(); }
+
+    // RENDER ALL
+    function refreshDashboard() {
+        const d = getCurrentData();
+        // OTIF
+        let served=parseFloat(d.otif.served)||0, total=parseFloat(d.otif.total)||0, otifRate=total? (served/total)*100:0;
+        document.getElementById('otifValue').innerText=otifRate.toFixed(1)+'%'; document.getElementById('otifServed').innerText=formatNum(served,0); document.getElementById('otifTotal').innerText=formatNum(total,0);
+        document.getElementById('otifProgress').style.width=Math.min(otifRate,100)+'%';
+        let cls= total? (otifRate>=95?'status-excellent':otifRate>=85?'status-good':otifRate>=75?'status-warning':'status-critical'):'status-neutral';
+        document.getElementById('otifStatus').innerHTML= total? (otifRate>=95?'Excellent':otifRate>=85?'Good':otifRate>=75?'Warning':'Critical'):'No Data';
+        document.getElementById('otifStatus').className=`status-badge ${cls}`;
+
+        // Volume fill
+        let vDel=parseFloat(d.volumeFill.delivered)||0, vOrd=parseFloat(d.volumeFill.orders)||0, volRate=vOrd? (vDel/vOrd)*100:0;
+        document.getElementById('volumeFillValue').innerText=volRate.toFixed(1)+'%'; document.getElementById('volumeDelivered').innerText=formatCurr(vDel); document.getElementById('volumeOrders').innerText=formatCurr(vOrd);
+        document.getElementById('volumeFillProgress').style.width=Math.min(volRate,100)+'%';
+        let vStat=vOrd? (volRate>=98?'Excellent':volRate>=90?'Good':volRate>=80?'Warning':'Critical'):'No Data', vCls=vOrd? (volRate>=98?'status-excellent':volRate>=90?'status-good':volRate>=80?'status-warning':'status-critical'):'status-neutral';
+        document.getElementById('volumeFillStatus').innerHTML=vStat; document.getElementById('volumeFillStatus').className=`status-badge ${vCls}`;
+
+        // Fill rates
+        const fillCats = ['corporate','sc','core','emerging'];
+        fillCats.forEach(cat=>{ let del=parseFloat(d.fillRates[cat].delivered)||0, ord=parseFloat(d.fillRates[cat].orders)||0, rate=ord? (del/ord)*100:0;
+            document.getElementById(`${cat}ValueHitRate`).innerText=rate.toFixed(1)+'%'; document.getElementById(`${cat}ValueDelivered`).innerText=formatCurr(del); document.getElementById(`${cat}ValueOrders`).innerText=formatCurr(ord);
+            let st=ord? (rate>=98?'Excellent':rate>=90?'Good':rate>=80?'Warning':'Critical'):'No Data'; let stCls=ord? (rate>=98?'status-excellent':rate>=90?'status-good':rate>=80?'status-warning':'status-critical'):'status-neutral';
+            document.getElementById(`${cat}FillStatus`).innerHTML=st; document.getElementById(`${cat}FillStatus`).className=`status-badge ${stCls}`;
+            if(document.getElementById(`fr-${cat}Value`)) { document.getElementById(`fr-${cat}Value`).innerText=rate.toFixed(1)+'%'; }
+        });
+        // Fill rates tab grid reconstruction
+        let frHtml = ''; fillCats.forEach(c=>{ let del=parseFloat(d.fillRates[c].delivered)||0, ord=parseFloat(d.fillRates[c].orders)||0, rate=ord? (del/ord)*100:0;
+            frHtml+=`<div class="kpi-card"><div class="kpi-title">${c.toUpperCase()}</div><div class="kpi-main-value">${rate.toFixed(1)}%</div><div class="detail-row"><span>Delivered</span><span>${formatCurr(del)}</span></div><div class="detail-row"><span>Orders</span><span>${formatCurr(ord)}</span></div></div>`;
+        }); document.getElementById('fillRatesGrid') && (document.getElementById('fillRatesGrid').innerHTML=frHtml);
+
+        // Warehouse overall
+        let rmT=parseFloat(d.warehouse.rmTotal)||0, rmU=parseFloat(d.warehouse.rmUsed)||0, fgT=parseFloat(d.warehouse.fgTotal)||0, fgU=parseFloat(d.warehouse.fgUsed)||0, extT=parseFloat(d.warehouse.extTotal)||0, extU=parseFloat(d.warehouse.extUsed)||0;
+        let totCap=rmT+fgT+extT, totUsed=rmU+fgU+extU, whUtil=totCap? (totUsed/totCap)*100:0;
+        document.getElementById('whUtilValue').innerText=whUtil.toFixed(1)+'%'; document.getElementById('whUsed').innerText=formatNum(totUsed,0); document.getElementById('whTotal').innerText=formatNum(totCap,0);
+        document.getElementById('whUtilProgress').style.width=Math.min(whUtil,100)+'%';
+        let whStat=totCap? (whUtil<=75?'Under-Utilized':whUtil<=85?'Optimal':whUtil<=95?'Good':'Near Capacity'):'No Data';
+        document.getElementById('whUtilStatus').innerHTML=whStat; document.getElementById('whUtilStatus').className=`status-badge ${totCap? (whUtil<=85?'status-excellent':whUtil<=95?'status-good':'status-warning'):'status-neutral'}`;
+        ['rmPalletTotal','rmPalletUsed','fgPalletTotal','fgPalletUsed','extPalletTotal','extPalletUsed'].forEach(id=>{ let val=d.warehouse[id.replace('Pallet','').toLowerCase()+'Total']||d.warehouse[id.replace('Pallet','').toLowerCase()+'Used']; if(id.includes('Total')) document.getElementById(id).innerText=formatNum(parseFloat(d.warehouse[id.replace('Total','').toLowerCase()+'Total'])||0,0);
+            else document.getElementById(id).innerText=formatNum(parseFloat(d.warehouse[id.replace('Used','').toLowerCase()+'Used'])||0,0); });
+        document.getElementById('rmUtilization').innerText= rmT? ((rmU/rmT)*100).toFixed(1)+'%':'0%'; document.getElementById('fgUtilization').innerText= fgT? ((fgU/fgT)*100).toFixed(1)+'%':'0%'; document.getElementById('extUtilization').innerText= extT? ((extU/extT)*100).toFixed(1)+'%':'0%';
+
+        // Non-OTIF table & totals
+        let nonTotal=0, catCount={}; let nonHtml='';
+        nonOtifIssues.forEach((item,idx)=>{ let val=parseFloat(d.nonOtif[`nonOtif_${idx}`])||0; nonTotal+=val; if(val>0) catCount[item.cat]=(catCount[item.cat]||0)+val;
+            nonHtml+=`<tr><td><span class="category-badge">${item.cat}</span> ${categoriesMap[item.cat]}</td><td>${item.issue}</td><td>${val?formatNum(val,0):'0'}</td></tr>`;
+        }); document.getElementById('nonOtifTable').innerHTML=nonHtml; document.getElementById('nonOtifTotalBadge').innerText=`Total: ${formatNum(nonTotal,0)}`; document.getElementById('nonOtifTotalIssues').innerText=formatNum(nonTotal,0);
+        let topCat=Object.keys(catCount).reduce((a,b)=>catCount[a]>catCount[b]?a:b,'-'); document.getElementById('nonOtifTopCategory').innerText=topCat!='-'?`${topCat} (${formatNum(catCount[topCat],0)})`:'-';
+
+        // Stockouts
+        let valTotal=0, wtTotal=0, valHtml='', wtHtml='';
+        stockOutIssues.forEach((item,idx)=>{ let vv=parseFloat(d.stockOuts.value[`stockOutValue_${idx}`])||0, ww=parseFloat(d.stockOuts.weight[`stockOutWeight_${idx}`])||0; valTotal+=vv; wtTotal+=ww;
+            valHtml+=`<tr><td><span class="category-badge">${item.cat}</span> ${categoriesMap[item.cat]}</td><td>${item.issue}</td><td>${formatCurr(vv)}</td></tr>`;
+            wtHtml+=`<tr><td><span class="category-badge">${item.cat}</span> ${categoriesMap[item.cat]}</td><td>${item.issue}</td><td>${formatNum(ww,0)} KGS</td></tr>`;
+        }); document.getElementById('stockOutsValueTable').innerHTML=valHtml; document.getElementById('stockOutsWeightTable').innerHTML=wtHtml;
+        document.getElementById('stockOutTotalValue').innerText=formatCurr(valTotal); document.getElementById('stockOutTotalWeight').innerText=formatNum(wtTotal,0)+' KGS';
+        
+        // OTDL
+        let regions=['gma','north','central','south','visayas','mindanao','modernTrade','pai']; let totalOtdl=0, cnt=0, otdlHtml='';
+        regions.forEach(r=>{ let v=parseFloat(d.otdl[r])||0; if(v>0){totalOtdl+=v; cnt++;} otdlHtml+=`<div class="detail-row"><span>${r.replace('modernTrade','Modern').replace('pai','PAI')}</span><span>${v?v.toFixed(1)+'d':'0'}</span></div>`; });
+        let avg=cnt? totalOtdl/cnt:0; document.getElementById('otdlRegions').innerHTML=otdlHtml; document.getElementById('avgOtdl').innerText=avg.toFixed(1)+' days'; document.getElementById('otdlAvgDays').innerText=avg.toFixed(1)+' days'; document.getElementById('otdlRegionCount').innerText=cnt;
+
+        // Trucks
+        let trucks={'10-wheeler':d.trucks.truck10w,'AUV':d.trucks.truckAuv,'6-wheeler':d.trucks.truck6w,'4-wheeler':d.trucks.truck4w,'20-ft':d.trucks.truck20ft};
+        let totalCbm=0, truckHtml='', truckTypes=0; for(let [k,v] of Object.entries(trucks)){ let vol=parseFloat(v)||0; totalCbm+=vol; if(vol>0){truckHtml+=`<div class="detail-row"><span>${k}</span><span>${vol.toFixed(1)} cbm</span></div>`; truckTypes++;}}
+        document.getElementById('truckTypes').innerHTML=truckHtml||'<div class="detail-row">No data</div>'; document.getElementById('totalTruckVolume').innerText=formatNum(totalCbm,1)+' cbm'; document.getElementById('truckTotalVolume').innerText=formatNum(totalCbm,1)+' cbm'; document.getElementById('truckTypeCount').innerText=truckTypes;
+
+        // Manpower
+        let reg=parseFloat(d.manpower.regular)||0, ag=parseFloat(d.manpower.agency)||0, res=parseFloat(d.manpower.resigned)||0, regH=parseFloat(d.manpower.regHours)||0, agH=parseFloat(d.manpower.agyHours)||0, otH=parseFloat(d.manpower.otHours)||0, absC=parseFloat(d.manpower.absences)||0, reqD=parseFloat(d.manpower.requiredDays)||0;
+        let totHc=reg+ag, avgHc=(totHc+(totHc-res))/2, attr=avgHc? (res/avgHc)*100:0, totMh=regH+agH, otRate=totMh? (otH/totMh)*100:0, absRate=reqD? (absC/reqD)*100:0;
+        document.getElementById('hcTotal').innerText=formatNum(totHc,0); document.getElementById('hcRegular').innerText=formatNum(reg,0); document.getElementById('hcAgency').innerText=formatNum(ag,0); document.getElementById('hcAttrition').innerText=attr.toFixed(1)+'%';
+        document.getElementById('mhTotal').innerText=formatNum(totMh,0); document.getElementById('mhRegular').innerText=formatNum(regH,0); document.getElementById('mhAgency').innerText=formatNum(agH,0); document.getElementById('mhOtRate').innerText=otRate.toFixed(1)+'%';
+        document.getElementById('absCount').innerText=formatNum(absC,0); document.getElementById('absRequiredDays').innerText=reqD.toFixed(1); document.getElementById('absRate').innerText=absRate.toFixed(1)+'%';
+        ['mp-regular','mp-agency','mp-attrition','mp-regHours','mp-agyHours','mp-otRate','mp-absences','mp-days','mp-absRate'].forEach(id=>{if(id==='mp-regular') document.getElementById(id).innerText=formatNum(reg,0); else if(id==='mp-agency') document.getElementById(id).innerText=formatNum(ag,0); else if(id==='mp-attrition') document.getElementById(id).innerText=attr.toFixed(1)+'%'; else if(id==='mp-regHours') document.getElementById(id).innerText=formatNum(regH,0)+' hrs'; else if(id==='mp-agyHours') document.getElementById(id).innerText=formatNum(agH,0)+' hrs'; else if(id==='mp-otRate') document.getElementById(id).innerText=otRate.toFixed(1)+'%'; else if(id==='mp-absences') document.getElementById(id).innerText=formatNum(absC,0); else if(id==='mp-days') document.getElementById(id).innerText=reqD.toFixed(1); else if(id==='mp-absRate') document.getElementById(id).innerText=absRate.toFixed(1)+'%';});
+        updateTime();
+    }
+
+    // Input dynamic load & save
+    let currentInputCat='otif';
+    function loadInputCategory() { let cat=document.getElementById('inputCategory').value; currentInputCat=cat; let d=getCurrentData(); let html='';
+        if(cat==='otif') html=`<div class="input-card" style="grid-column:span 2"><h4>OTIF Rate</h4><div class="input-grid"><div class="input-field"><label>Served Lines</label><input id="in_otif_served" value="${d.otif.served}"></div><div class="input-field"><label>Total Lines</label><input id="in_otif_total" value="${d.otif.total}"></div></div></div>`;
+        else if(cat==='volume') html=`<div class="input-card"><h4>Volume Fill</h4><div class="input-grid"><div class="input-field"><label>Delivered (₱)</label><input id="in_vol_del" value="${d.volumeFill.delivered}"></div><div class="input-field"><label>Orders (₱)</label><input id="in_vol_ord" value="${d.volumeFill.orders}"></div></div></div>`;
+        else if(cat==='fillrates') html=fillCats.map(c=>`<div class="input-card"><h4>${c.toUpperCase()}</h4><div class="input-grid"><div class="input-field"><label>Delivered</label><input id="in_fr_${c}_del" value="${d.fillRates[c].delivered}"></div><div class="input-field"><label>Orders</label><input id="in_fr_${c}_ord" value="${d.fillRates[c].orders}"></div></div></div>`).join('');
+        else if(cat==='nonotif') { let grid='<div class="input-card" style="grid-column:span 3"><h4>Non-OTIF Counts</h4><div class="input-grid" style="grid-template-columns:repeat(4,1fr)">'; nonOtifIssues.forEach((item,i)=>{ grid+=`<div class="input-field"><label>${item.cat}-${item.issue}</label><input id="in_non_${i}" value="${d.nonOtif[`nonOtif_${i}`]}"></div>`; }); html=grid+'</div></div>';}
+        else if(cat==='stockouts') { html=`<div class="input-card"><h4>Value (₱)</h4><div class="input-grid">${stockOutIssues.map((item,i)=>`<div class="input-field"><label>${item.cat}-${item.issue}</label><input id="in_stock_v_${i}" value="${d.stockOuts.value[`stockOutValue_${i}`]}"></div>`).join('')}</div></div><div class="input-card"><h4>Weight (KGS)</h4><div class="input-grid">${stockOutIssues.map((item,i)=>`<div class="input-field"><label>${item.cat}-${item.issue}</label><input id="in_stock_w_${i}" value="${d.stockOuts.weight[`stockOutWeight_${i}`]}"></div>`).join('')}</div></div>`; }
+        else if(cat==='warehouse') html=`<div class="input-card"><h4>RM/PM</h4><div class="input-grid"><div class="input-field"><label>Total Positions</label><input id="in_rm_total" value="${d.warehouse.rmTotal}"></div><div class="input-field"><label>Used</label><input id="in_rm_used" value="${d.warehouse.rmUsed}"></div></div></div><div class="input-card"><h4>FG</h4><div class="input-grid"><div class="input-field"><label>Total</label><input id="in_fg_total" value="${d.warehouse.fgTotal}"></div><div class="input-field"><label>Used</label><input id="in_fg_used" value="${d.warehouse.fgUsed}"></div></div></div><div class="input-card"><h4>External</h4><div class="input-grid"><div class="input-field"><label>Total</label><input id="in_ext_total" value="${d.warehouse.extTotal}"></div><div class="input-field"><label>Used</label><input id="in_ext_used" value="${d.warehouse.extUsed}"></div></div></div>`;
+        else if(cat==='otdl') html=`<div class="input-card"><h4>OTDL by region</h4><div class="input-grid" style="grid-template-columns:repeat(4,1fr)">${regions.map(r=>`<div class="input-field"><label>${r}</label><input id="in_otdl_${r}" value="${d.otdl[r]}"></div>`).join('')}</div></div>`;
+        else if(cat==='trucks') html=`<div class="input-card"><h4>Truck CBM</h4><div class="input-grid">${Object.keys(trucks).map(k=>`<div class="input-field"><label>${k}</label><input id="in_truck_${k.replace('-','')}" value="${d.trucks['truck'+(k==='10-wheeler'?'10w':k==='AUV'?'Auv':k==='6-wheeler'?'6w':k==='4-wheeler'?'4w':'20ft')]}"></div>`).join('')}</div></div>`;
+        else if(cat==='manpower') html=`<div class="input-card"><h4>Headcount & Hours</h4><div class="input-grid"><div class="input-field"><label>Regular HC</label><input id="in_mp_reg" value="${d.manpower.regular}"></div><div class="input-field"><label>Agency HC</label><input id="in_mp_agy" value="${d.manpower.agency}"></div><div class="input-field"><label>Resigned</label><input id="in_mp_res" value="${d.manpower.resigned}"></div><div class="input-field"><label>Reg Hours</label><input id="in_mp_regH" value="${d.manpower.regHours}"></div><div class="input-field"><label>Agency Hours</label><input id="in_mp_agyH" value="${d.manpower.agyHours}"></div><div class="input-field"><label>OT Hours</label><input id="in_mp_otH" value="${d.manpower.otHours}"></div><div class="input-field"><label>Absences</label><input id="in_mp_abs" value="${d.manpower.absences}"></div><div class="input-field"><label>Required Days</label><input id="in_mp_days" value="${d.manpower.requiredDays}"></div></div></div>`;
+        document.getElementById('inputSections').innerHTML=html;
+    }
+    function saveCurrentInput(){ let d=getCurrentData(); if(currentInputCat==='otif'){ d.otif.served=document.getElementById('in_otif_served')?.value||''; d.otif.total=document.getElementById('in_otif_total')?.value||''; }
+    else if(currentInputCat==='volume'){ d.volumeFill.delivered=document.getElementById('in_vol_del')?.value||''; d.volumeFill.orders=document.getElementById('in_vol_ord')?.value||''; }
+    else if(currentInputCat==='fillrates'){ fillCats.forEach(c=>{ d.fillRates[c].delivered=document.getElementById(`in_fr_${c}_del`)?.value||''; d.fillRates[c].orders=document.getElementById(`in_fr_${c}_ord`)?.value||'';}); }
+    else if(currentInputCat==='nonotif'){ nonOtifIssues.forEach((_,i)=>{ d.nonOtif[`nonOtif_${i}`]=document.getElementById(`in_non_${i}`)?.value||'';});}
+    else if(currentInputCat==='stockouts'){ stockOutIssues.forEach((_,i)=>{ d.stockOuts.value[`stockOutValue_${i}`]=document.getElementById(`in_stock_v_${i}`)?.value||''; d.stockOuts.weight[`stockOutWeight_${i}`]=document.getElementById(`in_stock_w_${i}`)?.value||'';});}
+    else if(currentInputCat==='warehouse'){ d.warehouse.rmTotal=document.getElementById('in_rm_total')?.value||''; d.warehouse.rmUsed=document.getElementById('in_rm_used')?.value||''; d.warehouse.fgTotal=document.getElementById('in_fg_total')?.value||''; d.warehouse.fgUsed=document.getElementById('in_fg_used')?.value||''; d.warehouse.extTotal=document.getElementById('in_ext_total')?.value||''; d.warehouse.extUsed=document.getElementById('in_ext_used')?.value||'';}
+    else if(currentInputCat==='otdl'){ regions.forEach(r=>{ d.otdl[r]=document.getElementById(`in_otdl_${r}`)?.value||'';});}
+    else if(currentInputCat==='trucks'){ d.trucks.truck10w=document.getElementById('in_truck_10wheeler')?.value||''; d.trucks.truckAuv=document.getElementById('in_truck_AUV')?.value||''; d.trucks.truck6w=document.getElementById('in_truck_6wheeler')?.value||''; d.trucks.truck4w=document.getElementById('in_truck_4wheeler')?.value||''; d.trucks.truck20ft=document.getElementById('in_truck_20ft')?.value||'';}
+    else if(currentInputCat==='manpower'){ d.manpower.regular=document.getElementById('in_mp_reg')?.value||''; d.manpower.agency=document.getElementById('in_mp_agy')?.value||''; d.manpower.resigned=document.getElementById('in_mp_res')?.value||''; d.manpower.regHours=document.getElementById('in_mp_regH')?.value||''; d.manpower.agyHours=document.getElementById('in_mp_agyH')?.value||''; d.manpower.otHours=document.getElementById('in_mp_otH')?.value||''; d.manpower.absences=document.getElementById('in_mp_abs')?.value||''; d.manpower.requiredDays=document.getElementById('in_mp_days')?.value||''; }
+    refreshDashboard(); alert('Data saved'); }
+    function clearCategory(){ let inputs=document.querySelectorAll('#inputSections input'); inputs.forEach(i=>i.value=''); saveCurrentInput(); }
+    function clearAllMonth(){ if(confirm('⚠️ Clear ALL metrics for this month?')){ let d=getCurrentData(); Object.keys(d).forEach(k=>{ if(k==='nonOtif') Object.keys(d.nonOtif).forEach(ki=>d.nonOtif[ki]=''); else if(k==='stockOuts'){ Object.keys(d.stockOuts.value).forEach(v=>d.stockOuts.value[v]=''); Object.keys(d.stockOuts.weight).forEach(w=>d.stockOuts.weight[w]='');} else if(typeof d[k]==='object') for(let sk in d[k]) d[k][sk]=''; else d[k]=''; }); refreshDashboard(); loadInputCategory(); } }
+    function populateFilters(){ let ySel=document.getElementById('yearSelect'), mSel=document.getElementById('monthSelect'); yearsList.forEach(y=>{ let opt=document.createElement('option'); opt.value=y; opt.text=y; ySel.appendChild(opt); }); monthsList.forEach(m=>{ let opt=document.createElement('option'); opt.value=m; opt.text=m; mSel.appendChild(opt); }); ySel.value='2024'; mSel.value='October'; ySel.onchange=()=>{refreshDashboard(); loadInputCategory();}; mSel.onchange=()=>{refreshDashboard(); loadInputCategory();}; }
+    function initTabs(){ document.querySelectorAll('.tab-btn').forEach(btn=>{ btn.addEventListener('click',(e)=>{ let tab=btn.getAttribute('data-tab'); document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active')); document.getElementById(`tab-${tab}`).classList.add('active'); if(tab==='input') loadInputCategory(); }); }); }
+    window.onload=()=>{ populateFilters(); initTabs(); document.getElementById('inputCategory').innerHTML=`<option value="otif">OTIF Rate</option><option value="volume">Volume Fill</option><option value="fillrates">Fill Rates</option><option value="nonotif">Non-OTIF</option><option value="stockouts">Stock Outs</option><option value="warehouse">Warehouse</option><option value="otdl">OTDL Days</option><option value="trucks">Truck Utilization</option><option value="manpower">Manpower</option>`; document.getElementById('inputCategory').onchange=()=>loadInputCategory(); document.getElementById('saveDataBtn').onclick=()=>saveCurrentInput(); document.getElementById('clearCategoryBtn').onclick=()=>clearCategory(); document.getElementById('clearAllBtn').onclick=()=>clearAllMonth(); refreshDashboard(); loadInputCategory(); };
+</script>
+</body>
+</html>

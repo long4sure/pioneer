@@ -1,0 +1,1287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finance Department Dashboard - Enhanced</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #141E30 0%, #243B55 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: rgba(255,255,255,0.95);
+            border-radius: 30px;
+            padding: 30px;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.4);
+            backdrop-filter: blur(10px);
+        }
+
+        h1 {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+            font-size: 2.8em;
+            font-weight: 800;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .badge {
+            background: #667eea;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            background: white;
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .month-selector {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 15px 25px;
+            border-radius: 15px;
+        }
+
+        .month-selector select {
+            padding: 10px 25px;
+            font-size: 1em;
+            border: none;
+            border-radius: 10px;
+            background: white;
+            cursor: pointer;
+            font-weight: 600;
+            color: #667eea;
+            box-shadow: 0 5px 15px rgba(102,126,234,0.2);
+        }
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .kpi-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
+            transition: transform 0.3s, box-shadow 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 45px rgba(102, 126, 234, 0.6);
+        }
+
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            transform: rotate(30deg);
+        }
+
+        .kpi-card h3 {
+            font-size: 1.2em;
+            margin-bottom: 20px;
+            opacity: 0.9;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .kpi-value {
+            font-size: 2.2em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .kpi-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .kpi-detail-item {
+            text-align: center;
+        }
+
+        .kpi-detail-label {
+            font-size: 0.8em;
+            opacity: 0.8;
+            margin-bottom: 5px;
+        }
+
+        .kpi-detail-value {
+            font-size: 1.3em;
+            font-weight: bold;
+        }
+
+        .progress-container {
+            margin-top: 15px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 12px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: white;
+            transition: width 0.5s ease;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(255,255,255,0.5);
+        }
+
+        .section-title {
+            font-size: 1.8em;
+            color: #333;
+            margin: 40px 0 25px;
+            padding-bottom: 15px;
+            border-bottom: 4px solid #667eea;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .section-title span {
+            background: #667eea;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 25px;
+            font-size: 0.5em;
+        }
+
+        .input-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .input-card {
+            background: white;
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border: 1px solid rgba(102,126,234,0.1);
+            transition: all 0.3s;
+        }
+
+        .input-card:hover {
+            box-shadow: 0 15px 40px rgba(102,126,234,0.15);
+            border-color: #667eea;
+        }
+
+        .input-card h4 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+            font-size: 0.95em;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 1em;
+            transition: all 0.3s;
+            background: #f8f9fa;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 5px 15px rgba(102,126,234,0.1);
+        }
+
+        .input-group input:hover {
+            border-color: #999;
+        }
+
+        .input-suffix {
+            position: absolute;
+            right: 15px;
+            top: 42px;
+            color: #999;
+            font-weight: 600;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .results-table-container {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow-x: auto;
+        }
+
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .results-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .results-table td {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .results-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .results-table tbody tr:hover {
+            background: #f5f7fa;
+        }
+
+        .status-good {
+            color: #10b981;
+            font-weight: bold;
+            background: #d1fae5;
+            padding: 5px 10px;
+            border-radius: 20px;
+            display: inline-block;
+        }
+
+        .status-warning {
+            color: #ef4444;
+            font-weight: bold;
+            background: #fee2e2;
+            padding: 5px 10px;
+            border-radius: 20px;
+            display: inline-block;
+        }
+
+        .status-neutral {
+            color: #f59e0b;
+            font-weight: bold;
+            background: #fef3c7;
+            padding: 5px 10px;
+            border-radius: 20px;
+            display: inline-block;
+        }
+
+        .mini-chart {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .bar-chart {
+            display: flex;
+            align-items: flex-end;
+            height: 150px;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .bar {
+            flex: 1;
+            background: linear-gradient(to top, #667eea, #764ba2);
+            border-radius: 10px 10px 0 0;
+            min-height: 20px;
+            transition: height 0.5s;
+            position: relative;
+        }
+
+        .bar-label {
+            text-align: center;
+            margin-top: 10px;
+            font-size: 0.8em;
+            color: #666;
+        }
+
+        .insights-box {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .insights-box h4 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .insights-list {
+            list-style: none;
+        }
+
+        .insights-list li {
+            margin-bottom: 12px;
+            padding: 15px 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: transform 0.2s;
+        }
+
+        .insights-list li:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(102,126,234,0.2);
+        }
+
+        .insight-icon {
+            font-size: 1.5em;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 10px 20px rgba(102,126,234,0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px rgba(102,126,234,0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+            transform: translateY(-2px);
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid #e0e0e0;
+            color: #666;
+        }
+
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: help;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background: #333;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            border-radius: 8px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div>
+                <h1>📊 FINANCE DASHBOARD PRO</h1>
+                <div class="subtitle">
+                    <span>Real-time Financial Performance Tracker</span>
+                    <span class="badge">v2.0</span>
+                    <span class="badge" style="background: #10b981;">Live Updates</span>
+                </div>
+            </div>
+            <div class="month-selector">
+                <label for="month" style="margin-right: 10px; font-weight: 600;">Reporting Period:</label>
+                <select id="month" onchange="updateMonth()">
+                    <option value="January">January 2024</option>
+                    <option value="February">February 2024</option>
+                    <option value="March">March 2024</option>
+                    <option value="April">April 2024</option>
+                    <option value="May">May 2024</option>
+                    <option value="June">June 2024</option>
+                    <option value="July">July 2024</option>
+                    <option value="August">August 2024</option>
+                    <option value="September">September 2024</option>
+                    <option value="October" selected>October 2024</option>
+                    <option value="November">November 2024</option>
+                    <option value="December">December 2024</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Enhanced KPI Cards with Expense Included -->
+        <div class="kpi-grid" id="kpiCards">
+            <!-- Filled by JavaScript -->
+        </div>
+
+        <!-- Input Sections -->
+        <h2 class="section-title">
+            📝 Data Entry Panel
+            <span>Enter your values below</span>
+        </h2>
+        <div class="input-grid">
+            <!-- Production & Costs -->
+            <div class="input-card">
+                <h4>🏭 Production & Conversion</h4>
+                <div class="input-group">
+                    <label>Volume Produced (MT):</label>
+                    <input type="number" id="volumeActual" value="1235.08" step="0.01" oninput="calculateAll()">
+                    <span class="input-suffix">MT</span>
+                </div>
+                <div class="input-group">
+                    <label>Volume Target (MT):</label>
+                    <input type="number" id="volumeTarget" value="1221.87" step="0.01" oninput="calculateAll()">
+                    <span class="input-suffix">MT</span>
+                </div>
+                <div class="input-group">
+                    <label>Conversion Cost - SC Only (PHP/KG):</label>
+                    <input type="number" id="convCostSC" value="10.93" step="0.01" oninput="calculateAll()">
+                    <span class="input-suffix">PHP/kg</span>
+                </div>
+                <div class="input-group">
+                    <label>Conversion Cost - Overall (PHP/KG):</label>
+                    <input type="number" id="convCostOverall" value="18.58" step="0.01" oninput="calculateAll()">
+                    <span class="input-suffix">PHP/kg</span>
+                </div>
+            </div>
+
+            <!-- Operational & Capital Costs -->
+            <div class="input-card">
+                <h4>💰 Cost Management</h4>
+                <div class="input-group">
+                    <label>Operational Cost - Actual (PHP):</label>
+                    <input type="number" id="opActual" value="13498890.24" step="0.01" oninput="calculateAll()">
+                    <span class="input-suffix">PHP</span>
+                </div>
+                <div class="input-group">
+                    <label>Operational Cost - Budget (PHP):</label>
+                    <input type="number" id="opBudget" value="16189431.26" step="0.01" oninput="calculateAll()">
+                    <span class="input-suffix">PHP</span>
+                </div>
+                <div class="input-group">
+                    <label>Capital Expenditure - Actual (PHP):</label>
+                    <input type="number" id="capActual" value="2042360" step="0.01" oninput="calculateAll()">
+                    <span class="input-suffix">PHP</span>
+                </div>
+                <div class="input-group">
+                    <label>Capital Expenditure - Budget (PHP):</label>
+                    <input type="number" id="capBudget" value="1946800" step="0.01" oninput="calculateAll()">
+                    <span class="input-suffix">PHP</span>
+                </div>
+                <div class="input-group">
+                    <label>Other Expense - Actual (PHP):</label>
+                    <input type="number" id="expActual" value="675110" step="0.01" oninput="calculateAll()">
+                    <span class="input-suffix">PHP</span>
+                </div>
+                <div class="input-group">
+                    <label>Other Expense - Budget (PHP):</label>
+                    <input type="number" id="expBudget" value="602100" step="0.01" oninput="calculateAll()">
+                    <span class="input-suffix">PHP</span>
+                </div>
+            </div>
+
+            <!-- Labor Reports -->
+            <div class="input-card">
+                <h4>👥 Labor & Workforce</h4>
+                <div class="input-group">
+                    <label>Regular Hours - Direct Labor:</label>
+                    <input type="number" id="regDL" value="30584.01" step="0.01" oninput="calculateAll()">
+                    <span class="input-suffix">hrs</span>
+                </div>
+                <div class="input-group">
+                    <label>Overtime Hours - Direct Labor:</label>
+                    <input type="number" id="otDL" value="7548.5" step="0.01" oninput="calculateAll()">
+                    <span class="input-suffix">hrs</span>
+                </div>
+                <div class="input-group">
+                    <label>Regular Hours - Indirect Labor:</label>
+                    <input type="number" id="regIL" value="6066.83" step="0.01" oninput="calculateAll()">
+                    <span class="input-suffix">hrs</span>
+                </div>
+                <div class="input-group">
+                    <label>Overtime Hours - Indirect Labor:</label>
+                    <input type="number" id="otIL" value="2156.5" step="0.01" oninput="calculateAll()">
+                    <span class="input-suffix">hrs</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Section with Enhanced Layout -->
+        <h2 class="section-title">
+            📊 Analysis & Insights
+            <span>Real-time</span>
+        </h2>
+        
+        <div class="results-grid">
+            <!-- Left Column - Tables -->
+            <div>
+                <!-- Cost Summary Table -->
+                <div class="results-table-container">
+                    <h3 style="margin-bottom: 20px; color: #333;">💰 Cost Summary</h3>
+                    <table class="results-table" id="costSummary">
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th>Actual (PHP)</th>
+                                <th>Budget (PHP)</th>
+                                <th>Variance %</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="costSummaryBody">
+                            <!-- Filled by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Labor Analysis Table -->
+                <div class="results-table-container" style="margin-top: 25px;">
+                    <h3 style="margin-bottom: 20px; color: #333;">⏰ Labor Analysis</h3>
+                    <table class="results-table" id="laborSummary">
+                        <thead>
+                            <tr>
+                                <th>Labor Type</th>
+                                <th>Regular</th>
+                                <th>Overtime</th>
+                                <th>Total</th>
+                                <th>OT %</th>
+                            </tr>
+                        </thead>
+                        <tbody id="laborSummaryBody">
+                            <!-- Filled by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Right Column - Insights & Charts -->
+            <div>
+                <!-- Key Insights -->
+                <div class="insights-box">
+                    <h4>
+                        <span>💡 Key Insights</span>
+                        <span class="badge" style="background: #10b981;" id="insightCount">0</span>
+                    </h4>
+                    <ul class="insights-list" id="insightsList">
+                        <!-- Filled by JavaScript -->
+                    </ul>
+                </div>
+
+                <!-- Mini Cost Distribution Chart -->
+                <div class="results-table-container" style="margin-top: 25px;">
+                    <h3 style="margin-bottom: 20px; color: #333;">📊 Cost Distribution</h3>
+                    <div class="mini-chart">
+                        <div class="bar-chart" id="costChart">
+                            <!-- Filled by JavaScript -->
+                        </div>
+                        <div style="display: flex; justify-content: space-around; margin-top: 10px;">
+                            <span style="font-size: 0.8em;">Operational</span>
+                            <span style="font-size: 0.8em;">Capital</span>
+                            <span style="font-size: 0.8em;">Other</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="action-buttons">
+                    <button class="btn btn-primary" onclick="saveScenario()">
+                        💾 Save Scenario
+                    </button>
+                    <button class="btn btn-success" onclick="exportData()">
+                        📥 Export CSV
+                    </button>
+                    <button class="btn btn-secondary" onclick="resetToDefaults()">
+                        🔄 Reset
+                    </button>
+                    <button class="btn btn-secondary" onclick="clearAll()">
+                        🗑️ Clear All
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>🚀 Enhanced Finance Dashboard | Real-time calculations | Hover over items for details</p>
+            <p style="font-size: 0.9em; margin-top: 10px;">Last updated: <span id="lastUpdate">Just now</span></p>
+        </div>
+    </div>
+
+    <script>
+        // Default values from the Excel file
+        const defaults = {
+            volumeActual: 1235.08,
+            volumeTarget: 1221.87,
+            convCostSC: 10.93,
+            convCostOverall: 18.58,
+            opActual: 13498890.24,
+            opBudget: 16189431.26,
+            capActual: 2042360,
+            capBudget: 1946800,
+            expActual: 675110,
+            expBudget: 602100,
+            regDL: 30584.01,
+            otDL: 7548.5,
+            regIL: 6066.83,
+            otIL: 2156.5
+        };
+
+        // Store scenarios
+        let scenarios = JSON.parse(localStorage.getItem('financeScenarios')) || {};
+
+        // Initialize with defaults
+        function initializeInputs() {
+            for (let key in defaults) {
+                const element = document.getElementById(key);
+                if (element) {
+                    element.value = defaults[key];
+                }
+            }
+            calculateAll();
+            updateLastUpdate();
+        }
+
+        // Clear all inputs
+        function clearAll() {
+            if (confirm('Clear all input values?')) {
+                const inputs = document.querySelectorAll('input[type="number"]');
+                inputs.forEach(input => {
+                    input.value = '';
+                });
+                calculateAll();
+            }
+        }
+
+        // Reset to defaults
+        function resetToDefaults() {
+            if (confirm('Reset to default values?')) {
+                initializeInputs();
+            }
+        }
+
+        // Update month display
+        function updateMonth() {
+            calculateAll();
+        }
+
+        // Save current scenario
+        function saveScenario() {
+            const month = document.getElementById('month').value;
+            const scenarioName = prompt('Enter a name for this scenario:', `${month} Scenario`);
+            
+            if (scenarioName) {
+                const currentData = {};
+                const inputs = document.querySelectorAll('input[type="number"]');
+                inputs.forEach(input => {
+                    currentData[input.id] = input.value;
+                });
+                
+                scenarios[scenarioName] = {
+                    data: currentData,
+                    month: month,
+                    timestamp: new Date().toLocaleString()
+                };
+                
+                localStorage.setItem('financeScenarios', JSON.stringify(scenarios));
+                alert('Scenario saved successfully!');
+            }
+        }
+
+        // Export data to CSV
+        function exportData() {
+            const month = document.getElementById('month').value;
+            const volumeActual = document.getElementById('volumeActual').value || 0;
+            const volumeTarget = document.getElementById('volumeTarget').value || 0;
+            const volumePercent = volumeTarget ? ((volumeActual / volumeTarget) * 100).toFixed(2) : 0;
+            
+            const csvContent = [
+                ['Category', 'Actual', 'Budget', 'Variance %', 'Month'],
+                ['Operational Cost', document.getElementById('opActual').value || 0, document.getElementById('opBudget').value || 0, 
+                 ((document.getElementById('opActual').value || 0) / (document.getElementById('opBudget').value || 1) * 100).toFixed(2), month],
+                ['Capital Expenditure', document.getElementById('capActual').value || 0, document.getElementById('capBudget').value || 0,
+                 ((document.getElementById('capActual').value || 0) / (document.getElementById('capBudget').value || 1) * 100).toFixed(2), month],
+                ['Other Expense', document.getElementById('expActual').value || 0, document.getElementById('expBudget').value || 0,
+                 ((document.getElementById('expActual').value || 0) / (document.getElementById('expBudget').value || 1) * 100).toFixed(2), month],
+                [],
+                ['Volume Analysis', 'Value', 'Unit'],
+                ['Volume Produced', volumeActual, 'MT'],
+                ['Volume Target', volumeTarget, 'MT'],
+                ['Achievement %', volumePercent, '%']
+            ].map(row => row.join(',')).join('\n');
+            
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `finance_data_${month}_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+        }
+
+        // Update last update timestamp
+        function updateLastUpdate() {
+            document.getElementById('lastUpdate').textContent = new Date().toLocaleString();
+        }
+
+        // Main calculation function
+        function calculateAll() {
+            // Get all input values (with fallback to 0 if empty)
+            const volumeActual = parseFloat(document.getElementById('volumeActual').value) || 0;
+            const volumeTarget = parseFloat(document.getElementById('volumeTarget').value) || 0;
+            const convCostSC = parseFloat(document.getElementById('convCostSC').value) || 0;
+            const convCostOverall = parseFloat(document.getElementById('convCostOverall').value) || 0;
+            const opActual = parseFloat(document.getElementById('opActual').value) || 0;
+            const opBudget = parseFloat(document.getElementById('opBudget').value) || 0;
+            const capActual = parseFloat(document.getElementById('capActual').value) || 0;
+            const capBudget = parseFloat(document.getElementById('capBudget').value) || 0;
+            const expActual = parseFloat(document.getElementById('expActual').value) || 0;
+            const expBudget = parseFloat(document.getElementById('expBudget').value) || 0;
+            const regDL = parseFloat(document.getElementById('regDL').value) || 0;
+            const otDL = parseFloat(document.getElementById('otDL').value) || 0;
+            const regIL = parseFloat(document.getElementById('regIL').value) || 0;
+            const otIL = parseFloat(document.getElementById('otIL').value) || 0;
+
+            // Calculations
+            const volumePercent = volumeTarget ? (volumeActual / volumeTarget) : 0;
+            const opPercent = opBudget ? (opActual / opBudget) : 0;
+            const capPercent = capBudget ? (capActual / capBudget) : 0;
+            const expPercent = expBudget ? (expActual / expBudget) : 0;
+            
+            // Total expenses and average
+            const totalActual = opActual + capActual + expActual;
+            const totalBudget = opBudget + capBudget + expBudget;
+            const totalPercent = totalBudget ? (totalActual / totalBudget) : 0;
+            
+            const totalRegHours = regDL + regIL;
+            const totalOTHours = otDL + otIL;
+            const totalHours = totalRegHours + totalOTHours;
+            const overallOTPercent = totalHours ? (totalOTHours / totalHours) : 0;
+            const dlOTPercent = regDL ? (otDL / regDL) : 0;
+            const ilOTPercent = regIL ? (otIL / regIL) : 0;
+
+            // Update KPI Cards with Expense included
+            updateKPICards({
+                volumeActual, volumeTarget, volumePercent,
+                convCostSC, convCostOverall,
+                opPercent, capPercent, expPercent, totalPercent
+            });
+
+            // Update Cost Summary Table
+            updateCostSummary({
+                opActual, opBudget, opPercent,
+                capActual, capBudget, capPercent,
+                expActual, expBudget, expPercent,
+                totalActual, totalBudget, totalPercent
+            });
+
+            // Update Labor Summary
+            updateLaborSummary({
+                regDL, otDL, regIL, otIL,
+                totalRegHours, totalOTHours,
+                dlOTPercent, ilOTPercent, overallOTPercent
+            });
+
+            // Update Cost Chart
+            updateCostChart({
+                opActual, capActual, expActual,
+                opBudget, capBudget, expBudget
+            });
+
+            // Update Insights
+            updateInsights({
+                volumePercent, opPercent, capPercent, expPercent, totalPercent,
+                dlOTPercent, ilOTPercent, overallOTPercent
+            });
+
+            updateLastUpdate();
+        }
+
+        function updateKPICards(data) {
+            const kpiGrid = document.getElementById('kpiCards');
+            
+            // Determine overall status
+            const totalEfficiency = data.totalPercent || 0;
+            let efficiencyStatus = '';
+            if (totalEfficiency < 0.95) efficiencyStatus = '✅ Excellent';
+            else if (totalEfficiency <= 1.05) efficiencyStatus = '⚠️ Acceptable';
+            else efficiencyStatus = '🔴 Critical';
+            
+            kpiGrid.innerHTML = `
+                <div class="kpi-card">
+                    <h3>📦 Production Volume</h3>
+                    <div class="kpi-value">${data.volumeActual.toFixed(2)} MT</div>
+                    <div class="progress-container">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                            <span>Target: ${data.volumeTarget.toFixed(2)} MT</span>
+                            <span>${(data.volumePercent * 100).toFixed(1)}%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${Math.min(data.volumePercent * 100, 100)}%"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <h3>💰 Conversion Cost</h3>
+                    <div class="kpi-details">
+                        <div class="kpi-detail-item">
+                            <div class="kpi-detail-label">SC Only</div>
+                            <div class="kpi-detail-value">₱${data.convCostSC.toFixed(2)}</div>
+                        </div>
+                        <div class="kpi-detail-item">
+                            <div class="kpi-detail-label">Overall</div>
+                            <div class="kpi-detail-value">₱${data.convCostOverall.toFixed(2)}</div>
+                        </div>
+                    </div>
+                    <div class="kpi-detail-label" style="text-align: center; margin-top: 10px;">per KG</div>
+                </div>
+                <div class="kpi-card">
+                    <h3>📊 Cost Efficiency</h3>
+                    <div class="kpi-details">
+                        <div class="kpi-detail-item">
+                            <div class="kpi-detail-label tooltip">
+                                Operational
+                                <span class="tooltiptext">vs Budget</span>
+                            </div>
+                            <div class="kpi-detail-value ${data.opPercent <= 1 ? 'status-good' : 'status-warning'}">
+                                ${(data.opPercent * 100).toFixed(1)}%
+                            </div>
+                        </div>
+                        <div class="kpi-detail-item">
+                            <div class="kpi-detail-label tooltip">
+                                Capital
+                                <span class="tooltiptext">vs Budget</span>
+                            </div>
+                            <div class="kpi-detail-value ${data.capPercent <= 1 ? 'status-good' : 'status-warning'}">
+                                ${(data.capPercent * 100).toFixed(1)}%
+                            </div>
+                        </div>
+                        <div class="kpi-detail-item">
+                            <div class="kpi-detail-label tooltip">
+                                Other Expense
+                                <span class="tooltiptext">vs Budget</span>
+                            </div>
+                            <div class="kpi-detail-value ${data.expPercent <= 1 ? 'status-good' : 'status-warning'}">
+                                ${(data.expPercent * 100).toFixed(1)}%
+                            </div>
+                        </div>
+                        <div class="kpi-detail-item">
+                            <div class="kpi-detail-label tooltip">
+                                TOTAL
+                                <span class="tooltiptext">Overall Efficiency</span>
+                            </div>
+                            <div class="kpi-detail-value" style="font-size: 1.5em; color: white;">
+                                ${(data.totalPercent * 100).toFixed(1)}%
+                            </div>
+                        </div>
+                    </div>
+                    <div style="text-align: center; margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.2);">
+                        <span class="${data.totalPercent < 0.95 ? 'status-good' : (data.totalPercent <= 1.05 ? 'status-neutral' : 'status-warning')}" 
+                              style="background: rgba(255,255,255,0.2); color: white; padding: 5px 15px;">
+                            ${data.totalPercent < 0.95 ? '✅ Under Budget' : (data.totalPercent <= 1.05 ? '⚠️ On Target' : '🔴 Over Budget')}
+                        </span>
+                    </div>
+                </div>
+            `;
+        }
+
+        function updateCostSummary(data) {
+            const tbody = document.getElementById('costSummaryBody');
+            
+            // Calculate variances
+            const opVariance = data.opActual - data.opBudget;
+            const capVariance = data.capActual - data.capBudget;
+            const expVariance = data.expActual - data.expBudget;
+            const totalVariance = data.totalActual - data.totalBudget;
+            
+            tbody.innerHTML = `
+                <tr>
+                    <td><strong>Operational Cost</strong></td>
+                    <td>₱${formatNumber(data.opActual)}</td>
+                    <td>₱${formatNumber(data.opBudget)}</td>
+                    <td class="${opVariance <= 0 ? 'status-good' : 'status-warning'}">${(data.opPercent * 100).toFixed(1)}%</td>
+                    <td><span class="${data.opPercent <= 1 ? 'status-good' : 'status-warning'}">${data.opPercent <= 1 ? '✅ Good' : '⚠️ Overspent'}</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Capital Expenditure</strong></td>
+                    <td>₱${formatNumber(data.capActual)}</td>
+                    <td>₱${formatNumber(data.capBudget)}</td>
+                    <td class="${capVariance <= 0 ? 'status-good' : 'status-warning'}">${(data.capPercent * 100).toFixed(1)}%</td>
+                    <td><span class="${data.capPercent <= 1 ? 'status-good' : 'status-warning'}">${data.capPercent <= 1 ? '✅ Good' : '⚠️ Overspent'}</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Other Expense</strong></td>
+                    <td>₱${formatNumber(data.expActual)}</td>
+                    <td>₱${formatNumber(data.expBudget)}</td>
+                    <td class="${expVariance <= 0 ? 'status-good' : 'status-warning'}">${(data.expPercent * 100).toFixed(1)}%</td>
+                    <td><span class="${data.expPercent <= 1 ? 'status-good' : 'status-warning'}">${data.expPercent <= 1 ? '✅ Good' : '⚠️ Overspent'}</span></td>
+                </tr>
+                <tr style="background: #f0f0f0; font-weight: bold;">
+                    <td>TOTAL</td>
+                    <td>₱${formatNumber(data.totalActual)}</td>
+                    <td>₱${formatNumber(data.totalBudget)}</td>
+                    <td class="${totalVariance <= 0 ? 'status-good' : 'status-warning'}">${(data.totalPercent * 100).toFixed(1)}%</td>
+                    <td><span class="${data.totalPercent <= 1 ? 'status-good' : 'status-warning'}">${data.totalPercent <= 1 ? '✅ Good' : '⚠️ Overspent'}</span></td>
+                </tr>
+            `;
+        }
+
+        function updateLaborSummary(data) {
+            const tbody = document.getElementById('laborSummaryBody');
+            
+            const dlTotal = data.regDL + data.otDL;
+            const ilTotal = data.regIL + data.otIL;
+            
+            tbody.innerHTML = `
+                <tr>
+                    <td><strong>Direct Labor</strong></td>
+                    <td>${formatNumber(data.regDL, 0)}</td>
+                    <td>${formatNumber(data.otDL, 0)}</td>
+                    <td>${formatNumber(dlTotal, 0)}</td>
+                    <td><span class="${data.dlOTPercent <= 0.25 ? 'status-good' : (data.dlOTPercent <= 0.35 ? 'status-neutral' : 'status-warning')}">${(data.dlOTPercent * 100).toFixed(1)}%</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Indirect Labor</strong></td>
+                    <td>${formatNumber(data.regIL, 0)}</td>
+                    <td>${formatNumber(data.otIL, 0)}</td>
+                    <td>${formatNumber(ilTotal, 0)}</td>
+                    <td><span class="${data.ilOTPercent <= 0.25 ? 'status-good' : (data.ilOTPercent <= 0.35 ? 'status-neutral' : 'status-warning')}">${(data.ilOTPercent * 100).toFixed(1)}%</span></td>
+                </tr>
+                <tr style="background: #f0f0f0; font-weight: bold;">
+                    <td>TOTAL</td>
+                    <td>${formatNumber(data.totalRegHours, 0)}</td>
+                    <td>${formatNumber(data.totalOTHours, 0)}</td>
+                    <td>${formatNumber(data.totalRegHours + data.totalOTHours, 0)}</td>
+                    <td><span class="${data.overallOTPercent <= 0.25 ? 'status-good' : (data.overallOTPercent <= 0.35 ? 'status-neutral' : 'status-warning')}">${(data.overallOTPercent * 100).toFixed(1)}%</span></td>
+                </tr>
+            `;
+        }
+
+        function updateCostChart(data) {
+            const chartContainer = document.getElementById('costChart');
+            
+            // Find max value for scaling
+            const maxValue = Math.max(data.opActual, data.capActual, data.expActual, 
+                                      data.opBudget, data.capBudget, data.expBudget);
+            
+            const scale = maxValue ? 140 / maxValue : 1; // 140px max height
+            
+            chartContainer.innerHTML = `
+                <div style="display: flex; gap: 20px; justify-content: center;">
+                    <div style="flex: 1; text-align: center;">
+                        <div style="height: 150px; display: flex; align-items: flex-end; justify-content: center;">
+                            <div style="width: 40px; background: linear-gradient(to top, #667eea, #764ba2); height: ${Math.min(data.opActual * scale, 140)}px; border-radius: 10px 10px 0 0;"></div>
+                        </div>
+                        <div style="margin-top: 10px; font-size: 0.8em;">Actual</div>
+                        <div style="font-weight: bold; color: #667eea;">₱${formatNumber(data.opActual/1000000, 1)}M</div>
+                    </div>
+                    <div style="flex: 1; text-align: center;">
+                        <div style="height: 150px; display: flex; align-items: flex-end; justify-content: center;">
+                            <div style="width: 40px; background: linear-gradient(to top, #f59e0b, #fbbf24); height: ${Math.min(data.capActual * scale, 140)}px; border-radius: 10px 10px 0 0;"></div>
+                        </div>
+                        <div style="margin-top: 10px; font-size: 0.8em;">Actual</div>
+                        <div style="font-weight: bold; color: #f59e0b;">₱${formatNumber(data.capActual/1000000, 1)}M</div>
+                    </div>
+                    <div style="flex: 1; text-align: center;">
+                        <div style="height: 150px; display: flex; align-items: flex-end; justify-content: center;">
+                            <div style="width: 40px; background: linear-gradient(to top, #ef4444, #f87171); height: ${Math.min(data.expActual * scale, 140)}px; border-radius: 10px 10px 0 0;"></div>
+                        </div>
+                        <div style="margin-top: 10px; font-size: 0.8em;">Actual</div>
+                        <div style="font-weight: bold; color: #ef4444;">₱${formatNumber(data.expActual/1000000, 1)}M</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function updateInsights(data) {
+            const insightsList = document.getElementById('insightsList');
+            const month = document.getElementById('month').value;
+            
+            let insights = [];
+            
+            // Production insight
+            if (data.volumePercent > 1) {
+                insights.push({
+                    icon: '✅',
+                    text: `Production exceeded target by ${((data.volumePercent - 1) * 100).toFixed(1)}% in ${month}`,
+                    type: 'positive'
+                });
+            } else if (data.volumePercent < 1 && data.volumePercent > 0) {
+                insights.push({
+                    icon: '⚠️',
+                    text: `Production below target by ${((1 - data.volumePercent) * 100).toFixed(1)}% in ${month}`,
+                    type: 'warning'
+                });
+            }
+
+            // Cost insights
+            if (data.opPercent < 0.9) {
+                insights.push({
+                    icon: '✅',
+                    text: `Excellent operational cost control: ${((1 - data.opPercent) * 100).toFixed(1)}% under budget`,
+                    type: 'positive'
+                });
+            } else if (data.opPercent > 1.1) {
+                insights.push({
+                    icon: '🔴',
+                    text: `Critical: Operational costs ${((data.opPercent - 1) * 100).toFixed(1)}% over budget`,
+                    type: 'critical'
+                });
+            } else if (data.opPercent > 1) {
+                insights.push({
+                    icon: '⚠️',
+                    text: `Operational costs ${((data.opPercent - 1) * 100).toFixed(1)}% over budget`,
+                    type: 'warning'
+                });
+            }
+
+            if (data.capPercent > 1.1) {
+                insights.push({
+                    icon: '🔴',
+                    text: `Capital expenditure significantly over budget (${((data.capPercent - 1) * 100).toFixed(1)}%)`,
+                    type: 'critical'
+                });
+            } else if (data.capPercent > 1) {
+                insights.push({
+                    icon: '⚠️',
+                    text: `Capital expenditure ${((data.capPercent - 1) * 100).toFixed(1)}% over budget`,
+                    type: 'warning'
+                });
+            }
+
+            if (data.expPercent > 1.1) {
+                insights.push({
+                    icon: '🔴',
+                    text: `Other expenses ${((data.expPercent - 1) * 100).toFixed(1)}% over budget - Investigate urgently`,
+                    type: 'critical'
+                });
+            } else if (data.expPercent > 1) {
+                insights.push({
+                    icon: '⚠️',
+                    text: `Other expenses ${((data.expPercent - 1) * 100).toFixed(1)}% over budget`,
+                    type: 'warning'
+                });
+            }
+
+            // Total efficiency insight
+            if (data.totalPercent < 0.95) {
+                insights.push({
+                    icon: '✅',
+                    text: `Overall ${((1 - data.totalPercent) * 100).toFixed(1)}% under budget - Great cost management`,
+                    type: 'positive'
+                });
+            } else if (data.totalPercent > 1.05) {
+                insights.push({
+                    icon: '🔴',
+                    text: `Overall ${((data.totalPercent - 1) * 100).toFixed(1)}% over budget - Review all expenses`,
+                    type: 'critical'
+                });
+            }
+
+            // Labor insights
+            if (data.ilOTPercent > 0.4) {
+                insights.push({
+                    icon: '🔴',
+                    text: `Critical: Indirect Labor overtime at ${(data.ilOTPercent * 100).toFixed(1)}% - Immediate review needed`,
+                    type: 'critical'
+                });
+            } else if (data.ilOTPercent > 0.3) {
+                insights.push({
+                    icon: '⚠️',
+                    text: `High Indirect Labor overtime (${(data.ilOTPercent * 100).toFixed(1)}%) - Consider hiring`,
+                    type: 'warning'
+                });
+            }
+
+            if (data.dlOTPercent > 0.35) {
+                insights.push({
+                    icon: '⚠️',
+                    text: `High Direct Labor overtime (${(data.dlOTPercent * 100).toFixed(1)}%) - Monitor closely`,
+                    type: 'warning'
+                });
+            } else if (data.dlOTPercent < 0.15 && data.dlOTPercent > 0) {
+                insights.push({
+                    icon: '✅',
+                    text: `Healthy Direct Labor overtime at ${(data.dlOTPercent * 100).toFixed(1)}%`,
+                    type: 'positive'
+                });
+            }
+
+            // Comparison insights
+            if (data.opPercent > 1 && data.capPercent < 1 && data.expPercent > 1) {
+                insights.push({
+                    icon: '💡',
+                    text: `Operational and Other expenses are over budget, but Capital is under - Consider reallocating`,
+                    type: 'neutral'
+                });
+            }
+
+            // Add default insight if no data
+            if (insights.length === 0) {
+                insights.push({
+                    icon: '📝',
+                    text: `Enter values above to see insights for ${month}`,
+                    type: 'neutral'
+                });
+            }
+
+            // Sort insights by priority (critical first, then warnings, then positives)
+            insights.sort((a, b) => {
+                const priority = { 'critical': 0, 'warning': 1, 'neutral': 2, 'positive': 3 };
+                return priority[a.type] - priority[b.type];
+            });
+
+            // Update insight count
+            document.getElementById('insightCount').textContent = insights.length;
+
+            // Render insights
+            insightsList.innerHTML = insights.map(insight => 
+                `<li>
+                    <span class="insight-icon">${insight.icon}</span>
+                    <span>${insight.text}</span>
+                </li>`
+            ).join('');
+        }
+
+        // Helper function to format numbers
+        function formatNumber(num, decimals = 2) {
+            if (num === 0) return '0';
+            return num.toLocaleString(undefined, {
+                minimumFractionDigits: decimals,
+                maximumFractionDigits: decimals
+            });
+        }
+
+        // Initialize with defaults on page load
+        window.onload = initializeInputs;
+    </script>
+</body>
+</html>

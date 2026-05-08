@@ -1,0 +1,1229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Production - Machine Utilization Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            padding: 24px;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #2d2f33;
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 16px;
+            background-color: #fafbfc;
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: 1px solid #eef2f5;
+            flex-wrap: wrap;
+        }
+
+        .filter-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .filter-item label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #5f6775;
+            text-transform: uppercase;
+        }
+
+        .filter-item select {
+            padding: 6px 12px;
+            border: 1px solid #d0d5dd;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #2d2f33;
+            background-color: white;
+            cursor: pointer;
+        }
+
+        /* Tab Navigation */
+        .tab-nav {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 24px;
+            border-bottom: 2px solid #eef2f5;
+            padding-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 8px 16px;
+            border: none;
+            background: none;
+            font-size: 13px;
+            font-weight: 600;
+            color: #5f6775;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .tab-btn:hover {
+            color: #01b8aa;
+            background-color: #f0f7f7;
+        }
+
+        .tab-btn.active {
+            color: #01b8aa;
+            background-color: #e6f3f2;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* KPI Cards */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .kpi-card {
+            background-color: white;
+            border: 1px solid #eef2f5;
+            border-radius: 8px;
+            padding: 20px;
+            transition: all 0.2s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+        }
+
+        .kpi-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border-color: #01b8aa;
+        }
+
+        .kpi-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .kpi-card-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #5f6775;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .kpi-card-main-value {
+            font-size: 32px;
+            font-weight: 600;
+            color: #2d2f33;
+            margin-bottom: 8px;
+        }
+
+        .kpi-card-details {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .kpi-card-detail-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            color: #5f6775;
+            padding: 4px 0;
+            border-bottom: 1px dashed #f0f0f0;
+        }
+
+        .kpi-card-detail-label {
+            color: #5f6775;
+        }
+
+        .kpi-card-detail-value {
+            font-weight: 600;
+            color: #2d2f33;
+        }
+
+        .kpi-card-progress {
+            height: 6px;
+            background-color: #eef2f5;
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 12px 0 8px;
+        }
+
+        .kpi-card-progress-bar {
+            height: 100%;
+            background-color: #01b8aa;
+            border-radius: 3px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-excellent {
+            background-color: #e6f9ed;
+            color: #107c41;
+        }
+
+        .status-good {
+            background-color: #e3f2fd;
+            color: #0d47a1;
+        }
+
+        .status-warning {
+            background-color: #fff1e0;
+            color: #d83b01;
+        }
+
+        .status-critical {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+
+        .status-neutral {
+            background-color: #fef7e0;
+            color: #966c00;
+        }
+
+        /* Section Headers */
+        .section-header {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2d2f33;
+            margin: 30px 0 20px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #01b8aa;
+        }
+
+        /* Tables */
+        .table-container {
+            background-color: white;
+            border: 1px solid #eef2f5;
+            border-radius: 6px;
+            margin-bottom: 24px;
+            overflow-x: auto;
+        }
+
+        .table-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #eef2f5;
+            background-color: #fafbfc;
+            font-size: 14px;
+            font-weight: 600;
+            color: #2d2f33;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .table-total {
+            font-size: 13px;
+            color: #5f6775;
+            background-color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            border: 1px solid #d0d5dd;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            padding: 14px 16px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #5f6775;
+            text-transform: uppercase;
+            border-bottom: 2px solid #eef2f5;
+            background-color: #fafbfc;
+        }
+
+        td {
+            padding: 12px 16px;
+            font-size: 13px;
+            color: #2d2f33;
+            border-bottom: 1px solid #eef2f5;
+        }
+
+        /* Input Panel */
+        .input-panel {
+            background-color: white;
+            border: 1px solid #eef2f5;
+            border-radius: 6px;
+            margin: 24px 0;
+        }
+
+        .panel-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #eef2f5;
+            background-color: #fafbfc;
+            font-size: 14px;
+            font-weight: 600;
+            color: #2d2f33;
+        }
+
+        .input-controls {
+            display: flex;
+            gap: 20px;
+            padding: 20px;
+            background-color: #fafbfc;
+            border-bottom: 1px solid #eef2f5;
+            flex-wrap: wrap;
+        }
+
+        .input-selector {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 2;
+        }
+
+        .input-selector label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #5f6775;
+            text-transform: uppercase;
+            min-width: 100px;
+        }
+
+        .input-selector select {
+            padding: 8px 16px;
+            border: 1px solid #d0d5dd;
+            border-radius: 4px;
+            font-size: 13px;
+            flex: 1;
+            max-width: 500px;
+        }
+
+        .input-actions {
+            display: flex;
+            gap: 10px;
+            flex: 1;
+            justify-content: flex-end;
+        }
+
+        .input-sections {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            padding: 20px;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .input-section {
+            background-color: #fafbfc;
+            border: 1px solid #eef2f5;
+            border-radius: 6px;
+            padding: 20px;
+        }
+
+        .input-section h4 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #5f6775;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #eef2f5;
+        }
+
+        .input-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .input-field {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .input-field label {
+            font-size: 11px;
+            font-weight: 600;
+            color: #5f6775;
+            text-transform: uppercase;
+        }
+
+        .input-field input {
+            padding: 8px 12px;
+            border: 1px solid #d0d5dd;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #2d2f33;
+            background-color: white;
+        }
+
+        .input-field input:focus {
+            outline: none;
+            border-color: #01b8aa;
+        }
+
+        .input-field input::placeholder {
+            color: #aaa;
+            font-style: italic;
+        }
+
+        .button-group {
+            padding: 16px 20px;
+            border-top: 1px solid #eef2f5;
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: 1px solid #d0d5dd;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            background: white;
+            color: #2d2f33;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            background-color: #f0f0f0;
+        }
+
+        .btn-primary {
+            background-color: #01b8aa;
+            border-color: #01b8aa;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #019f92;
+        }
+
+        .btn-danger {
+            background-color: #d83b01;
+            border-color: #d83b01;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #b32e01;
+        }
+
+        .footer {
+            text-align: right;
+            font-size: 12px;
+            color: #5f6775;
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid #eef2f5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header with Filters -->
+        <div class="header">
+            <h1>PRODUCTION - MACHINE UTILIZATION</h1>
+            <div class="filter-group">
+                <div class="filter-item">
+                    <label>Year:</label>
+                    <select id="yearSelect" onchange="updateTimestamp()">
+                        <option value="2023">2023</option>
+                        <option value="2024" selected>2024</option>
+                        <option value="2025">2025</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label>Month:</label>
+                    <select id="monthSelect" onchange="updateTimestamp()">
+                        <option value="January">January</option>
+                        <option value="February">February</option>
+                        <option value="March">March</option>
+                        <option value="April">April</option>
+                        <option value="May">May</option>
+                        <option value="June">June</option>
+                        <option value="July">July</option>
+                        <option value="August">August</option>
+                        <option value="September">September</option>
+                        <option value="October" selected>October</option>
+                        <option value="November">November</option>
+                        <option value="December">December</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab Navigation -->
+        <div class="tab-nav">
+            <button class="tab-btn active" onclick="switchTab('overview')">Overview</button>
+            <button class="tab-btn" onclick="switchTab('details')">Utilization Details</button>
+            <button class="tab-btn" onclick="switchTab('input')">Data Input</button>
+        </div>
+
+        <!-- OVERVIEW TAB -->
+        <div id="tab-overview" class="tab-content active">
+            <!-- Top KPI Cards -->
+            <div class="kpi-grid">
+                <!-- Overall Utilization Card -->
+                <div class="kpi-card">
+                    <div class="kpi-card-header">
+                        <span class="kpi-card-title">Overall Utilization</span>
+                    </div>
+                    <div class="kpi-card-main-value" id="overallUtilization">0%</div>
+                    <div class="kpi-card-details">
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Total Productive Time</span>
+                            <span class="kpi-card-detail-value" id="totalProductive">0 hrs</span>
+                        </div>
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Total Available Time</span>
+                            <span class="kpi-card-detail-value" id="totalAvailable">0 hrs</span>
+                        </div>
+                    </div>
+                    <div class="kpi-card-progress">
+                        <div class="kpi-card-progress-bar" id="utilizationProgress" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <!-- Machine Summary Card -->
+                <div class="kpi-card">
+                    <div class="kpi-card-header">
+                        <span class="kpi-card-title">Machine Summary</span>
+                    </div>
+                    <div class="kpi-card-main-value" id="totalMachines">0</div>
+                    <div class="kpi-card-details">
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Machines Available</span>
+                            <span class="kpi-card-detail-value" id="machinesAvailable">0</span>
+                        </div>
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Machines Used</span>
+                            <span class="kpi-card-detail-value" id="machinesUsed">0</span>
+                        </div>
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Production Days</span>
+                            <span class="kpi-card-detail-value" id="productionDays">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Top Downtime Causes Card -->
+                <div class="kpi-card">
+                    <div class="kpi-card-header">
+                        <span class="kpi-card-title">Top Downtime Causes</span>
+                    </div>
+                    <div class="kpi-card-details" id="topDowntimeList">
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">No Data</span>
+                            <span class="kpi-card-detail-value">0 hrs</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lines Summary Card -->
+                <div class="kpi-card">
+                    <div class="kpi-card-header">
+                        <span class="kpi-card-title">Production Lines</span>
+                    </div>
+                    <div class="kpi-card-main-value" id="activeLines">16</div>
+                    <div class="kpi-card-details">
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Lines with Data</span>
+                            <span class="kpi-card-detail-value" id="linesWithData">0</span>
+                        </div>
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Avg Utilization/Line</span>
+                            <span class="kpi-card-detail-value" id="avgLineUtilization">0%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Summary Table -->
+            <div class="section-header">Utilization Summary by Line</div>
+            <div class="table-container">
+                <div class="table-header">
+                    <span>Machine Utilization by Production Line</span>
+                    <span class="table-total" id="totalUtilizationSummary">Total: 0 hrs</span>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Line</th>
+                            <th>Productive Time</th>
+                            <th>Total Time</th>
+                            <th>Utilization %</th>
+                            <th>Machines</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="utilizationSummaryTable">
+                        <!-- Filled by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- DETAILS TAB - Clean version without bottom cards -->
+        <div id="tab-details" class="tab-content">
+            <div class="section-header">Machine Utilization - Detailed Breakdown</div>
+            
+            <!-- Line Selector for Details -->
+            <div class="input-controls" style="margin-bottom: 20px;">
+                <div class="input-selector">
+                    <label>View Line Details:</label>
+                    <select id="detailLineSelector" onchange="loadLineDetails()">
+                        <option value="summary">📊 SUMMARY OF ALL LINE</option>
+                        <option value="L06_FILLING">🔹 LINE 6- EPOXY LINE (FILLING)</option>
+                        <option value="L06_MIXER">🔹 LINE 6- EPOXY LINE (MIXER)</option>
+                        <option value="L04_FILLING">🔹 LINE 4 - ELASTO FILLING</option>
+                        <option value="L04_MIXING">🔹 LINE 4 - ELASTO MIXING</option>
+                        <option value="L03_ITALY">🔹 LINE 3- ITALY MACHINE</option>
+                        <option value="L03_KOREA">🔹 LINE 3 - KOREA MACHINE</option>
+                        <option value="L01_MIXER">🔹 L01 - COATINGS (MIXER)</option>
+                        <option value="L01_MILLING">🔹 L01 - COATINGS (MILLING)</option>
+                        <option value="L07_TUBE">🔹 LINE 7 - EPOXY TUBE</option>
+                        <option value="L09_EPS">🔹 LINE 9 - EPS</option>
+                        <option value="L10_BOND">🔹 LINE 10 - CONTACT BOND</option>
+                        <option value="L11_SILICONE">🔹 LINE 11 - SILICONE NEW</option>
+                        <option value="L12_EPOXY">🔹 LINE 12 - EPOXY BASED</option>
+                        <option value="L13_WATER">🔹 LINE 13 - WATER BASED</option>
+                        <option value="L14_FILLING">🔹 LINE 14 - FILLING</option>
+                        <option value="L14_MIXING">🔹 LINE 14 - MIXING</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Detailed Utilization Table -->
+            <div class="table-container">
+                <div class="table-header">
+                    <span>23 Utilization Categories Breakdown</span>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>Hours</th>
+                            <th>% of Total</th>
+                        </tr>
+                    </thead>
+                    <tbody id="detailUtilizationTable">
+                        <!-- Filled by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- DATA INPUT TAB -->
+        <div id="tab-input" class="tab-content">
+            <div class="input-panel">
+                <div class="panel-header">MACHINE UTILIZATION DATA INPUT</div>
+                
+                <!-- Line Selector -->
+                <div class="input-controls">
+                    <div class="input-selector">
+                        <label>Select Line:</label>
+                        <select id="lineSelector" onchange="loadLineData()">
+                            <option value="summary">📊 SUMMARY OF ALL LINE</option>
+                            <option value="L06_FILLING">🔹 LINE 6- EPOXY LINE (FILLING)</option>
+                            <option value="L06_MIXER">🔹 LINE 6- EPOXY LINE (MIXER)</option>
+                            <option value="L04_FILLING">🔹 LINE 4 - ELASTO FILLING</option>
+                            <option value="L04_MIXING">🔹 LINE 4 - ELASTO MIXING</option>
+                            <option value="L03_ITALY">🔹 LINE 3- ITALY MACHINE</option>
+                            <option value="L03_KOREA">🔹 LINE 3 - KOREA MACHINE</option>
+                            <option value="L01_MIXER">🔹 L01 - COATINGS (MIXER)</option>
+                            <option value="L01_MILLING">🔹 L01 - COATINGS (MILLING)</option>
+                            <option value="L07_TUBE">🔹 LINE 7 - EPOXY TUBE</option>
+                            <option value="L09_EPS">🔹 LINE 9 - EPS</option>
+                            <option value="L10_BOND">🔹 LINE 10 - CONTACT BOND</option>
+                            <option value="L11_SILICONE">🔹 LINE 11 - SILICONE NEW</option>
+                            <option value="L12_EPOXY">🔹 LINE 12 - EPOXY BASED</option>
+                            <option value="L13_WATER">🔹 LINE 13 - WATER BASED</option>
+                            <option value="L14_FILLING">🔹 LINE 14 - FILLING</option>
+                            <option value="L14_MIXING">🔹 LINE 14 - MIXING</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Input Sections -->
+                <div class="input-sections" id="inputSections">
+                    <!-- Filled by JavaScript -->
+                </div>
+
+                <div class="button-group">
+                    <button class="btn btn-danger" onclick="clearCurrentLine()">Clear This Line</button>
+                    <button class="btn" onclick="clearAllLines()">Clear All Lines</button>
+                    <button class="btn btn-primary" onclick="saveLineData()">Save Line Data</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            Last updated: <span id="lastUpdate">Just now</span>
+        </div>
+    </div>
+
+    <script>
+        // Data structure for all lines - ALL VALUES START EMPTY
+        let productionData = {
+            summary: { name: 'SUMMARY OF ALL LINE' },
+            L06_FILLING: { 
+                name: 'LINE 6- EPOXY LINE (FILLING)',
+                productive: '', noPlan: '', noHc: '', changeOver: '', meeting: '', 
+                sanitation: '', startup: '', shutdown: '', testing: '', breaktime: '',
+                pm: '', forceMajeure: '', elecBreakdown: '', mechBreakdown: '', materialsSupply: '',
+                sorting: '', techDowntime: '', noManpower: '', udtMeeting: '', noOt: '',
+                noBulkmix: '', transfer: '', idle: '',
+                machinesAvail: '', machinesUsed: '', prodDays: ''
+            },
+            L06_MIXER: { 
+                name: 'LINE 6- EPOXY LINE (MIXER)',
+                productive: '', noPlan: '', noHc: '', changeOver: '', meeting: '', 
+                sanitation: '', startup: '', shutdown: '', testing: '', breaktime: '',
+                pm: '', forceMajeure: '', elecBreakdown: '', mechBreakdown: '', materialsSupply: '',
+                sorting: '', techDowntime: '', noManpower: '', udtMeeting: '', noOt: '',
+                noBulkmix: '', transfer: '', idle: '',
+                machinesAvail: '', machinesUsed: '', prodDays: ''
+            },
+            L04_FILLING: { 
+                name: 'LINE 4 - ELASTO FILLING',
+                productive: '', noPlan: '', noHc: '', changeOver: '', meeting: '',
+                sanitation: '', startup: '', shutdown: '', testing: '', breaktime: '',
+                pm: '', forceMajeure: '', elecBreakdown: '', mechBreakdown: '', materialsSupply: '',
+                sorting: '', techDowntime: '', noManpower: '', udtMeeting: '', noOt: '',
+                noBulkmix: '', transfer: '', idle: '',
+                machinesAvail: '', machinesUsed: '', prodDays: ''
+            },
+            L04_MIXING: { 
+                name: 'LINE 4 - ELASTO MIXING',
+                productive: '', noPlan: '', noHc: '', changeOver: '', meeting: '',
+                sanitation: '', startup: '', shutdown: '', testing: '', breaktime: '',
+                pm: '', forceMajeure: '', elecBreakdown: '', mechBreakdown: '', materialsSupply: '',
+                sorting: '', techDowntime: '', noManpower: '', udtMeeting: '', noOt: '',
+                noBulkmix: '', transfer: '', idle: '',
+                machinesAvail: '', machinesUsed: '', prodDays: ''
+            },
+            L03_ITALY: { 
+                name: 'LINE 3- ITALY MACHINE',
+                productive: '', noPlan: '', noHc: '', changeOver: '', meeting: '',
+                sanitation: '', startup: '', shutdown: '', testing: '', breaktime: '',
+                pm: '', forceMajeure: '', elecBreakdown: '', mechBreakdown: '', materialsSupply: '',
+                sorting: '', techDowntime: '', noManpower: '', udtMeeting: '', noOt: '',
+                noBulkmix: '', transfer: '', idle: '',
+                machinesAvail: '', machinesUsed: '', prodDays: ''
+            },
+            L03_KOREA: { 
+                name: 'LINE 3 - KOREA MACHINE',
+                productive: '', noPlan: '', noHc: '', changeOver: '', meeting: '',
+                sanitation: '', startup: '', shutdown: '', testing: '', breaktime: '',
+                pm: '', forceMajeure: '', elecBreakdown: '', mechBreakdown: '', materialsSupply: '',
+                sorting: '', techDowntime: '', noManpower: '', udtMeeting: '', noOt: '',
+                noBulkmix: '', transfer: '', idle: '',
+                machinesAvail: '', machinesUsed: '', prodDays: ''
+            },
+            L01_MIXER: { 
+                name: 'L01 - COATINGS (MIXER)',
+                productive: '', noPlan: '', noHc: '', changeOver: '', meeting: '',
+                sanitation: '', startup: '', shutdown: '', testing: '', breaktime: '',
+                pm: '', forceMajeure: '', elecBreakdown: '', mechBreakdown: '', materialsSupply: '',
+                sorting: '', techDowntime: '', noManpower: '', udtMeeting: '', noOt: '',
+                noBulkmix: '', transfer: '', idle: '',
+                machinesAvail: '', machinesUsed: '', prodDays: ''
+            },
+            L01_MILLING: { 
+                name: 'L01 - COATINGS (MILLING)',
+                productive: '', noPlan: '', noHc: '', changeOver: '', meeting: '',
+                sanitation: '', startup: '', shutdown: '', testing: '', breaktime: '',
+                pm: '', forceMajeure: '', elecBreakdown: '', mechBreakdown: '', materialsSupply: '',
+                sorting: '', techDowntime: '', noManpower: '', udtMeeting: '', noOt: '',
+                noBulkmix: '', transfer: '', idle: '',
+                machinesAvail: '', machinesUsed: '', prodDays: ''
+            },
+            L07_TUBE: { 
+                name: 'LINE 7 - EPOXY TUBE',
+                productive: '', noPlan: '', noHc: '', changeOver: '', meeting: '',
+                sanitation: '', startup: '', shutdown: '', testing: '', breaktime: '',
+                pm: '', forceMajeure: '', elecBreakdown: '', mechBreakdown: '', materialsSupply: '',
+                sorting: '', techDowntime: '', noManpower: '', udtMeeting: '', noOt: '',
+                noBulkmix: '', transfer: '', idle: '',
+                machinesAvail: '', machinesUsed: '', prodDays: ''
+            },
+            L09_EPS: { 
+                name: 'LINE 9 - EPS',
+                productive: '', noPlan: '', noHc: '', changeOver: '', meeting: '',
+                sanitation: '', startup: '', shutdown: '', testing: '', breaktime: '',
+                pm: '', forceMajeure: '', elecBreakdown: '', mechBreakdown: '', materialsSupply: '',
+                sorting: '', techDowntime: '', noManpower: '', udtMeeting: '', noOt: '',
+                noBulkmix: '', transfer: '', idle: '',
+                machinesAvail: '', machinesUsed: '', prodDays: ''
+            },
+            L10_BOND: { 
+                name: 'LINE 10 - CONTACT BOND',
+                productive: '', noPlan: '', noHc: '', changeOver: '', meeting: '',
+                sanitation: '', startup: '', shutdown: '', testing: '', breaktime: '',
+                pm: '', forceMajeure: '', elecBreakdown: '', mechBreakdown: '', materialsSupply: '',
+                sorting: '', techDowntime: '', noManpower: '', udtMeeting: '', noOt: '',
+                noBulkmix: '', transfer: '', idle: '',
+                machinesAvail: '', machinesUsed: '', prodDays: ''
+            },
+            L11_SILICONE: { 
+                name: 'LINE 11 - SILICONE NEW',
+                productive: '', noPlan: '', noHc: '', changeOver: '', meeting: '',
+                sanitation: '', startup: '', shutdown: '', testing: '', breaktime: '',
+                pm: '', forceMajeure: '', elecBreakdown: '', mechBreakdown: '', materialsSupply: '',
+                sorting: '', techDowntime: '', noManpower: '', udtMeeting: '', noOt: '',
+                noBulkmix: '', transfer: '', idle: '',
+                machinesAvail: '', machinesUsed: '', prodDays: ''
+            },
+            L12_EPOXY: { 
+                name: 'LINE 12 - EPOXY BASED',
+                productive: '', noPlan: '', noHc: '', changeOver: '', meeting: '',
+                sanitation: '', startup: '', shutdown: '', testing: '', breaktime: '',
+                pm: '', forceMajeure: '', elecBreakdown: '', mechBreakdown: '', materialsSupply: '',
+                sorting: '', techDowntime: '', noManpower: '', udtMeeting: '', noOt: '',
+                noBulkmix: '', transfer: '', idle: '',
+                machinesAvail: '', machinesUsed: '', prodDays: ''
+            },
+            L13_WATER: { 
+                name: 'LINE 13 - WATER BASED',
+                productive: '', noPlan: '', noHc: '', changeOver: '', meeting: '',
+                sanitation: '', startup: '', shutdown: '', testing: '', breaktime: '',
+                pm: '', forceMajeure: '', elecBreakdown: '', mechBreakdown: '', materialsSupply: '',
+                sorting: '', techDowntime: '', noManpower: '', udtMeeting: '', noOt: '',
+                noBulkmix: '', transfer: '', idle: '',
+                machinesAvail: '', machinesUsed: '', prodDays: ''
+            },
+            L14_FILLING: { 
+                name: 'LINE 14 - FILLING',
+                productive: '', noPlan: '', noHc: '', changeOver: '', meeting: '',
+                sanitation: '', startup: '', shutdown: '', testing: '', breaktime: '',
+                pm: '', forceMajeure: '', elecBreakdown: '', mechBreakdown: '', materialsSupply: '',
+                sorting: '', techDowntime: '', noManpower: '', udtMeeting: '', noOt: '',
+                noBulkmix: '', transfer: '', idle: '',
+                machinesAvail: '', machinesUsed: '', prodDays: ''
+            },
+            L14_MIXING: { 
+                name: 'LINE 14 - MIXING',
+                productive: '', noPlan: '', noHc: '', changeOver: '', meeting: '',
+                sanitation: '', startup: '', shutdown: '', testing: '', breaktime: '',
+                pm: '', forceMajeure: '', elecBreakdown: '', mechBreakdown: '', materialsSupply: '',
+                sorting: '', techDowntime: '', noManpower: '', udtMeeting: '', noOt: '',
+                noBulkmix: '', transfer: '', idle: '',
+                machinesAvail: '', machinesUsed: '', prodDays: ''
+            }
+        };
+
+        let currentLine = 'summary';
+        const categoryNames = [
+            'Actual Productive Time', 'No Production Plan', 'No Head Count Allocation', 'Change Over Time',
+            'Meeting', 'Sanitation Time', 'Start-up Time/Setup', 'Shutdown/cooldown', 'Testing Time',
+            'Breaktime', 'Preventive Maintenance', 'Force Majeure', 'Electrical Breakdown',
+            'Mechanical Breakdown', 'Materials Supply', 'Sorting/Reworking', 'Technical Downtime(QA & RND)',
+            'No Manpower', 'UDT-Meeting', 'No OT', 'No Bulkmix/No Kettle', 'Transfer', 'Idle time'
+        ];
+
+        const categoryKeys = [
+            'productive', 'noPlan', 'noHc', 'changeOver', 'meeting', 'sanitation', 'startup', 'shutdown',
+            'testing', 'breaktime', 'pm', 'forceMajeure', 'elecBreakdown', 'mechBreakdown', 'materialsSupply',
+            'sorting', 'techDowntime', 'noManpower', 'udtMeeting', 'noOt', 'noBulkmix', 'transfer', 'idle'
+        ];
+
+        function formatNumber(num, decimals = 2) {
+            if (!num || isNaN(num) || parseFloat(num) === 0) return '0';
+            return parseFloat(num).toLocaleString(undefined, {
+                minimumFractionDigits: decimals,
+                maximumFractionDigits: decimals
+            });
+        }
+
+        function formatPercent(num) {
+            if (!num || isNaN(num) || num === 0) return '0%';
+            return num.toFixed(1) + '%';
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            if (tabName === 'input') {
+                loadLineData();
+            } else if (tabName === 'details') {
+                loadLineDetails();
+            }
+        }
+
+        function updateTimestamp() {
+            const year = document.getElementById('yearSelect').value;
+            const month = document.getElementById('monthSelect').value;
+            document.getElementById('lastUpdate').textContent = new Date().toLocaleString() + ` (${month} ${year})`;
+        }
+
+        function loadLineData() {
+            const selector = document.getElementById('lineSelector');
+            currentLine = selector.value;
+            const data = productionData[currentLine];
+            
+            if (currentLine === 'summary') {
+                document.getElementById('inputSections').innerHTML = `
+                    <div class="input-section" style="grid-column: span 3; text-align: center; padding: 40px;">
+                        <h4>SUMMARY LINE</h4>
+                        <p>The Summary line is automatically calculated from all individual lines.</p>
+                        <p>Please select a specific production line to input data.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = `
+                <!-- Machine Utilization - 23 Categories -->
+                <div class="input-section" style="grid-column: span 3;">
+                    <h4>MACHINE UTILIZATION - 23 CATEGORIES (HRS)</h4>
+                    <div class="input-grid" style="grid-template-columns: repeat(4, 1fr);">
+            `;
+
+            // Generate 23 input fields
+            for (let i = 0; i < categoryKeys.length; i++) {
+                const key = categoryKeys[i];
+                const value = data[key] || '';
+                html += `
+                    <div class="input-field">
+                        <label>${i+1}. ${categoryNames[i]}</label>
+                        <input type="number" id="input_${key}" value="${value}" step="0.01" placeholder="hrs">
+                    </div>
+                `;
+            }
+
+            html += `
+                    </div>
+                </div>
+
+                <!-- Machine Summary -->
+                <div class="input-section">
+                    <h4>MACHINE SUMMARY</h4>
+                    <div class="input-grid">
+                        <div class="input-field"><label>Machines Available</label><input type="number" id="input_machinesAvail" value="${data.machinesAvail || ''}" step="0.1" placeholder="count"></div>
+                        <div class="input-field"><label>Machines Used</label><input type="number" id="input_machinesUsed" value="${data.machinesUsed || ''}" step="0.1" placeholder="count"></div>
+                        <div class="input-field"><label>Production Days</label><input type="number" id="input_prodDays" value="${data.prodDays || ''}" step="0.1" placeholder="days"></div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('inputSections').innerHTML = html;
+        }
+
+        function loadLineDetails() {
+            const selector = document.getElementById('detailLineSelector');
+            const lineKey = selector.value;
+            
+            if (lineKey === 'summary') {
+                // Show summary of all lines
+                let tableHtml = '';
+                const lines = Object.keys(productionData).filter(k => k !== 'summary');
+                
+                lines.forEach(lineKey => {
+                    const data = productionData[lineKey];
+                    const lineTotal = calculateLineTotal(data);
+                    
+                    for (let i = 0; i < categoryKeys.length; i++) {
+                        const key = categoryKeys[i];
+                        const value = parseFloat(data[key]) || 0;
+                        const percentage = lineTotal > 0 ? (value / lineTotal) * 100 : 0;
+                        
+                        // Only show categories with data
+                        if (value > 0) {
+                            tableHtml += `
+                                <tr>
+                                    <td>${data.name} - ${categoryNames[i]}</td>
+                                    <td>${formatNumber(value)}</td>
+                                    <td>${percentage.toFixed(1)}%</td>
+                                </tr>
+                            `;
+                        }
+                    }
+                });
+                
+                if (tableHtml === '') {
+                    tableHtml = '<tr><td colspan="3" style="text-align: center;">No data available. Please input data in the Data Input tab.</td></tr>';
+                }
+                
+                document.getElementById('detailUtilizationTable').innerHTML = tableHtml;
+                return;
+            }
+
+            const data = productionData[lineKey];
+            const lineTotal = calculateLineTotal(data);
+            
+            // Build detailed table
+            let tableHtml = '';
+            for (let i = 0; i < categoryKeys.length; i++) {
+                const key = categoryKeys[i];
+                const value = parseFloat(data[key]) || 0;
+                const percentage = lineTotal > 0 ? (value / lineTotal) * 100 : 0;
+                tableHtml += `
+                    <tr>
+                        <td>${categoryNames[i]}</td>
+                        <td>${formatNumber(value)}</td>
+                        <td>${percentage.toFixed(1)}%</td>
+                    </tr>
+                `;
+            }
+
+            document.getElementById('detailUtilizationTable').innerHTML = tableHtml;
+        }
+
+        function calculateLineTotal(data) {
+            let total = 0;
+            categoryKeys.forEach(key => {
+                total += parseFloat(data[key]) || 0;
+            });
+            return total;
+        }
+
+        function saveLineData() {
+            if (currentLine === 'summary') {
+                alert('Cannot save to Summary line. Select a specific production line.');
+                return;
+            }
+
+            const data = productionData[currentLine];
+            
+            // Save all 23 utilization categories
+            categoryKeys.forEach(key => {
+                const input = document.getElementById(`input_${key}`);
+                if (input) data[key] = input.value;
+            });
+            
+            // Save machine summary
+            if (document.getElementById('input_machinesAvail')) data.machinesAvail = document.getElementById('input_machinesAvail').value;
+            if (document.getElementById('input_machinesUsed')) data.machinesUsed = document.getElementById('input_machinesUsed').value;
+            if (document.getElementById('input_prodDays')) data.prodDays = document.getElementById('input_prodDays').value;
+            
+            alert(`Data saved for ${data.name}`);
+            calculateAll();
+            loadLineDetails();
+        }
+
+        function clearCurrentLine() {
+            if (currentLine === 'summary') {
+                alert('Cannot clear Summary line. Select a specific production line.');
+                return;
+            }
+
+            const data = productionData[currentLine];
+            categoryKeys.forEach(key => data[key] = '');
+            data.machinesAvail = '';
+            data.machinesUsed = '';
+            data.prodDays = '';
+            
+            loadLineData();
+            calculateAll();
+        }
+
+        function clearAllLines() {
+            if (confirm('Clear ALL production data for ALL lines? This cannot be undone.')) {
+                Object.keys(productionData).forEach(line => {
+                    if (line === 'summary') return;
+                    const data = productionData[line];
+                    categoryKeys.forEach(key => data[key] = '');
+                    data.machinesAvail = '';
+                    data.machinesUsed = '';
+                    data.prodDays = '';
+                });
+                loadLineData();
+                calculateAll();
+                loadLineDetails();
+            }
+        }
+
+        function calculateAll() {
+            // Calculate totals from all lines
+            let totalProductive = 0, totalTime = 0;
+            let totalMachinesAvail = 0, totalMachinesUsed = 0;
+            let linesWithData = 0;
+            let lineUtilizations = [];
+            
+            const lines = Object.keys(productionData).filter(k => k !== 'summary');
+            
+            // Calculate summary for each line and overall totals
+            lines.forEach(lineKey => {
+                const data = productionData[lineKey];
+                const lineTotal = calculateLineTotal(data);
+                const lineProductive = parseFloat(data.productive) || 0;
+                
+                if (lineTotal > 0) linesWithData++;
+                
+                totalProductive += lineProductive;
+                totalTime += lineTotal;
+                
+                if (data.machinesAvail) totalMachinesAvail += parseFloat(data.machinesAvail) || 0;
+                if (data.machinesUsed) totalMachinesUsed += parseFloat(data.machinesUsed) || 0;
+                
+                if (lineTotal > 0) {
+                    lineUtilizations.push((lineProductive / lineTotal) * 100);
+                }
+            });
+
+            // Update Overview KPI Cards
+            const overallUtilization = totalTime > 0 ? (totalProductive / totalTime) * 100 : 0;
+            document.getElementById('overallUtilization').textContent = overallUtilization.toFixed(1) + '%';
+            document.getElementById('totalProductive').textContent = formatNumber(totalProductive) + ' hrs';
+            document.getElementById('totalAvailable').textContent = formatNumber(totalTime) + ' hrs';
+            document.getElementById('utilizationProgress').style.width = overallUtilization + '%';
+            
+            document.getElementById('totalMachines').textContent = formatNumber(totalMachinesAvail, 0);
+            document.getElementById('machinesAvailable').textContent = formatNumber(totalMachinesAvail, 0);
+            document.getElementById('machinesUsed').textContent = formatNumber(totalMachinesUsed, 0);
+            
+            // Production days - calculate average from lines with data
+            let totalProdDays = 0;
+            let linesWithProdDays = 0;
+            lines.forEach(lineKey => {
+                const data = productionData[lineKey];
+                if (data.prodDays && parseFloat(data.prodDays) > 0) {
+                    totalProdDays += parseFloat(data.prodDays);
+                    linesWithProdDays++;
+                }
+            });
+            const avgProdDays = linesWithProdDays > 0 ? totalProdDays / linesWithProdDays : 0;
+            document.getElementById('productionDays').textContent = avgProdDays.toFixed(2);
+            
+            document.getElementById('activeLines').textContent = lines.length;
+            document.getElementById('linesWithData').textContent = linesWithData;
+            
+            const avgUtilization = lineUtilizations.length > 0 ? 
+                lineUtilizations.reduce((a, b) => a + b, 0) / lineUtilizations.length : 0;
+            document.getElementById('avgLineUtilization').textContent = avgUtilization.toFixed(1) + '%';
+
+            // Calculate top downtime causes across all lines
+            let downtimeTotals = {};
+            categoryKeys.forEach((key, index) => {
+                if (key === 'productive') return;
+                let total = 0;
+                lines.forEach(lineKey => {
+                    total += parseFloat(productionData[lineKey][key]) || 0;
+                });
+                if (total > 0) {
+                    downtimeTotals[categoryNames[index]] = total;
+                }
+            });
+
+            // Sort and get top 5
+            const sortedDowntime = Object.entries(downtimeTotals)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 5);
+            
+            let downtimeHtml = '';
+            if (sortedDowntime.length === 0) {
+                downtimeHtml = '<div class="kpi-card-detail-row"><span>No downtime recorded</span><span>0 hrs</span></div>';
+            } else {
+                sortedDowntime.forEach(([name, value]) => {
+                    downtimeHtml += `
+                        <div class="kpi-card-detail-row">
+                            <span>${name}</span>
+                            <span>${formatNumber(value)} hrs</span>
+                        </div>
+                    `;
+                });
+            }
+            document.getElementById('topDowntimeList').innerHTML = downtimeHtml;
+
+            // Build summary table
+            let tableHtml = '';
+            lines.forEach(lineKey => {
+                const data = productionData[lineKey];
+                const lineTotal = calculateLineTotal(data);
+                const lineProductive = parseFloat(data.productive) || 0;
+                const utilization = lineTotal > 0 ? (lineProductive / lineTotal) * 100 : 0;
+                
+                let statusClass = 'status-neutral';
+                let statusText = 'No Data';
+                if (lineTotal > 0) {
+                    if (utilization >= 70) { statusClass = 'status-excellent'; statusText = 'Excellent'; }
+                    else if (utilization >= 50) { statusClass = 'status-good'; statusText = 'Good'; }
+                    else if (utilization >= 30) { statusClass = 'status-warning'; statusText = 'Warning'; }
+                    else { statusClass = 'status-critical'; statusText = 'Critical'; }
+                }
+                
+                tableHtml += `
+                    <tr>
+                        <td><strong>${data.name}</strong></td>
+                        <td>${formatNumber(lineProductive)}</td>
+                        <td>${formatNumber(lineTotal)}</td>
+                        <td>${utilization.toFixed(1)}%</td>
+                        <td>${data.machinesAvail || '0'} / ${data.machinesUsed || '0'}</td>
+                        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                    </tr>
+                `;
+            });
+            
+            document.getElementById('utilizationSummaryTable').innerHTML = tableHtml;
+            document.getElementById('totalUtilizationSummary').textContent = `Total Time: ${formatNumber(totalTime)} hrs`;
+
+            // Update timestamp
+            updateTimestamp();
+        }
+
+        // Initialize
+        window.onload = function() {
+            calculateAll();
+            loadLineData();
+            loadLineDetails();
+        };
+    </script>
+</body>
+</html>

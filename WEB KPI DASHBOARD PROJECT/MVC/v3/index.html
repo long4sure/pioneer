@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SC Operations Hub</title>
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <!-- Styles — load order matters (base → components → modules → responsive) -->
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/sidebar.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/home.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <link rel="stylesheet" href="css/analytics.css">
+
+    <!-- Inline-only: cat-badge utility not worth a separate file -->
+    <style>
+        .cat-badge { display: inline-block; font-size: 9px; font-weight: 700; background: var(--pioneer-blue-light); color: var(--pioneer-blue-dark); border-radius: 4px; padding: 1px 5px; margin-right: 6px; letter-spacing: 0.5px; }
+        .footer { padding: 16px 28px; font-size: 11px; color: var(--text-muted); display: flex; justify-content: space-between; border-top: 1px solid var(--border); }
+        .footer-brand { font-weight: 700; color: var(--text-secondary); }
+    </style>
+</head>
+<body>
+
+<!-- ============================================================ -->
+<!-- SIDEBAR                                                       -->
+<!-- ============================================================ -->
+<aside class="sidebar" id="sidebar">
+
+    <div class="sidebar-brand" ondblclick="toggleSidebar()" title="Double-click to collapse">
+        <div class="sidebar-logo">
+            <svg viewBox="0 0 38 38" xmlns="http://www.w3.org/2000/svg">
+                <polygon points="19,2 36,14 19,36 2,14" fill="#1a2744"/>
+                <polygon points="19,2 36,14 19,36 2,14" fill="url(#dg)"/>
+                <polygon points="19,2 36,14 19,18" fill="rgba(74,159,212,0.55)"/>
+                <polygon points="19,2 2,14 19,18"  fill="rgba(74,159,212,0.35)"/>
+                <polygon points="2,14 19,18 19,36"  fill="rgba(10,15,30,0.45)"/>
+                <polygon points="36,14 19,18 19,36" fill="rgba(10,15,30,0.25)"/>
+                <rect x="8" y="10" width="22" height="6" rx="1.5" fill="#c8202a"/>
+                <text x="19" y="15.5" text-anchor="middle" font-family="Arial" font-size="5" font-weight="700" fill="white" letter-spacing="0.2">PIONEER</text>
+                <polygon points="19,3 30,13 24,13 17,5" fill="rgba(255,255,255,0.18)"/>
+                <polygon points="19,2 36,14 19,36 2,14" fill="none" stroke="#f0c020" stroke-width="1" opacity="0.7"/>
+                <defs>
+                    <linearGradient id="dg" x1="0" y1="0" x2="1" y2="1">
+                        <stop offset="0%" stop-color="#2d4a8a"/>
+                        <stop offset="100%" stop-color="#0d1629"/>
+                    </linearGradient>
+                </defs>
+            </svg>
+        </div>
+        <div class="sidebar-brand-text">
+            <div class="sidebar-brand-title">SC OPS HUB</div>
+            <div class="sidebar-brand-sub">Supply Chain Operations Center</div>
+        </div>
+    </div>
+
+    <div class="sidebar-filters">
+        <div class="sidebar-filter-group">
+            <div class="sidebar-filter-label">Year</div>
+            <select class="sidebar-select" id="globalYear" onchange="globalFilterChange()">
+                <option>2020</option><option>2021</option><option>2022</option><option>2023</option>
+                <option>2024</option><option>2025</option><option value="2026" selected>2026</option>
+                <option>2027</option><option>2028</option><option>2029</option><option>2030</option>
+            </select>
+        </div>
+        <div class="sidebar-filter-group">
+            <div class="sidebar-filter-label">Month</div>
+            <select class="sidebar-select" id="globalMonth" onchange="globalFilterChange()">
+                <option>January</option><option>February</option><option>March</option><option>April</option>
+                <option>May</option><option>June</option><option>July</option><option>August</option>
+                <option>September</option><option selected>October</option><option>November</option><option>December</option>
+            </select>
+        </div>
+    </div>
+
+    <nav class="sidebar-nav">
+        <div class="nav-section-label">Overview</div>
+        <div class="nav-item active" onclick="switchModule('home',this)" ondblclick="toggleSidebar()">
+            <span class="nav-icon"><svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h4a1 1 0 001-1v-3h2v3a1 1 0 001 1h4a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/></svg></span>
+            <span class="nav-label">Home</span>
+        </div>
+        <div class="nav-section-label">Modules</div>
+        <div class="nav-item" onclick="switchModule('finance',this)" ondblclick="toggleSidebar()">
+            <span class="nav-icon"><svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zm6-4a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zm6-3a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/></svg></span>
+            <span class="nav-label">Finance</span>
+        </div>
+        <div class="nav-item" onclick="switchModule('planning',this)" ondblclick="toggleSidebar()">
+            <span class="nav-icon"><svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path d="M4 3a2 2 0 100 4h12a2 2 0 100-4H4zM3 8a1 1 0 000 2h14a1 1 0 000-2H3zM3 13a1 1 0 000 2h10a1 1 0 000-2H3z"/></svg></span>
+            <span class="nav-label">SC Planning</span>
+        </div>
+        <div class="nav-item" onclick="switchModule('procurement',this)" ondblclick="toggleSidebar()">
+            <span class="nav-icon"><svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path fill-rule="evenodd" d="M10 2a4 4 0 00-4 4v1H5a1 1 0 00-.994.89l-1 9A1 1 0 004 18h12a1 1 0 00.994-1.11l-1-9A1 1 0 0015 7h-1V6a4 4 0 00-4-4zm2 5V6a2 2 0 10-4 0v1h4zm-6 3a1 1 0 112 0 1 1 0 01-2 0zm7-1a1 1 0 100 2 1 1 0 000-2z" clip-rule="evenodd"/></svg></span>
+            <span class="nav-label">Procurement</span>
+        </div>
+        <div class="nav-item" onclick="switchModule('production',this)" ondblclick="toggleSidebar()">
+            <span class="nav-icon"><svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/></svg></span>
+            <span class="nav-label">Production</span>
+        </div>
+        <div class="nav-item" onclick="switchModule('warehouse',this)" ondblclick="toggleSidebar()">
+            <span class="nav-icon"><svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"/><path d="M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H10a1 1 0 001-1V5a1 1 0 00-1-1H3zM14 7a1 1 0 00-1 1v6.05A2.5 2.5 0 0115.95 16H17a1 1 0 001-1v-5a1 1 0 00-.293-.707l-2-2A1 1 0 0015 7h-1z"/></svg></span>
+            <span class="nav-label">Warehouse &amp; Logistics</span>
+        </div>
+        <div class="nav-section-label">Insights</div>
+        <div class="nav-item" onclick="switchModule('analytics',this)" ondblclick="toggleSidebar()">
+            <span class="nav-icon"><svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path d="M2 10a8 8 0 018-8v8h8a8 8 0 11-16 0z"/><path d="M12 2.252A8.014 8.014 0 0117.748 8H12V2.252z"/></svg></span>
+            <span class="nav-label">Analytics</span>
+        </div>
+    </nav>
+
+    <div class="sidebar-footer">SC Operations Hub v1.1</div>
+</aside>
+
+<!-- Mobile backdrop -->
+<div class="sidebar-backdrop" id="sidebarBackdrop" onclick="toggleMobileSidebar()"></div>
+
+<!-- Bottom nav (mobile) -->
+<nav class="bottom-nav" id="bottomNav">
+    <button class="bottom-nav-item active" onclick="bnSwitch('home',this)"><span class="bn-icon"><svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h4a1 1 0 001-1v-3h2v3a1 1 0 001 1h4a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/></svg></span><span>Home</span></button>
+    <button class="bottom-nav-item" onclick="bnSwitch('finance',this)"><span class="bn-icon"><svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zm6-4a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zm6-3a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/></svg></span><span>Finance</span></button>
+    <button class="bottom-nav-item" onclick="bnSwitch('planning',this)"><span class="bn-icon"><svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path d="M4 3a2 2 0 100 4h12a2 2 0 100-4H4zM3 8a1 1 0 000 2h14a1 1 0 000-2H3zM3 13a1 1 0 000 2h10a1 1 0 000-2H3z"/></svg></span><span>SC Planning</span></button>
+    <button class="bottom-nav-item" onclick="bnSwitch('production',this)"><span class="bn-icon"><svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/></svg></span><span>Production</span></button>
+    <button class="bottom-nav-item" onclick="bnSwitch('warehouse',this)"><span class="bn-icon"><svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"/><path d="M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H10a1 1 0 001-1V5a1 1 0 00-1-1H3zM14 7a1 1 0 00-1 1v6.05A2.5 2.5 0 0115.95 16H17a1 1 0 001-1v-5a1 1 0 00-.293-.707l-2-2A1 1 0 0015 7h-1z"/></svg></span><span>Warehouse</span></button>
+</nav>
+
+<!-- ============================================================ -->
+<!-- MAIN CONTENT AREA                                             -->
+<!-- ============================================================ -->
+<div class="main">
+
+    <!-- Top bar -->
+    <div class="topbar">
+        <div class="topbar-inner">
+            <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0;">
+                <button class="hamburger-btn" id="hamburgerBtn" onclick="toggleMobileSidebar()" aria-label="Menu">☰</button>
+                <div class="topbar-left" style="flex-shrink:0;">
+                    <div class="topbar-title" id="topbarTitle">Home</div>
+                    <div class="topbar-breadcrumb" id="topbarBreadcrumb">SC Operations Hub</div>
+                </div>
+
+                <!-- Global Search -->
+                <div class="search-bar-wrap" style="margin-left:16px;">
+                    <span class="search-icon">
+                        <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/></svg>
+                    </span>
+                    <input
+                        class="search-bar"
+                        id="global-search-input"
+                        type="text"
+                        placeholder="Search KPIs, modules, lines…"
+                        autocomplete="off"
+                        oninput="runSearch(this.value)"
+                        onkeydown="searchKeyDown(event)"
+                        onfocus="if(this.value.trim()) runSearch(this.value)"
+                    >
+                    <div class="search-results-dropdown" id="search-results-dropdown"></div>
+                </div>
+            </div>
+            <div class="topbar-right">
+                <div class="topbar-dot" title="Session active"></div>
+                <div class="topbar-period" id="topbarPeriod">October 2026</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="content">
+
+        <!-- ====================================================== -->
+        <!-- MODULE: HOME                                            -->
+        <!-- ====================================================== -->
+        <div id="mod-home" class="module-page active">
+            <div class="home-welcome">
+                <div>
+                    <div class="home-welcome-title">Operations at a Glance</div>
+                    <div class="home-welcome-sub">Select a module below to view KPIs, trends, and enter data for the selected period.</div>
+                </div>
+                <div class="topbar-period" id="home-period" style="align-self:flex-start;margin-top:4px;">October 2026</div>
+            </div>
+            <div class="home-grid">
+                <div class="home-card" onclick="switchModule('finance',null)">
+                    <div class="home-card-arrow">→</div>
+                    <div class="home-card-icon"><svg viewBox="0 0 20 20" fill="currentColor" width="28" height="28"><path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zm6-4a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zm6-3a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/></svg></div>
+                    <div class="home-card-title">Finance</div>
+                    <div class="home-card-desc">Actual vs budget: operational costs, capital expenditure, other expenses, and labor hours.</div>
+                    <div class="home-card-kpi"><div class="home-card-kpi-val" id="home-fin-kpi">₱0</div><div class="home-card-kpi-label">Total Actual Costs</div></div>
+                </div>
+                <div class="home-card" onclick="switchModule('planning',null)">
+                    <div class="home-card-arrow">→</div>
+                    <div class="home-card-icon"><svg viewBox="0 0 20 20" fill="currentColor" width="28" height="28"><path d="M4 3a2 2 0 100 4h12a2 2 0 100-4H4zM3 8a1 1 0 000 2h14a1 1 0 000-2H3zM3 13a1 1 0 000 2h10a1 1 0 000-2H3z"/></svg></div>
+                    <div class="home-card-title">SC Planning</div>
+                    <div class="home-card-desc">Safety stock levels (days), FG/RM/PM inventory by class, and forecast accuracy by region and product.</div>
+                    <div class="home-card-kpi"><div class="home-card-kpi-val" id="home-pl-kpi">0%</div><div class="home-card-kpi-label">Overall Forecast Accuracy</div></div>
+                </div>
+                <div class="home-card" onclick="switchModule('procurement',null)">
+                    <div class="home-card-arrow">→</div>
+                    <div class="home-card-icon"><svg viewBox="0 0 20 20" fill="currentColor" width="28" height="28"><path fill-rule="evenodd" d="M10 2a4 4 0 00-4 4v1H5a1 1 0 00-.994.89l-1 9A1 1 0 004 18h12a1 1 0 00.994-1.11l-1-9A1 1 0 0015 7h-1V6a4 4 0 00-4-4zm2 5V6a2 2 0 10-4 0v1h4zm-6 3a1 1 0 112 0 1 1 0 01-2 0zm7-1a1 1 0 100 2 1 1 0 000-2z" clip-rule="evenodd"/></svg></div>
+                    <div class="home-card-title">Procurement</div>
+                    <div class="home-card-desc">Actual savings vs target — tracks procurement savings achievement rate.</div>
+                    <div class="home-card-kpi"><div class="home-card-kpi-val" id="home-proc-kpi">0%</div><div class="home-card-kpi-label">Savings Achievement</div></div>
+                </div>
+                <div class="home-card" onclick="switchModule('production',null)">
+                    <div class="home-card-arrow">→</div>
+                    <div class="home-card-icon"><svg viewBox="0 0 20 20" fill="currentColor" width="28" height="28"><path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/></svg></div>
+                    <div class="home-card-title">Production</div>
+                    <div class="home-card-desc">Machine utilization by line, FG output and waste analysis, and scheduling compliance.</div>
+                    <div class="home-card-kpi"><div class="home-card-kpi-val" id="home-prod-kpi">0%</div><div class="home-card-kpi-label">Overall Machine Utilization</div></div>
+                </div>
+                <div class="home-card" onclick="switchModule('warehouse',null)">
+                    <div class="home-card-arrow">→</div>
+                    <div class="home-card-icon"><svg viewBox="0 0 20 20" fill="currentColor" width="28" height="28"><path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"/><path d="M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H10a1 1 0 001-1V5a1 1 0 00-1-1H3zM14 7a1 1 0 00-1 1v6.05A2.5 2.5 0 0115.95 16H17a1 1 0 001-1v-5a1 1 0 00-.293-.707l-2-2A1 1 0 0015 7h-1z"/></svg></div>
+                    <div class="home-card-title">Warehouse &amp; Logistics</div>
+                    <div class="home-card-desc">OTIF rate, volume and hit-rate fill, stock-out analysis, warehouse capacity, and manpower.</div>
+                    <div class="home-card-kpi"><div class="home-card-kpi-val" id="home-wh-kpi">0%</div><div class="home-card-kpi-label">OTIF Rate</div></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ====================================================== -->
+        <!-- MODULE: FINANCE                                         -->
+        <!-- ====================================================== -->
+        <div id="mod-finance" class="module-page">
+            <div class="tab-bar">
+                <button class="tab-btn active" onclick="switchTab('finance','dashboard',this)">Overview</button>
+                <button class="tab-btn" onclick="switchTab('finance','cost',this)">Cost Details</button>
+                <button class="tab-btn" onclick="switchTab('finance','labor',this)">Labor Details</button>
+                <button class="tab-btn" onclick="switchTab('finance','input',this)">Data Entry</button>
+            </div>
+
+            <div id="finance-dashboard" class="tab-content active">
+                <div class="kpi-grid kpi-grid-4">
+                    <div class="card" id="card-fin-prod"><div class="card-title">Production Volume</div><div class="card-value" id="fin-prodVal">0 MT</div><div class="card-row"><span>Target</span><span class="card-row-val" id="fin-prodTarget">0 MT</span></div><div class="progress-track"><div class="progress-bar" id="fin-prodBar" style="width:0%"></div></div><div class="card-row"><span>Achieved</span><span class="card-row-val" id="fin-prodPct">0%</span></div></div>
+                    <div class="card" id="card-fin-op"><div class="card-title">Operational Cost</div><div class="card-value" id="fin-opVal">₱0</div><div class="card-row"><span>Budget</span><span class="card-row-val" id="fin-opBudget">₱0</span></div><div class="progress-track"><div class="progress-bar" id="fin-opBar" style="width:0%"></div></div><div class="card-row"><span>of Budget</span><span class="card-row-val" id="fin-opPct">0%</span></div></div>
+                    <div class="card" id="card-fin-cap"><div class="card-title">Capital Expenditure</div><div class="card-value" id="fin-capVal">₱0</div><div class="card-row"><span>Budget</span><span class="card-row-val" id="fin-capBudget">₱0</span></div><div class="progress-track"><div class="progress-bar" id="fin-capBar" style="width:0%"></div></div><div class="card-row"><span>of Budget</span><span class="card-row-val" id="fin-capPct">0%</span></div></div>
+                    <div class="card" id="card-fin-other"><div class="card-title">Other Expenses</div><div class="card-value" id="fin-otherVal">₱0</div><div class="card-row"><span>Budget</span><span class="card-row-val" id="fin-otherBudget">₱0</span></div><div class="progress-track"><div class="progress-bar" id="fin-otherBar" style="width:0%"></div></div><div class="card-row"><span>of Budget</span><span class="card-row-val" id="fin-otherPct">0%</span></div></div>
+                </div>
+                <div class="kpi-grid kpi-grid-4">
+                    <div class="card"><div class="card-title">Financial Summary</div><div class="card-value" id="fin-totalAct">₱0</div><div class="card-row"><span>Total Budget</span><span class="card-row-val" id="fin-totalBudget">₱0</span></div><div class="card-row"><span>Variance</span><span class="card-row-val" id="fin-totalVar">₱0</span></div></div>
+                    <div class="card"><div class="card-title">Cost Efficiency</div><div class="card-value" id="fin-totalPct">0%</div><div class="card-row"><span>Under Budget</span><span class="card-row-val" id="fin-under">0</span></div><div class="card-row"><span>Over Budget</span><span class="card-row-val" id="fin-over">0</span></div></div>
+                    <div class="card"><div class="card-title">Labor Hours</div><div class="card-value" id="fin-totalHrs">0 hrs</div><div class="card-row"><span>Regular</span><span class="card-row-val" id="fin-regHrs">0 hrs</span></div><div class="card-row"><span>Overtime</span><span class="card-row-val" id="fin-otHrs">0 hrs</span></div></div>
+                    <div class="card"><div class="card-title">Labor Overview</div><div class="card-value" id="fin-wfTotal">0</div><div class="card-row"><span>OT Rate</span><span class="card-row-val" id="fin-otRate">0%</span></div><div class="card-row"><span>Direct OT %</span><span class="card-row-val" id="fin-dlOt">0%</span></div><div class="card-row"><span>Indirect OT %</span><span class="card-row-val" id="fin-ilOt">0%</span></div></div>
+                </div>
+                <div class="section-title">Cost Details</div>
+                <div class="table-wrap"><div class="table-head"><span>Cost Breakdown by Category</span><span class="table-total-pill" id="fin-costTotal">Total: ₱0</span></div><table><thead><tr><th>Category</th><th>Actual</th><th>Budget</th><th>Variance</th><th>%</th><th>Status</th></tr></thead><tbody id="fin-costTbl"></tbody></table></div>
+                <div class="section-title">Labor Analysis</div>
+                <div class="table-wrap"><div class="table-head"><span>Labor Breakdown by Type</span><span class="table-total-pill" id="fin-laborTotal">Total Hours: 0</span></div><table><thead><tr><th>Labor Type</th><th>Regular</th><th>Overtime</th><th>Total</th><th>OT %</th><th>Status</th></tr></thead><tbody id="fin-laborTbl"></tbody></table></div>
+            </div>
+
+            <div id="finance-cost" class="tab-content">
+                <div class="kpi-grid kpi-grid-4">
+                    <div class="card"><div class="card-title">Total Costs</div><div class="card-value" id="fc-totalAct">₱0</div><div class="card-row"><span>Budget</span><span class="card-row-val" id="fc-totalBudget">₱0</span></div></div>
+                    <div class="card"><div class="card-title">Operational Cost</div><div class="card-value" id="fc-opAct">₱0</div><div class="card-row"><span>Budget</span><span class="card-row-val" id="fc-opBudget">₱0</span></div><div class="card-row"><span>Variance</span><span class="card-row-val" id="fc-opVar">₱0</span></div></div>
+                    <div class="card"><div class="card-title">Capital Expenditure</div><div class="card-value" id="fc-capAct">₱0</div><div class="card-row"><span>Budget</span><span class="card-row-val" id="fc-capBudget">₱0</span></div><div class="card-row"><span>Variance</span><span class="card-row-val" id="fc-capVar">₱0</span></div></div>
+                    <div class="card"><div class="card-title">Other Expenses</div><div class="card-value" id="fc-otherAct">₱0</div><div class="card-row"><span>Budget</span><span class="card-row-val" id="fc-otherBudget">₱0</span></div><div class="card-row"><span>Variance</span><span class="card-row-val" id="fc-otherVar">₱0</span></div></div>
+                </div>
+                <div class="table-wrap"><div class="table-head"><span>Cost Breakdown — All Categories</span><span class="table-total-pill" id="fc-detailTotal">₱0</span></div><table><thead><tr><th>Category</th><th>Actual</th><th>Budget</th><th>Variance</th><th>%</th><th>Status</th></tr></thead><tbody id="fc-detailTbl"></tbody></table></div>
+            </div>
+
+            <div id="finance-labor" class="tab-content">
+                <div class="kpi-grid kpi-grid-4">
+                    <div class="card"><div class="card-title">Total Hours</div><div class="card-value" id="fl-totalHrs">0 hrs</div><div class="card-row"><span>Regular</span><span class="card-row-val" id="fl-reg">0</span></div><div class="card-row"><span>Overtime</span><span class="card-row-val" id="fl-ot">0</span></div></div>
+                    <div class="card"><div class="card-title">Direct Labor</div><div class="card-value" id="fl-dlTotal">0 hrs</div><div class="card-row"><span>Regular</span><span class="card-row-val" id="fl-dlReg">0</span></div><div class="card-row"><span>Overtime</span><span class="card-row-val" id="fl-dlOT">0</span></div><div class="card-row"><span>OT Rate</span><span class="card-row-val" id="fl-dlRate">0%</span></div></div>
+                    <div class="card"><div class="card-title">Indirect Labor</div><div class="card-value" id="fl-ilTotal">0 hrs</div><div class="card-row"><span>Regular</span><span class="card-row-val" id="fl-ilReg">0</span></div><div class="card-row"><span>Overtime</span><span class="card-row-val" id="fl-ilOT">0</span></div><div class="card-row"><span>OT Rate</span><span class="card-row-val" id="fl-ilRate">0%</span></div></div>
+                    <div class="card"><div class="card-title">Overtime Analysis</div><div class="card-value" id="fl-otRate">0%</div><div class="card-row"><span>Direct OT %</span><span class="card-row-val" id="fl-dlOTp">0%</span></div><div class="card-row"><span>Indirect OT %</span><span class="card-row-val" id="fl-ilOTp">0%</span></div></div>
+                </div>
+                <div class="table-wrap"><div class="table-head"><span>Labor Breakdown — All Types</span><span class="table-total-pill" id="fl-total">Total: 0</span></div><table><thead><tr><th>Labor Type</th><th>Regular</th><th>Overtime</th><th>Total</th><th>OT %</th><th>Status</th></tr></thead><tbody id="fl-tbl"></tbody></table></div>
+            </div>
+
+            <div id="finance-input" class="tab-content">
+                <div class="input-panel">
+                    <div class="input-panel-head">Finance — Data Entry</div>
+                    <div class="input-controls">
+                        <span class="input-control-label">Category:</span>
+                        <select class="input-control-select" id="fin-inputCat" onchange="finLoadInput()">
+                            <option value="production">Production Volume</option>
+                            <option value="operational">Operational Cost</option>
+                            <option value="capital">Capital Expenditure</option>
+                            <option value="other">Other Expenses</option>
+                            <option value="labor-dl">Direct Labor</option>
+                            <option value="labor-il">Indirect Labor</option>
+                        </select>
+                    </div>
+                    <div class="input-grid-wrap" id="fin-inputSections"></div>
+                    <div class="input-panel-actions">
+                        <button class="btn btn-danger" onclick="finClear()">Clear</button>
+                        <button class="btn" onclick="finClearAll()">Clear All</button>
+                        <button class="btn btn-primary" onclick="finSave()">Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ====================================================== -->
+        <!-- MODULE: SC PLANNING                                     -->
+        <!-- ====================================================== -->
+        <div id="mod-planning" class="module-page">
+            <div class="tab-bar">
+                <button class="tab-btn active" onclick="switchTab('planning','overview',this)">Overview</button>
+                <button class="tab-btn" onclick="switchTab('planning','input',this)">Data Entry</button>
+            </div>
+            <div id="planning-overview" class="tab-content active">
+                <div class="kpi-grid kpi-grid-4">
+                    <div class="card"><div class="card-title">Safety Stocks (Days)</div><div class="card-row"><span>FG Total</span><span class="card-row-val" id="pl-fgTotal">0</span></div><div class="card-row"><span>RM Total</span><span class="card-row-val" id="pl-rmTotal">0</span></div><div class="card-row"><span>PM Total</span><span class="card-row-val" id="pl-pmTotal">0</span></div></div>
+                    <div class="card"><div class="card-title">Total Inventory</div><div class="card-row"><span>FG (kgs)</span><span class="card-row-val" id="pl-fgKgs">0</span></div><div class="card-row"><span>FG (PHP)</span><span class="card-row-val" id="pl-fgPhp">₱0</span></div><div class="card-row"><span>RM/PM (kgs)</span><span class="card-row-val" id="pl-rmKgs">0</span></div><div class="card-row"><span>RM/PM (PHP)</span><span class="card-row-val" id="pl-rmPhp">₱0</span></div></div>
+                    <div class="card"><div class="card-title">Inventory Accuracy</div><div class="card-row"><span>FG Accuracy</span><span class="card-row-val" id="pl-fgAcc">0%</span></div><div class="card-row"><span>RM/PM Accuracy</span><span class="card-row-val" id="pl-rmAcc">0%</span></div></div>
+                    <div class="card"><div class="card-title">Forecast Accuracy</div><div class="card-row"><span>Local PH</span><span class="card-row-val" id="pl-fcLocal">0%</span></div><div class="card-row"><span>Export</span><span class="card-row-val" id="pl-fcExport">0%</span></div><div class="card-row"><span>Product</span><span class="card-row-val" id="pl-fcProd">0%</span></div><div class="card-row" style="border-top:2px solid var(--border);margin-top:4px;padding-top:6px;"><span><strong>Overall</strong></span><span class="card-row-val" id="pl-fcOverall">0%</span></div></div>
+                </div>
+                <div class="section-title">Safety Stocks — Detailed View</div>
+                <div class="kpi-grid kpi-grid-3">
+                    <div class="card"><div class="card-title">Finished Goods</div><div class="card-row"><span>Class A</span><span class="card-row-val" id="pl-fgA">0</span></div><div class="card-row"><span>Class B</span><span class="card-row-val" id="pl-fgB">0</span></div><div class="card-row"><span>Class C</span><span class="card-row-val" id="pl-fgC">0</span></div><div class="card-row"><span>All In</span><span class="card-row-val" id="pl-fgAllIn">0</span></div><div class="card-row" style="border-top:2px solid var(--border);margin-top:4px;padding-top:6px;"><span><strong>Grand Total</strong></span><span class="card-row-val" id="pl-fgGT">0</span></div></div>
+                    <div class="card"><div class="card-title">Raw Materials</div><div class="card-row"><span>Class A</span><span class="card-row-val" id="pl-rmA">0</span></div><div class="card-row"><span>Class B</span><span class="card-row-val" id="pl-rmB">0</span></div><div class="card-row"><span>Class C</span><span class="card-row-val" id="pl-rmC">0</span></div><div class="card-row" style="border-top:2px solid var(--border);margin-top:4px;padding-top:6px;"><span><strong>Grand Total</strong></span><span class="card-row-val" id="pl-rmGT">0</span></div></div>
+                    <div class="card"><div class="card-title">Packaging Materials</div><div class="card-row"><span>Core</span><span class="card-row-val" id="pl-pmCore">0</span></div><div class="card-row"><span>M7</span><span class="card-row-val" id="pl-pmM7">0</span></div><div class="card-row"><span>Others</span><span class="card-row-val" id="pl-pmOthers">0</span></div><div class="card-row" style="border-top:2px solid var(--border);margin-top:4px;padding-top:6px;"><span><strong>Grand Total</strong></span><span class="card-row-val" id="pl-pmGT">0</span></div></div>
+                </div>
+                <div class="section-title">FG Inventory</div>
+                <div class="kpi-grid kpi-grid-2">
+                    <div class="card"><div class="card-title">By Weight (KGS)</div><div class="card-row"><span>Fast Moving Good A&amp;B</span><span class="card-row-val" id="pl-fgKgsFG">0</span></div><div class="card-row"><span>Fast Moving NTE A&amp;B</span><span class="card-row-val" id="pl-fgKgsFN">0</span></div><div class="card-row"><span>Slow/NTE Class C</span><span class="card-row-val" id="pl-fgKgsSL">0</span></div><div class="card-row"><span>No Movement C</span><span class="card-row-val" id="pl-fgKgsNM">0</span></div><div class="card-row"><span>Expired</span><span class="card-row-val" id="pl-fgKgsEX">0</span></div><div class="card-row" style="border-top:2px solid var(--border);margin-top:4px;padding-top:6px;"><span><strong>Total</strong></span><span class="card-row-val" id="pl-fgKgsTot">0</span></div><div class="card-row"><span>Inventory Days</span><span class="card-row-val" id="pl-fgKgsDays">0</span></div></div>
+                    <div class="card"><div class="card-title">By Value (PHP)</div><div class="card-row"><span>Fast Moving Good A&amp;B</span><span class="card-row-val" id="pl-fgPhpFG">₱0</span></div><div class="card-row"><span>Fast Moving NTE A&amp;B</span><span class="card-row-val" id="pl-fgPhpFN">₱0</span></div><div class="card-row"><span>Slow/NTE Class C</span><span class="card-row-val" id="pl-fgPhpSL">₱0</span></div><div class="card-row"><span>No Movement C</span><span class="card-row-val" id="pl-fgPhpNM">₱0</span></div><div class="card-row"><span>Expired</span><span class="card-row-val" id="pl-fgPhpEX">₱0</span></div><div class="card-row" style="border-top:2px solid var(--border);margin-top:4px;padding-top:6px;"><span><strong>Total</strong></span><span class="card-row-val" id="pl-fgPhpTot">₱0</span></div><div class="card-row"><span>Inventory Days</span><span class="card-row-val" id="pl-fgPhpDays">0</span></div></div>
+                </div>
+                <div class="section-title">RM/PM Inventory</div>
+                <div class="kpi-grid kpi-grid-2">
+                    <div class="card"><div class="card-title">By Weight (KGS)</div><div class="card-row"><span>Fast Moving Good A&amp;B</span><span class="card-row-val" id="pl-rmKgsFG">0</span></div><div class="card-row"><span>Fast Moving NTE A&amp;B</span><span class="card-row-val" id="pl-rmKgsFN">0</span></div><div class="card-row"><span>Slow/NTE Class C</span><span class="card-row-val" id="pl-rmKgsSL">0</span></div><div class="card-row"><span>No Movement C</span><span class="card-row-val" id="pl-rmKgsNM">0</span></div><div class="card-row"><span>Expired</span><span class="card-row-val" id="pl-rmKgsEX">0</span></div><div class="card-row" style="border-top:2px solid var(--border);margin-top:4px;padding-top:6px;"><span><strong>Total</strong></span><span class="card-row-val" id="pl-rmKgsTot">0</span></div><div class="card-row"><span>Inventory Days</span><span class="card-row-val" id="pl-rmKgsDays">0</span></div></div>
+                    <div class="card"><div class="card-title">By Value (PHP)</div><div class="card-row"><span>Fast Moving Good A&amp;B</span><span class="card-row-val" id="pl-rmPhpFG">₱0</span></div><div class="card-row"><span>Fast Moving NTE A&amp;B</span><span class="card-row-val" id="pl-rmPhpFN">₱0</span></div><div class="card-row"><span>Slow/NTE Class C</span><span class="card-row-val" id="pl-rmPhpSL">₱0</span></div><div class="card-row"><span>No Movement C</span><span class="card-row-val" id="pl-rmPhpNM">₱0</span></div><div class="card-row"><span>Expired</span><span class="card-row-val" id="pl-rmPhpEX">₱0</span></div><div class="card-row" style="border-top:2px solid var(--border);margin-top:4px;padding-top:6px;"><span><strong>Total</strong></span><span class="card-row-val" id="pl-rmPhpTot">₱0</span></div><div class="card-row"><span>Inventory Days</span><span class="card-row-val" id="pl-rmPhpDays">0</span></div></div>
+                </div>
+                <div class="section-title">Inventory Accuracy</div>
+                <div class="kpi-grid kpi-grid-2">
+                    <div class="card"><div class="card-title">Finished Goods</div><div class="card-row"><span>Total Count</span><span class="card-row-val" id="pl-fgCnt">0</span></div><div class="card-row"><span>Total Missed</span><span class="card-row-val" id="pl-fgMiss">0</span></div><div class="card-row" style="border-top:2px solid var(--border);margin-top:4px;padding-top:6px;"><span><strong>Accuracy</strong></span><span class="card-row-val" id="pl-fgAccDet">0%</span></div></div>
+                    <div class="card"><div class="card-title">RM/PM</div><div class="card-row"><span>Total Count</span><span class="card-row-val" id="pl-rmCnt">0</span></div><div class="card-row"><span>Total Missed</span><span class="card-row-val" id="pl-rmMiss">0</span></div><div class="card-row" style="border-top:2px solid var(--border);margin-top:4px;padding-top:6px;"><span><strong>Accuracy</strong></span><span class="card-row-val" id="pl-rmAccDet">0%</span></div></div>
+                </div>
+                <div class="section-title">Forecast Accuracy</div>
+                <div class="kpi-grid kpi-grid-2">
+                    <div class="card"><div class="card-title">Local Philippines</div><div class="card-row"><span>GMA</span><span class="card-row-val" id="pl-fcGma">0%</span></div><div class="card-row"><span>North Luzon</span><span class="card-row-val" id="pl-fcNorth">0%</span></div><div class="card-row"><span>South Luzon</span><span class="card-row-val" id="pl-fcSouth">0%</span></div><div class="card-row"><span>Visayas</span><span class="card-row-val" id="pl-fcVis">0%</span></div><div class="card-row"><span>Mindanao</span><span class="card-row-val" id="pl-fcMind">0%</span></div><div class="card-row"><span>Modern Trade</span><span class="card-row-val" id="pl-fcMT">0%</span></div><div class="card-row"><span>PSBSI</span><span class="card-row-val" id="pl-fcPsbsi">0%</span></div><div class="card-row" style="border-top:2px solid var(--border);margin-top:4px;padding-top:6px;"><span><strong>Local Average</strong></span><span class="card-row-val" id="pl-fcLocalAvg">0%</span></div></div>
+                    <div class="card"><div class="card-title">Export</div><div class="card-row"><span>Indonesia</span><span class="card-row-val" id="pl-fcIndo">0%</span></div><div class="card-row"><span>India</span><span class="card-row-val" id="pl-fcIndia">0%</span></div><div class="card-row"><span>Direct Export</span><span class="card-row-val" id="pl-fcDirect">0%</span></div><div class="card-row" style="border-top:2px solid var(--border);margin-top:4px;padding-top:6px;"><span><strong>Export Average</strong></span><span class="card-row-val" id="pl-fcExportAvg">0%</span></div></div>
+                </div>
+                <div class="section-title">Forecast Accuracy by Product</div>
+                <div class="card"><div class="card-title">Product Lines</div><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:0;">
+                    <div class="card-row"><span>Epoxy</span><span class="card-row-val" id="pl-pEpoxy">0%</span></div>
+                    <div class="card-row"><span>Elastoseal</span><span class="card-row-val" id="pl-pElasto">0%</span></div>
+                    <div class="card-row"><span>Mighty Bond</span><span class="card-row-val" id="pl-pMighty">0%</span></div>
+                    <div class="card-row"><span>Pro-Epoxy</span><span class="card-row-val" id="pl-pProEpoxy">0%</span></div>
+                    <div class="card-row"><span>Builders Bond</span><span class="card-row-val" id="pl-pBuilders">0%</span></div>
+                    <div class="card-row"><span>Coating Marine</span><span class="card-row-val" id="pl-pCoating">0%</span></div>
+                    <div class="card-row"><span>Transportation</span><span class="card-row-val" id="pl-pTransport">0%</span></div>
+                    <div class="card-row"><span>Other Consumer</span><span class="card-row-val" id="pl-pOther">0%</span></div>
+                    <div class="card-row"><span>Pro-Sealant</span><span class="card-row-val" id="pl-pSealant">0%</span></div>
+                    <div class="card-row"><span>Pro-Waterproofing</span><span class="card-row-val" id="pl-pWaterproof">0%</span></div>
+                    <div class="card-row"><span>Pro-Painting</span><span class="card-row-val" id="pl-pPainting">0%</span></div>
+                    <div class="card-row"><span>Pro-Adhesives</span><span class="card-row-val" id="pl-pAdhesives">0%</span></div>
+                    <div class="card-row"><span>Mining</span><span class="card-row-val" id="pl-pMining">0%</span></div>
+                    <div class="card-row"><span>Others</span><span class="card-row-val" id="pl-pOthers">0%</span></div>
+                    <div class="card-row" style="border-top:2px solid var(--border);margin-top:4px;padding-top:6px;grid-column:1/-1;"><span><strong>Product Average</strong></span><span class="card-row-val" id="pl-fcProdAvg">0%</span></div>
+                </div></div>
+            </div>
+            <div id="planning-input" class="tab-content">
+                <div class="input-panel">
+                    <div class="input-panel-head">SC Planning — Data Entry</div>
+                    <div style="display:none" id="pl-inputSections">
+                        <input type="number" id="pl-i-fgA"><input type="number" id="pl-i-fgB"><input type="number" id="pl-i-fgC"><input type="number" id="pl-i-fgAllIn">
+                        <input type="number" id="pl-i-rmA"><input type="number" id="pl-i-rmB"><input type="number" id="pl-i-rmC">
+                        <input type="number" id="pl-i-pmCore"><input type="number" id="pl-i-pmM7"><input type="number" id="pl-i-pmOthers">
+                        <input type="number" id="pl-i-fgKgsFG"><input type="number" id="pl-i-fgKgsFN"><input type="number" id="pl-i-fgKgsSL"><input type="number" id="pl-i-fgKgsNM"><input type="number" id="pl-i-fgKgsEX"><input type="number" id="pl-i-fgKgsDays">
+                        <input type="number" id="pl-i-fgPhpFG"><input type="number" id="pl-i-fgPhpFN"><input type="number" id="pl-i-fgPhpSL"><input type="number" id="pl-i-fgPhpNM"><input type="number" id="pl-i-fgPhpEX">
+                        <input type="number" id="pl-i-rmKgsFG"><input type="number" id="pl-i-rmKgsFN"><input type="number" id="pl-i-rmKgsSL"><input type="number" id="pl-i-rmKgsNM"><input type="number" id="pl-i-rmKgsEX"><input type="number" id="pl-i-rmKgsDays">
+                        <input type="number" id="pl-i-rmPhpFG"><input type="number" id="pl-i-rmPhpFN"><input type="number" id="pl-i-rmPhpSL"><input type="number" id="pl-i-rmPhpNM"><input type="number" id="pl-i-rmPhpEX">
+                        <input type="number" id="pl-i-fgCnt"><input type="number" id="pl-i-fgMiss"><input type="number" id="pl-i-rmCnt"><input type="number" id="pl-i-rmMiss">
+                        <input type="number" id="pl-i-fcGma"><input type="number" id="pl-i-fcNorth"><input type="number" id="pl-i-fcSouth"><input type="number" id="pl-i-fcVis"><input type="number" id="pl-i-fcMind"><input type="number" id="pl-i-fcMT"><input type="number" id="pl-i-fcPsbsi">
+                        <input type="number" id="pl-i-fcIndo"><input type="number" id="pl-i-fcIndia"><input type="number" id="pl-i-fcDirect">
+                        <input type="number" id="pl-i-pEpoxy"><input type="number" id="pl-i-pElasto"><input type="number" id="pl-i-pMighty"><input type="number" id="pl-i-pProEpoxy"><input type="number" id="pl-i-pBuilders"><input type="number" id="pl-i-pCoating"><input type="number" id="pl-i-pTransport"><input type="number" id="pl-i-pOther"><input type="number" id="pl-i-pSealant"><input type="number" id="pl-i-pWaterproof"><input type="number" id="pl-i-pPainting"><input type="number" id="pl-i-pAdhesives"><input type="number" id="pl-i-pMining"><input type="number" id="pl-i-pOthers">
+                    </div>
+                    <div class="input-controls">
+                        <span class="input-control-label">Category:</span>
+                        <select class="input-control-select" id="pl-inputCat" onchange="plLoadCat()">
+                            <option value="safety">Safety Stocks (Days)</option>
+                            <option value="fgKgs">FG Inventory — Weight (KGS)</option>
+                            <option value="fgPhp">FG Inventory — Value (PHP)</option>
+                            <option value="rmKgs">RM/PM Inventory — Weight (KGS)</option>
+                            <option value="rmPhp">RM/PM Inventory — Value (PHP)</option>
+                            <option value="accuracy">Inventory Accuracy</option>
+                            <option value="fcLocal">Forecast — Local PH (%)</option>
+                            <option value="fcExport">Forecast — Export (%)</option>
+                            <option value="fcProduct">Forecast — Product (%)</option>
+                        </select>
+                    </div>
+                    <div class="input-grid-wrap" id="pl-catSections" style="grid-template-columns:1fr;"></div>
+                    <div class="input-panel-actions">
+                        <button class="btn btn-danger" onclick="plClearCat()">Clear</button>
+                        <button class="btn" onclick="plClearAll()">Clear All</button>
+                        <button class="btn btn-primary" onclick="plSaveCat()">Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ====================================================== -->
+        <!-- MODULE: PROCUREMENT                                     -->
+        <!-- ====================================================== -->
+        <div id="mod-procurement" class="module-page">
+            <div class="kpi-grid" style="grid-template-columns:1fr;">
+                <div class="card" id="card-proc-main">
+                    <div class="card-title">Savings Performance</div>
+                    <div class="card-value" id="proc-rate">0%</div>
+                    <div class="card-row"><span>Actual Savings</span><span class="card-row-val" id="proc-actual">₱0</span></div>
+                    <div class="card-row"><span>Target Savings</span><span class="card-row-val" id="proc-target">₱0</span></div>
+                    <div class="card-row"><span>Variance</span><span class="card-row-val" id="proc-var">₱0</span></div>
+                    <div class="progress-track"><div class="progress-bar" id="proc-bar" style="width:0%"></div></div>
+                    <div class="card-row"><span>Status</span><span id="proc-status" class="badge badge-neutral">No Data</span></div>
+                </div>
+            </div>
+            <div class="input-panel">
+                <div class="input-panel-head">Procurement — Data Entry</div>
+                <div class="input-grid-wrap" style="grid-template-columns:1fr;">
+                    <div class="input-section">
+                        <div class="input-section-title">Savings</div>
+                        <div class="input-fields-grid">
+                            <div class="input-field-wrap"><label class="input-field-label">Actual Savings (₱)</label><input class="input-field" type="number" inputmode="decimal" id="proc-i-actual" placeholder="Enter amount" oninput="procCalc()"></div>
+                            <div class="input-field-wrap"><label class="input-field-label">Target Savings (₱)</label><input class="input-field" type="number" inputmode="decimal" id="proc-i-target" placeholder="Enter amount" oninput="procCalc()"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="input-panel-actions">
+                    <button class="btn btn-danger" onclick="procClear()">Clear</button>
+                    <button class="btn" onclick="procClearAll()">Clear All</button>
+                    <button class="btn btn-primary" onclick="procSave()">Save</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ====================================================== -->
+        <!-- MODULE: PRODUCTION                                      -->
+        <!-- ====================================================== -->
+        <div id="mod-production" class="module-page">
+            <div class="module-switcher">
+                <button class="mod-btn active" onclick="switchSubMod('util',this)">Machine Utilization</button>
+                <button class="mod-btn" onclick="switchSubMod('waste',this)">Output &amp; Waste</button>
+                <button class="mod-btn" onclick="switchSubMod('sched',this)">Scheduling Attainment</button>
+            </div>
+
+            <!-- UTILIZATION -->
+            <div id="prod-util" class="sub-module active">
+                <div class="tab-bar">
+                    <button class="tab-btn active" onclick="switchTab('util','overview',this)">Overview</button>
+                    <button class="tab-btn" onclick="switchTab('util','input',this)">Data Entry</button>
+                </div>
+                <div id="util-overview" class="tab-content active">
+                    <div class="kpi-grid kpi-grid-4">
+                        <div class="card" id="card-util-overall"><div class="card-title">Overall Utilization</div><div class="card-value" id="util-overall">0%</div><div class="card-row"><span>Productive Time</span><span class="card-row-val" id="util-prod">0 hrs</span></div><div class="card-row"><span>Available Time</span><span class="card-row-val" id="util-avail">0 hrs</span></div><div class="progress-track"><div class="progress-bar" id="util-bar" style="width:0%"></div></div></div>
+                        <div class="card"><div class="card-title">Machine Summary</div><div class="card-value" id="util-mach">0</div><div class="card-row"><span>Available</span><span class="card-row-val" id="util-mAvail">0</span></div><div class="card-row"><span>Used</span><span class="card-row-val" id="util-mUsed">0</span></div><div class="card-row"><span>Total Prod. Days</span><span class="card-row-val" id="util-days">0</span></div></div>
+                        <div class="card"><div class="card-title">Production Lines</div><div class="card-value" id="util-lines">16</div><div class="card-row"><span>Lines with Data</span><span class="card-row-val" id="util-linesData">0</span></div><div class="card-row"><span>Avg. Utilization/Line</span><span class="card-row-val" id="util-avgUtil">0%</span></div></div>
+                        <div class="card"><div class="card-title">Top Downtime Causes</div><div id="util-downtime"><div class="card-row"><span>No Data</span><span>0 hrs</span></div></div></div>
+                    </div>
+                    <div class="section-title">Utilization by Production Line</div>
+                    <div class="table-wrap"><div class="table-head"><span>Machine Utilization by Line</span><span class="table-total-pill" id="util-totalTime">Total: 0 hrs</span></div><table><thead><tr><th>Line</th><th>Productive</th><th>Total</th><th>Utilization %</th><th>Machines</th><th>Status</th></tr></thead><tbody id="util-tbl"></tbody></table></div>
+                </div>
+                <div id="util-input" class="tab-content">
+                    <div class="input-panel">
+                        <div class="input-panel-head">Machine Utilization — Data Entry</div>
+                        <div class="input-controls">
+                            <span class="input-control-label">Select Line:</span>
+                            <select class="input-control-select" id="util-lineSelect" onchange="utilLoadLine()">
+                                <option value="">— Select Line —</option>
+                                <option value="L06_FILLING">LINE 6 - EPOXY (FILLING)</option><option value="L06_MIXER">LINE 6 - EPOXY (MIXER)</option>
+                                <option value="L04_FILLING">LINE 4 - ELASTO FILLING</option><option value="L04_MIXING">LINE 4 - ELASTO MIXING</option>
+                                <option value="L03_ITALY">LINE 3 - ITALY MACHINE</option><option value="L03_KOREA">LINE 3 - KOREA MACHINE</option>
+                                <option value="L01_MIXER">L01 - COATINGS (MIXER)</option><option value="L01_MILLING">L01 - COATINGS (MILLING)</option>
+                                <option value="L07_TUBE">LINE 7 - EPOXY TUBE</option><option value="L09_EPS">LINE 9 - EPS</option>
+                                <option value="L10_BOND">LINE 10 - CONTACT BOND</option><option value="L11_SILICONE">LINE 11 - SILICONE NEW</option>
+                                <option value="L12_EPOXY">LINE 12 - EPOXY BASED</option><option value="L13_WATER">LINE 13 - WATER BASED</option>
+                                <option value="L14_FILLING">LINE 14 - FILLING</option><option value="L14_MIXING">LINE 14 - MIXING</option>
+                            </select>
+                        </div>
+                        <div class="input-grid-wrap" id="util-inputSections"></div>
+                        <div class="input-panel-actions"><button class="btn btn-danger" onclick="utilClearLine()">Clear</button><button class="btn" onclick="utilClearAll()">Clear All</button><button class="btn btn-primary" onclick="utilSave()">Save</button></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- OUTPUT & WASTAGE -->
+            <div id="prod-waste" class="sub-module">
+                <div class="tab-bar">
+                    <button class="tab-btn active" onclick="switchTab('waste','overview',this)">Overview</button>
+                    <button class="tab-btn" onclick="switchTab('waste','input',this)">Data Entry</button>
+                </div>
+                <div id="waste-overview" class="tab-content active">
+                    <div class="kpi-grid kpi-grid-4">
+                        <div class="card"><div class="card-title">Total Output</div><div class="card-value" id="waste-total">0 kg</div><div class="card-row"><span>FG Output</span><span class="card-row-val" id="waste-fg">0 kg</span></div><div class="card-row"><span>Reprocess</span><span class="card-row-val" id="waste-rep">0 kg</span></div><div class="card-row"><span>Rejection</span><span class="card-row-val" id="waste-rej">0 kg</span></div></div>
+                        <div class="card"><div class="card-title">Net Output</div><div class="card-value" id="waste-net">0 kg</div></div>
+                        <div class="card"><div class="card-title">Waste Analysis</div><div class="card-value" id="waste-wasteKg">0 kg</div><div class="card-row"><span>Waste %</span><span class="card-row-val" id="waste-wastePct">0%</span></div><div class="progress-track"><div class="progress-bar danger" id="waste-bar" style="width:0%"></div></div></div>
+                        <div class="card"><div class="card-title">Lines</div><div class="card-value" id="waste-lines">14</div><div class="card-row"><span>With Output</span><span class="card-row-val" id="waste-linesData">0</span></div><div class="card-row"><span>With Waste</span><span class="card-row-val" id="waste-linesWaste">0</span></div></div>
+                    </div>
+                    <div class="section-title">Output &amp; Waste by Line</div>
+                    <div class="table-wrap"><div class="table-head"><span>Production Output by Line</span><span class="table-total-pill" id="waste-totalDisp">Total: 0 kg</span></div><table><thead><tr><th>Line</th><th>FG Output</th><th>Reprocess</th><th>Rejection</th><th>Net Output</th><th>Waste</th><th>Waste %</th><th>Status</th></tr></thead><tbody id="waste-tbl"></tbody></table></div>
+                </div>
+                <div id="waste-input" class="tab-content">
+                    <div class="input-panel">
+                        <div class="input-panel-head">Output &amp; Waste — Data Entry</div>
+                        <div class="input-controls">
+                            <span class="input-control-label">Select Line:</span>
+                            <select class="input-control-select" id="waste-lineSelect" onchange="wasteLoadLine()">
+                                <option value="">— Select Line —</option>
+                                <option value="L06_EPOXY">L06 - EPOXY</option><option value="L04B_ELASTO">L04B - ELASTO</option>
+                                <option value="L03_CYANO">L03 - CYANO TUBE</option><option value="L01_COATINGS">L01 - COATINGS</option>
+                                <option value="L07_TUBE">L07 - EPOXY TUBE</option><option value="L09_EPS">LINE 9 - EPS</option>
+                                <option value="L10_BOND">L10 - CONTACT BOND</option><option value="L11_SILICONE">L11 - SILICONE</option>
+                                <option value="L12_EPOXY">L12 - SPECIAL EPOXY</option><option value="L13_WATER">L13 - SPECIAL WATER</option>
+                                <option value="L14">LINE 14</option><option value="L05_CLAY">L05 - EPOXY CLAY</option>
+                                <option value="L02_BOTTLE">L02 - CYNO BOTTLE</option><option value="LABELING">LABELING LINE</option>
+                            </select>
+                        </div>
+                        <div class="input-grid-wrap" id="waste-inputSections"></div>
+                        <div class="input-panel-actions"><button class="btn btn-danger" onclick="wasteClearLine()">Clear</button><button class="btn" onclick="wasteClearAll()">Clear All</button><button class="btn btn-primary" onclick="wasteSave()">Save</button></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SCHEDULING -->
+            <div id="prod-sched" class="sub-module">
+                <div class="tab-bar">
+                    <button class="tab-btn active" onclick="switchTab('sched','overview',this)">Overview</button>
+                    <button class="tab-btn" onclick="switchTab('sched','input',this)">Data Entry</button>
+                </div>
+                <div id="sched-overview" class="tab-content active">
+                    <div class="kpi-grid kpi-grid-4">
+                        <div class="card" id="card-sched-overall"><div class="card-title">Overall Compliance</div><div class="card-value" id="sched-overall">0%</div><div class="card-row"><span>Total Actual</span><span class="card-row-val" id="sched-actual">0 kg</span></div><div class="card-row"><span>Total Planned</span><span class="card-row-val" id="sched-planned">0 kg</span></div><div class="progress-track"><div class="progress-bar" id="sched-bar" style="width:0%"></div></div></div>
+                        <div class="card"><div class="card-title">Top Performers</div><div id="sched-topPerf"><div class="card-row"><span>No Data</span></div></div></div>
+                        <div class="card"><div class="card-title">Needs Improvement</div><div id="sched-needsImp"><div class="card-row"><span>No Data</span></div></div></div>
+                        <div class="card"><div class="card-title">Production Lines</div><div class="card-value" id="sched-lines">13</div><div class="card-row"><span>Lines with Data</span><span class="card-row-val" id="sched-linesData">0</span></div><div class="card-row"><span>Avg. Compliance</span><span class="card-row-val" id="sched-avgComp">0%</span></div></div>
+                    </div>
+                    <div class="section-title">Scheduling Attainment by Line</div>
+                    <div class="table-wrap"><div class="table-head"><span>Actual vs Planned Output</span><span class="table-total-pill" id="sched-totalDisp">Total Actual: 0 kg</span></div><table><thead><tr><th>Line</th><th>Actual (kg)</th><th>Planned (kg)</th><th>Compliance %</th><th>Status</th></tr></thead><tbody id="sched-tbl"></tbody></table></div>
+                </div>
+                <div id="sched-input" class="tab-content">
+                    <div class="input-panel">
+                        <div class="input-panel-head">Scheduling Attainment — Data Entry</div>
+                        <div class="input-controls">
+                            <span class="input-control-label">Select Line:</span>
+                            <select class="input-control-select" id="sched-lineSelect" onchange="schedLoadLine()">
+                                <option value="">— Select Line —</option>
+                                <option value="L06_EPOXY">L06 - EPOXY</option><option value="L04B_ELASTO">L04B - ELASTO</option>
+                                <option value="L03_CYANO">L03 - CYANO TUBE</option><option value="L01_COATINGS">L01 - COATINGS</option>
+                                <option value="L07_TUBE">L07 - EPOXY TUBE</option><option value="L09_EPS">LINE 9 - EPS</option>
+                                <option value="L10_BOND">L10 - CONTACT BOND</option><option value="L11_SILICONE">L11 - SILICONE</option>
+                                <option value="L12_EPOXY">L12 - SPECIAL EPOXY</option><option value="L13_WATER">L13 - SPECIAL</option>
+                                <option value="L14">LINE 14</option><option value="L05_CLAY">L05 - EPOXY CLAY</option>
+                                <option value="L02_BOTTLE">L02 - CYNO BOTTLE</option>
+                            </select>
+                        </div>
+                        <div class="input-grid-wrap" id="sched-inputSections"></div>
+                        <div class="input-panel-actions"><button class="btn btn-danger" onclick="schedClearLine()">Clear</button><button class="btn" onclick="schedClearAll()">Clear All</button><button class="btn btn-primary" onclick="schedSave()">Save</button></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ====================================================== -->
+        <!-- MODULE: WAREHOUSE & LOGISTICS                           -->
+        <!-- ====================================================== -->
+        <div id="mod-warehouse" class="module-page">
+            <div class="tab-bar">
+                <button class="tab-btn active" onclick="switchTab('wh','overview',this)">Overview</button>
+                <button class="tab-btn" onclick="switchTab('wh','fillrates',this)">Fill Rates</button>
+                <button class="tab-btn" onclick="switchTab('wh','nonotif',this)">Non-OTIF</button>
+                <button class="tab-btn" onclick="switchTab('wh','stockouts',this)">Stock Outs</button>
+                <button class="tab-btn" onclick="switchTab('wh','warehouseutil',this)">Warehouse</button>
+                <button class="tab-btn" onclick="switchTab('wh','manpower',this)">Manpower</button>
+                <button class="tab-btn" onclick="switchTab('wh','input',this)">Data Entry</button>
+            </div>
+            <div id="wh-overview" class="tab-content active">
+                <div class="kpi-grid kpi-grid-3">
+                    <div class="card" id="card-wh-otif"><div class="card-title">OTIF Rate</div><div class="card-value" id="wh-otif">0%</div><div class="card-row"><span>Served</span><span class="card-row-val" id="wh-otifServed">0</span></div><div class="card-row"><span>Total</span><span class="card-row-val" id="wh-otifTotal">0</span></div><div class="progress-track"><div class="progress-bar" id="wh-otifBar" style="width:0%"></div></div><div class="card-row"><span>Status</span><span id="wh-otifStatus" class="badge badge-neutral">No Data</span></div></div>
+                    <div class="card" id="card-wh-vol"><div class="card-title">Volume Fill</div><div class="card-value" id="wh-volFill">0%</div><div class="card-row"><span>Delivered</span><span class="card-row-val" id="wh-volDel">₱0</span></div><div class="card-row"><span>Orders</span><span class="card-row-val" id="wh-volOrd">₱0</span></div><div class="progress-track"><div class="progress-bar" id="wh-volBar" style="width:0%"></div></div><div class="card-row"><span>Status</span><span id="wh-volStatus" class="badge badge-neutral">No Data</span></div></div>
+                    <div class="card" id="card-wh-util"><div class="card-title">WH Utilization</div><div class="card-value" id="wh-whUtil">0%</div><div class="card-row"><span>Used</span><span class="card-row-val" id="wh-whUsed">0</span></div><div class="card-row"><span>Total</span><span class="card-row-val" id="wh-whTotal">0</span></div><div class="progress-track"><div class="progress-bar" id="wh-whBar" style="width:0%"></div></div><div class="card-row"><span>Status</span><span id="wh-whStatus" class="badge badge-neutral">No Data</span></div></div>
+                </div>
+                <div class="section-title">Fill Rates — Hit Rate</div>
+                <div class="kpi-grid kpi-grid-4">
+                    <div class="card" id="card-wh-corp"><div class="card-title">Corporate</div><div class="card-value" id="wh-corpRate">0%</div><div class="card-row"><span>Delivered</span><span class="card-row-val" id="wh-corpDel">₱0</span></div><div class="card-row"><span>Orders</span><span class="card-row-val" id="wh-corpOrd">₱0</span></div><div class="card-row"><span>Status</span><span id="wh-corpStatus" class="badge badge-neutral">No Data</span></div></div>
+                    <div class="card" id="card-wh-sc"><div class="card-title">SC Fill</div><div class="card-value" id="wh-scRate">0%</div><div class="card-row"><span>Delivered</span><span class="card-row-val" id="wh-scDel">₱0</span></div><div class="card-row"><span>Orders</span><span class="card-row-val" id="wh-scOrd">₱0</span></div><div class="card-row"><span>Status</span><span id="wh-scStatus" class="badge badge-neutral">No Data</span></div></div>
+                    <div class="card" id="card-wh-core"><div class="card-title">Core Products</div><div class="card-value" id="wh-coreRate">0%</div><div class="card-row"><span>Delivered</span><span class="card-row-val" id="wh-coreDel">₱0</span></div><div class="card-row"><span>Orders</span><span class="card-row-val" id="wh-coreOrd">₱0</span></div><div class="card-row"><span>Status</span><span id="wh-coreStatus" class="badge badge-neutral">No Data</span></div></div>
+                    <div class="card" id="card-wh-emerg"><div class="card-title">Emerging</div><div class="card-value" id="wh-emergRate">0%</div><div class="card-row"><span>Delivered</span><span class="card-row-val" id="wh-emergDel">₱0</span></div><div class="card-row"><span>Orders</span><span class="card-row-val" id="wh-emergOrd">₱0</span></div><div class="card-row"><span>Status</span><span id="wh-emergStatus" class="badge badge-neutral">No Data</span></div></div>
+                </div>
+                <div class="section-title">Key Metrics</div>
+                <div class="kpi-grid kpi-grid-4">
+                    <div class="card"><div class="card-title">Non-OTIF Issues</div><div class="card-value" id="wh-nonOtifTotal">0</div><div class="card-row"><span>Top Category</span><span class="card-row-val" id="wh-nonOtifTop">—</span></div><div class="card-row"><span>Top Issue Type</span><span class="card-row-val" id="wh-nonOtifTopIssue">—</span></div></div>
+                    <div class="card"><div class="card-title">Stock Outs</div><div class="card-value" id="wh-stockVal">₱0</div><div class="card-row"><span>Weight</span><span class="card-row-val" id="wh-stockWt">0 KGS</span></div></div>
+                    <div class="card"><div class="card-title">OTDL Average</div><div class="card-value" id="wh-otdlAvg">0 days</div><div class="card-row"><span>Regions with Data</span><span class="card-row-val" id="wh-otdlReg">0</span></div></div>
+                    <div class="card"><div class="card-title">Trucks Volume</div><div class="card-value" id="wh-truckVol">0 cbm</div><div class="card-row"><span>Active Types</span><span class="card-row-val" id="wh-truckTypes">0</span></div></div>
+                </div>
+                <div class="section-title">Manpower Overview</div>
+                <div class="kpi-grid kpi-grid-3">
+                    <div class="card"><div class="card-title">Headcount</div><div class="card-value" id="wh-hcTotal">0</div><div class="card-row"><span>Regular</span><span class="card-row-val" id="wh-hcReg">0</span></div><div class="card-row"><span>Agency</span><span class="card-row-val" id="wh-hcAgy">0</span></div><div class="card-row"><span>Attrition</span><span class="card-row-val" id="wh-hcAttr">0%</span></div></div>
+                    <div class="card"><div class="card-title">Manhours</div><div class="card-value" id="wh-mhTotal">0</div><div class="card-row"><span>Regular</span><span class="card-row-val" id="wh-mhReg">0</span></div><div class="card-row"><span>Agency</span><span class="card-row-val" id="wh-mhAgy">0</span></div><div class="card-row"><span>OT Rate</span><span class="card-row-val" id="wh-mhOT">0%</span></div></div>
+                    <div class="card"><div class="card-title">Absences</div><div class="card-value" id="wh-absRate">0%</div><div class="card-row"><span>Count</span><span class="card-row-val" id="wh-absCnt">0</span></div><div class="card-row"><span>Required Days</span><span class="card-row-val" id="wh-absReq">0</span></div></div>
+                </div>
+            </div>
+            <div id="wh-fillrates" class="tab-content">
+                <div class="section-title">Fill Rates — All Categories</div>
+                <div class="kpi-grid kpi-grid-4">
+                    <div class="card"><div class="card-title">Corporate</div><div class="card-value" id="fr-corp">0%</div><div class="card-row"><span>Delivered</span><span class="card-row-val" id="fr-corpDel">₱0</span></div><div class="card-row"><span>Orders</span><span class="card-row-val" id="fr-corpOrd">₱0</span></div><div class="card-row"><span>Status</span><span id="fr-corpSt" class="badge badge-neutral">No Data</span></div></div>
+                    <div class="card"><div class="card-title">SC Fill</div><div class="card-value" id="fr-sc">0%</div><div class="card-row"><span>Delivered</span><span class="card-row-val" id="fr-scDel">₱0</span></div><div class="card-row"><span>Orders</span><span class="card-row-val" id="fr-scOrd">₱0</span></div><div class="card-row"><span>Status</span><span id="fr-scSt" class="badge badge-neutral">No Data</span></div></div>
+                    <div class="card"><div class="card-title">Core Products</div><div class="card-value" id="fr-core">0%</div><div class="card-row"><span>Delivered</span><span class="card-row-val" id="fr-coreDel">₱0</span></div><div class="card-row"><span>Orders</span><span class="card-row-val" id="fr-coreOrd">₱0</span></div><div class="card-row"><span>Status</span><span id="fr-coreSt" class="badge badge-neutral">No Data</span></div></div>
+                    <div class="card"><div class="card-title">Emerging</div><div class="card-value" id="fr-emerg">0%</div><div class="card-row"><span>Delivered</span><span class="card-row-val" id="fr-emergDel">₱0</span></div><div class="card-row"><span>Orders</span><span class="card-row-val" id="fr-emergOrd">₱0</span></div><div class="card-row"><span>Status</span><span id="fr-emergSt" class="badge badge-neutral">No Data</span></div></div>
+                </div>
+            </div>
+            <div id="wh-nonotif" class="tab-content">
+                <div class="table-wrap"><div class="table-head"><span>Non-OTIF Breakdown</span><span class="table-total-pill" id="wh-nonOtifTot">Total: 0</span></div><table><thead><tr><th>Category</th><th>Issue Type</th><th>Count</th></tr></thead><tbody id="wh-nonOtifTbl"></tbody></table></div>
+            </div>
+            <div id="wh-stockouts" class="tab-content">
+                <div class="kpi-grid kpi-grid-2">
+                    <div class="table-wrap"><div class="table-head"><span>Stock Outs by Value</span><span class="table-total-pill" id="wh-soValTot">₱0</span></div><table><thead><tr><th>Category</th><th>Issue</th><th>Amount</th></tr></thead><tbody id="wh-soValTbl"></tbody></table></div>
+                    <div class="table-wrap"><div class="table-head"><span>Stock Outs by Weight</span><span class="table-total-pill" id="wh-soWtTot">0 KGS</span></div><table><thead><tr><th>Category</th><th>Issue</th><th>Weight</th></tr></thead><tbody id="wh-soWtTbl"></tbody></table></div>
+                </div>
+            </div>
+            <div id="wh-warehouseutil" class="tab-content">
+                <div class="kpi-grid kpi-grid-2">
+                    <div class="card"><div class="card-title">Warehouse Utilization</div><div class="card-row"><span>RM/PM Pallet Positions</span><span class="card-row-val" id="wh-rmTot">0</span></div><div class="card-row"><span>RM/PM Used</span><span class="card-row-val" id="wh-rmUsed">0</span></div><div class="card-row"><span>RM/PM Util%</span><span class="card-row-val" id="wh-rmUtil">0%</span></div><div class="card-row"><span>FG Pallet Positions</span><span class="card-row-val" id="wh-fgTot">0</span></div><div class="card-row"><span>FG Used</span><span class="card-row-val" id="wh-fgUsed">0</span></div><div class="card-row"><span>FG Util%</span><span class="card-row-val" id="wh-fgUtil">0%</span></div></div>
+                    <div class="card"><div class="card-title">External Warehouse</div><div class="card-row"><span>Pallet Positions</span><span class="card-row-val" id="wh-extTot">0</span></div><div class="card-row"><span>Used</span><span class="card-row-val" id="wh-extUsed">0</span></div><div class="card-row"><span>Utilization</span><span class="card-row-val" id="wh-extUtil">0%</span></div></div>
+                </div>
+            </div>
+            <div id="wh-manpower" class="tab-content">
+                <div class="kpi-grid kpi-grid-3">
+                    <div class="card"><div class="card-title">Headcount</div><div class="card-row"><span>Regular</span><span class="card-row-val" id="wh-mp-reg">0</span></div><div class="card-row"><span>Agency</span><span class="card-row-val" id="wh-mp-agy">0</span></div><div class="card-row"><span>Resigned</span><span class="card-row-val" id="wh-mp-res">0</span></div><div class="card-row"><span>Attrition</span><span class="card-row-val" id="wh-mp-attr">0%</span></div></div>
+                    <div class="card"><div class="card-title">Manhours</div><div class="card-row"><span>Regular Hours</span><span class="card-row-val" id="wh-mp-regH">0</span></div><div class="card-row"><span>Agency Hours</span><span class="card-row-val" id="wh-mp-agyH">0</span></div><div class="card-row"><span>Overtime Hours</span><span class="card-row-val" id="wh-mp-otH">0</span></div><div class="card-row"><span>OT Rate</span><span class="card-row-val" id="wh-mp-otR">0%</span></div></div>
+                    <div class="card"><div class="card-title">Absences</div><div class="card-row"><span>Absences Count</span><span class="card-row-val" id="wh-mp-absC">0</span></div><div class="card-row"><span>Required Days</span><span class="card-row-val" id="wh-mp-absD">0</span></div><div class="card-row"><span>Absenteeism Rate</span><span class="card-row-val" id="wh-mp-absR">0%</span></div></div>
+                </div>
+            </div>
+            <div id="wh-input" class="tab-content">
+                <div class="input-panel">
+                    <div class="input-panel-head">Warehouse &amp; Logistics — Data Entry</div>
+                    <div class="input-controls">
+                        <span class="input-control-label">Category:</span>
+                        <select class="input-control-select" id="wh-inputCat" onchange="whLoadInput()">
+                            <option value="otif">OTIF Rate</option><option value="volume">Volume Fill</option>
+                            <option value="fillrates">Fill Rates</option><option value="nonotif">Non-OTIF</option>
+                            <option value="stockouts">Stock Outs</option><option value="warehouse">Warehouse</option>
+                            <option value="otdl">OTDL Days</option><option value="trucks">Truck Utilization</option>
+                            <option value="manpower">Manpower</option>
+                        </select>
+                    </div>
+                    <div class="input-grid-wrap" id="wh-inputSections"></div>
+                    <div class="input-panel-actions"><button class="btn btn-danger" onclick="whClearCat()">Clear</button><button class="btn" onclick="whClearAll()">Clear All</button><button class="btn btn-primary" onclick="whSave()">Save</button></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ====================================================== -->
+        <!-- MODULE: ANALYTICS DASHBOARD                             -->
+        <!-- ====================================================== -->
+        <div id="mod-analytics" class="module-page">
+
+            <!-- ── Toolbar ── -->
+            <div class="analytics-toolbar">
+
+                <!-- Range mode -->
+                <span class="analytics-toolbar-label">View by</span>
+                <div class="view-toggle">
+                    <button class="view-toggle-btn active" id="an-mode-month" onclick="anSetRangeMode('month')" title="Month range">Mo</button>
+                    <button class="view-toggle-btn"        id="an-mode-year"  onclick="anSetRangeMode('year')"  title="Year range">Yr</button>
+                </div>
+
+                <div class="analytics-toolbar-sep"></div>
+
+                <!-- From range -->
+                <span class="analytics-toolbar-label">From</span>
+                <div class="analytics-range-group">
+                    <select class="analytics-range-select" id="an-from-year" onchange="anApplyRange()">
+                        <option>2020</option><option>2021</option><option>2022</option><option>2023</option>
+                        <option>2024</option><option>2025</option><option selected>2026</option>
+                        <option>2027</option><option>2028</option><option>2029</option><option>2030</option>
+                    </select>
+                    <select class="analytics-range-select" id="an-from-month" onchange="anApplyRange()">
+                        <option selected>January</option><option>February</option><option>March</option><option>April</option>
+                        <option>May</option><option>June</option><option>July</option><option>August</option>
+                        <option>September</option><option>October</option><option>November</option><option>December</option>
+                    </select>
+                </div>
+
+                <span class="analytics-range-arrow">→</span>
+
+                <!-- To range -->
+                <span class="analytics-toolbar-label">To</span>
+                <div class="analytics-range-group">
+                    <select class="analytics-range-select" id="an-to-year" onchange="anApplyRange()">
+                        <option>2020</option><option>2021</option><option>2022</option><option>2023</option>
+                        <option>2024</option><option>2025</option><option selected>2026</option>
+                        <option>2027</option><option>2028</option><option>2029</option><option>2030</option>
+                    </select>
+                    <select class="analytics-range-select" id="an-to-month" onchange="anApplyRange()">
+                        <option>January</option><option>February</option><option>March</option><option>April</option>
+                        <option>May</option><option>June</option><option>July</option><option>August</option>
+                        <option>September</option><option selected>October</option><option>November</option><option>December</option>
+                    </select>
+                </div>
+
+                <div class="analytics-toolbar-sep"></div>
+
+                <!-- Card view toggle -->
+                <span class="analytics-toolbar-label">Layout</span>
+                <div class="view-toggle">
+                    <button class="view-toggle-btn active" onclick="anSetView('grid',this)"    title="Grid">⊞</button>
+                    <button class="view-toggle-btn"        onclick="anSetView('compact',this)" title="Compact">⊟</button>
+                    <button class="view-toggle-btn"        onclick="anSetView('list',this)"    title="List">☰</button>
+                </div>
+            </div>
+
+            <!-- ── Module filter chips ── -->
+            <div class="analytics-filter-row">
+                <span class="analytics-filter-label">Show:</span>
+                <div class="filter-chip active" onclick="anToggleModule('Finance',this)">
+                    <span class="filter-chip-dot"></span>Finance
+                </div>
+                <div class="filter-chip active" onclick="anToggleModule('SC Planning',this)">
+                    <span class="filter-chip-dot"></span>SC Planning
+                </div>
+                <div class="filter-chip active" onclick="anToggleModule('Procurement',this)">
+                    <span class="filter-chip-dot"></span>Procurement
+                </div>
+                <div class="filter-chip active" onclick="anToggleModule('Production',this)">
+                    <span class="filter-chip-dot"></span>Production
+                </div>
+                <div class="filter-chip active" onclick="anToggleModule('Warehouse',this)">
+                    <span class="filter-chip-dot"></span>Warehouse
+                </div>
+            </div>
+
+            <!-- ── Summary bar ── -->
+            <div class="analytics-summary-bar" id="an-summary-bar"></div>
+
+            <!-- ── KPI Card Grid ── -->
+            <div class="analytics-grid" id="analytics-grid">
+                <div class="analytics-empty">
+                    <div class="analytics-empty-icon">📊</div>
+                    <div class="analytics-empty-title">Loading Analytics…</div>
+                    <div class="analytics-empty-sub">Calculating KPI trends across selected period.</div>
+                </div>
+            </div>
+
+        </div><!-- /mod-analytics -->
+
+    </div><!-- /content -->
+
+
+    <div class="footer">
+        <div class="footer-brand">Pioneer SC Ops Hub <span style="font-weight:400;color:var(--text-muted);">v1.1</span></div>
+        <span style="display:flex;align-items:center;gap:6px;">
+            <svg viewBox="0 0 16 16" fill="currentColor" width="11" height="11" style="opacity:0.5"><path d="M8 0a8 8 0 100 16A8 8 0 008 0zm0 14.5a6.5 6.5 0 110-13 6.5 6.5 0 010 13zM7 4.5V9l3.5 2-.7 1.2L6 9.5V4.5H7z"/></svg>
+            Last updated: <span id="lastUpdate">—</span>
+        </span>
+    </div>
+</div><!-- /main -->
+
+<!-- Toast -->
+<div class="toast" id="toast">
+    <span class="toast-icon">✅</span>
+    <span class="toast-msg">Data saved successfully</span>
+</div>
+
+<!-- ============================================================ -->
+<!-- SCRIPTS — load order: core utils → core nav → modules → init -->
+<!-- ============================================================ -->
+<script src="js/core/utils.js"></script>
+<script src="js/core/navigation.js"></script>
+<script src="js/modules/finance.js"></script>
+<script src="js/modules/planning.js"></script>
+<script src="js/modules/procurement.js"></script>
+<script src="js/modules/production-util.js"></script>
+<script src="js/modules/production-waste-sched.js"></script>
+<script src="js/modules/warehouse.js"></script>
+<script src="js/modules/analytics.js"></script>
+<script src="js/core/search.js"></script>
+<script src="js/controllers/home.js"></script>
+
+<script>
+    // ── App boot ─────────────────────────────────────────────
+    window.onload = function () {
+        // Set sidebar period selectors to current real date
+        const now   = new Date();
+        const curY  = String(now.getFullYear());
+        const curM  = ['January','February','March','April','May','June','July','August','September','October','November','December'][now.getMonth()];
+
+        const yrEl = document.getElementById('globalYear');
+        const moEl = document.getElementById('globalMonth');
+        if (yrEl) {
+            // set selected option or add if not present
+            let found = false;
+            for (let opt of yrEl.options) { if (opt.value === curY) { opt.selected = true; found = true; break; } }
+            if (!found) { const o = new Option(curY, curY, true, true); yrEl.add(o); }
+        }
+        if (moEl) {
+            for (let opt of moEl.options) { opt.selected = (opt.value === curM || opt.text === curM); }
+        }
+
+        // Sync analytics range to current period
+        ['an-from-year','an-to-year'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) { for (let opt of el.options) { opt.selected = (opt.value === curY || opt.text === curY); } }
+        });
+        ['an-from-month','an-to-month'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) { for (let opt of el.options) { opt.selected = (opt.value === curM || opt.text === curM); } }
+        });
+        // Sync analytics state
+        if (typeof anState !== 'undefined') {
+            anState.fromYear = curY; anState.toYear = curY;
+            anState.fromMonth = curM; anState.toMonth = curM;
+        }
+
+        globalFilterChange();
+        setTimeout(() => { if (typeof plLoadCat === 'function') plLoadCat(); }, 50);
+        updateHomeKPIs();
+    };
+</script>
+</body>
+</html>

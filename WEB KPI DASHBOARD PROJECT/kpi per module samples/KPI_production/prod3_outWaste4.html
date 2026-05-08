@@ -1,0 +1,1393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Production Dashboard - Multi Module</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            padding: 24px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #2d2f33;
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 16px;
+            background-color: #fafbfc;
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: 1px solid #eef2f5;
+            flex-wrap: wrap;
+        }
+
+        .filter-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .filter-item label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #5f6775;
+            text-transform: uppercase;
+        }
+
+        .filter-item select {
+            padding: 6px 12px;
+            border: 1px solid #d0d5dd;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #2d2f33;
+            background-color: white;
+            cursor: pointer;
+        }
+
+        .module-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 24px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 8px;
+        }
+
+        .module-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            background-color: white;
+            color: #5f6775;
+            flex: 1;
+            transition: all 0.2s;
+        }
+
+        .module-btn:hover {
+            background-color: #e0e0e0;
+        }
+
+        .module-btn.active {
+            background-color: #01b8aa;
+            color: white;
+        }
+
+        .module-content {
+            display: none;
+        }
+
+        .module-content.active {
+            display: block;
+        }
+
+        .tab-nav {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 24px;
+            border-bottom: 2px solid #eef2f5;
+            padding-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 8px 16px;
+            border: none;
+            background: none;
+            font-size: 13px;
+            font-weight: 600;
+            color: #5f6775;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .tab-btn:hover {
+            color: #01b8aa;
+            background-color: #f0f7f7;
+        }
+
+        .tab-btn.active {
+            color: #01b8aa;
+            background-color: #e6f3f2;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .kpi-card {
+            background-color: white;
+            border: 1px solid #eef2f5;
+            border-radius: 8px;
+            padding: 20px;
+            transition: all 0.2s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+        }
+
+        .kpi-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border-color: #01b8aa;
+        }
+
+        .kpi-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .kpi-card-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #5f6775;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .kpi-card-main-value {
+            font-size: 32px;
+            font-weight: 600;
+            color: #2d2f33;
+            margin-bottom: 8px;
+        }
+
+        .kpi-card-details {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .kpi-card-detail-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            color: #5f6775;
+            padding: 4px 0;
+            border-bottom: 1px dashed #f0f0f0;
+        }
+
+        .kpi-card-detail-label {
+            color: #5f6775;
+        }
+
+        .kpi-card-detail-value {
+            font-weight: 600;
+            color: #2d2f33;
+        }
+
+        .kpi-card-progress {
+            height: 6px;
+            background-color: #eef2f5;
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 12px 0 8px;
+        }
+
+        .kpi-card-progress-bar {
+            height: 100%;
+            background-color: #01b8aa;
+            border-radius: 3px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-excellent {
+            background-color: #e6f9ed;
+            color: #107c41;
+        }
+
+        .status-good {
+            background-color: #e3f2fd;
+            color: #0d47a1;
+        }
+
+        .status-warning {
+            background-color: #fff1e0;
+            color: #d83b01;
+        }
+
+        .status-critical {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+
+        .status-neutral {
+            background-color: #fef7e0;
+            color: #966c00;
+        }
+
+        .section-header {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2d2f33;
+            margin: 30px 0 20px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #01b8aa;
+        }
+
+        .table-container {
+            background-color: white;
+            border: 1px solid #eef2f5;
+            border-radius: 6px;
+            margin-bottom: 24px;
+            overflow-x: auto;
+        }
+
+        .table-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #eef2f5;
+            background-color: #fafbfc;
+            font-size: 14px;
+            font-weight: 600;
+            color: #2d2f33;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .table-total {
+            font-size: 13px;
+            color: #5f6775;
+            background-color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            border: 1px solid #d0d5dd;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            padding: 14px 16px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #5f6775;
+            text-transform: uppercase;
+            border-bottom: 2px solid #eef2f5;
+            background-color: #fafbfc;
+        }
+
+        td {
+            padding: 12px 16px;
+            font-size: 13px;
+            color: #2d2f33;
+            border-bottom: 1px solid #eef2f5;
+        }
+
+        .input-panel {
+            background-color: white;
+            border: 1px solid #eef2f5;
+            border-radius: 6px;
+            margin: 24px 0;
+        }
+
+        .panel-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #eef2f5;
+            background-color: #fafbfc;
+            font-size: 14px;
+            font-weight: 600;
+            color: #2d2f33;
+        }
+
+        .input-controls {
+            display: flex;
+            gap: 20px;
+            padding: 20px;
+            background-color: #fafbfc;
+            border-bottom: 1px solid #eef2f5;
+            flex-wrap: wrap;
+        }
+
+        .input-selector {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 2;
+        }
+
+        .input-selector label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #5f6775;
+            text-transform: uppercase;
+            min-width: 100px;
+        }
+
+        .input-selector select {
+            padding: 8px 16px;
+            border: 1px solid #d0d5dd;
+            border-radius: 4px;
+            font-size: 13px;
+            flex: 1;
+            max-width: 500px;
+        }
+
+        .input-sections {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            padding: 20px;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .input-section {
+            background-color: #fafbfc;
+            border: 1px solid #eef2f5;
+            border-radius: 6px;
+            padding: 20px;
+        }
+
+        .input-section h4 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #5f6775;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #eef2f5;
+        }
+
+        .input-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .input-field {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .input-field label {
+            font-size: 11px;
+            font-weight: 600;
+            color: #5f6775;
+            text-transform: uppercase;
+        }
+
+        .input-field input {
+            padding: 8px 12px;
+            border: 1px solid #d0d5dd;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #2d2f33;
+            background-color: white;
+        }
+
+        .input-field input:focus {
+            outline: none;
+            border-color: #01b8aa;
+        }
+
+        .input-field input::placeholder {
+            color: #aaa;
+            font-style: italic;
+        }
+
+        .button-group {
+            padding: 16px 20px;
+            border-top: 1px solid #eef2f5;
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: 1px solid #d0d5dd;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            background: white;
+            color: #2d2f33;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            background-color: #f0f0f0;
+        }
+
+        .btn-primary {
+            background-color: #01b8aa;
+            border-color: #01b8aa;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #019f92;
+        }
+
+        .btn-danger {
+            background-color: #d83b01;
+            border-color: #d83b01;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #b32e01;
+        }
+
+        .footer {
+            text-align: right;
+            font-size: 12px;
+            color: #5f6775;
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid #eef2f5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>PRODUCTION DASHBOARD</h1>
+            <div class="filter-group">
+                <div class="filter-item">
+                    <label>Year:</label>
+                    <select id="yearSelect" onchange="loadMonthData()">
+                        <option value="2023">2023</option>
+                        <option value="2024" selected>2024</option>
+                        <option value="2025">2025</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label>Month:</label>
+                    <select id="monthSelect" onchange="loadMonthData()">
+                        <option value="January">January</option>
+                        <option value="February">February</option>
+                        <option value="March">March</option>
+                        <option value="April">April</option>
+                        <option value="May">May</option>
+                        <option value="June">June</option>
+                        <option value="July">July</option>
+                        <option value="August">August</option>
+                        <option value="September">September</option>
+                        <option value="October" selected>October</option>
+                        <option value="November">November</option>
+                        <option value="December">December</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="module-selector">
+            <button class="module-btn active" onclick="switchModule('utilization')">🔧 Machine Utilization</button>
+            <button class="module-btn" onclick="switchModule('wastage')">📊 Output & Wasteage</button>
+        </div>
+
+        <!-- MACHINE UTILIZATION MODULE -->
+        <div id="module-utilization" class="module-content active">
+            <div class="tab-nav">
+                <button class="tab-btn active" onclick="switchTab('utilization', 'overview')">Overview</button>
+                <button class="tab-btn" onclick="switchTab('utilization', 'details')">Utilization Details</button>
+                <button class="tab-btn" onclick="switchTab('utilization', 'input')">Data Input</button>
+            </div>
+
+            <div id="utilization-overview" class="tab-content active">
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-card-header"><span class="kpi-card-title">Overall Utilization</span></div>
+                        <div class="kpi-card-main-value" id="util-overall">0%</div>
+                        <div class="kpi-card-details">
+                            <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Total Productive Time</span><span class="kpi-card-detail-value" id="util-productive">0 hrs</span></div>
+                            <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Total Available Time</span><span class="kpi-card-detail-value" id="util-available">0 hrs</span></div>
+                        </div>
+                        <div class="kpi-card-progress"><div class="kpi-card-progress-bar" id="util-progress" style="width: 0%"></div></div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-card-header"><span class="kpi-card-title">Machine Summary</span></div>
+                        <div class="kpi-card-main-value" id="util-totalMachines">0</div>
+                        <div class="kpi-card-details">
+                            <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Machines Available</span><span class="kpi-card-detail-value" id="util-machinesAvail">0</span></div>
+                            <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Machines Used</span><span class="kpi-card-detail-value" id="util-machinesUsed">0</span></div>
+                            <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Production Days</span><span class="kpi-card-detail-value" id="util-prodDays">0</span></div>
+                        </div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-card-header"><span class="kpi-card-title">Top Downtime Causes</span></div>
+                        <div class="kpi-card-details" id="util-downtime"><div class="kpi-card-detail-row"><span>No Data</span><span>0 hrs</span></div></div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-card-header"><span class="kpi-card-title">Production Lines</span></div>
+                        <div class="kpi-card-main-value" id="util-totalLines">16</div>
+                        <div class="kpi-card-details">
+                            <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Lines with Data</span><span class="kpi-card-detail-value" id="util-linesWithData">0</span></div>
+                            <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Avg Utilization/Line</span><span class="kpi-card-detail-value" id="util-avgUtil">0%</span></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="section-header">Utilization Summary by Line</div>
+                <div class="table-container">
+                    <div class="table-header"><span>Machine Utilization by Production Line</span><span class="table-total" id="util-totalTime">Total: 0 hrs</span></div>
+                    <table>
+                        <thead><tr><th>Line</th><th>Productive Time</th><th>Total Time</th><th>Utilization %</th><th>Machines</th><th>Status</th></tr></thead>
+                        <tbody id="util-summaryTable"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="utilization-details" class="tab-content">
+                <div class="section-header">Machine Utilization - Detailed Breakdown</div>
+                <div class="input-controls" style="margin-bottom: 20px;">
+                    <div class="input-selector">
+                        <label>View Line Details:</label>
+                        <select id="util-detailLine" onchange="loadUtilDetails()">
+                            <option value="summary">📊 SUMMARY OF ALL LINE</option>
+                            <option value="L06_FILLING">🔹 LINE 6- EPOXY LINE (FILLING)</option>
+                            <option value="L06_MIXER">🔹 LINE 6- EPOXY LINE (MIXER)</option>
+                            <option value="L04_FILLING">🔹 LINE 4 - ELASTO FILLING</option>
+                            <option value="L04_MIXING">🔹 LINE 4 - ELASTO MIXING</option>
+                            <option value="L03_ITALY">🔹 LINE 3- ITALY MACHINE</option>
+                            <option value="L03_KOREA">🔹 LINE 3 - KOREA MACHINE</option>
+                            <option value="L01_MIXER">🔹 L01 - COATINGS (MIXER)</option>
+                            <option value="L01_MILLING">🔹 L01 - COATINGS (MILLING)</option>
+                            <option value="L07_TUBE">🔹 LINE 7 - EPOXY TUBE</option>
+                            <option value="L09_EPS">🔹 LINE 9 - EPS</option>
+                            <option value="L10_BOND">🔹 LINE 10 - CONTACT BOND</option>
+                            <option value="L11_SILICONE">🔹 LINE 11 - SILICONE NEW</option>
+                            <option value="L12_EPOXY">🔹 LINE 12 - EPOXY BASED</option>
+                            <option value="L13_WATER">🔹 LINE 13 - WATER BASED</option>
+                            <option value="L14_FILLING">🔹 LINE 14 - FILLING</option>
+                            <option value="L14_MIXING">🔹 LINE 14 - MIXING</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <div class="table-header"><span>23 Utilization Categories Breakdown</span></div>
+                    <table><thead><tr><th>Category</th><th>Hours</th><th>% of Total</th></tr></thead><tbody id="util-detailTable"></tbody></table>
+                </div>
+            </div>
+
+            <div id="utilization-input" class="tab-content">
+                <div class="input-panel">
+                    <div class="panel-header">MACHINE UTILIZATION DATA INPUT</div>
+                    <div class="input-controls">
+                        <div class="input-selector">
+                            <label>Select Line:</label>
+                            <select id="util-lineSelector" onchange="loadUtilLineData()">
+                                <option value="summary">📊 SUMMARY OF ALL LINE</option>
+                                <option value="L06_FILLING">🔹 LINE 6- EPOXY LINE (FILLING)</option>
+                                <option value="L06_MIXER">🔹 LINE 6- EPOXY LINE (MIXER)</option>
+                                <option value="L04_FILLING">🔹 LINE 4 - ELASTO FILLING</option>
+                                <option value="L04_MIXING">🔹 LINE 4 - ELASTO MIXING</option>
+                                <option value="L03_ITALY">🔹 LINE 3- ITALY MACHINE</option>
+                                <option value="L03_KOREA">🔹 LINE 3 - KOREA MACHINE</option>
+                                <option value="L01_MIXER">🔹 L01 - COATINGS (MIXER)</option>
+                                <option value="L01_MILLING">🔹 L01 - COATINGS (MILLING)</option>
+                                <option value="L07_TUBE">🔹 LINE 7 - EPOXY TUBE</option>
+                                <option value="L09_EPS">🔹 LINE 9 - EPS</option>
+                                <option value="L10_BOND">🔹 LINE 10 - CONTACT BOND</option>
+                                <option value="L11_SILICONE">🔹 LINE 11 - SILICONE NEW</option>
+                                <option value="L12_EPOXY">🔹 LINE 12 - EPOXY BASED</option>
+                                <option value="L13_WATER">🔹 LINE 13 - WATER BASED</option>
+                                <option value="L14_FILLING">🔹 LINE 14 - FILLING</option>
+                                <option value="L14_MIXING">🔹 LINE 14 - MIXING</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="input-sections" id="util-inputSections"></div>
+                    <div class="button-group">
+                        <button class="btn btn-danger" onclick="clearUtilCurrentLine()">Clear This Line</button>
+                        <button class="btn" onclick="clearUtilAllLines()">Clear All Lines</button>
+                        <button class="btn btn-primary" onclick="saveUtilLineData()">Save Line Data</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- OUTPUT & WASTAGE MODULE -->
+        <div id="module-wastage" class="module-content">
+            <div class="tab-nav">
+                <button class="tab-btn active" onclick="switchTab('wastage', 'overview')">Overview</button>
+                <button class="tab-btn" onclick="switchTab('wastage', 'details')">Line Details</button>
+                <button class="tab-btn" onclick="switchTab('wastage', 'input')">Data Input</button>
+            </div>
+
+            <div id="wastage-overview" class="tab-content active">
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-card-header"><span class="kpi-card-title">Total Output</span></div>
+                        <div class="kpi-card-main-value" id="waste-totalOutput">0 kg</div>
+                        <div class="kpi-card-details">
+                            <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">FG Output</span><span class="kpi-card-detail-value" id="waste-fgOutput">0 kg</span></div>
+                            <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Reprocess</span><span class="kpi-card-detail-value" id="waste-reprocess">0 kg</span></div>
+                            <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Rejection</span><span class="kpi-card-detail-value" id="waste-rejection">0 kg</span></div>
+                        </div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-card-header"><span class="kpi-card-title">Net Output</span></div>
+                        <div class="kpi-card-main-value" id="waste-netOutput">0 kg</div>
+                        <div class="kpi-card-details">
+                            <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Daily Average</span><span class="kpi-card-detail-value" id="waste-dailyAvg">0 kg</span></div>
+                            <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Productivity</span><span class="kpi-card-detail-value" id="waste-productivity">0 kg/hr</span></div>
+                        </div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-card-header"><span class="kpi-card-title">Waste Analysis</span></div>
+                        <div class="kpi-card-main-value" id="waste-totalWaste">0 kg</div>
+                        <div class="kpi-card-details">
+                            <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Waste Percentage</span><span class="kpi-card-detail-value" id="waste-wastePct">0%</span></div>
+                        </div>
+                        <div class="kpi-card-progress"><div class="kpi-card-progress-bar" id="waste-progress" style="width: 0%; background-color: #d83b01;"></div></div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-card-header"><span class="kpi-card-title">Production Lines</span></div>
+                        <div class="kpi-card-main-value" id="waste-totalLines">16</div>
+                        <div class="kpi-card-details">
+                            <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Lines with Output</span><span class="kpi-card-detail-value" id="waste-linesWithData">0</span></div>
+                            <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Lines with Waste</span><span class="kpi-card-detail-value" id="waste-linesWithWaste">0</span></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="section-header">Output & Waste Summary by Line</div>
+                <div class="table-container">
+                    <div class="table-header"><span>Production Output by Line</span><span class="table-total" id="waste-totalOutputDisplay">Total: 0 kg</span></div>
+                    <table>
+                        <thead><tr><th>Line</th><th>FG Output</th><th>Reprocess</th><th>Rejection</th><th>Net Output</th><th>Waste</th><th>Waste %</th><th>Status</th></tr></thead>
+                        <tbody id="waste-summaryTable"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="wastage-details" class="tab-content">
+                <div class="section-header">Line Details - Output & Waste</div>
+                <div class="input-controls" style="margin-bottom: 20px;">
+                    <div class="input-selector">
+                        <label>View Line Details:</label>
+                        <select id="waste-detailLine" onchange="loadWasteDetails()">
+                            <option value="summary">📊 SUMMARY OF ALL LINE</option>
+                            <option value="L06_EPOXY">🔹 L06 - EPOXY</option>
+                            <option value="L04B_ELASTO">🔹 L04B - ELASTO</option>
+                            <option value="L03_CYANO">🔹 L03 - CYANO TUBE</option>
+                            <option value="L01_COATINGS">🔹 L01 - COATINGS</option>
+                            <option value="L07_TUBE">🔹 L07 - EPOXY TUBE</option>
+                            <option value="L09_EPS">🔹 LINE 9 - EPS</option>
+                            <option value="L10_BOND">🔹 L10 - CONTACT BOND</option>
+                            <option value="L11_SILICONE">🔹 L11 - SILICONE</option>
+                            <option value="L12_EPOXY">🔹 L12 - SPECIAL - EPOXY BASED</option>
+                            <option value="L13_WATER">🔹 L13 - SPECIAL WATER BASED</option>
+                            <option value="L14">🔹 LINE 14</option>
+                            <option value="L05_CLAY">🔹 L05 - EPOXY CLAY</option>
+                            <option value="L02_BOTTLE">🔹 L02 - CYNO BOTTLE</option>
+                            <option value="LABELING">🔹 LABELING LINE</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="kpi-grid" style="grid-template-columns: repeat(2, 1fr);">
+                    <div class="kpi-card">
+                        <div class="kpi-card-header"><span class="kpi-card-title" id="waste-detailTitle">Line Details</span></div>
+                        <div class="kpi-card-details" id="waste-detailInfo">
+                            <div class="kpi-card-detail-row"><span>FG Output</span><span id="waste-detailFg">0 kg</span></div>
+                            <div class="kpi-card-detail-row"><span>Reprocess</span><span id="waste-detailReprocess">0 kg</span></div>
+                            <div class="kpi-card-detail-row"><span>Rejection</span><span id="waste-detailRejection">0 kg</span></div>
+                            <div class="kpi-card-detail-row"><span>Net Output</span><span id="waste-detailNet">0 kg</span></div>
+                            <div class="kpi-card-detail-row"><span>Daily Average</span><span id="waste-detailDaily">0 kg</span></div>
+                        </div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-card-header"><span class="kpi-card-title">Waste Information</span></div>
+                        <div class="kpi-card-details" id="waste-detailWaste">
+                            <div class="kpi-card-detail-row"><span>Production Waste</span><span id="waste-detailWasteKg">0 kg</span></div>
+                            <div class="kpi-card-detail-row"><span>Waste Percentage</span><span id="waste-detailWastePct">0%</span></div>
+                            <div class="kpi-card-detail-row"><span>KG/MH</span><span id="waste-detailKgMh">0</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="wastage-input" class="tab-content">
+                <div class="input-panel">
+                    <div class="panel-header">OUTPUT & WASTE DATA INPUT</div>
+                    <div class="input-controls">
+                        <div class="input-selector">
+                            <label>Select Line:</label>
+                            <select id="waste-lineSelector" onchange="loadWasteLineData()">
+                                <option value="summary">📊 SUMMARY OF ALL LINE</option>
+                                <option value="L06_EPOXY">🔹 L06 - EPOXY</option>
+                                <option value="L04B_ELASTO">🔹 L04B - ELASTO</option>
+                                <option value="L03_CYANO">🔹 L03 - CYANO TUBE</option>
+                                <option value="L01_COATINGS">🔹 L01 - COATINGS</option>
+                                <option value="L07_TUBE">🔹 L07 - EPOXY TUBE</option>
+                                <option value="L09_EPS">🔹 LINE 9 - EPS</option>
+                                <option value="L10_BOND">🔹 L10 - CONTACT BOND</option>
+                                <option value="L11_SILICONE">🔹 L11 - SILICONE</option>
+                                <option value="L12_EPOXY">🔹 L12 - SPECIAL - EPOXY BASED</option>
+                                <option value="L13_WATER">🔹 L13 - SPECIAL WATER BASED</option>
+                                <option value="L14">🔹 LINE 14</option>
+                                <option value="L05_CLAY">🔹 L05 - EPOXY CLAY</option>
+                                <option value="L02_BOTTLE">🔹 L02 - CYNO BOTTLE</option>
+                                <option value="LABELING">🔹 LABELING LINE</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="input-sections" id="waste-inputSections"></div>
+                    <div class="button-group">
+                        <button class="btn btn-danger" onclick="clearWasteCurrentLine()">Clear This Line</button>
+                        <button class="btn" onclick="clearWasteAllLines()">Clear All Lines</button>
+                        <button class="btn btn-primary" onclick="saveWasteLineData()">Save Line Data</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">Last updated: <span id="lastUpdate">Just now</span></div>
+    </div>
+
+    <script>
+        // ==================== DATA STRUCTURES ====================
+        // All values default to empty
+        const utilLines = [
+            'L06_FILLING', 'L06_MIXER', 'L04_FILLING', 'L04_MIXING', 'L03_ITALY', 'L03_KOREA',
+            'L01_MIXER', 'L01_MILLING', 'L07_TUBE', 'L09_EPS', 'L10_BOND', 'L11_SILICONE',
+            'L12_EPOXY', 'L13_WATER', 'L14_FILLING', 'L14_MIXING'
+        ];
+
+        const wasteLines = [
+            'L06_EPOXY', 'L04B_ELASTO', 'L03_CYANO', 'L01_COATINGS', 'L07_TUBE', 'L09_EPS',
+            'L10_BOND', 'L11_SILICONE', 'L12_EPOXY', 'L13_WATER', 'L14', 'L05_CLAY', 'L02_BOTTLE', 'LABELING'
+        ];
+
+        const utilLineNames = {
+            summary: 'SUMMARY OF ALL LINE',
+            L06_FILLING: 'LINE 6- EPOXY LINE (FILLING)',
+            L06_MIXER: 'LINE 6- EPOXY LINE (MIXER)',
+            L04_FILLING: 'LINE 4 - ELASTO FILLING',
+            L04_MIXING: 'LINE 4 - ELASTO MIXING',
+            L03_ITALY: 'LINE 3- ITALY MACHINE',
+            L03_KOREA: 'LINE 3 - KOREA MACHINE',
+            L01_MIXER: 'L01 - COATINGS (MIXER)',
+            L01_MILLING: 'L01 - COATINGS (MILLING)',
+            L07_TUBE: 'LINE 7 - EPOXY TUBE',
+            L09_EPS: 'LINE 9 - EPS',
+            L10_BOND: 'LINE 10 - CONTACT BOND',
+            L11_SILICONE: 'LINE 11 - SILICONE NEW',
+            L12_EPOXY: 'LINE 12 - EPOXY BASED',
+            L13_WATER: 'LINE 13 - WATER BASED',
+            L14_FILLING: 'LINE 14 - FILLING',
+            L14_MIXING: 'LINE 14 - MIXING'
+        };
+
+        const wasteLineNames = {
+            summary: 'SUMMARY OF ALL LINE',
+            L06_EPOXY: 'L06 - EPOXY',
+            L04B_ELASTO: 'L04B - ELASTO',
+            L03_CYANO: 'L03 - CYANO TUBE',
+            L01_COATINGS: 'L01 - COATINGS',
+            L07_TUBE: 'L07 - EPOXY TUBE',
+            L09_EPS: 'LINE 9 - EPS',
+            L10_BOND: 'L10 - CONTACT BOND',
+            L11_SILICONE: 'L11 - SILICONE',
+            L12_EPOXY: 'L12 - SPECIAL - EPOXY BASED',
+            L13_WATER: 'L13 - SPECIAL WATER BASED',
+            L14: 'LINE 14',
+            L05_CLAY: 'L05 - EPOXY CLAY',
+            L02_BOTTLE: 'L02 - CYNO BOTTLE',
+            LABELING: 'LABELING LINE'
+        };
+
+        const utilCategories = [
+            'Actual Productive Time', 'No Production Plan', 'No Head Count Allocation', 'Change Over Time',
+            'Meeting', 'Sanitation Time', 'Start-up Time/Setup', 'Shutdown/cooldown', 'Testing Time',
+            'Breaktime', 'Preventive Maintenance', 'Force Majeure', 'Electrical Breakdown',
+            'Mechanical Breakdown', 'Materials Supply', 'Sorting/Reworking', 'Technical Downtime(QA & RND)',
+            'No Manpower', 'UDT-Meeting', 'No OT', 'No Bulkmix/No Kettle', 'Transfer', 'Idle time'
+        ];
+
+        const utilKeys = [
+            'productive', 'noPlan', 'noHc', 'changeOver', 'meeting', 'sanitation', 'startup', 'shutdown',
+            'testing', 'breaktime', 'pm', 'forceMajeure', 'elecBreakdown', 'mechBreakdown', 'materialsSupply',
+            'sorting', 'techDowntime', 'noManpower', 'udtMeeting', 'noOt', 'noBulkmix', 'transfer', 'idle'
+        ];
+
+        // Empty data templates
+        const emptyUtilLine = {
+            productive: '', noPlan: '', noHc: '', changeOver: '', meeting: '', sanitation: '', startup: '',
+            shutdown: '', testing: '', breaktime: '', pm: '', forceMajeure: '', elecBreakdown: '',
+            mechBreakdown: '', materialsSupply: '', sorting: '', techDowntime: '', noManpower: '',
+            udtMeeting: '', noOt: '', noBulkmix: '', transfer: '', idle: '',
+            machinesAvail: '', machinesUsed: '', prodDays: ''
+        };
+
+        const emptyWasteLine = {
+            fgOutput: '', reprocess: '', rejection: '', waste: ''
+        };
+
+        // 3D Database
+        let database = {};
+        const years = ['2023', '2024', '2025'];
+        const months = ['January', 'February', 'March', 'April', 'May', 'June', 
+                       'July', 'August', 'September', 'October', 'November', 'December'];
+        
+        years.forEach(year => {
+            database[year] = {};
+            months.forEach(month => {
+                database[year][month] = {
+                    utilization: { summary: { name: 'SUMMARY OF ALL LINE' } },
+                    wastage: { summary: { name: 'SUMMARY OF ALL LINE' } }
+                };
+                
+                utilLines.forEach(line => {
+                    database[year][month].utilization[line] = {
+                        name: utilLineNames[line],
+                        ...JSON.parse(JSON.stringify(emptyUtilLine))
+                    };
+                });
+                
+                wasteLines.forEach(line => {
+                    database[year][month].wastage[line] = {
+                        name: wasteLineNames[line],
+                        ...JSON.parse(JSON.stringify(emptyWasteLine))
+                    };
+                });
+            });
+        });
+
+        // ==================== UTILITY FUNCTIONS ====================
+        function formatNumber(num, decimals = 2) {
+            if (!num || isNaN(num) || parseFloat(num) === 0) return '0';
+            return parseFloat(num).toLocaleString(undefined, {
+                minimumFractionDigits: decimals,
+                maximumFractionDigits: decimals
+            });
+        }
+
+        function getCurrentData() {
+            const year = document.getElementById('yearSelect').value;
+            const month = document.getElementById('monthSelect').value;
+            return database[year][month];
+        }
+
+        function updateTimestamp() {
+            const year = document.getElementById('yearSelect').value;
+            const month = document.getElementById('monthSelect').value;
+            document.getElementById('lastUpdate').textContent = new Date().toLocaleString() + ` (${month} ${year})`;
+        }
+
+        // ==================== MODULE & TAB SWITCHING ====================
+        function switchModule(module) {
+            document.querySelectorAll('.module-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            document.querySelectorAll('.module-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(`module-${module}`).classList.add('active');
+            
+            loadMonthData();
+        }
+
+        function switchTab(module, tab) {
+            document.querySelectorAll(`#module-${module} .tab-btn`).forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            document.querySelectorAll(`#module-${module} .tab-content`).forEach(content => content.classList.remove('active'));
+            document.getElementById(`${module}-${tab}`).classList.add('active');
+            
+            if (tab === 'input') {
+                if (module === 'utilization') loadUtilLineData();
+                else loadWasteLineData();
+            } else if (tab === 'details') {
+                if (module === 'utilization') loadUtilDetails();
+                else loadWasteDetails();
+            }
+        }
+
+        function loadMonthData() {
+            if (document.getElementById('module-utilization').classList.contains('active')) {
+                calculateUtilAll();
+                if (document.getElementById('utilization-input').classList.contains('active')) loadUtilLineData();
+                if (document.getElementById('utilization-details').classList.contains('active')) loadUtilDetails();
+            } else {
+                calculateWasteAll();
+                if (document.getElementById('wastage-input').classList.contains('active')) loadWasteLineData();
+                if (document.getElementById('wastage-details').classList.contains('active')) loadWasteDetails();
+            }
+            updateTimestamp();
+        }
+
+        // ==================== UTILIZATION FUNCTIONS ====================
+        let currentUtilLine = 'summary';
+
+        function loadUtilLineData() {
+            const selector = document.getElementById('util-lineSelector');
+            if (!selector) return;
+            currentUtilLine = selector.value;
+            const data = getCurrentData().utilization[currentUtilLine];
+            
+            if (currentUtilLine === 'summary') {
+                document.getElementById('util-inputSections').innerHTML = `
+                    <div class="input-section" style="grid-column: span 3; text-align: center; padding: 40px;">
+                        <h4>SUMMARY LINE</h4>
+                        <p>The Summary line is automatically calculated from all individual lines.</p>
+                        <p>Please select a specific production line to input data.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = `<div class="input-section" style="grid-column: span 3;"><h4>MACHINE UTILIZATION - 23 CATEGORIES (HRS)</h4><div class="input-grid" style="grid-template-columns: repeat(4, 1fr);">`;
+
+            for (let i = 0; i < utilKeys.length; i++) {
+                const key = utilKeys[i];
+                html += `<div class="input-field"><label>${i+1}. ${utilCategories[i]}</label><input type="number" id="util_input_${key}" value="${data[key] || ''}" step="0.01" placeholder="hrs"></div>`;
+            }
+
+            html += `</div></div><div class="input-section"><h4>MACHINE SUMMARY</h4><div class="input-grid">
+                <div class="input-field"><label>Machines Available</label><input type="number" id="util_input_machinesAvail" value="${data.machinesAvail || ''}" step="0.1" placeholder="count"></div>
+                <div class="input-field"><label>Machines Used</label><input type="number" id="util_input_machinesUsed" value="${data.machinesUsed || ''}" step="0.1" placeholder="count"></div>
+                <div class="input-field"><label>Production Days</label><input type="number" id="util_input_prodDays" value="${data.prodDays || ''}" step="0.1" placeholder="days"></div>
+            </div></div>`;
+
+            document.getElementById('util-inputSections').innerHTML = html;
+        }
+
+        function loadUtilDetails() {
+            const selector = document.getElementById('util-detailLine');
+            if (!selector) return;
+            const lineKey = selector.value;
+            const dataSet = getCurrentData().utilization;
+            
+            if (lineKey === 'summary') {
+                let tableHtml = '';
+                utilLines.forEach(lineKey => {
+                    const lineData = dataSet[lineKey];
+                    const lineTotal = calculateUtilTotal(lineData);
+                    
+                    for (let i = 0; i < utilKeys.length; i++) {
+                        const key = utilKeys[i];
+                        const value = parseFloat(lineData[key]) || 0;
+                        const percentage = lineTotal > 0 ? (value / lineTotal) * 100 : 0;
+                        
+                        if (value > 0) {
+                            tableHtml += `<tr><td>${lineData.name} - ${utilCategories[i]}</td><td>${formatNumber(value)}</td><td>${percentage.toFixed(1)}%</td></tr>`;
+                        }
+                    }
+                });
+                
+                document.getElementById('util-detailTable').innerHTML = tableHtml || '<tr><td colspan="3" style="text-align: center;">No data available</td></tr>';
+                return;
+            }
+
+            const lineData = dataSet[lineKey];
+            const lineTotal = calculateUtilTotal(lineData);
+            
+            let tableHtml = '';
+            for (let i = 0; i < utilKeys.length; i++) {
+                const key = utilKeys[i];
+                const value = parseFloat(lineData[key]) || 0;
+                const percentage = lineTotal > 0 ? (value / lineTotal) * 100 : 0;
+                tableHtml += `<tr><td>${utilCategories[i]}</td><td>${formatNumber(value)}</td><td>${percentage.toFixed(1)}%</td></tr>`;
+            }
+            document.getElementById('util-detailTable').innerHTML = tableHtml;
+        }
+
+        function calculateUtilTotal(lineData) {
+            let total = 0;
+            utilKeys.forEach(key => total += parseFloat(lineData[key]) || 0);
+            return total;
+        }
+
+        function saveUtilLineData() {
+            if (currentUtilLine === 'summary') { alert('Cannot save to Summary line.'); return; }
+
+            const data = getCurrentData().utilization[currentUtilLine];
+            
+            utilKeys.forEach(key => {
+                const input = document.getElementById(`util_input_${key}`);
+                if (input) data[key] = input.value;
+            });
+            
+            if (document.getElementById('util_input_machinesAvail')) data.machinesAvail = document.getElementById('util_input_machinesAvail').value;
+            if (document.getElementById('util_input_machinesUsed')) data.machinesUsed = document.getElementById('util_input_machinesUsed').value;
+            if (document.getElementById('util_input_prodDays')) data.prodDays = document.getElementById('util_input_prodDays').value;
+            
+            alert(`Data saved for ${data.name}`);
+            calculateUtilAll();
+            loadUtilDetails();
+        }
+
+        function clearUtilCurrentLine() {
+            if (currentUtilLine === 'summary') { alert('Cannot clear Summary line.'); return; }
+
+            const data = getCurrentData().utilization[currentUtilLine];
+            utilKeys.forEach(key => data[key] = '');
+            data.machinesAvail = ''; data.machinesUsed = ''; data.prodDays = '';
+            
+            loadUtilLineData();
+            calculateUtilAll();
+        }
+
+        function clearUtilAllLines() {
+            if (confirm('Clear ALL utilization data for ALL lines in this month?')) {
+                const dataSet = getCurrentData().utilization;
+                utilLines.forEach(lineKey => {
+                    const lineData = dataSet[lineKey];
+                    utilKeys.forEach(key => lineData[key] = '');
+                    lineData.machinesAvail = ''; lineData.machinesUsed = ''; lineData.prodDays = '';
+                });
+                loadUtilLineData();
+                calculateUtilAll();
+                loadUtilDetails();
+            }
+        }
+
+        function calculateUtilAll() {
+            const dataSet = getCurrentData().utilization;
+            
+            let totalProductive = 0, totalTime = 0;
+            let totalMachinesAvail = 0, totalMachinesUsed = 0;
+            let linesWithData = 0;
+            let lineUtilizations = [];
+            
+            utilLines.forEach(lineKey => {
+                const lineData = dataSet[lineKey];
+                const lineTotal = calculateUtilTotal(lineData);
+                const lineProductive = parseFloat(lineData.productive) || 0;
+                
+                if (lineTotal > 0) linesWithData++;
+                
+                totalProductive += lineProductive;
+                totalTime += lineTotal;
+                
+                if (lineData.machinesAvail) totalMachinesAvail += parseFloat(lineData.machinesAvail) || 0;
+                if (lineData.machinesUsed) totalMachinesUsed += parseFloat(lineData.machinesUsed) || 0;
+                
+                if (lineTotal > 0) lineUtilizations.push((lineProductive / lineTotal) * 100);
+            });
+
+            const overallUtil = totalTime > 0 ? (totalProductive / totalTime) * 100 : 0;
+            document.getElementById('util-overall').textContent = overallUtil.toFixed(1) + '%';
+            document.getElementById('util-productive').textContent = formatNumber(totalProductive) + ' hrs';
+            document.getElementById('util-available').textContent = formatNumber(totalTime) + ' hrs';
+            document.getElementById('util-progress').style.width = overallUtil + '%';
+            
+            document.getElementById('util-totalMachines').textContent = formatNumber(totalMachinesAvail, 0);
+            document.getElementById('util-machinesAvail').textContent = formatNumber(totalMachinesAvail, 0);
+            document.getElementById('util-machinesUsed').textContent = formatNumber(totalMachinesUsed, 0);
+            
+            let totalProdDays = 0, linesWithProdDays = 0;
+            utilLines.forEach(lineKey => {
+                const lineData = dataSet[lineKey];
+                if (lineData.prodDays && parseFloat(lineData.prodDays) > 0) {
+                    totalProdDays += parseFloat(lineData.prodDays);
+                    linesWithProdDays++;
+                }
+            });
+            document.getElementById('util-prodDays').textContent = linesWithProdDays > 0 ? (totalProdDays / linesWithProdDays).toFixed(2) : '0';
+            
+            document.getElementById('util-totalLines').textContent = utilLines.length;
+            document.getElementById('util-linesWithData').textContent = linesWithData;
+            
+            const avgUtil = lineUtilizations.length > 0 ? lineUtilizations.reduce((a, b) => a + b, 0) / lineUtilizations.length : 0;
+            document.getElementById('util-avgUtil').textContent = avgUtil.toFixed(1) + '%';
+
+            // Top downtime causes
+            let downtimeTotals = {};
+            utilKeys.forEach((key, index) => {
+                if (key === 'productive') return;
+                let total = 0;
+                utilLines.forEach(lineKey => total += parseFloat(dataSet[lineKey][key]) || 0);
+                if (total > 0) downtimeTotals[utilCategories[index]] = total;
+            });
+
+            const sortedDowntime = Object.entries(downtimeTotals).sort((a, b) => b[1] - a[1]).slice(0, 5);
+            
+            let downtimeHtml = '';
+            if (sortedDowntime.length === 0) {
+                downtimeHtml = '<div class="kpi-card-detail-row"><span>No downtime recorded</span><span>0 hrs</span></div>';
+            } else {
+                sortedDowntime.forEach(([name, value]) => {
+                    downtimeHtml += `<div class="kpi-card-detail-row"><span>${name}</span><span>${formatNumber(value)} hrs</span></div>`;
+                });
+            }
+            document.getElementById('util-downtime').innerHTML = downtimeHtml;
+
+            // Summary table
+            let tableHtml = '';
+            utilLines.forEach(lineKey => {
+                const lineData = dataSet[lineKey];
+                const lineTotal = calculateUtilTotal(lineData);
+                const lineProductive = parseFloat(lineData.productive) || 0;
+                const utilization = lineTotal > 0 ? (lineProductive / lineTotal) * 100 : 0;
+                
+                let statusClass = 'status-neutral';
+                let statusText = 'No Data';
+                if (lineTotal > 0) {
+                    if (utilization >= 70) { statusClass = 'status-excellent'; statusText = 'Excellent'; }
+                    else if (utilization >= 50) { statusClass = 'status-good'; statusText = 'Good'; }
+                    else if (utilization >= 30) { statusClass = 'status-warning'; statusText = 'Warning'; }
+                    else { statusClass = 'status-critical'; statusText = 'Critical'; }
+                }
+                
+                tableHtml += `<tr><td><strong>${lineData.name}</strong></td><td>${formatNumber(lineProductive)}</td><td>${formatNumber(lineTotal)}</td><td>${utilization.toFixed(1)}%</td><td>${lineData.machinesAvail || '0'} / ${lineData.machinesUsed || '0'}</td><td><span class="status-badge ${statusClass}">${statusText}</span></td></tr>`;
+            });
+            
+            document.getElementById('util-summaryTable').innerHTML = tableHtml;
+            document.getElementById('util-totalTime').textContent = `Total: ${formatNumber(totalTime)} hrs`;
+        }
+
+        // ==================== WASTE FUNCTIONS ====================
+        let currentWasteLine = 'summary';
+
+        function loadWasteLineData() {
+            const selector = document.getElementById('waste-lineSelector');
+            if (!selector) return;
+            currentWasteLine = selector.value;
+            const data = getCurrentData().wastage[currentWasteLine];
+            
+            if (currentWasteLine === 'summary') {
+                document.getElementById('waste-inputSections').innerHTML = `
+                    <div class="input-section" style="grid-column: span 3; text-align: center; padding: 40px;">
+                        <h4>SUMMARY LINE</h4>
+                        <p>The Summary line is automatically calculated from all individual lines.</p>
+                        <p>Please select a specific production line to input data.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = `
+                <div class="input-section" style="grid-column: span 3;">
+                    <h4>OUTPUT & WASTE (KGS)</h4>
+                    <div class="input-grid" style="grid-template-columns: repeat(2, 1fr);">
+                        <div class="input-field"><label>FG Output</label><input type="number" id="waste_input_fgOutput" value="${data.fgOutput || ''}" step="0.01" placeholder="kg"></div>
+                        <div class="input-field"><label>Reprocess</label><input type="number" id="waste_input_reprocess" value="${data.reprocess || ''}" step="0.01" placeholder="kg"></div>
+                        <div class="input-field"><label>Rejection</label><input type="number" id="waste_input_rejection" value="${data.rejection || ''}" step="0.01" placeholder="kg"></div>
+                        <div class="input-field"><label>Waste</label><input type="number" id="waste_input_waste" value="${data.waste || ''}" step="0.01" placeholder="kg"></div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('waste-inputSections').innerHTML = html;
+        }
+
+        function loadWasteDetails() {
+            const selector = document.getElementById('waste-detailLine');
+            if (!selector) return;
+            const lineKey = selector.value;
+            const dataSet = getCurrentData().wastage;
+            
+            if (lineKey === 'summary') {
+                document.getElementById('waste-detailTitle').textContent = 'All Lines Summary';
+                
+                let totalFg = 0, totalReprocess = 0, totalRejection = 0, totalWaste = 0;
+                let linesWithData = 0;
+                
+                wasteLines.forEach(lineKey => {
+                    const lineData = dataSet[lineKey];
+                    totalFg += parseFloat(lineData.fgOutput) || 0;
+                    totalReprocess += parseFloat(lineData.reprocess) || 0;
+                    totalRejection += parseFloat(lineData.rejection) || 0;
+                    totalWaste += parseFloat(lineData.waste) || 0;
+                    if (lineData.fgOutput) linesWithData++;
+                });
+                
+                const netOutput = totalFg + totalReprocess - totalRejection;
+                // FIXED: Waste % = Waste / (FG Output + Waste)
+                const wastePct = (totalFg + totalWaste) > 0 ? (totalWaste / (totalFg + totalWaste)) * 100 : 0;
+                
+                document.getElementById('waste-detailFg').textContent = formatNumber(totalFg) + ' kg';
+                document.getElementById('waste-detailReprocess').textContent = formatNumber(totalReprocess) + ' kg';
+                document.getElementById('waste-detailRejection').textContent = formatNumber(totalRejection) + ' kg';
+                document.getElementById('waste-detailNet').textContent = formatNumber(netOutput) + ' kg';
+                document.getElementById('waste-detailDaily').textContent = '0 kg';
+                document.getElementById('waste-detailWasteKg').textContent = formatNumber(totalWaste) + ' kg';
+                document.getElementById('waste-detailWastePct').textContent = wastePct.toFixed(2) + '%';
+                document.getElementById('waste-detailKgMh').textContent = '0';
+                return;
+            }
+
+            const lineData = dataSet[lineKey];
+            const fg = parseFloat(lineData.fgOutput) || 0;
+            const reprocess = parseFloat(lineData.reprocess) || 0;
+            const rejection = parseFloat(lineData.rejection) || 0;
+            const waste = parseFloat(lineData.waste) || 0;
+            const netOutput = fg + reprocess - rejection;
+            // FIXED: Waste % = Waste / (FG Output + Waste)
+            const wastePct = (fg + waste) > 0 ? (waste / (fg + waste)) * 100 : 0;
+
+            document.getElementById('waste-detailTitle').textContent = lineData.name;
+            document.getElementById('waste-detailFg').textContent = formatNumber(fg) + ' kg';
+            document.getElementById('waste-detailReprocess').textContent = formatNumber(reprocess) + ' kg';
+            document.getElementById('waste-detailRejection').textContent = formatNumber(rejection) + ' kg';
+            document.getElementById('waste-detailNet').textContent = formatNumber(netOutput) + ' kg';
+            document.getElementById('waste-detailDaily').textContent = '0 kg';
+            document.getElementById('waste-detailWasteKg').textContent = formatNumber(waste) + ' kg';
+            document.getElementById('waste-detailWastePct').textContent = wastePct.toFixed(2) + '%';
+            document.getElementById('waste-detailKgMh').textContent = '0';
+        }
+
+        function saveWasteLineData() {
+            if (currentWasteLine === 'summary') { alert('Cannot save to Summary line.'); return; }
+
+            const data = getCurrentData().wastage[currentWasteLine];
+            
+            if (document.getElementById('waste_input_fgOutput')) data.fgOutput = document.getElementById('waste_input_fgOutput').value;
+            if (document.getElementById('waste_input_reprocess')) data.reprocess = document.getElementById('waste_input_reprocess').value;
+            if (document.getElementById('waste_input_rejection')) data.rejection = document.getElementById('waste_input_rejection').value;
+            if (document.getElementById('waste_input_waste')) data.waste = document.getElementById('waste_input_waste').value;
+            
+            alert(`Data saved for ${data.name}`);
+            calculateWasteAll();
+            loadWasteDetails();
+        }
+
+        function clearWasteCurrentLine() {
+            if (currentWasteLine === 'summary') { alert('Cannot clear Summary line.'); return; }
+
+            const data = getCurrentData().wastage[currentWasteLine];
+            data.fgOutput = ''; data.reprocess = ''; data.rejection = ''; data.waste = '';
+            
+            loadWasteLineData();
+            calculateWasteAll();
+        }
+
+        function clearWasteAllLines() {
+            if (confirm('Clear ALL waste data for ALL lines in this month?')) {
+                const dataSet = getCurrentData().wastage;
+                wasteLines.forEach(lineKey => {
+                    const lineData = dataSet[lineKey];
+                    lineData.fgOutput = ''; lineData.reprocess = ''; lineData.rejection = ''; lineData.waste = '';
+                });
+                loadWasteLineData();
+                calculateWasteAll();
+                loadWasteDetails();
+            }
+        }
+
+        function calculateWasteAll() {
+            const dataSet = getCurrentData().wastage;
+            
+            let totalFg = 0, totalReprocess = 0, totalRejection = 0, totalWaste = 0;
+            let linesWithData = 0, linesWithWaste = 0;
+            
+            wasteLines.forEach(lineKey => {
+                const lineData = dataSet[lineKey];
+                const fg = parseFloat(lineData.fgOutput) || 0;
+                const reprocess = parseFloat(lineData.reprocess) || 0;
+                const rejection = parseFloat(lineData.rejection) || 0;
+                const waste = parseFloat(lineData.waste) || 0;
+                
+                if (fg > 0) linesWithData++;
+                if (waste > 0) linesWithWaste++;
+                
+                totalFg += fg;
+                totalReprocess += reprocess;
+                totalRejection += rejection;
+                totalWaste += waste;
+            });
+
+            const netOutput = totalFg + totalReprocess - totalRejection;
+            // FIXED: Waste % = Total Waste / (Total FG Output + Total Waste)
+            const wastePct = (totalFg + totalWaste) > 0 ? (totalWaste / (totalFg + totalWaste)) * 100 : 0;
+
+            document.getElementById('waste-totalOutput').textContent = formatNumber(totalFg) + ' kg';
+            document.getElementById('waste-fgOutput').textContent = formatNumber(totalFg) + ' kg';
+            document.getElementById('waste-reprocess').textContent = formatNumber(totalReprocess) + ' kg';
+            document.getElementById('waste-rejection').textContent = formatNumber(totalRejection) + ' kg';
+            document.getElementById('waste-netOutput').textContent = formatNumber(netOutput) + ' kg';
+            document.getElementById('waste-dailyAvg').textContent = '0 kg';
+            document.getElementById('waste-productivity').textContent = '0 kg/hr';
+            document.getElementById('waste-totalWaste').textContent = formatNumber(totalWaste) + ' kg';
+            document.getElementById('waste-wastePct').textContent = wastePct.toFixed(2) + '%';
+            document.getElementById('waste-progress').style.width = Math.min(wastePct, 100) + '%';
+            
+            document.getElementById('waste-totalLines').textContent = wasteLines.length;
+            document.getElementById('waste-linesWithData').textContent = linesWithData;
+            document.getElementById('waste-linesWithWaste').textContent = linesWithWaste;
+
+            // Summary table
+            let tableHtml = '';
+            wasteLines.forEach(lineKey => {
+                const lineData = dataSet[lineKey];
+                const fg = parseFloat(lineData.fgOutput) || 0;
+                const reprocess = parseFloat(lineData.reprocess) || 0;
+                const rejection = parseFloat(lineData.rejection) || 0;
+                const waste = parseFloat(lineData.waste) || 0;
+                const net = fg + reprocess - rejection;
+                // FIXED: Waste % = Waste / (FG Output + Waste)
+                const wastePctLine = (fg + waste) > 0 ? (waste / (fg + waste)) * 100 : 0;
+                
+                let statusClass = 'status-neutral';
+                let statusText = 'No Data';
+                if (fg > 0) {
+                    if (wastePctLine <= 1) { statusClass = 'status-excellent'; statusText = 'Excellent'; }
+                    else if (wastePctLine <= 3) { statusClass = 'status-good'; statusText = 'Good'; }
+                    else if (wastePctLine <= 5) { statusClass = 'status-warning'; statusText = 'Warning'; }
+                    else { statusClass = 'status-critical'; statusText = 'Critical'; }
+                }
+                
+                tableHtml += `<tr><td><strong>${lineData.name}</strong></td><td>${formatNumber(fg)}</td><td>${formatNumber(reprocess)}</td><td>${formatNumber(rejection)}</td><td>${formatNumber(net)}</td><td>${formatNumber(waste)}</td><td>${wastePctLine.toFixed(2)}%</td><td><span class="status-badge ${statusClass}">${statusText}</span></td></tr>`;
+            });
+            
+            document.getElementById('waste-summaryTable').innerHTML = tableHtml;
+            document.getElementById('waste-totalOutputDisplay').textContent = `Total: ${formatNumber(totalFg)} kg`;
+        }
+
+        // Initialize
+        window.onload = function() {
+            calculateUtilAll();
+            calculateWasteAll();
+            updateTimestamp();
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise Dashboard Suite</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header with Global Filters -->
+        <div class="header">
+            <h1>ENTERPRISE DASHBOARD SUITE</h1>
+            <div class="filter-group">
+                <div class="filter-item">
+                    <label>Year:</label>
+                    <select id="globalYearSelect">
+                        <option value="2023">2023</option>
+                        <option value="2024" selected>2024</option>
+                        <option value="2025">2025</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label>Month:</label>
+                    <select id="globalMonthSelect">
+                        <option value="January">January</option>
+                        <option value="February">February</option>
+                        <option value="March">March</option>
+                        <option value="April">April</option>
+                        <option value="May">May</option>
+                        <option value="June">June</option>
+                        <option value="July">July</option>
+                        <option value="August">August</option>
+                        <option value="September">September</option>
+                        <option value="October" selected>October</option>
+                        <option value="November">November</option>
+                        <option value="December">December</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Selector -->
+        <div class="dashboard-selector">
+            <button class="dashboard-btn active" onclick="app.switchDashboard('finance')">FINANCE</button>
+            <button class="dashboard-btn" onclick="app.switchDashboard('warehouse')">WAREHOUSE & LOGISTICS</button>
+            <button class="dashboard-btn" onclick="app.switchDashboard('procurement')">SC PROCUREMENT</button>
+            <button class="dashboard-btn" onclick="app.switchDashboard('planning')">SC PLANNING</button>
+            <button class="dashboard-btn" onclick="app.switchDashboard('production')">PRODUCTION</button>
+        </div>
+
+        <!-- DASHBOARD: FINANCE -->
+        <div id="dashboard-finance" class="dashboard-content active">
+            <div class="tab-nav">
+                <button class="tab-btn active" onclick="app.switchFinanceTab('overview')">Overview</button>
+                <button class="tab-btn" onclick="app.switchFinanceTab('cost')">Cost Analysis</button>
+                <button class="tab-btn" onclick="app.switchFinanceTab('labor')">Labor Reports</button>
+                <button class="tab-btn" onclick="app.switchFinanceTab('input')">Data Input</button>
+            </div>
+
+            <div id="finance-overview" class="tab-content active">
+                <div class="kpi-grid" id="finance-kpis"></div>
+                <div class="section-header">Financial Summary</div>
+                <div class="table-container">
+                    <div class="table-header"><span>Cost Breakdown</span><span class="table-total" id="finance-costTotal">Total: ₱0</span></div>
+                    <table><thead><tr><th>Category</th><th>Actual</th><th>Budget</th><th>Variance</th><th>%</th><th>Status</th> '</thead><tbody id="finance-costTable"></tbody> </>
+                </div>
+                <div class="section-header">Labor Summary</div>
+                <div class="table-container">
+                    <div class="table-header"><span>Labor Breakdown</span><span class="table-total" id="finance-laborTotal">Total Hours: 0</span></div>
+                    <table><thead> <tr><th>Labor Type</th><th>Regular</th><th>Overtime</th><th>Total</th><th>OT %</th><th>Status</th></tr></thead><tbody id="finance-laborOverviewTable"></tbody></table>
+                </div>
+            </div>
+
+            <div id="finance-cost" class="tab-content">
+                <div class="section-header">Cost Analysis Details</div>
+                <div class="kpi-grid" id="finance-costKpis"></div>
+                <div class="table-container"><div class="table-header"><span>Detailed Cost Breakdown</span></div><table><thead> <tr><th>Category</th><th>Actual</th><th>Budget</th><th>Variance</th><th>%</th><th>Status</th></tr></thead><tbody id="finance-costDetailTable"></tbody></table></div>
+                <div class="kpi-grid"><div class="kpi-card"><div class="kpi-card-header"><span class="kpi-card-title">Best Performing</span></div><div id="finance-bestPerformer" class="kpi-card-details"><div class="kpi-card-detail-row">No Data</div></div></div><div class="kpi-card"><div class="kpi-card-header"><span class="kpi-card-title">Needs Attention</span></div><div id="finance-needsAttention" class="kpi-card-details"><div class="kpi-card-detail-row">No Data</div></div></div><div class="kpi-card"><div class="kpi-card-header"><span class="kpi-card-title">Summary</span></div><div id="finance-costSummary" class="kpi-card-details"><div class="kpi-card-detail-row">Categories: 0/3</div><div class="kpi-card-detail-row">Avg Variance: 0%</div></div></div></div>
+            </div>
+
+            <div id="finance-labor" class="tab-content">
+                <div class="section-header">Labor Reports</div>
+                <div class="kpi-grid" id="finance-laborKpis"></div>
+                <div class="table-container"><div class="table-header"><span>Labor Breakdown Details</span></div><table><thead> <tr><th>Labor Type</th><th>Regular</th><th>Overtime</th><th>Total</th><th>OT %</th><th>Status</th></tr></thead><tbody id="finance-laborTable"></tbody></table></div>
+            </div>
+
+            <div id="finance-input" class="tab-content">
+                <div class="input-panel">
+                    <div class="panel-header">Finance Data Input</div>
+                    <div class="input-controls"><div class="input-selector"><label>Category:</label><select id="finance-category" onchange="app.loadFinanceCategory()"><option value="production">Production Volume</option><option value="operational">Operational Cost</option><option value="capital">Capital Expenditure</option><option value="other">Other Expenses</option><option value="labor-dl">Direct Labor</option><option value="labor-il">Indirect Labor</option></select></div></div>
+                    <div class="input-sections" id="finance-inputSections"></div>
+                    <div class="button-group"><button class="btn btn-danger" onclick="app.clearFinanceCurrent()">Clear This</button><button class="btn" onclick="app.clearFinanceAll()">Clear All</button><button class="btn btn-primary" onclick="app.saveFinanceData()">Save Data</button></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- DASHBOARD: WAREHOUSE & LOGISTICS -->
+        <div id="dashboard-warehouse" class="dashboard-content">
+            <div class="tab-nav">
+                <button class="tab-btn active" onclick="app.switchWarehouseTab('overview')">Overview</button>
+                <button class="tab-btn" onclick="app.switchWarehouseTab('fillrates')">Fill Rates</button>
+                <button class="tab-btn" onclick="app.switchWarehouseTab('nonotif')">Non-OTIF</button>
+                <button class="tab-btn" onclick="app.switchWarehouseTab('stockouts')">Stock Outs</button>
+                <button class="tab-btn" onclick="app.switchWarehouseTab('warehouse')">Warehouse</button>
+                <button class="tab-btn" onclick="app.switchWarehouseTab('manpower')">Manpower</button>
+                <button class="tab-btn" onclick="app.switchWarehouseTab('input')">Data Input</button>
+            </div>
+
+            <div id="warehouse-overview" class="tab-content active">
+                <div class="kpi-grid" id="warehouse-topKpis"></div>
+                <div class="section-header">Fill Rates - Hit Rate</div>
+                <div class="kpi-grid" id="warehouse-fillRatesOverview"></div>
+                <div class="section-header">Key Metrics</div>
+                <div class="kpi-grid" id="warehouse-keyMetrics"></div>
+                <div class="section-header">Manpower</div>
+                <div class="kpi-grid" id="warehouse-manpowerKpis"></div>
+                <div class="two-col"><div class="kpi-card"><div class="kpi-card-header"><span class="kpi-card-title">OTDL by Region</span></div><div id="warehouse-otdlRegions" class="kpi-card-details"></div><div class="kpi-card-footer"><span>Average</span><span id="warehouse-avgOtdl">0 days</span></div></div><div class="kpi-card"><div class="kpi-card-header"><span class="kpi-card-title">Truck Types</span></div><div id="warehouse-truckTypes" class="kpi-card-details"></div><div class="kpi-card-footer"><span>Total Volume</span><span id="warehouse-totalTruck">0 cbm</span></div></div></div>
+            </div>
+
+            <div id="warehouse-fillrates" class="tab-content"><div class="section-header">Fill Rates - All Categories</div><div class="kpi-grid" id="warehouse-fillRates"></div></div>
+            <div id="warehouse-nonotif" class="tab-content"><div class="table-container"><div class="table-header"><span>Non-OTIF Breakdown</span><span class="table-total" id="warehouse-nonOtifTotal">Total: 0</span></div><table><thead> <tr><th>Category</th><th>Issue Type</th><th>Count</th></tr></thead><tbody id="warehouse-nonOtifTable"></tbody></table></div></div>
+            <div id="warehouse-stockouts" class="tab-content"><div class="two-col"><div class="table-container"><div class="table-header"><span>Stock Outs by Value</span><span class="table-total" id="warehouse-stockValueTotal">₱0</span></div><table><thead> <tr><th>Category</th><th>Issue Type</th><th>Amount</th></tr></thead><tbody id="warehouse-stockValueTable"></tbody></table></div><div class="table-container"><div class="table-header"><span>Stock Outs by Weight</span><span class="table-total" id="warehouse-stockWeightTotal">0 KGS</span></div><table><thead> <tr><th>Category</th><th>Issue Type</th><th>Weight</th></tr></thead><tbody id="warehouse-stockWeightTable"></tbody></table></div></div></div>
+            <div id="warehouse-warehouse" class="tab-content"><div class="two-col"><div class="kpi-card"><h3>Warehouse Utilization</h3><div id="warehouse-utilization"></div></div><div class="kpi-card"><h3>External Warehouse</h3><div id="warehouse-external"></div></div></div></div>
+            <div id="warehouse-manpower" class="tab-content"><div class="kpi-grid" id="warehouse-manpowerDetails"></div></div>
+            <div id="warehouse-input" class="tab-content"><div class="input-panel"><div class="panel-header">Warehouse Data Input</div><div class="input-controls"><div class="input-selector"><label>Category:</label><select id="warehouse-category" onchange="app.loadWarehouseCategory()"><option value="otif">OTIF Rate</option><option value="volume">Volume Fill</option><option value="fillrates">Fill Rates</option><option value="nonotif">Non-OTIF</option><option value="stockouts">Stock Outs</option><option value="warehouse">Warehouse</option><option value="otdl">OTDL Days</option><option value="trucks">Truck Utilization</option><option value="manpower">Manpower</option></select></div></div><div class="input-sections" id="warehouse-inputSections"></div><div class="button-group"><button class="btn btn-danger" onclick="app.clearWarehouseCurrent()">Clear This</button><button class="btn" onclick="app.clearWarehouseAll()">Clear All</button><button class="btn btn-primary" onclick="app.saveWarehouseData()">Save Data</button></div></div></div>
+        </div>
+
+        <!-- DASHBOARD: SC PROCUREMENT -->
+        <div id="dashboard-procurement" class="dashboard-content">
+            <div class="tab-nav">
+                <button class="tab-btn active" onclick="app.switchProcurementTab('overview')">Overview</button>
+                <button class="tab-btn" onclick="app.switchProcurementTab('input')">Data Input</button>
+            </div>
+            <div id="procurement-overview" class="tab-content active">
+                <div class="kpi-grid">
+                    <div class="kpi-card"><div class="kpi-card-header"><span class="kpi-card-title">Savings Performance</span></div><div class="kpi-card-main-value" id="proc-savingsRate">0%</div><div class="kpi-card-details"><div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Actual Savings</span><span id="proc-actual">₱0</span></div><div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Target Savings</span><span id="proc-target">₱0</span></div><div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Variance</span><span id="proc-variance">₱0</span></div></div><div class="kpi-card-progress"><div class="kpi-card-progress-bar" id="proc-progress" style="width:0%"></div></div><div class="kpi-card-footer"><span id="proc-status" class="status-badge status-neutral">No Data</span><span>Achievement Rate</span></div></div>
+                </div>
+            </div>
+            <div id="procurement-input" class="tab-content"><div class="input-panel"><div class="panel-header">Procurement Data Input</div><div class="input-sections"><div class="input-section"><h4>Savings</h4><div class="input-grid"><div class="input-field"><label>Actual Savings (₱)</label><input type="number" id="proc-actualInput" step="0.01"></div><div class="input-field"><label>Target Savings (₱)</label><input type="number" id="proc-targetInput" step="0.01"></div></div></div></div><div class="button-group"><button class="btn btn-danger" onclick="app.clearProcurement()">Clear</button><button class="btn btn-primary" onclick="app.saveProcurementData()">Save Data</button></div></div></div>
+        </div>
+
+        <!-- DASHBOARD: SC PLANNING -->
+        <div id="dashboard-planning" class="dashboard-content">
+            <div class="tab-nav">
+                <button class="tab-btn active" onclick="app.switchPlanningTab('overview')">Overview</button>
+                <button class="tab-btn" onclick="app.switchPlanningTab('safetystocks')">Safety Stocks</button>
+                <button class="tab-btn" onclick="app.switchPlanningTab('inventory')">Inventory</button>
+                <button class="tab-btn" onclick="app.switchPlanningTab('accuracy')">Accuracy</button>
+                <button class="tab-btn" onclick="app.switchPlanningTab('forecast')">Forecast</button>
+                <button class="tab-btn" onclick="app.switchPlanningTab('input')">Data Input</button>
+            </div>
+            <div id="planning-overview" class="tab-content active"><div class="kpi-grid" id="planning-overviewKpis"></div></div>
+            <div id="planning-safetystocks" class="tab-content"><div class="three-col" id="planning-safetyStocks"></div></div>
+            <div id="planning-inventory" class="tab-content">
+                <div class="section-header">FG Inventory Distribution</div>
+                <div class="two-col" id="planning-inventoryFG"></div>
+                <div class="section-header">RM/PM Inventory Distribution</div>
+                <div class="two-col" id="planning-inventoryRM"></div>
+            </div>
+            <div id="planning-accuracy" class="tab-content"><div class="two-col" id="planning-accuracyCards"></div></div>
+            <div id="planning-forecast" class="tab-content">
+                <div class="section-header">Forecast Accuracy by Region</div>
+                <div class="two-col" id="planning-forecastRegional"></div>
+                <div class="section-header">Forecast Accuracy by Product</div>
+                <div class="kpi-card" id="planning-forecastProduct"></div>
+                <div class="kpi-card" style="margin-top:20px"><div class="kpi-card-header"><span class="kpi-card-title">Overall Forecast Accuracy</span></div><div class="kpi-card-main-value" id="planning-forecastOverall">0%</div><div class="kpi-card-details"><div class="kpi-card-detail-row"><span>Local Average</span><span id="planning-forecastLocal">0%</span></div><div class="kpi-card-detail-row"><span>Export Average</span><span id="planning-forecastExport">0%</span></div></div></div>
+            </div>
+            <div id="planning-input" class="tab-content"><div class="input-panel"><div class="panel-header">Planning Data Input</div><div class="input-controls"><div class="input-selector"><label>Category:</label><select id="planning-category" onchange="app.loadPlanningCategory()"><option value="safety">Safety Stocks</option><option value="inventory-fg">FG Inventory</option><option value="inventory-rm">RM/PM Inventory</option><option value="accuracy">Inventory Accuracy</option><option value="forecast-local">Forecast - Local</option><option value="forecast-export">Forecast - Export</option><option value="forecast-product">Forecast - Product</option></select></div></div><div class="input-sections" id="planning-inputSections"></div><div class="button-group"><button class="btn btn-danger" onclick="app.clearPlanningCurrent()">Clear This</button><button class="btn" onclick="app.clearPlanningAll()">Clear All</button><button class="btn btn-primary" onclick="app.savePlanningData()">Save Data</button></div></div></div>
+        </div>
+
+        <!-- DASHBOARD: PRODUCTION -->
+        <div id="dashboard-production" class="dashboard-content">
+            <div class="tab-nav">
+                <button class="tab-btn active" onclick="app.switchProductionTab('overview')">Overview</button>
+                <button class="tab-btn" onclick="app.switchProductionTab('utilization')">Utilization</button>
+                <button class="tab-btn" onclick="app.switchProductionTab('output')">Output & Waste</button>
+                <button class="tab-btn" onclick="app.switchProductionTab('material')">Material Usage</button>
+                <button class="tab-btn" onclick="app.switchProductionTab('scheduling')">Scheduling</button>
+                <button class="tab-btn" onclick="app.switchProductionTab('manpower')">Manpower</button>
+                <button class="tab-btn" onclick="app.switchProductionTab('input')">Data Input</button>
+            </div>
+            <div id="production-overview" class="tab-content active">
+                <div class="kpi-grid" id="production-topKpis"></div>
+                <div class="section-header">Production Summary</div>
+                <div class="kpi-grid" id="production-summaryKpis"></div>
+            </div>
+            <div id="production-utilization" class="tab-content">
+                <div class="section-header">Machine Utilization</div>
+                <div class="kpi-grid" id="production-utilKpis"></div>
+                <div class="table-container"><div class="table-header"><span>23 Utilization Categories</span></div><table><thead> <tr><th>Category</th><th>Hours</th><th>% of Total</th></tr></thead><tbody id="production-utilTable"></tbody></table></div>
+            </div>
+            <div id="production-output" class="tab-content">
+                <div class="section-header">Output by Production Line</div>
+                <div class="table-container"><div class="table-header"><span>FG Output (KGS)</span><span class="table-total" id="production-outputTotal">Total: 0 kg</span></div><table><thead> <tr><th>Line</th><th>FG Output</th><th>Reprocess</th><th>Rejection</th><th>Net Output</th><th>Waste</th><th>Waste %</th><th>KG/MH</th></tr></thead><tbody id="production-outputTable"></tbody></table></div>
+            </div>
+            <div id="production-material" class="tab-content">
+                <div class="section-header">Material Usage</div>
+                <div class="kpi-grid" id="production-materialKpis"></div>
+                <div class="table-container"><div class="table-header"><span>Material Usage by Line</span></div><table><thead> <tr><th>Line</th><th>RM Usage (kg)</th><th>Output (kg)</th><th>Waste (kg)</th><th>% Yield</th><th>% Waste</th></tr></thead><tbody id="production-materialTable"></tbody></table></div>
+            </div>
+            <div id="production-scheduling" class="tab-content">
+                <div class="section-header">Scheduling Attainment</div>
+                <div class="table-container"><div class="table-header"><span>Actual vs Planned Output</span></div><table><thead> <tr><th>Line</th><th>Actual Output (kg)</th><th>Planned Output (kg)</th><th>Compliance %</th><th>Status</th></tr></thead><tbody id="production-schedTable"></tbody></table></div>
+                <div class="kpi-card"><div class="kpi-card-header"><span class="kpi-card-title">Overall Scheduling Attainment</span></div><div class="kpi-card-main-value" id="production-schedOverall">0%</div><div class="kpi-card-details"><div class="kpi-card-detail-row"><span>Total Actual</span><span id="production-schedActual">0 kg</span></div><div class="kpi-card-detail-row"><span>Total Planned</span><span id="production-schedPlanned">0 kg</span></div></div></div>
+            </div>
+            <div id="production-manpower" class="tab-content">
+                <div class="section-header">Manpower Plan</div>
+                <div class="kpi-grid" id="production-manpowerKpis"></div>
+                <div class="table-container"><div class="table-header"><span>Manpower Summary by Line</span></div><table><thead> <tr><th>Line</th><th>Regular</th><th>Agency</th><th>Total HC</th><th>Resigned</th><th>Reg Hours</th><th>Agy Hours</th><th>OT Hours</th><th>OT Rate</th><th>Absences</th><th>Abs Rate</th></tr></thead><tbody id="production-manpowerTable"></tbody></table></div>
+            </div>
+            <div id="production-input" class="tab-content"><div class="input-panel"><div class="panel-header">Production Data Input</div><div class="input-controls"><div class="input-selector"><label>Category:</label><select id="production-category" onchange="app.loadProductionCategory()"><option value="utilization">Machine Utilization</option><option value="output">Output & Waste</option><option value="material">Material Usage</option><option value="scheduling">Scheduling</option><option value="manpower">Manpower</option></select></div></div><div class="input-sections" id="production-inputSections"></div><div class="button-group"><button class="btn btn-danger" onclick="app.clearProductionCurrent()">Clear This</button><button class="btn" onclick="app.clearProductionAll()">Clear All</button><button class="btn btn-primary" onclick="app.saveProductionData()">Save Data</button></div></div></div>
+        </div>
+
+        <div class="footer">Last updated: <span id="lastUpdate">Just now</span></div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

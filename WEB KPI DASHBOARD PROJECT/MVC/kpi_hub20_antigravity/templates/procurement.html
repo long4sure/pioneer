@@ -1,0 +1,21 @@
+<div class="kpi-grid" style="grid-template-columns:1fr;">
+                <div class="card" id="card-proc-main">
+                    <div class="card-title">Savings Performance</div>
+                    <div class="card-value" id="proc-rate">0%</div>
+                    <div class="card-row"><span>Actual Savings</span><span class="card-row-val" id="proc-actual">₱0</span></div>
+                    <div class="card-row"><span>Target Savings</span><span class="card-row-val" id="proc-target">₱0</span></div>
+                    <div class="card-row"><span>Variance</span><span class="card-row-val" id="proc-var">₱0</span></div>
+                    <div class="progress-track"><div class="progress-bar" id="proc-bar" style="width:0%"></div></div>
+                    <div class="card-row"><span>Status</span><span id="proc-status" class="badge badge-neutral">No Data</span></div>
+                </div>
+            </div>
+            <div class="input-panel">
+                <div class="input-panel-head">Procurement — Data Entry</div>
+                <div class="input-grid-wrap" id="proc-inputSections" style="grid-template-columns:1fr;">
+                </div>
+                <div class="input-panel-actions">
+                    <button class="btn btn-danger" onclick="procClear()">Clear</button>
+                    <button class="btn" onclick="procClearAll()">Clear All</button>
+                    <button class="btn btn-primary" onclick="procSave()">Save</button>
+                </div>
+            </div>

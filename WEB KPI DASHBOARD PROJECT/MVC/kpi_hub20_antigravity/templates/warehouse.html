@@ -1,0 +1,85 @@
+<div class="tab-bar">
+                <button class="tab-btn active" onclick="switchTab('wh','overview',this)">Overview</button>
+                <button class="tab-btn" onclick="switchTab('wh','fillrates',this)">Fill Rates</button>
+                <button class="tab-btn" onclick="switchTab('wh','nonotif',this)">Non-OTIF</button>
+                <button class="tab-btn" onclick="switchTab('wh','stockouts',this)">Stock Outs</button>
+                <button class="tab-btn" onclick="switchTab('wh','warehouseutil',this)">Warehouse</button>
+                <button class="tab-btn" onclick="switchTab('wh','manpower',this)">Manpower</button>
+                <button class="tab-btn" onclick="switchTab('wh','input',this)" data-tab="input">Data Entry</button>
+            </div>
+            <div id="wh-overview" class="tab-content active">
+                <div class="section-title">Fill Rates — Hit Rate</div>
+                <div class="kpi-grid kpi-grid-4">
+                    <div class="card" id="card-wh-sc"><div class="card-title">SC Fill</div><div class="card-value" id="wh-scRate">0%</div><div class="card-row"><span>Delivered</span><span class="card-row-val" id="wh-scDel">₱0</span></div><div class="card-row"><span>Orders</span><span class="card-row-val" id="wh-scOrd">₱0</span></div><div class="card-row"><span>Status</span><span id="wh-scStatus" class="badge badge-neutral">No Data</span></div></div>
+                    <div class="card" id="card-wh-corp"><div class="card-title">Corporate</div><div class="card-value" id="wh-corpRate">0%</div><div class="card-row"><span>Delivered</span><span class="card-row-val" id="wh-corpDel">₱0</span></div><div class="card-row"><span>Orders</span><span class="card-row-val" id="wh-corpOrd">₱0</span></div><div class="card-row"><span>Status</span><span id="wh-corpStatus" class="badge badge-neutral">No Data</span></div></div>
+                    <div class="card" id="card-wh-core"><div class="card-title">Core Products</div><div class="card-value" id="wh-coreRate">0%</div><div class="card-row"><span>Delivered</span><span class="card-row-val" id="wh-coreDel">₱0</span></div><div class="card-row"><span>Orders</span><span class="card-row-val" id="wh-coreOrd">₱0</span></div><div class="card-row"><span>Status</span><span id="wh-coreStatus" class="badge badge-neutral">No Data</span></div></div>
+                    <div class="card" id="card-wh-m7"><div class="card-title">M7 &amp; Others</div><div class="card-value" id="wh-m7Rate">0%</div><div class="card-row"><span>Delivered</span><span class="card-row-val" id="wh-m7Del">₱0</span></div><div class="card-row"><span>Orders</span><span class="card-row-val" id="wh-m7Ord">₱0</span></div><div class="card-row"><span>Status</span><span id="wh-m7Status" class="badge badge-neutral">No Data</span></div></div>
+                </div>
+                <div class="section-title">Key Metrics</div>
+                <div class="kpi-grid kpi-grid-4">
+                    <div class="card"><div class="card-title">Non-OTIF Issues</div><div class="card-value" id="wh-nonOtifTotal">0</div><div class="card-row"><span>Top Category</span><span class="card-row-val" id="wh-nonOtifTop">—</span></div><div class="card-row"><span>Top Issue Type</span><span class="card-row-val" id="wh-nonOtifTopIssue">—</span></div></div>
+                    <div class="card"><div class="card-title">Stock Outs</div><div class="card-value" id="wh-stockVal">₱0</div><div class="card-row"><span>Weight</span><span class="card-row-val" id="wh-stockWt">0 KGS</span></div></div>
+                    <div class="card"><div class="card-title">OTDL Average</div><div class="card-value" id="wh-otdlAvg">0 days</div><div class="card-row"><span>Regions with Data</span><span class="card-row-val" id="wh-otdlReg">0</span></div></div>
+                    <div class="card"><div class="card-title">Trucks Volume</div><div class="card-value" id="wh-truckVol">0 cbm</div><div class="card-row"><span>Active Types</span><span class="card-row-val" id="wh-truckTypes">0</span></div></div>
+                </div>
+                <div class="section-title">Operational KPIs</div>
+                <div class="kpi-grid kpi-grid-3">
+                    <div class="card" id="card-wh-otif"><div class="card-title">OTIF Rate</div><div class="card-value" id="wh-otif">0%</div><div class="card-row"><span>Served</span><span class="card-row-val" id="wh-otifServed">0</span></div><div class="card-row"><span>Total</span><span class="card-row-val" id="wh-otifTotal">0</span></div><div class="progress-track"><div class="progress-bar" id="wh-otifBar" style="width:0%"></div></div><div class="card-row"><span>Status</span><span id="wh-otifStatus" class="badge badge-neutral">No Data</span></div></div>
+                    <div class="card" id="card-wh-vol"><div class="card-title">Volume Fill</div><div class="card-value" id="wh-volFill">0%</div><div class="card-row"><span>Delivered</span><span class="card-row-val" id="wh-volDel">₱0</span></div><div class="card-row"><span>Orders</span><span class="card-row-val" id="wh-volOrd">₱0</span></div><div class="progress-track"><div class="progress-bar" id="wh-volBar" style="width:0%"></div></div><div class="card-row"><span>Status</span><span id="wh-volStatus" class="badge badge-neutral">No Data</span></div></div>
+                    <div class="card" id="card-wh-util"><div class="card-title">WH Utilization</div><div class="card-value" id="wh-whUtil">0%</div><div class="card-row"><span>Used</span><span class="card-row-val" id="wh-whUsed">0</span></div><div class="card-row"><span>Total</span><span class="card-row-val" id="wh-whTotal">0</span></div><div class="progress-track"><div class="progress-bar" id="wh-whBar" style="width:0%"></div></div><div class="card-row"><span>Status</span><span id="wh-whStatus" class="badge badge-neutral">No Data</span></div></div>
+                </div>
+                <div class="section-title">Manpower Overview</div>
+                <div class="kpi-grid kpi-grid-3">
+                    <div class="card"><div class="card-title">Headcount</div><div class="card-value" id="wh-hcTotal">0</div><div class="card-row"><span>Regular</span><span class="card-row-val" id="wh-hcReg">0</span></div><div class="card-row"><span>Agency</span><span class="card-row-val" id="wh-hcAgy">0</span></div><div class="card-row"><span>Attrition</span><span class="card-row-val" id="wh-hcAttr">0%</span></div></div>
+                    <div class="card"><div class="card-title">Manhours</div><div class="card-value" id="wh-mhTotal">0</div><div class="card-row"><span>Regular</span><span class="card-row-val" id="wh-mhReg">0</span></div><div class="card-row"><span>Agency</span><span class="card-row-val" id="wh-mhAgy">0</span></div><div class="card-row"><span>OT Rate</span><span class="card-row-val" id="wh-mhOT">0%</span></div></div>
+                    <div class="card"><div class="card-title">Absences</div><div class="card-value" id="wh-absRate">0%</div><div class="card-row"><span>Count</span><span class="card-row-val" id="wh-absCnt">0</span></div><div class="card-row"><span>Required Days</span><span class="card-row-val" id="wh-absReq">0</span></div></div>
+                </div>
+            </div>
+            <div id="wh-fillrates" class="tab-content">
+                <div class="section-title">Fill Rates — All Categories</div>
+                <div class="kpi-grid kpi-grid-4">
+                    <div class="card"><div class="card-title">SC Fill</div><div class="card-value" id="fr-sc">0%</div><div class="card-row"><span>Delivered</span><span class="card-row-val" id="fr-scDel">₱0</span></div><div class="card-row"><span>Orders</span><span class="card-row-val" id="fr-scOrd">₱0</span></div><div class="card-row"><span>Status</span><span id="fr-scSt" class="badge badge-neutral">No Data</span></div></div>
+                    <div class="card"><div class="card-title">Corporate</div><div class="card-value" id="fr-corp">0%</div><div class="card-row"><span>Delivered</span><span class="card-row-val" id="fr-corpDel">₱0</span></div><div class="card-row"><span>Orders</span><span class="card-row-val" id="fr-corpOrd">₱0</span></div><div class="card-row"><span>Status</span><span id="fr-corpSt" class="badge badge-neutral">No Data</span></div></div>
+                    <div class="card"><div class="card-title">Core Products</div><div class="card-value" id="fr-core">0%</div><div class="card-row"><span>Delivered</span><span class="card-row-val" id="fr-coreDel">₱0</span></div><div class="card-row"><span>Orders</span><span class="card-row-val" id="fr-coreOrd">₱0</span></div><div class="card-row"><span>Status</span><span id="fr-coreSt" class="badge badge-neutral">No Data</span></div></div>
+                    <div class="card"><div class="card-title">M7 &amp; Others</div><div class="card-value" id="fr-m7">0%</div><div class="card-row"><span>Delivered</span><span class="card-row-val" id="fr-m7Del">₱0</span></div><div class="card-row"><span>Orders</span><span class="card-row-val" id="fr-m7Ord">₱0</span></div><div class="card-row"><span>Status</span><span id="fr-m7St" class="badge badge-neutral">No Data</span></div></div>
+                </div>
+            </div>
+            <div id="wh-nonotif" class="tab-content">
+                <div class="table-wrap"><div class="table-head"><span>Non-OTIF Breakdown</span><span class="table-total-pill" id="wh-nonOtifTot">Total: 0</span></div><table><thead><tr><th>Category</th><th>Issue Type</th><th>Count</th></tr></thead><tbody id="wh-nonOtifTbl"></tbody></table></div>
+            </div>
+            <div id="wh-stockouts" class="tab-content">
+                <div class="kpi-grid kpi-grid-2">
+                    <div class="table-wrap"><div class="table-head"><span>Stock Outs by Value</span><span class="table-total-pill" id="wh-soValTot">₱0</span></div><table><thead><tr><th>Category</th><th>Issue</th><th>Amount</th></tr></thead><tbody id="wh-soValTbl"></tbody></table></div>
+                    <div class="table-wrap"><div class="table-head"><span>Stock Outs by Weight</span><span class="table-total-pill" id="wh-soWtTot">0 KGS</span></div><table><thead><tr><th>Category</th><th>Issue</th><th>Weight</th></tr></thead><tbody id="wh-soWtTbl"></tbody></table></div>
+                </div>
+            </div>
+            <div id="wh-warehouseutil" class="tab-content">
+                <div class="kpi-grid kpi-grid-2">
+                    <div class="card"><div class="card-title">Warehouse Utilization</div><div class="card-row"><span>RM/PM Pallet Positions</span><span class="card-row-val" id="wh-rmTot">0</span></div><div class="card-row"><span>RM/PM Used</span><span class="card-row-val" id="wh-rmUsed">0</span></div><div class="card-row"><span>RM/PM Util%</span><span class="card-row-val" id="wh-rmUtil">0%</span></div><div class="card-row"><span>FG Pallet Positions</span><span class="card-row-val" id="wh-fgTot">0</span></div><div class="card-row"><span>FG Used</span><span class="card-row-val" id="wh-fgUsed">0</span></div><div class="card-row"><span>FG Util%</span><span class="card-row-val" id="wh-fgUtil">0%</span></div></div>
+                    <div class="card"><div class="card-title">External Warehouse</div><div class="card-row"><span>Pallet Positions</span><span class="card-row-val" id="wh-extTot">0</span></div><div class="card-row"><span>Used</span><span class="card-row-val" id="wh-extUsed">0</span></div><div class="card-row"><span>Utilization</span><span class="card-row-val" id="wh-extUtil">0%</span></div></div>
+                </div>
+            </div>
+            <div id="wh-manpower" class="tab-content">
+                <div class="kpi-grid kpi-grid-3">
+                    <div class="card"><div class="card-title">Headcount</div><div class="card-row"><span>Regular</span><span class="card-row-val" id="wh-mp-reg">0</span></div><div class="card-row"><span>Agency</span><span class="card-row-val" id="wh-mp-agy">0</span></div><div class="card-row"><span>Resigned</span><span class="card-row-val" id="wh-mp-res">0</span></div><div class="card-row"><span>Attrition</span><span class="card-row-val" id="wh-mp-attr">0%</span></div></div>
+                    <div class="card"><div class="card-title">Manhours</div><div class="card-row"><span>Regular Hours</span><span class="card-row-val" id="wh-mp-regH">0</span></div><div class="card-row"><span>Agency Hours</span><span class="card-row-val" id="wh-mp-agyH">0</span></div><div class="card-row"><span>Overtime Hours</span><span class="card-row-val" id="wh-mp-otH">0</span></div><div class="card-row"><span>OT Rate</span><span class="card-row-val" id="wh-mp-otR">0%</span></div></div>
+                    <div class="card"><div class="card-title">Absences</div><div class="card-row"><span>Absences Count</span><span class="card-row-val" id="wh-mp-absC">0</span></div><div class="card-row"><span>Required Days</span><span class="card-row-val" id="wh-mp-absD">0</span></div><div class="card-row"><span>Absenteeism Rate</span><span class="card-row-val" id="wh-mp-absR">0%</span></div></div>
+                </div>
+            </div>
+            <div id="wh-input" class="tab-content">
+                <div class="input-panel">
+                    <div class="input-panel-head">Warehouse &amp; Logistics — Data Entry</div>
+                    <div class="input-controls">
+                        <span class="input-control-label">Category:</span>
+                        <select class="input-control-select" id="wh-inputCat" onchange="whLoadInput()">
+                            <option value="otif">OTIF Rate</option><option value="volume">Volume Fill</option>
+                            <option value="fillrates">Fill Rates</option><option value="nonotif">Non-OTIF</option>
+                            <option value="stockouts">Stock Outs</option><option value="warehouse">Warehouse</option>
+                            <option value="otdl">OTDL Days</option><option value="trucks">Truck Utilization</option>
+                            <option value="manpower">Manpower</option>
+                        </select>
+                    </div>
+                    <div class="input-grid-wrap" id="wh-inputSections"></div>
+                    <div class="input-panel-actions"><button class="btn btn-danger" onclick="whClearCat()">Clear</button><button class="btn" onclick="whClearAll()">Clear All</button><button class="btn btn-primary" onclick="whSave()">Save</button></div>
+                </div>
+            </div>

@@ -1,0 +1,218 @@
+FINANCE DASHBOARD
+
+Production Volume
+
+ProdActual = parseFloat(data.production.actual) || 0
+ProdTarget = parseFloat(data.production.target) || 0
+ProdPercent = (ProdActual / ProdTarget) * 100
+
+Cost Metrics
+
+OpPercent = (OpActual / OpBudget) * 100
+CapPercent = (CapActual / CapBudget) * 100
+OtherPercent = (OtherActual / OtherBudget) * 100
+
+Financial Summary
+
+TotalActual = OpActual + CapActual + OtherActual
+TotalBudget = OpBudget + CapBudget + OtherBudget
+TotalVariance = TotalActual - TotalBudget
+TotalPercent = (TotalActual / TotalBudget) * 100
+
+Under/Over Budget Count
+
+UnderCount = Count of categories where Actual <= Budget
+OverCount = Count of categories where Actual > Budget
+
+Labor Metrics
+
+TotalReg = DLReg + ILReg
+TotalOT = DLOT + ILOT
+TotalHours = TotalReg + TotalOT
+OverallOTPercent = (TotalOT / TotalHours) * 100
+DLOTPct = (DLOT / DLReg) * 100
+ILOTPct = (ILOT / ILReg) * 100
+TotalWorkforce = DLReg + DLOT + ILReg + ILOT
+
+Cost Variance & Status
+
+Variance = Actual - Budget
+Percent = (Actual / Budget) * 100
+Status = "Under" if Actual <= Budget else "Over"
+
+Labor Status (OT-based)
+
+Status = 
+  - "Normal" if OT% <= 25
+  - "High" if OT% <= 35
+  - "Critical" if OT% > 35
+
+SC PLANNING DASHBOARD
+
+Safety Stocks Totals
+
+FgTotal = FG_ClassA + FG_ClassB + FG_ClassC + FG_AllIn
+RmTotal = RM_ClassA + RM_ClassB + RM_ClassC
+PmTotal = PM_Core + PM_M7 + PM_Others
+
+Inventory Totals (KGS)
+
+FgKgsTotal = FG_Kgs_FastGood + FG_Kgs_FastNte + FG_Kgs_Slow + FG_Kgs_NoMove + FG_Kgs_Expired
+RmKgsTotal = RM_Kgs_FastGood + RM_Kgs_FastNte + RM_Kgs_Slow + RM_Kgs_NoMove + RM_Kgs_Expired
+
+Inventory Totals (PHP)
+
+FgPhpTotal = FG_Php_FastGood + FG_Php_FastNte + FG_Php_Slow + FG_Php_NoMove + FG_Php_Expired
+RmPhpTotal = RM_Php_FastGood + RM_Php_FastNte + RM_Php_Slow + RM_Php_NoMove + RM_Php_Expired
+
+Accuracy
+
+FgAccuracy = ((FgCount - FgMissed) / FgCount) * 100
+RmAccuracy = ((RmCount - RmMissed) / RmCount) * 100
+
+Forecast Averages
+
+LocalAvg = Sum(LocalValues) / 7
+ExportAvg = Sum(ExportValues) / 3
+ProductAvg = Sum(ProductValues) / 14
+Overall = (LocalAvg + ExportAvg) / 2
+
+SC PROCUREMENT DASHBOARD
+
+Savings Rate
+
+SavingsRate = (ActualSavings / TargetSavings) * 100
+Variance = ActualSavings - TargetSavings
+
+Status Classification
+
+Status = 
+  - "Exceeded Target" if SavingsRate >= 100
+  - "Near Target" if SavingsRate >= 90
+  - "Below Target" if SavingsRate >= 75
+  - "Critical" if SavingsRate > 0
+  - "No Data" if TargetSavings == 0
+
+PRODUCTION DASHBOARD
+
+MACHINE UTILIZATION MODULE
+
+Line Total Time
+
+LineTotal = Sum(All 23 categories)
+
+Utilization Rate
+
+Utilization = (ProductiveTime / LineTotal) * 100
+
+Overall Utilization
+
+OverallUtil = (TotalProductiveTime / TotalTime) * 100
+
+Average Utilization (by line)
+
+AvgUtil = Sum(LineUtilizations) / LinesWithData
+
+OUTPUT & WASTAGE MODULE
+Net Output
+
+NetOutput = FGOutput + Reprocess - Rejection
+
+Waste Percentage
+
+WastePct = (Waste / (FGOutput + Waste)) * 100
+
+Overall Waste
+
+TotalWaste = Sum(Waste across all lines)
+WastePctOverall = (TotalWaste / (TotalFGOutput + TotalWaste)) * 100
+
+SCHEDULING ATTAINMENT MODULE
+Compliance Rate
+
+Compliance = (ActualOutput / PlannedOutput) * 100
+Variance = ActualOutput - PlannedOutput
+
+Overall Compliance
+
+OverallCompliance = (TotalActual / TotalPlanned) * 100
+AvgCompliance = Sum(Compliance) / LinesWithData
+
+Top Performers
+
+Top Performers = Lines with Compliance >= 90%
+Needs Improvement = Lines with Compliance < 75%
+
+WAREHOUSE & LOGISTICS DASHBOARD 
+OTIF Rate
+
+OtifRate = (Served / Total) * 100
+
+Volume Fill Rate
+
+VolumeFillRate = (Delivered / Orders) * 100
+
+Fill Rates (All Categories)
+
+HitRate = (Delivered / Orders) * 100
+
+Warehouse Utilization
+
+RmUtil = (RmUsed / RmTotal) * 100
+FgUtil = (FgUsed / FgTotal) * 100
+ExtUtil = (ExtUsed / ExtTotal) * 100
+TotalWhUtil = ((RmUsed + FgUsed + ExtUsed) / (RmTotal + FgTotal + ExtTotal)) * 100
+
+OTDL Average
+
+AvgOTDL = Sum(OTDL values) / RegionsWithData
+
+Truck Volume
+
+TotalTruckVolume = 10W + AUV + 6W + 4W + 20ft
+
+Manpower Metrics
+
+TotalHeadcount = Regular + Agency
+AvgHeadcount = (TotalHeadcount + (TotalHeadcount - Resigned)) / 2
+AttritionRate = (Resigned / AvgHeadcount) * 100
+TotalManhours = RegularHours + AgencyHours
+OvertimeRate = (OTHours / TotalManhours) * 100
+AbsenteeismRate = (Absences / RequiredDays) * 100
+
+Non-OTIF & Stock Outs
+
+TotalNonOtif = Sum(All Non-OTIF counts)
+TotalStockOutValue = Sum(All Stock Out values in PHP)
+TotalStockOutWeight = Sum(All Stock Out weights in KGS)
+
+Status Classification - Fill Rates
+
+Status =
+  - "Excellent" if Rate >= 98%
+  - "Good" if Rate >= 90%
+  - "Warning" if Rate >= 80%
+  - "Critical" if Rate < 80%
+
+Status Classification - OTIF
+text
+Status =
+  - "Excellent" if Rate >= 95%
+  - "Good" if Rate >= 85%
+  - "Warning" if Rate >= 75%
+  - "Critical" if Rate < 75%
+
+Status Classification - Warehouse Utilization
+text
+Status =
+  - "Under-Utilized" if Rate <= 75%
+  - "Optimal" if Rate <= 85%
+  - "Good" if Rate <= 95%
+  - "Near Capacity" if Rate > 95%
+
+Module	Key Formulas
+Finance	Achievement %, Variance, OT%, Under/Over Count
+SC Planning	Totals, Averages, Accuracy %
+Procurement	Savings Rate, Variance
+Production	Utilization %, Compliance %, Waste %
+Warehouse & Logistics	Fill Rate %, Utilization %, Attrition %, OT Rate %

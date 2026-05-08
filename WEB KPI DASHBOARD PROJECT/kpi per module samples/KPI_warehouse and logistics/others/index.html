@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Warehouse & Logistics Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Header -->
+        <div class="header">
+            <h1><i class="fas fa-warehouse"></i> Warehouse & Logistics Dashboard</h1>
+            <div class="date-picker">
+                <i class="fas fa-calendar"></i>
+                <span id="currentMonth">October 2024</span>
+                <button onclick="prevMonth()"><i class="fas fa-chevron-left"></i></button>
+                <button onclick="nextMonth()"><i class="fas fa-chevron-right"></i></button>
+            </div>
+        </div>
+
+        <!-- KPI Cards -->
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-icon blue">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="kpi-content">
+                    <h3>OTIF Rate</h3>
+                    <div class="kpi-value" id="otifRate">95.2%</div>
+                    <div class="kpi-target">Target: 95%</div>
+                    <div class="kpi-trend positive">
+                        <i class="fas fa-arrow-up"></i> +2.1%
+                    </div>
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-icon green">
+                    <i class="fas fa-truck"></i>
+                </div>
+                <div class="kpi-content">
+                    <h3>Volume Fill Rate</h3>
+                    <div class="kpi-value" id="volumeFillRate">44.4%</div>
+                    <div class="kpi-target">Target: 90%</div>
+                    <div class="kpi-trend negative">
+                        <i class="fas fa-arrow-down"></i> -5.3%
+                    </div>
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-icon purple">
+                    <i class="fas fa-dollar-sign"></i>
+                </div>
+                <div class="kpi-content">
+                    <h3>Value Fill Rate</h3>
+                    <div class="kpi-value" id="valueFillRate">59.9%</div>
+                    <div class="kpi-target">Target: 90%</div>
+                    <div class="kpi-trend negative">
+                        <i class="fas fa-arrow-down"></i> -3.2%
+                    </div>
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-icon orange">
+                    <i class="fas fa-boxes"></i>
+                </div>
+                <div class="kpi-content">
+                    <h3>Warehouse Utilization</h3>
+                    <div class="kpi-value" id="whUtilization">79.0%</div>
+                    <div class="kpi-target">Target: 85%</div>
+                    <div class="kpi-trend positive">
+                        <i class="fas fa-arrow-up"></i> +1.2%
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Grid -->
+        <div class="main-grid">
+            <!-- OTDL by Region Chart -->
+            <div class="card">
+                <div class="card-header">
+                    <h2><i class="fas fa-map-marker-alt"></i> OTDL by Region (Days)</h2>
+                    <div class="card-actions">
+                        <button onclick="exportChart('otdlChart')"><i class="fas fa-download"></i></button>
+                        <button onclick="refreshData()"><i class="fas fa-sync-alt"></i></button>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <canvas id="otdlChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Service Failure Breakdown -->
+            <div class="card">
+                <div class="card-header">
+                    <h2><i class="fas fa-exclamation-triangle"></i> Non-OTIF Breakdown</h2>
+                    <select id="failureType" onchange="updateFailureChart()">
+                        <option value="count">By Count</option>
+                        <option value="kgs">By Weight (KGS)</option>
+                        <option value="php">By Value (PHP)</option>
+                    </select>
+                </div>
+                <div class="card-content">
+                    <canvas id="failureChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Warehouse Utilization -->
+            <div class="card">
+                <div class="card-header">
+                    <h2><i class="fas fa-chart-pie"></i> Warehouse Utilization</h2>
+                </div>
+                <div class="card-content">
+                    <div class="utilization-bars">
+                        <div class="util-item">
+                            <span>RM/PM</span>
+                            <div class="progress-bar">
+                                <div class="progress" style="width: 79%" data-value="79%"></div>
+                            </div>
+                            <span class="util-value">4,702 / 4,715</span>
+                        </div>
+                        <div class="util-item">
+                            <span>FG</span>
+                            <div class="progress-bar">
+                                <div class="progress" style="width: 42%" data-value="42%"></div>
+                            </div>
+                            <span class="util-value">2,240 / 2,836</span>
+                        </div>
+                        <div class="util-item">
+                            <span>External</span>
+                            <div class="progress-bar">
+                                <div class="progress" style="width: 0%" data-value="0%"></div>
+                            </div>
+                            <span class="util-value">0 / 0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stock Out Summary -->
+            <div class="card">
+                <div class="card-header">
+                    <h2><i class="fas fa-times-circle"></i> Stock Out Summary</h2>
+                </div>
+                <div class="card-content">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th>Count</th>
+                                <th>KGS</th>
+                                <th>PHP</th>
+                            </tr>
+                        </thead>
+                        <tbody id="stockOutTable">
+                            <!-- Populated by JavaScript -->
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td><strong>TOTAL</strong></td>
+                                <td id="totalCount">0</td>
+                                <td id="totalKgs">0</td>
+                                <td id="totalPhp">0</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detailed Metrics Section -->
+        <div class="metrics-section">
+            <div class="card full-width">
+                <div class="card-header">
+                    <h2><i class="fas fa-chart-line"></i> Detailed Performance Metrics</h2>
+                    <div class="tab-buttons">
+                        <button class="tab-btn active" onclick="showTab('service')">Service Level</button>
+                        <button class="tab-btn" onclick="showTab('warehouse')">Warehouse</button>
+                        <button class="tab-btn" onclick="showTab('workforce')">Workforce</button>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <!-- Service Level Tab -->
+                    <div id="serviceTab" class="tab-content active">
+                        <table class="metrics-table">
+                            <tr>
+                                <th>Metric</th>
+                                <th>Value</th>
+                                <th>Target</th>
+                                <th>Status</th>
+                            </tr>
+                            <tr>
+                                <td>OTIF Rate</td>
+                                <td>95.2%</td>
+                                <td>95%</td>
+                                <td><span class="badge success">Met</span></td>
+                            </tr>
+                            <tr>
+                                <td>Volume Fill Rate</td>
+                                <td>44.4%</td>
+                                <td>90%</td>
+                                <td><span class="badge danger">Below Target</span></td>
+                            </tr>
+                            <tr>
+                                <td>Value Fill Rate (SC)</td>
+                                <td>59.9%</td>
+                                <td>90%</td>
+                                <td><span class="badge danger">Below Target</span></td>
+                            </tr>
+                            <tr>
+                                <td>Value Fill Rate (Corporate)</td>
+                                <td>0%</td>
+                                <td>90%</td>
+                                <td><span class="badge warning">No Data</span></td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <!-- Warehouse Tab -->
+                    <div id="warehouseTab" class="tab-content">
+                        <table class="metrics-table">
+                            <tr>
+                                <th>Metric</th>
+                                <th>Value</th>
+                                <th>Target</th>
+                                <th>Status</th>
+                            </tr>
+                            <tr>
+                                <td>Truck Utilization</td>
+                                <td>0%</td>
+                                <td>85%</td>
+                                <td><span class="badge warning">No Data</span></td>
+                            </tr>
+                            <tr>
+                                <td>LRA Accuracy (RM/PM)</td>
+                                <td>0%</td>
+                                <td>99%</td>
+                                <td><span class="badge warning">No Data</span></td>
+                            </tr>
+                            <tr>
+                                <td>LRA Accuracy (FG)</td>
+                                <td>0%</td>
+                                <td>99%</td>
+                                <td><span class="badge warning">No Data</span></td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <!-- Workforce Tab -->
+                    <div id="workforceTab" class="tab-content">
+                        <table class="metrics-table">
+                            <tr>
+                                <th>Metric</th>
+                                <th>Value</th>
+                                <th>Target</th>
+                                <th>Status</th>
+                            </tr>
+                            <tr>
+                                <td>Headcount</td>
+                                <td>0</td>
+                                <td>-</td>
+                                <td><span class="badge info">Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td>Attrition Rate</td>
+                                <td>0%</td>
+                                <td><5%</td>
+                                <td><span class="badge success">Good</span></td>
+                            </tr>
+                            <tr>
+                                <td>Overtime Rate</td>
+                                <td>0%</td>
+                                <td><10%</td>
+                                <td><span class="badge success">Good</span></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <button class="action-btn" onclick="exportToPDF()">
+                <i class="fas fa-file-pdf"></i> Export to PDF
+            </button>
+            <button class="action-btn" onclick="exportToExcel()">
+                <i class="fas fa-file-excel"></i> Export to Excel
+            </button>
+            <button class="action-btn" onclick="sendEmailReport()">
+                <i class="fas fa-envelope"></i> Email Report
+            </button>
+            <button class="action-btn primary" onclick="refreshAllData()">
+                <i class="fas fa-sync-alt"></i> Refresh All Data
+            </button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

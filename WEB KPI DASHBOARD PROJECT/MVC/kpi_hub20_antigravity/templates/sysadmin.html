@@ -1,0 +1,188 @@
+<!-- Tab bar -->
+            <div class="sa-tabs">
+                <button class="sa-tab active" id="sa-tab-overview" onclick="saSwitchTab('overview',this)">
+                    <svg viewBox="0 0 16 16" fill="currentColor" width="12" style="vertical-align:middle;margin-right:4px"><path d="M1 2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 01-1 1H2a1 1 0 01-1-1V2zm5 0a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 01-1 1H7a1 1 0 01-1-1V2zm5 0a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 01-1 1h-2a1 1 0 01-1-1V2zM1 7a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 01-1 1H2a1 1 0 01-1-1V7zm5 0a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 01-1 1H7a1 1 0 01-1-1V7zm5 0a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 01-1 1h-2a1 1 0 01-1-1V7zM1 12a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 01-1 1H2a1 1 0 01-1-1v-2zm5 0a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 01-1 1H7a1 1 0 01-1-1v-2zm5 0a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 01-1 1h-2a1 1 0 01-1-1v-2z"/></svg>
+                    Overview
+                </button>
+                <button class="sa-tab" onclick="saSwitchTab('users',this)">
+                    <svg viewBox="0 0 16 16" fill="currentColor" width="12" style="vertical-align:middle;margin-right:4px"><path d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1H7zm4-6a3 3 0 100-6 3 3 0 000 6z"/><path fill-rule="evenodd" d="M5.216 14A2.238 2.238 0 015 13c0-1.355.68-2.75 1.936-3.72A6.325 6.325 0 005 9c-4 0-5 3-5 4s1 1 1 1h4.216z" clip-rule="evenodd"/><path d="M4.5 8a2.5 2.5 0 100-5 2.5 2.5 0 000 5z"/></svg>
+                    Users
+                </button>
+                <button class="sa-tab" onclick="saSwitchTab('pending',this)">
+                    <svg viewBox="0 0 16 16" fill="currentColor" width="12" style="vertical-align:middle;margin-right:4px"><path d="M8 15A7 7 0 118 1a7 7 0 010 14zm0 1A8 8 0 108 0a8 8 0 000 16z"/><path d="M7.002 11a1 1 0 112 0 1 1 0 01-2 0zM7.1 4.995a.905.905 0 111.8 0l-.35 3.507a.552.552 0 01-1.1 0L7.1 4.995z"/></svg>
+                    Pending <span class="sa-tab-badge" id="sa-pending-badge" style="display:none"></span>
+                </button>
+                <button class="sa-tab" onclick="saSwitchTab('data',this)">
+                    <svg viewBox="0 0 16 16" fill="currentColor" width="12" style="vertical-align:middle;margin-right:4px"><path d="M0 2a2 2 0 012-2h12a2 2 0 012 2v1a2 2 0 01-2 2H2a2 2 0 01-2-2V2zm15 3H1v8a2 2 0 002 2h10a2 2 0 002-2V5zm-4 3a1 1 0 110 2H5a1 1 0 110-2h6zm0 3a1 1 0 110 2H5a1 1 0 110-2h6z"/></svg>
+                    Data Records
+                </button>
+                <button class="sa-tab" onclick="saSwitchTab('log',this)">
+                    <svg viewBox="0 0 16 16" fill="currentColor" width="12" style="vertical-align:middle;margin-right:4px"><path d="M5 4a.5.5 0 000 1h6a.5.5 0 000-1H5zm-.5 2.5A.5.5 0 015 6h6a.5.5 0 010 1H5a.5.5 0 01-.5-.5zm0 2A.5.5 0 015 8h4a.5.5 0 010 1H5a.5.5 0 01-.5-.5z"/><path d="M2 2a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2H4a2 2 0 01-2-2V2zm10-1H4a1 1 0 00-1 1v12a1 1 0 001 1h8a1 1 0 001-1V2a1 1 0 00-1-1z"/></svg>
+                    Audit Log
+                </button>
+            </div>
+
+            <!-- OVERVIEW panel -->
+            <div class="sa-panel active" id="sa-panel-overview">
+                <div class="sa-section-head">
+                    <div class="sa-section-title">System Overview</div>
+                </div>
+                <div class="sa-stats-row">
+                    <div class="sa-stat-card"><div class="sa-stat-label">Active Users</div><div class="sa-stat-val" id="sa-stat-users">—</div></div>
+                    <div class="sa-stat-card"><div class="sa-stat-label">Currently Online</div><div class="sa-stat-val" id="sa-stat-online" style="color:var(--green)">—</div></div>
+                    <div class="sa-stat-card"><div class="sa-stat-label">Pending Approvals</div><div class="sa-stat-val" id="sa-stat-pending">—</div><div class="sa-stat-sub">Awaiting review</div></div>
+                    <div class="sa-stat-card"><div class="sa-stat-label">Total Saves</div><div class="sa-stat-val" id="sa-stat-saves">—</div><div class="sa-stat-sub">All modules</div></div>
+                    <div class="sa-stat-card"><div class="sa-stat-label">Total Logins</div><div class="sa-stat-val" id="sa-stat-logins">—</div></div>
+                </div>
+                <div class="sa-section-head" style="margin-top:8px">
+                    <div class="sa-section-title">Currently Online</div>
+                    <button class="btn" style="font-size:11px;padding:5px 12px" onclick="saRefreshOnline()">↻ Refresh</button>
+                </div>
+                <div class="sa-table-wrap" style="margin-bottom:16px">
+                    <div id="sa-online-list">
+                        <div class="um-empty">Loading active sessions…</div>
+                    </div>
+                </div>
+                <div class="sa-section-head" style="margin-top:8px">
+                    <div class="sa-section-title">Recent Activity</div>
+                </div>
+                <div class="sa-table-wrap">
+                    <div id="sa-recent-log"></div>
+                </div>
+            </div>
+
+            <!-- USERS panel -->
+            <div class="sa-panel" id="sa-panel-users">
+                <div class="sa-section-head">
+                    <div class="sa-section-title">User Accounts</div>
+                    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+                        <span class="dim" id="sa-users-count" style="font-size:11px"></span>
+                        <input class="sa-search-input" placeholder="Search users…" oninput="saUsersSearch=this.value;saUsersPage=1;saRenderUsers()">
+                        <button class="btn btn-primary" style="font-size:11px;padding:6px 14px" onclick="saOpenCreateUser()">+ Create Account</button>
+                    </div>
+                </div>
+                <div class="sa-table-wrap">
+                    <div class="sa-table-scroll">
+                        <table class="sa-table">
+                            <thead><tr>
+                                <th onclick="saUsersSort={col:'username',dir:saUsersSort.col==='username'&&saUsersSort.dir==='asc'?'desc':'asc'};saRenderUsers()">Username <span class="sort-icon">⇅</span></th>
+                                <th onclick="saUsersSort={col:'displayName',dir:saUsersSort.col==='displayName'&&saUsersSort.dir==='asc'?'desc':'asc'};saRenderUsers()">Display Name <span class="sort-icon">⇅</span></th>
+                                <th onclick="saUsersSort={col:'role',dir:saUsersSort.col==='role'&&saUsersSort.dir==='asc'?'desc':'asc'};saRenderUsers()">Role <span class="sort-icon">⇅</span></th>
+                                <th onclick="saUsersSort={col:'createdAt',dir:saUsersSort.col==='createdAt'&&saUsersSort.dir==='asc'?'desc':'asc'};saRenderUsers()">Created <span class="sort-icon">⇅</span></th>
+                                <th>Actions</th>
+                            </tr></thead>
+                            <tbody id="sa-users-tbody"><tr class="sa-empty-row"><td colspan="5">Loading…</td></tr></tbody>
+                        </table>
+                    </div>
+                    <div class="sa-pagination" id="sa-users-pager"></div>
+                </div>
+            </div>
+
+            <!-- PENDING panel -->
+            <div class="sa-panel" id="sa-panel-pending">
+                <div class="sa-section-head">
+                    <div class="sa-section-title">Pending Registrations</div>
+                </div>
+                <div class="sa-table-wrap">
+                    <div class="sa-table-scroll">
+                        <table class="sa-table">
+                            <thead><tr>
+                                <th>Username</th><th>Full Name</th><th>Requested Role</th><th>Date Requested</th><th>Actions</th>
+                            </tr></thead>
+                            <tbody id="sa-pending-tbody"><tr class="sa-empty-row"><td colspan="5">No pending requests.</td></tr></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DATA RECORDS panel -->
+            <div class="sa-panel" id="sa-panel-data">
+                <div class="sa-section-head">
+                    <div class="sa-section-title">Module Data Records</div>
+                    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+                        <span class="dim" id="sa-data-count" style="font-size:11px"></span>
+                        <select class="sa-select" id="sa-data-module" onchange="saDataPage=1;saDataSearch='';document.getElementById('sa-data-search').value='';saRenderData()">
+                            <option value="finance">Finance</option>
+                            <option value="planning">SC Planning</option>
+                            <option value="procurement">Procurement</option>
+                            <option value="production_util">Production — Utilization</option>
+                            <option value="production_waste">Production — Output &amp; Waste</option>
+                            <option value="production_sched">Production — Scheduling</option>
+                            <option value="warehouse">Warehouse &amp; Logistics</option>
+                        </select>
+                        <select class="sa-select" id="sa-data-year" title="Filter by year" onchange="saDataPage=1;saRenderData()">
+                            <option value="">All Years</option>
+                            <option>2020</option><option>2021</option><option>2022</option>
+                            <option>2023</option><option>2024</option><option>2025</option>
+                            <option>2026</option><option>2027</option><option>2028</option><option>2029</option><option>2030</option>
+                        </select>
+                        <select class="sa-select" id="sa-data-month" title="Filter by month" onchange="saDataPage=1;saRenderData()">
+                            <option value="">All Months</option>
+                            <option>January</option><option>February</option><option>March</option>
+                            <option>April</option><option>May</option><option>June</option>
+                            <option>July</option><option>August</option><option>September</option>
+                            <option>October</option><option>November</option><option>December</option>
+                        </select>
+                        <input class="sa-search-input" id="sa-data-search" placeholder="Search records…" oninput="saDataSearch=this.value;saDataPage=1;saRenderData()">
+                    </div>
+                    <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:8px">
+                        <button class="sa-action-btn sa-action-edit" style="font-size:11px;padding:6px 12px" onclick="saDataPrint()">
+                            <svg viewBox="0 0 16 16" fill="currentColor" width="12"><path d="M2.5 8a.5.5 0 100 1 .5.5 0 000-1z"/><path d="M5 1a2 2 0 00-2 2v2H2a2 2 0 00-2 2v3a2 2 0 002 2h1v1a2 2 0 002 2h6a2 2 0 002-2v-1h1a2 2 0 002-2V7a2 2 0 00-2-2h-1V3a2 2 0 00-2-2H5zM4 3a1 1 0 011-1h6a1 1 0 011 1v2H4V3zm1 5a2 2 0 00-2 2v1H2a1 1 0 01-1-1V7a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-1 1h-1v-1a2 2 0 00-2-2H5zm7 2v3a1 1 0 01-1 1H5a1 1 0 01-1-1v-3a1 1 0 011-1h6a1 1 0 011 1z"/></svg>
+                            Print
+                        </button>
+                        <button class="sa-action-btn sa-action-edit" style="font-size:11px;padding:6px 12px" onclick="saDataExport()">
+                            <svg viewBox="0 0 16 16" fill="currentColor" width="12"><path d="M.5 9.9a.5.5 0 01.5.5v2.5a1 1 0 001 1h12a1 1 0 001-1v-2.5a.5.5 0 011 0v2.5a2 2 0 01-2 2H2a2 2 0 01-2-2v-2.5a.5.5 0 01.5-.5z"/><path d="M7.646 1.146a.5.5 0 01.708 0l3 3a.5.5 0 01-.708.708L8.5 2.707V11.5a.5.5 0 01-1 0V2.707L5.354 4.854a.5.5 0 11-.708-.708l3-3z"/></svg>
+                            Export CSV
+                        </button>
+                        <label class="sa-action-btn sa-action-edit" style="font-size:11px;padding:6px 12px;cursor:pointer" title="Import CSV (Year and Month columns required)">
+                            <svg viewBox="0 0 16 16" fill="currentColor" width="12"><path d="M.5 9.9a.5.5 0 01.5.5v2.5a1 1 0 001 1h12a1 1 0 001-1v-2.5a.5.5 0 011 0v2.5a2 2 0 01-2 2H2a2 2 0 01-2-2v-2.5a.5.5 0 01.5-.5z"/><path d="M7.646 11.854a.5.5 0 00.708 0l3-3a.5.5 0 00-.708-.708L8.5 10.293V1.5a.5.5 0 00-1 0v8.793L5.354 8.146a.5.5 0 10-.708.708l3 3z"/></svg>
+                            Import CSV
+                            <input type="file" id="sa-data-import-file" accept=".csv" style="display:none" onchange="saDataImport(this)">
+                        </label>
+                    </div>
+                </div>
+                <div class="sa-table-wrap">
+                    <div class="sa-table-scroll">
+                        <table class="sa-table">
+                            <thead id="sa-data-thead"></thead>
+                            <tbody id="sa-data-tbody"><tr class="sa-empty-row"><td colspan="6">Select a module above.</td></tr></tbody>
+                        </table>
+                    </div>
+                    <div class="sa-pagination" id="sa-data-pager"></div>
+                </div>
+            </div>
+
+            <!-- AUDIT LOG panel -->
+            <div class="sa-panel" id="sa-panel-log">
+                <div class="sa-section-head">
+                    <div class="sa-section-title">Audit Log</div>
+                    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+                        <span class="dim" id="sa-log-count" style="font-size:11px"></span>
+                        <select class="sa-select" onchange="saLogFilter=this.value;saLogPage=1;saRenderLog()">
+                            <option value="all">All actions</option>
+                            <option value="login">Login</option>
+                            <option value="logout">Logout</option>
+                            <option value="save">Data Save</option>
+                            <option value="create">Account Created</option>
+                            <option value="edit">Account Edited</option>
+                            <option value="delete">Deleted</option>
+                            <option value="approve">Approved</option>
+                            <option value="reject">Rejected</option>
+                            <option value="role_change">Role Change</option>
+                        </select>
+                        <input class="sa-search-input" placeholder="Search log…" oninput="saLogSearch=this.value;saLogPage=1;saRenderLog()">
+                        <button class="btn btn-danger" style="font-size:11px;padding:6px 12px" onclick="saClearLog()">Clear Log</button>
+                    </div>
+                </div>
+                <div class="sa-table-wrap">
+                    <div class="sa-table-scroll">
+                        <table class="sa-table">
+                            <thead><tr>
+                                <th>Timestamp</th><th>User</th><th>Action</th><th>Module</th><th>Detail</th>
+                            </tr></thead>
+                            <tbody id="sa-log-tbody"><tr class="sa-empty-row"><td colspan="5">No log entries yet.</td></tr></tbody>
+                        </table>
+                    </div>
+                    <div class="sa-pagination" id="sa-log-pager"></div>
+                </div>
+            </div>

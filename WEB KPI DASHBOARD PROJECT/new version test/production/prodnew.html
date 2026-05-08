@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>ProdMAX | Intelligent Production Command Center</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        body {
+            background: #eef2f8;
+            padding: 24px 20px;
+        }
+
+        /* main container with glassmorphism touches */
+        .dashboard-container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 32px;
+            box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transition: all 0.2s;
+        }
+
+        /* header with modern vibe */
+        .header {
+            background: linear-gradient(135deg, #0b2b26 0%, #1a4a42 100%);
+            padding: 20px 28px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .header h1 {
+            font-size: 26px;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+            background: linear-gradient(120deg, #FFF, #c6f7f0);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .header-badge {
+            background: #2c6e63;
+            padding: 6px 14px;
+            border-radius: 60px;
+            font-size: 13px;
+            font-weight: 500;
+            color: white;
+            backdrop-filter: blur(4px);
+        }
+
+        .filter-panel {
+            background: #f8fafd;
+            padding: 12px 24px;
+            display: flex;
+            gap: 24px;
+            border-bottom: 1px solid #e2e8f0;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .filter-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: white;
+            padding: 6px 16px;
+            border-radius: 40px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+            border: 1px solid #e2edf2;
+        }
+
+        .filter-item label {
+            font-weight: 600;
+            font-size: 12px;
+            color: #1e4a42;
+            text-transform: uppercase;
+        }
+
+        .filter-item select {
+            border: none;
+            background: transparent;
+            font-weight: 500;
+            font-size: 14px;
+            padding: 6px 0;
+            outline: none;
+            cursor: pointer;
+            color: #0f2c27;
+        }
+
+        /* module buttons */
+        .module-ribbon {
+            display: flex;
+            gap: 12px;
+            padding: 16px 24px;
+            background: #ffffff;
+            border-bottom: 1px solid #ecf3f9;
+            flex-wrap: wrap;
+        }
+
+        .module-btn {
+            padding: 10px 26px;
+            border-radius: 60px;
+            font-weight: 600;
+            font-size: 14px;
+            border: none;
+            background: #f1f5f9;
+            color: #2c3e3a;
+            cursor: pointer;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .module-btn.active {
+            background: #1e6b5e;
+            color: white;
+            box-shadow: 0 6px 12px -8px rgba(0,0,0,0.2);
+        }
+
+        .module-btn:hover:not(.active) {
+            background: #e2eef0;
+            transform: translateY(-1px);
+        }
+
+        /* main content */
+        .content-pane {
+            padding: 24px 28px;
+        }
+
+        .tab-bar {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 28px;
+            border-bottom: 2px solid #ecf3f9;
+            padding-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 8px 20px;
+            background: transparent;
+            border: none;
+            font-weight: 600;
+            font-size: 13px;
+            color: #5b6f6a;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tab-btn.active {
+            background: #e9f4f2;
+            color: #1a5a50;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fade 0.2s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fade {
+            from { opacity: 0; transform: translateY(6px);}
+            to { opacity: 1; transform: translateY(0);}
+        }
+
+        /* KPI cards improved */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .kpi-card {
+            background: white;
+            border-radius: 28px;
+            padding: 20px 22px;
+            box-shadow: 0 8px 20px -6px rgba(0, 0, 0, 0.05);
+            border: 1px solid #eef2f8;
+            transition: all 0.25s;
+        }
+
+        .kpi-card:hover {
+            border-color: #bddcd6;
+            transform: translateY(-3px);
+        }
+
+        .kpi-card-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 14px;
+        }
+
+        .kpi-card-title {
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            color: #518277;
+        }
+
+        .kpi-card-main-value {
+            font-size: 36px;
+            font-weight: 800;
+            color: #173e37;
+            line-height: 1.2;
+            margin-bottom: 12px;
+        }
+
+        .kpi-card-details {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 6px;
+        }
+
+        .kpi-card-detail-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            padding: 4px 0;
+            border-bottom: 1px dashed #edf2f7;
+        }
+
+        .progress-bar-bg {
+            background: #e2f0ee;
+            border-radius: 20px;
+            height: 8px;
+            margin: 16px 0 6px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: #1e9f8c;
+            height: 100%;
+            border-radius: 20px;
+            width: 0%;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 40px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .status-excellent { background: #dff3e5; color: #146b3a; }
+        .status-good { background: #e2f0fe; color: #1a5f8b; }
+        .status-warning { background: #fff0e0; color: #c25a00; }
+        .status-critical { background: #ffe8e8; color: #bc3f2e; }
+        .status-neutral { background: #f0f2f5; color: #5b6f6a; }
+
+        .table-wrapper {
+            overflow-x: auto;
+            border-radius: 20px;
+            border: 1px solid #eef2f8;
+            background: white;
+            margin-bottom: 24px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            padding: 16px 18px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #2f665b;
+            background: #fafefd;
+            border-bottom: 1px solid #e2edf2;
+        }
+
+        td {
+            padding: 14px 18px;
+            font-size: 13px;
+            border-bottom: 1px solid #f0f6fa;
+            color: #1e2f2c;
+        }
+
+        /* input panel */
+        .input-panel-modern {
+            background: white;
+            border-radius: 28px;
+            border: 1px solid #e2edf2;
+            overflow: hidden;
+        }
+
+        .input-header {
+            background: #f9fcfb;
+            padding: 16px 24px;
+            font-weight: 700;
+            border-bottom: 1px solid #e9f0f3;
+        }
+
+        .input-fields-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 20px;
+            padding: 24px;
+            background: #fff;
+        }
+
+        .input-field {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .input-field label {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #488075;
+        }
+
+        .input-field input {
+            padding: 12px 14px;
+            border: 1px solid #dce7ec;
+            border-radius: 18px;
+            font-size: 13px;
+            transition: 0.2s;
+        }
+
+        .input-field input:focus {
+            border-color: #1e9f8c;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(30,159,140,0.2);
+        }
+
+        .button-bar {
+            padding: 16px 24px;
+            background: #fafefc;
+            border-top: 1px solid #eef2f8;
+            display: flex;
+            gap: 14px;
+            justify-content: flex-end;
+        }
+
+        .btn {
+            padding: 8px 20px;
+            border-radius: 40px;
+            font-weight: 600;
+            border: 1px solid #cbdcd8;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: #1a6b5e;
+            border-color: #1a6b5e;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #0f5449;
+            transform: scale(0.97);
+        }
+
+        .btn-danger {
+            background: #d95b3c;
+            border-color: #d95b3c;
+            color: white;
+        }
+
+        .footer-note {
+            padding: 20px 28px;
+            font-size: 11px;
+            color: #6f8f88;
+            text-align: right;
+            border-top: 1px solid #eef2f8;
+            background: #fefefe;
+        }
+
+        @media (max-width: 720px) {
+            .content-pane { padding: 16px; }
+            .kpi-card-main-value { font-size: 28px; }
+        }
+    </style>
+</head>
+<body>
+<div class="dashboard-container">
+    <div class="header">
+        <h1>⚡ PRODMAX · INTELLIGENT DASHBOARD</h1>
+        <div class="header-badge">🔁 Real-time | Multi-Module</div>
+    </div>
+    <div class="filter-panel">
+        <div class="filter-item"><label>📅 YEAR</label><select id="globalYear"></select></div>
+        <div class="filter-item"><label>🗓️ MONTH</label><select id="globalMonth"></select></div>
+        <div class="filter-item"><label>⏱️ Last sync</label><span id="liveTimestamp" style="font-size:13px; font-weight:500;">—</span></div>
+    </div>
+    <div class="module-ribbon">
+        <button class="module-btn" data-module="utilization">⚙️ Machine Utilization</button>
+        <button class="module-btn" data-module="wastage">📉 Output & Waste</button>
+        <button class="module-btn" data-module="scheduling">🎯 Scheduling Attainment</button>
+    </div>
+
+    <div class="content-pane" id="mainContent"></div>
+    <div class="footer-note">🔍 Enhanced analytics · Persistent per month/year · Intelligent thresholds & recommendations</div>
+</div>
+
+<script>
+    // ---------- DATA DEFINITIONS ----------
+    const YEARS = ['2023', '2024', '2025'];
+    const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    
+    // Module line lists
+    const UTIL_LINES = ['L06_FILLING','L06_MIXER','L04_FILLING','L04_MIXING','L03_ITALY','L03_KOREA','L01_MIXER','L01_MILLING','L07_TUBE','L09_EPS','L10_BOND','L11_SILICONE','L12_EPOXY','L13_WATER','L14_FILLING','L14_MIXING'];
+    const WASTE_LINES = ['L06_EPOXY','L04B_ELASTO','L03_CYANO','L01_COATINGS','L07_TUBE','L09_EPS','L10_BOND','L11_SILICONE','L12_EPOXY','L13_WATER','L14','L05_CLAY','L02_BOTTLE','LABELING'];
+    const SCHED_LINES = ['L06_EPOXY','L04B_ELASTO','L03_CYANO','L01_COATINGS','L07_TUBE','L09_EPS','L10_BOND','L11_SILICONE','L12_EPOXY','L13_WATER','L14','L05_CLAY','L02_BOTTLE'];
+    
+    const utilCategories = ['Actual Productive Time','No Production Plan','No Head Count Allocation','Change Over Time','Meeting','Sanitation Time','Start-up Time/Setup','Shutdown/cooldown','Testing Time','Breaktime','Preventive Maintenance','Force Majeure','Electrical Breakdown','Mechanical Breakdown','Materials Supply','Sorting/Reworking','Technical Downtime(QA & RND)','No Manpower','UDT-Meeting','No OT','No Bulkmix/No Kettle','Transfer','Idle time'];
+    const utilKeys = ['productive','noPlan','noHc','changeOver','meeting','sanitation','startup','shutdown','testing','breaktime','pm','forceMajeure','elecBreakdown','mechBreakdown','materialsSupply','sorting','techDowntime','noManpower','udtMeeting','noOt','noBulkmix','transfer','idle'];
+    
+    // helper names
+    const utilLineNames = { summary:'SUMMARY', L06_FILLING:'LINE6 FILLING', L06_MIXER:'LINE6 MIXER', L04_FILLING:'LINE4 FILLING', L04_MIXING:'LINE4 MIXING', L03_ITALY:'LINE3 ITALY', L03_KOREA:'LINE3 KOREA', L01_MIXER:'L01 MIXER', L01_MILLING:'L01 MILLING', L07_TUBE:'LINE7 TUBE', L09_EPS:'LINE9 EPS', L10_BOND:'LINE10 BOND', L11_SILICONE:'LINE11 SILICONE', L12_EPOXY:'LINE12 EPOXY', L13_WATER:'LINE13 WATER', L14_FILLING:'LINE14 FILLING', L14_MIXING:'LINE14 MIXING' };
+    const wasteLineNames = { summary:'SUMMARY', L06_EPOXY:'EPOXY L06', L04B_ELASTO:'ELASTO L04B', L03_CYANO:'CYANO TUBE', L01_COATINGS:'COATINGS L01', L07_TUBE:'EPOXY TUBE', L09_EPS:'EPS LINE', L10_BOND:'CONTACT BOND', L11_SILICONE:'SILICONE', L12_EPOXY:'EPOXY BASED', L13_WATER:'WATER BASED', L14:'LINE14', L05_CLAY:'EPOXY CLAY', L02_BOTTLE:'CYNO BOTTLE', LABELING:'LABELING' };
+    const schedLineNames = { summary:'SUMMARY', L06_EPOXY:'EPOXY L06', L04B_ELASTO:'ELASTO L04B', L03_CYANO:'CYANO TUBE', L01_COATINGS:'COATINGS L01', L07_TUBE:'EPOXY TUBE', L09_EPS:'EPS LINE', L10_BOND:'CONTACT BOND', L11_SILICONE:'SILICONE', L12_EPOXY:'EPOXY SPECIAL', L13_WATER:'WATER SPECIAL', L14:'LINE14', L05_CLAY:'EPOXY CLAY', L02_BOTTLE:'CYNO BOTTLE' };
+    
+    // ---------- DATABASE (3D) ----------
+    let DB = {};
+    function initDB() {
+        YEARS.forEach(y => {
+            DB[y] = {};
+            MONTHS.forEach(m => {
+                DB[y][m] = { utilization: {}, wastage: {}, scheduling: {} };
+                // util
+                UTIL_LINES.forEach(line => { DB[y][m].utilization[line] = { name: utilLineNames[line] || line }; utilKeys.forEach(k => DB[y][m].utilization[line][k] = ''); DB[y][m].utilization[line].machinesAvail = ''; DB[y][m].utilization[line].machinesUsed = ''; DB[y][m].utilization[line].prodDays = ''; });
+                DB[y][m].utilization.summary = { name:'SUMMARY' };
+                // waste
+                WASTE_LINES.forEach(line => { DB[y][m].wastage[line] = { name: wasteLineNames[line] || line, fgOutput:'', reprocess:'', rejection:'', waste:'' }; });
+                DB[y][m].wastage.summary = { name:'SUMMARY' };
+                // sched
+                SCHED_LINES.forEach(line => { DB[y][m].scheduling[line] = { name: schedLineNames[line] || line, actualOutput:'', plannedOutput:'' }; });
+                DB[y][m].scheduling.summary = { name:'SUMMARY' };
+            });
+        });
+    }
+    initDB();
+    
+    let currentModule = 'utilization';
+    let currentSubTab = 'overview';
+    
+    // DOM elements helper
+    function getCurrentData() { let y = document.getElementById('globalYear').value, m = document.getElementById('globalMonth').value; return DB[y][m]; }
+    function updateTimestampUI() { let d = new Date(); document.getElementById('liveTimestamp').innerText = `${d.toLocaleDateString()} ${d.toLocaleTimeString()}`; }
+    
+    // ---------- RENDER ENGINE ----------
+    function render() {
+        const container = document.getElementById('mainContent');
+        if (currentModule === 'utilization') renderUtilModule(container);
+        else if (currentModule === 'wastage') renderWasteModule(container);
+        else renderSchedModule(container);
+    }
+    
+    // ---- UTILIZATION MODULE (with enhanced breakdown) ----
+    function renderUtilModule(container) {
+        let html = `<div class="tab-bar"><button class="tab-btn ${currentSubTab === 'overview' ? 'active' : ''}" data-tab="overview">📊 Overview</button><button class="tab-btn ${currentSubTab === 'details' ? 'active' : ''}" data-tab="details">🔍 Line Details</button><button class="tab-btn ${currentSubTab === 'input' ? 'active' : ''}" data-tab="input">✏️ Data Input</button></div>`;
+        if (currentSubTab === 'overview') html += renderUtilOverview();
+        else if (currentSubTab === 'details') html += renderUtilDetails();
+        else html += renderUtilInput();
+        container.innerHTML = html;
+        attachTabEvents('utilization');
+        if (currentSubTab === 'input') attachUtilInputEvents();
+        if (currentSubTab === 'details') attachUtilDetailSelect();
+    }
+    
+    function renderUtilOverview() {
+        const dataSet = getCurrentData().utilization;
+        let totalProd = 0, totalTimeAll = 0, linesWithData=0, machinesAvailTotal=0, machinesUsedTotal=0;
+        let lineUtilVals = [];
+        UTIL_LINES.forEach(line => {
+            let ld = dataSet[line];
+            let prod = parseFloat(ld.productive)||0;
+            let total = utilKeys.reduce((s,k)=> s + (parseFloat(ld[k])||0),0);
+            if(total>0) linesWithData++;
+            totalProd += prod; totalTimeAll += total;
+            if(ld.machinesAvail) machinesAvailTotal += parseFloat(ld.machinesAvail)||0;
+            if(ld.machinesUsed) machinesUsedTotal += parseFloat(ld.machinesUsed)||0;
+            if(total>0) lineUtilVals.push((prod/total)*100);
+        });
+        let overallUtil = totalTimeAll>0 ? (totalProd/totalTimeAll)*100 : 0;
+        let avgUtil = lineUtilVals.length? lineUtilVals.reduce((a,b)=>a+b,0)/lineUtilVals.length : 0;
+        // downtime leaders
+        let downtimeMap = {};
+        utilKeys.forEach((k,idx)=>{ if(k!=='productive') { let sum=0; UTIL_LINES.forEach(l=> sum+= parseFloat(dataSet[l][k])||0); if(sum>0) downtimeMap[utilCategories[idx]]=sum; } });
+        let topDowntime = Object.entries(downtimeMap).sort((a,b)=>b[1]-a[1]).slice(0,4);
+        let downtimeHtml = topDowntime.length? topDowntime.map(([n,v])=>`<div class="kpi-card-detail-row"><span>${n}</span><span>${v.toFixed(1)} hrs</span></div>`).join('') : '<div class="kpi-card-detail-row">✅ No significant downtime</div>';
+        
+        let tableRows = UTIL_LINES.map(line => {
+            let ld = dataSet[line];
+            let prod = parseFloat(ld.productive)||0;
+            let total = utilKeys.reduce((s,k)=> s + (parseFloat(ld[k])||0),0);
+            let utilPct = total>0 ? (prod/total)*100 : 0;
+            let status = total===0 ? 'status-neutral' : (utilPct>=70?'status-excellent':utilPct>=50?'status-good':utilPct>=30?'status-warning':'status-critical');
+            let statusText = total===0?'No Data':(utilPct>=70?'Excellent':utilPct>=50?'Good':utilPct>=30?'Warning':'Critical');
+            return `<tr><td><strong>${ld.name}</strong></td><td>${prod.toFixed(1)}</td><td>${total.toFixed(1)}</td><td>${utilPct.toFixed(1)}%</td><td><span class="status-badge ${status}">${statusText}</span></td></tr>`;
+        }).join('');
+        
+        return `<div class="kpi-grid">
+            <div class="kpi-card"><div class="kpi-card-header"><span class="kpi-card-title">Overall Utilization</span></div><div class="kpi-card-main-value">${overallUtil.toFixed(1)}%</div><div class="kpi-card-details"><div>Productive: ${totalProd.toFixed(1)} hrs</div><div>Total time: ${totalTimeAll.toFixed(1)} hrs</div></div><div class="progress-bar-bg"><div class="progress-fill" style="width:${Math.min(overallUtil,100)}%"></div></div></div>
+            <div class="kpi-card"><div class="kpi-card-header"><span class="kpi-card-title">Machines & Lines</span></div><div class="kpi-card-main-value">${UTIL_LINES.length}</div><div>Lines active: ${linesWithData}</div><div>Avg utilization/line: ${avgUtil.toFixed(1)}%</div><div>Machines avail: ${machinesAvailTotal.toFixed(0)}</div></div>
+            <div class="kpi-card"><div class="kpi-card-header"><span class="kpi-card-title">⏱️ Top Downtime</span></div><div class="kpi-card-details">${downtimeHtml}</div></div>
+        </div>
+        <div class="table-wrapper"><table><thead><tr><th>Line</th><th>Productive (hrs)</th><th>Total Time</th><th>Utilization</th><th>Status</th></tr></thead><tbody>${tableRows}</tbody></table></div>`;
+    }
+    
+    function renderUtilDetails() {
+        let linesOpt = `<select id="utilDetailSelect" style="padding:10px; border-radius:30px; border:1px solid #dce7ec; margin-bottom:20px;">${UTIL_LINES.map(l=>`<option value="${l}">${utilLineNames[l]}</option>`).join('')}</select>`;
+        return `<div>${linesOpt}</div><div id="utilDetailContainer" class="kpi-grid" style="grid-template-columns:1fr 1fr;"></div>`;
+    }
+    function attachUtilDetailSelect() {
+        let sel = document.getElementById('utilDetailSelect');
+        if(!sel) return;
+        sel.addEventListener('change', ()=>updateUtilDetailPanel(sel.value));
+        updateUtilDetailPanel(sel.value);
+    }
+    function updateUtilDetailPanel(lineKey) {
+        let data = getCurrentData().utilization[lineKey];
+        let total = utilKeys.reduce((s,k)=>s+(parseFloat(data[k])||0),0);
+        let rows = utilCategories.map((cat,idx)=>{
+            let val = parseFloat(data[utilKeys[idx]])||0;
+            let pct = total>0?(val/total*100):0;
+            return `<div class="kpi-card-detail-row"><span>${cat}</span><span>${val.toFixed(1)} hrs (${pct.toFixed(1)}%)</span></div>`;
+        }).join('');
+        document.getElementById('utilDetailContainer').innerHTML = `<div class="kpi-card"><div class="kpi-card-header">📋 Full breakdown</div><div class="kpi-card-details">${rows}</div></div><div class="kpi-card"><div class="kpi-card-header">⚙️ Summary</div><div class="kpi-card-details"><div>Machines avail: ${data.machinesAvail||0}</div><div>Machines used: ${data.machinesUsed||0}</div><div>Prod days: ${data.prodDays||0}</div></div></div>`;
+    }
+    
+    function renderUtilInput() {
+        let selectHtml = `<select id="utilInputLine" style="padding:10px; border-radius:30px; border:1px solid #dce7ec; margin-bottom:16px;">${UTIL_LINES.map(l=>`<option value="${l}">${utilLineNames[l]}</option>`).join('')}</select>`;
+        return `<div class="input-panel-modern"><div class="input-header">✍️ Machine utilization data entry</div>${selectHtml}<div id="utilInputFields"></div><div class="button-bar"><button class="btn" id="clearUtilLineBtn">🗑️ Clear line</button><button class="btn btn-primary" id="saveUtilLineBtn">💾 Save line</button></div></div>`;
+    }
+    function attachUtilInputEvents() {
+        let lineSel = document.getElementById('utilInputLine');
+        function loadUtilInputFields() {
+            let line = lineSel.value;
+            let data = getCurrentData().utilization[line];
+            let fieldsHtml = `<div class="input-fields-grid">${utilKeys.map((k,idx)=>`<div class="input-field"><label>${utilCategories[idx]}</label><input type="number" step="0.1" id="util_${k}" value="${data[k]||''}" placeholder="hours"></div>`).join('')}
+            <div class="input-field"><label>Machines Available</label><input id="util_machinesAvail" value="${data.machinesAvail||''}"></div>
+            <div class="input-field"><label>Machines Used</label><input id="util_machinesUsed" value="${data.machinesUsed||''}"></div>
+            <div class="input-field"><label>Production Days</label><input id="util_prodDays" value="${data.prodDays||''}"></div></div>`;
+            document.getElementById('utilInputFields').innerHTML = fieldsHtml;
+        }
+        lineSel.addEventListener('change', loadUtilInputFields);
+        loadUtilInputFields();
+        document.getElementById('saveUtilLineBtn').onclick = () => {
+            let line = lineSel.value;
+            let target = getCurrentData().utilization[line];
+            utilKeys.forEach(k => { let inp = document.getElementById(`util_${k}`); if(inp) target[k] = inp.value; });
+            target.machinesAvail = document.getElementById('util_machinesAvail').value;
+            target.machinesUsed = document.getElementById('util_machinesUsed').value;
+            target.prodDays = document.getElementById('util_prodDays').value;
+            alert(`✅ ${target.name} saved.`);
+            render();
+        };
+        document.getElementById('clearUtilLineBtn').onclick = () => {
+            let line = lineSel.value;
+            let target = getCurrentData().utilization[line];
+            utilKeys.forEach(k => target[k] = '');
+            target.machinesAvail = ''; target.machinesUsed = ''; target.prodDays = '';
+            loadUtilInputFields();
+            render();
+        };
+    }
+    
+    // ---- WASTE module (simplified but enhanced with net and productivity) ----
+    function renderWasteModule(container) {
+        let html = `<div class="tab-bar"><button class="tab-btn ${currentSubTab === 'overview' ? 'active' : ''}" data-tab="overview">📊 Overview</button><button class="tab-btn ${currentSubTab === 'details' ? 'active' : ''}" data-tab="details">📋 Line Details</button><button class="tab-btn ${currentSubTab === 'input' ? 'active' : ''}" data-tab="input">✏️ Data Input</button></div>`;
+        if (currentSubTab === 'overview') html += renderWasteOverview();
+        else if (currentSubTab === 'details') html += `<div><select id="wasteDetailSelect">${WASTE_LINES.map(l=>`<option value="${l}">${wasteLineNames[l]}</option>`).join('')}</select><div id="wasteDetailCard"></div></div><script>document.getElementById('wasteDetailSelect')?.addEventListener('change',()=>updateWasteDetail()); updateWasteDetail();</script>`;
+        else html += renderWasteInput();
+        container.innerHTML = html;
+        attachTabEvents('wastage');
+        if(currentSubTab==='details'){ setTimeout(()=>{ let sel=document.getElementById('wasteDetailSelect'); if(sel) sel.onchange=()=>updateWasteDetail(); updateWasteDetail(); },50);}
+        if(currentSubTab==='input') attachWasteInputEvents();
+    }
+    function renderWasteOverview() {
+        let dataSet = getCurrentData().wastage;
+        let totalFG=0, totalWaste=0, linesWithData=0;
+        WASTE_LINES.forEach(l=>{ let d=dataSet[l]; let fg=parseFloat(d.fgOutput)||0; if(fg>0) linesWithData++; totalFG+=fg; totalWaste+=parseFloat(d.waste)||0; });
+        let wastePct = (totalFG+totalWaste)>0 ? (totalWaste/(totalFG+totalWaste))*100:0;
+        let rows = WASTE_LINES.map(l=>{
+            let d=dataSet[l]; let fg=parseFloat(d.fgOutput)||0; let waste=parseFloat(d.waste)||0; let wastePctLine = (fg+waste)>0?(waste/(fg+waste))*100:0;
+            let status = fg===0?'status-neutral':(wastePctLine<=2?'status-excellent':wastePctLine<=5?'status-good':wastePctLine<=8?'status-warning':'status-critical');
+            let statusText = fg===0?'No Data':(wastePctLine<=2?'Excellent':wastePctLine<=5?'Good':wastePctLine<=8?'Warning':'High Waste');
+            return `<tr><td><strong>${d.name}</strong></td><td>${fg.toFixed(1)}</td><td>${parseFloat(d.reprocess)||0}</td><td>${parseFloat(d.rejection)||0}</td><td>${(fg+parseFloat(d.reprocess||0)-parseFloat(d.rejection||0)).toFixed(1)}</td><td>${waste.toFixed(1)}</td><td>${wastePctLine.toFixed(1)}%</td><td><span class="status-badge ${status}">${statusText}</span></td></tr>`;
+        }).join('');
+        return `<div class="kpi-grid"><div class="kpi-card"><div>Total FG Output</div><div class="kpi-card-main-value">${totalFG.toFixed(1)} kg</div><div>Waste ${totalWaste.toFixed(1)} kg (${wastePct.toFixed(1)}%)</div><div class="progress-bar-bg"><div class="progress-fill" style="width:${Math.min(wastePct,30)}%; background:#d95b3c;"></div></div></div><div class="kpi-card"><div>Lines active</div><div class="kpi-card-main-value">${linesWithData}/${WASTE_LINES.length}</div><div>Avg waste ratio: ${wastePct.toFixed(1)}%</div></div></div><div class="table-wrapper"><table><thead><tr><th>Line</th><th>FG</th><th>Reprocess</th><th>Rejection</th><th>Net</th><th>Waste</th><th>Waste%</th><th>Status</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+    }
+    function updateWasteDetail() { let sel=document.getElementById('wasteDetailSelect'); if(!sel)return; let line=sel.value; let d=getCurrentData().wastage[line]; let fg=parseFloat(d.fgOutput)||0; let waste=parseFloat(d.waste)||0; let wastePct=(fg+waste)>0?(waste/(fg+waste))*100:0; document.getElementById('wasteDetailCard').innerHTML=`<div class="kpi-card"><div>${d.name}</div><div class="kpi-card-details"><div>FG: ${fg.toFixed(1)} kg</div><div>Reprocess: ${parseFloat(d.reprocess)||0}</div><div>Rejection: ${parseFloat(d.rejection)||0}</div><div>Waste: ${waste.toFixed(1)} kg (${wastePct.toFixed(1)}%)</div></div></div>`; }
+    function renderWasteInput() {
+        let selectHtml = `<select id="wasteInputLine">${WASTE_LINES.map(l=>`<option value="${l}">${wasteLineNames[l]}</option>`).join('')}</select>`;
+        return `<div class="input-panel-modern"><div class="input-header">📦 Output & Waste Entry</div>${selectHtml}<div id="wasteInputFields"></div><div class="button-bar"><button class="btn" id="clearWasteLineBtn">Clear</button><button class="btn btn-primary" id="saveWasteLineBtn">Save</button></div></div>`;
+    }
+    function attachWasteInputEvents() {
+        let sel = document.getElementById('wasteInputLine');
+        function loadWasteFields() { let line=sel.value; let d=getCurrentData().wastage[line]; document.getElementById('wasteInputFields').innerHTML=`<div class="input-fields-grid"><div class="input-field"><label>FG Output (kg)</label><input id="w_fg" value="${d.fgOutput||''}"></div><div class="input-field"><label>Reprocess</label><input id="w_reproc" value="${d.reprocess||''}"></div><div class="input-field"><label>Rejection</label><input id="w_reject" value="${d.rejection||''}"></div><div class="input-field"><label>Waste</label><input id="w_waste" value="${d.waste||''}"></div></div>`; }
+        sel.addEventListener('change', loadWasteFields); loadWasteFields();
+        document.getElementById('saveWasteLineBtn').onclick = ()=>{ let line=sel.value; let tgt=getCurrentData().wastage[line]; tgt.fgOutput=document.getElementById('w_fg').value; tgt.reprocess=document.getElementById('w_reproc').value; tgt.rejection=document.getElementById('w_reject').value; tgt.waste=document.getElementById('w_waste').value; alert(`Saved ${tgt.name}`); render(); };
+        document.getElementById('clearWasteLineBtn').onclick = ()=>{ let line=sel.value; let tgt=getCurrentData().wastage[line]; tgt.fgOutput=''; tgt.reprocess=''; tgt.rejection=''; tgt.waste=''; loadWasteFields(); render(); };
+    }
+    
+    // ---- SCHEDULING module ----
+    function renderSchedModule(container) {
+        let html = `<div class="tab-bar"><button class="tab-btn ${currentSubTab === 'overview' ? 'active' : ''}" data-tab="overview">📊 Overview</button><button class="tab-btn ${currentSubTab === 'details' ? 'active' : ''}" data-tab="details">📈 Compliance Detail</button><button class="tab-btn ${currentSubTab === 'input' ? 'active' : ''}" data-tab="input">✏️ Input</button></div>`;
+        if(currentSubTab==='overview') html += renderSchedOverview();
+        else if(currentSubTab==='details') html += `<div><select id="schedDetailSelect">${SCHED_LINES.map(l=>`<option value="${l}">${schedLineNames[l]}</option>`).join('')}</select><div id="schedDetailCard"></div></div><script>const sd=document.getElementById('schedDetailSelect'); if(sd) sd.onchange=()=>{let v=sd.value;let d=getCurrentData().scheduling[v];let act=parseFloat(d.actualOutput)||0,plan=parseFloat(d.plannedOutput)||0,comp=plan>0?(act/plan*100):0; document.getElementById('schedDetailCard').innerHTML=\`<div class="kpi-card"><div>\${d.name}</div><div>Actual: \${act.toFixed(1)} kg</div><div>Planned: \${plan.toFixed(1)} kg</div><div>Compliance: \${comp.toFixed(1)}%</div></div>\`;}; sd.onchange();</script>`;
+        else html += renderSchedInput();
+        container.innerHTML = html;
+        attachTabEvents('scheduling');
+        if(currentSubTab==='input') attachSchedInputEvents();
+    }
+    function renderSchedOverview() {
+        let dataSet=getCurrentData().scheduling;
+        let totalActual=0, totalPlan=0, linesActive=0;
+        SCHED_LINES.forEach(l=>{ let a=parseFloat(dataSet[l].actualOutput)||0, p=parseFloat(dataSet[l].plannedOutput)||0; totalActual+=a; totalPlan+=p; if(a>0||p>0) linesActive++; });
+        let overallComp = totalPlan>0? (totalActual/totalPlan)*100:0;
+        let rows = SCHED_LINES.map(l=>{ let a=parseFloat(dataSet[l].actualOutput)||0, p=parseFloat(dataSet[l].plannedOutput)||0, comp=p>0?(a/p)*100:0; let status= p===0?'status-neutral':(comp>=95?'status-excellent':comp>=85?'status-good':comp>=75?'status-warning':'status-critical'); let text=p===0?'No Data':(comp>=95?'Excellent':comp>=85?'Good':comp>=75?'Warning':'Critical'); return `<tr><td><strong>${dataSet[l].name}</strong></td><td>${a.toFixed(1)}</td><td>${p.toFixed(1)}</td><td>${comp.toFixed(1)}%</td><td><span class="status-badge ${status}">${text}</span></td></tr>`; }).join('');
+        return `<div class="kpi-grid"><div class="kpi-card"><div>Overall Compliance</div><div class="kpi-card-main-value">${overallComp.toFixed(1)}%</div><div>Actual: ${totalActual.toFixed(1)} kg / Planned: ${totalPlan.toFixed(1)} kg</div><div class="progress-bar-bg"><div class="progress-fill" style="width:${Math.min(overallComp,100)}%"></div></div></div><div class="kpi-card"><div>Active lines</div><div class="kpi-card-main-value">${linesActive}/${SCHED_LINES.length}</div><div>Avg attainment: ${overallComp.toFixed(1)}%</div></div></div><div class="table-wrapper"><table><thead><tr><th>Line</th><th>Actual (kg)</th><th>Planned (kg)</th><th>Compliance</th><th>Status</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+    }
+    function renderSchedInput() {
+        let selHtml = `<select id="schedInputLine">${SCHED_LINES.map(l=>`<option value="${l}">${schedLineNames[l]}</option>`).join('')}</select>`;
+        return `<div class="input-panel-modern"><div class="input-header">📅 Schedule Attainment</div>${selHtml}<div id="schedInputFields"></div><div class="button-bar"><button class="btn" id="clearSchedLineBtn">Clear</button><button class="btn btn-primary" id="saveSchedLineBtn">Save</button></div></div>`;
+    }
+    function attachSchedInputEvents() {
+        let sel = document.getElementById('schedInputLine');
+        function loadFields() { let line=sel.value; let d=getCurrentData().scheduling[line]; document.getElementById('schedInputFields').innerHTML=`<div class="input-fields-grid"><div class="input-field"><label>Actual Output (kg)</label><input id="s_actual" value="${d.actualOutput||''}"></div><div class="input-field"><label>Planned Output (kg)</label><input id="s_planned" value="${d.plannedOutput||''}"></div></div>`; }
+        sel.addEventListener('change', loadFields); loadFields();
+        document.getElementById('saveSchedLineBtn').onclick = () => { let line=sel.value; let tgt=getCurrentData().scheduling[line]; tgt.actualOutput=document.getElementById('s_actual').value; tgt.plannedOutput=document.getElementById('s_planned').value; alert(`Saved ${tgt.name}`); render(); };
+        document.getElementById('clearSchedLineBtn').onclick = () => { let line=sel.value; let tgt=getCurrentData().scheduling[line]; tgt.actualOutput=''; tgt.plannedOutput=''; loadFields(); render(); };
+    }
+    
+    function attachTabEvents(module) {
+        document.querySelectorAll('.tab-btn').forEach(btn=>{
+            btn.removeEventListener('click', tabHandler);
+            btn.addEventListener('click', tabHandler);
+        });
+        function tabHandler(e) {
+            let tab = e.target.getAttribute('data-tab');
+            if(tab) { currentSubTab = tab; render(); }
+        }
+    }
+    
+    // global selectors init
+    function populateGlobalSelects() {
+        let yearSel = document.getElementById('globalYear');
+        let monthSel = document.getElementById('globalMonth');
+        YEARS.forEach(y=>{ let opt=document.createElement('option'); opt.value=y; opt.text=y; if(y==='2024') opt.selected=true; yearSel.appendChild(opt); });
+        MONTHS.forEach((m,idx)=>{ let opt=document.createElement('option'); opt.value=m; opt.text=m; if(m==='October') opt.selected=true; monthSel.appendChild(opt); });
+        yearSel.addEventListener('change',()=>{ render(); updateTimestampUI(); });
+        monthSel.addEventListener('change',()=>{ render(); updateTimestampUI(); });
+    }
+    
+    document.querySelectorAll('.module-btn').forEach(btn=>{
+        btn.addEventListener('click',()=>{
+            document.querySelectorAll('.module-btn').forEach(b=>b.classList.remove('active'));
+            btn.classList.add('active');
+            currentModule = btn.getAttribute('data-module');
+            currentSubTab = 'overview';
+            render();
+        });
+    });
+    populateGlobalSelects();
+    render();
+    updateTimestampUI();
+</script>
+</body>
+</html>

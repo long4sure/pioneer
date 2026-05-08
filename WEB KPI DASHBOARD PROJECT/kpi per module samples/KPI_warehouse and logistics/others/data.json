@@ -1,0 +1,85 @@
+{
+  "metadata": {
+    "month": "October 2024",
+    "lastUpdated": "2024-10-31T23:59:59Z",
+    "version": "1.0"
+  },
+  "kpis": {
+    "otif": {
+      "served": 4250,
+      "total": 4465,
+      "rate": 0.952,
+      "target": 0.95
+    },
+    "volumeFillRate": {
+      "delivered": 111890730,
+      "orders": 252093285,
+      "rate": 0.444,
+      "target": 0.90
+    },
+    "valueFillRate": {
+      "delivered": 111890730,
+      "orders": 186864585,
+      "rate": 0.599,
+      "target": 0.90
+    }
+  },
+  "otdl": {
+    "gma": 10.83,
+    "northLuzon": 20.67,
+    "southLuzon": 16.85,
+    "visayas": 26.80,
+    "mindanao": 26.54,
+    "modernTrade": 8.88,
+    "target": 7.0
+  },
+  "warehouse": {
+    "rmpm": {
+      "total": 4715,
+      "used": 4702,
+      "utilization": 0.997
+    },
+    "fg": {
+      "total": 2836,
+      "used": 2240,
+      "utilization": 0.79
+    }
+  },
+  "failures": [
+    {
+      "category": "Material Constraint",
+      "count": 45,
+      "kgs": 2500,
+      "php": 500000,
+      "department": "PL"
+    },
+    {
+      "category": "Planning Error",
+      "count": 32,
+      "kgs": 1800,
+      "php": 350000,
+      "department": "PL"
+    },
+    {
+      "category": "Truck Unavailability",
+      "count": 28,
+      "kgs": 1500,
+      "php": 280000,
+      "department": "FG"
+    },
+    {
+      "category": "Warehouse Constraint",
+      "count": 25,
+      "kgs": 1200,
+      "php": 220000,
+      "department": "FG"
+    },
+    {
+      "category": "Production Delay",
+      "count": 20,
+      "kgs": 900,
+      "php": 180000,
+      "department": "PR"
+    }
+  ]
+}

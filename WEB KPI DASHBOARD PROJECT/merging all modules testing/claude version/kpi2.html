@@ -1,0 +1,1137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pioneer SCM KPI Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0d12;--surface:#111620;--surface2:#171d29;--border:#1e2840;--accent:#00d4ff;--accent2:#ff6b35;--accent3:#7fff6f;--accent4:#ffcc00;--red:#ff3d5a;--text:#e8edf5;--muted:#5a6880;--muted2:#8898b0;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'DM Mono',monospace;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,212,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,0.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
+.wrapper{position:relative;z-index:1;max-width:1440px;margin:0 auto;padding:0 24px 60px;}
+
+/* Header */
+.header{display:flex;align-items:flex-start;justify-content:space-between;padding:36px 0 24px;border-bottom:1px solid var(--border);margin-bottom:20px;flex-wrap:wrap;gap:16px;animation:fadeDown .6s ease both;}
+.header-tag{font-size:10px;letter-spacing:.2em;color:var(--accent);text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:8px;}
+.header-tag::before{content:'';width:24px;height:1px;background:var(--accent);display:inline-block;}
+h1{font-family:'Syne',sans-serif;font-size:clamp(22px,3.5vw,40px);font-weight:800;letter-spacing:-.02em;line-height:1.1;}
+h1 span{color:var(--accent);}
+.header-meta{display:flex;gap:16px;margin-top:10px;font-size:11px;color:var(--muted2);flex-wrap:wrap;}
+.header-meta span{display:flex;align-items:center;gap:5px;}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--accent3);animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.7)}}
+@keyframes fadeDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* Controls */
+.controls-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 14px;margin-bottom:16px;}
+.ctrl-label{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted2);white-space:nowrap;}
+.year-pills{display:flex;gap:4px;flex-wrap:wrap;}
+.year-pill{padding:5px 14px;border-radius:4px;font-size:11px;letter-spacing:.08em;font-weight:600;color:var(--muted2);cursor:pointer;border:1px solid var(--border);background:transparent;transition:all .2s;font-family:'DM Mono',monospace;}
+.year-pill.active{background:var(--accent);color:#000;border-color:var(--accent);}
+.year-pill:hover:not(.active){background:var(--surface2);color:var(--text);}
+.sep{width:1px;height:26px;background:var(--border);flex-shrink:0;}
+select.ctrl-select{background:var(--surface2);border:1px solid var(--border);border-radius:5px;color:var(--text);font-family:'DM Mono',monospace;font-size:11px;padding:5px 10px;cursor:pointer;outline:none;}
+select.ctrl-select:hover,select.ctrl-select:focus{border-color:var(--accent);}
+.ctrl-right{margin-left:auto;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.src-badge{font-size:10px;padding:4px 10px;border-radius:3px;background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.2);color:var(--accent);letter-spacing:.08em;white-space:nowrap;}
+.src-badge.csv{background:rgba(127,255,111,.08);border-color:rgba(127,255,111,.2);color:var(--accent3);}
+.icon-btn{display:inline-flex;align-items:center;gap:6px;background:transparent;border:1px solid var(--border);color:var(--muted2);font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;padding:5px 12px;border-radius:4px;cursor:pointer;transition:all .2s;white-space:nowrap;}
+.icon-btn:hover{border-color:var(--accent);color:var(--accent);}
+.icon-btn.active{background:rgba(0,212,255,.08);border-color:var(--accent);color:var(--accent);}
+.reset-btn{background:rgba(255,61,90,.06);border-color:rgba(255,61,90,.3);color:var(--red);}
+.reset-btn:hover{background:rgba(255,61,90,.14);border-color:var(--red);}
+
+/* Upload area */
+.upload-area{background:var(--surface);border:1px solid var(--border);border-radius:10px;margin-bottom:18px;overflow:hidden;display:none;}
+.upload-area.visible{display:block;}
+.upload-inner{padding:24px;}
+.upload-dropzone{border:1.5px dashed var(--border);border-radius:8px;padding:24px;text-align:center;cursor:pointer;transition:border-color .2s,background .2s;position:relative;}
+.upload-dropzone.drag-over{border-color:var(--accent);background:rgba(0,212,255,.04);}
+.upload-dropzone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+.upload-icon{font-size:26px;margin-bottom:8px;}
+.upload-h{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;margin-bottom:6px;}
+.upload-sub{font-size:10px;color:var(--muted2);line-height:1.8;}
+.upload-sub code{background:var(--surface2);border:1px solid var(--border);padding:1px 5px;border-radius:3px;font-size:9px;color:var(--accent4);}
+.dl-link{color:var(--accent);font-size:10px;text-decoration:none;display:inline-block;margin-top:4px;}
+.upload-footer{display:flex;align-items:center;justify-content:space-between;padding:10px 20px;background:var(--surface2);border-top:1px solid var(--border);font-size:10px;color:var(--muted2);flex-wrap:wrap;gap:8px;}
+.csv-err{color:var(--red);font-size:11px;margin-top:8px;}
+.csv-preview-box{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:10px 14px;margin-top:12px;font-size:10px;line-height:1.7;}
+.preview-label{font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:8px;}
+
+/* Nav tabs */
+.nav-tabs{display:flex;gap:4px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:4px;margin-bottom:24px;overflow-x:auto;}
+.nav-tab{flex:none;padding:7px 15px;border-radius:5px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;font-weight:500;color:var(--muted2);cursor:pointer;transition:all .2s;white-space:nowrap;border:none;background:transparent;font-family:'DM Mono',monospace;}
+.nav-tab.active{background:var(--accent);color:#000;font-weight:700;}
+.nav-tab:hover:not(.active){background:var(--surface2);color:var(--text);}
+
+/* Panels */
+.panel{display:none;animation:fadeIn .35s ease;}
+.panel.active{display:block;}
+
+/* KPI Cards */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:13px;margin-bottom:24px;}
+.kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:16px;position:relative;overflow:hidden;transition:border-color .2s,transform .2s;}
+.kpi-card:hover{border-color:var(--accent);transform:translateY(-2px);}
+.kpi-card::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--card-accent,var(--accent));}
+.kpi-label{font-size:10px;letter-spacing:.11em;text-transform:uppercase;color:var(--muted2);margin-bottom:8px;line-height:1.4;}
+.kpi-val{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;color:var(--text);line-height:1;margin-bottom:6px;}
+.kpi-val.sm{font-size:19px;}
+.kpi-sub{font-size:10px;color:var(--muted2);display:flex;align-items:center;gap:5px;flex-wrap:wrap;}
+.badge{display:inline-flex;align-items:center;font-size:10px;font-weight:600;letter-spacing:.07em;padding:2px 7px;border-radius:3px;}
+.b-green{background:rgba(127,255,111,.12);color:var(--accent3);}
+.b-red{background:rgba(255,61,90,.12);color:var(--red);}
+.b-yellow{background:rgba(255,204,0,.12);color:var(--accent4);}
+.b-blue{background:rgba(0,212,255,.12);color:var(--accent);}
+.b-ok{background:rgba(127,255,111,.12);color:var(--accent3);padding:2px 8px;border-radius:3px;font-size:10px;font-weight:600;}
+.b-warn{background:rgba(255,204,0,.1);color:var(--accent4);padding:2px 8px;border-radius:3px;font-size:10px;font-weight:600;}
+.b-bad{background:rgba(255,61,90,.12);color:var(--red);padding:2px 8px;border-radius:3px;font-size:10px;font-weight:600;}
+
+/* Section heading */
+.sec{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--muted2);margin:0 0 13px;display:flex;align-items:center;gap:10px;}
+.sec::after{content:'';flex:1;height:1px;background:var(--border);}
+
+/* Tables */
+.tbl-wrap{overflow-x:auto;margin-bottom:24px;}
+table{width:100%;border-collapse:collapse;font-size:11.5px;}
+thead th{background:var(--surface2);color:var(--muted2);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;padding:9px 11px;text-align:left;border-bottom:1px solid var(--border);white-space:nowrap;}
+tbody tr{border-bottom:1px solid rgba(30,40,64,.55);transition:background .15s;}
+tbody tr:hover{background:var(--surface2);}
+tbody tr.gh td{background:rgba(0,212,255,.04);color:var(--accent);font-family:'Syne',sans-serif;font-weight:700;font-size:11px;letter-spacing:.09em;text-transform:uppercase;padding:7px 11px;}
+tbody td{padding:7px 11px;color:var(--text);vertical-align:middle;}
+.num{text-align:right;font-family:'DM Mono',monospace;}
+
+/* Bars */
+.bw{width:90px;height:5px;background:var(--surface2);border-radius:3px;overflow:hidden;display:inline-block;vertical-align:middle;}
+.bf{height:100%;border-radius:3px;}
+
+/* Charts */
+canvas{display:block;width:100%;}
+.chart-box{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:16px;margin-bottom:13px;}
+.chart-ttl{font-family:'Syne',sans-serif;font-size:11px;font-weight:700;color:var(--muted2);letter-spacing:.12em;text-transform:uppercase;margin-bottom:12px;}
+.chart-leg{display:flex;gap:14px;margin-top:8px;flex-wrap:wrap;}
+.leg-item{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--muted2);}
+.leg-dot{width:10px;height:3px;border-radius:2px;}
+
+/* Layouts */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:13px;margin-bottom:13px;}
+@media(max-width:860px){.two-col{grid-template-columns:1fr;}}
+
+/* Forecast accuracy */
+.acc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:9px;margin-bottom:20px;}
+.acc-card{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:11px 12px;transition:border-color .2s;}
+.acc-card:hover{border-color:var(--accent);}
+.acc-name{font-size:9.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted2);margin-bottom:4px;line-height:1.3;}
+.acc-val{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;}
+.acc-bar{height:3px;background:var(--border);border-radius:2px;margin-top:6px;overflow:hidden;}
+.acc-bf{height:100%;border-radius:2px;}
+
+/* Line bars */
+.ln-list{display:flex;flex-direction:column;gap:6px;}
+.ln-row{display:flex;align-items:center;gap:9px;}
+.ln-name{width:130px;font-size:9.5px;color:var(--muted2);flex-shrink:0;}
+.ln-bw{flex:1;height:6px;background:var(--surface2);border-radius:3px;overflow:hidden;}
+.ln-bf{height:100%;border-radius:3px;}
+.ln-pct{width:44px;text-align:right;font-size:10px;}
+
+/* Empty */
+.empty{text-align:center;padding:40px 24px;color:var(--muted);font-size:12px;line-height:2;}
+
+/* Toast */
+.toast{position:fixed;bottom:22px;right:22px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:11px 16px;font-size:12px;color:var(--text);z-index:9999;transform:translateY(70px);opacity:0;transition:all .3s;pointer-events:none;max-width:300px;}
+.toast.show{transform:translateY(0);opacity:1;}
+.toast.ok{border-color:var(--accent3);color:var(--accent3);}
+.toast.err{border-color:var(--red);color:var(--red);}
+
+/* CSV raw table */
+.raw-tbl{width:100%;border-collapse:collapse;font-size:10.5px;}
+.raw-tbl th{background:var(--surface2);color:var(--muted2);font-size:9px;letter-spacing:.1em;text-transform:uppercase;padding:6px 9px;text-align:left;border-bottom:1px solid var(--border);}
+.raw-tbl td{padding:5px 9px;border-bottom:1px solid rgba(30,40,64,.4);color:var(--text);}
+.raw-tbl tr:hover td{background:var(--surface2);}
+
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+<!-- Header -->
+<header class="header">
+  <div>
+    <div class="header-tag">Pioneer — Supply Chain Management</div>
+    <h1>SCM KPI <span id="hdr-fy">FY2026</span> Dashboard</h1>
+    <div class="header-meta">
+      <span><span class="dot"></span><span id="hdr-live">LIVE TRACKER</span></span>
+      <span id="hdr-period">OCT–JAN · Q1</span>
+      <span id="hdr-src">🗄 Built-in Dataset</span>
+    </div>
+  </div>
+</header>
+
+<!-- Controls -->
+<div class="controls-bar">
+  <span class="ctrl-label">Year</span>
+  <div class="year-pills" id="yearPills"></div>
+  <div class="sep"></div>
+  <span class="ctrl-label">Month</span>
+  <select class="ctrl-select" id="monthFilter" onchange="applyFilters()">
+    <option value="all">All Months</option>
+    <option value="OCT">October</option><option value="NOV">November</option>
+    <option value="DEC">December</option><option value="JAN">January</option>
+    <option value="FEB">February</option><option value="MAR">March</option>
+    <option value="APR">April</option><option value="MAY">May</option>
+    <option value="JUN">June</option><option value="JUL">July</option>
+    <option value="AUG">August</option><option value="SEP">September</option>
+  </select>
+  <div class="sep"></div>
+  <span class="ctrl-label">Category</span>
+  <select class="ctrl-select" id="catFilter" onchange="applyFilters()">
+    <option value="all">All Categories</option>
+    <option value="Financials">Financials</option>
+    <option value="Production">Production</option>
+    <option value="Logistics">Logistics</option>
+    <option value="Inventory">Inventory</option>
+    <option value="Forecast">Forecast</option>
+    <option value="Workforce">Workforce</option>
+  </select>
+  <div class="ctrl-right">
+    <span class="src-badge" id="srcBadge">BUILT-IN DATA</span>
+    <button class="icon-btn reset-btn" id="resetBtn" onclick="resetCSV()" style="display:none">✕ Clear CSV</button>
+    <button class="icon-btn" id="uploadToggle" onclick="toggleUpload()">⬆ Upload CSV</button>
+  </div>
+</div>
+
+<!-- Upload Area -->
+<div class="upload-area" id="uploadArea">
+  <div class="upload-inner">
+    <div class="upload-dropzone" id="dropZone">
+      <input type="file" id="csvInput" accept=".csv" onchange="handleFile(event)">
+      <div class="upload-icon">📂</div>
+      <div class="upload-h">Drop CSV file here</div>
+      <div class="upload-sub">
+        Required columns: <code>year</code> <code>month</code> <code>kpi</code> <code>value</code><br>
+        Optional: <code>target</code> <code>unit</code> <code>category</code> <code>line</code><br>
+        <a class="dl-link" href="#" onclick="dlTemplate();return false;">↓ Download template CSV</a>
+      </div>
+      <div class="csv-err" id="csvErr" style="display:none"></div>
+    </div>
+    <div class="csv-preview-box" id="csvPreview" style="display:none">
+      <div class="preview-label">Preview — First 5 Rows</div>
+      <div id="csvPreviewTable"></div>
+    </div>
+  </div>
+  <div class="upload-footer">
+    <span>Supported format: UTF-8 CSV with comma separator.</span>
+    <span id="uploadStat" style="color:var(--accent3)"></span>
+  </div>
+</div>
+
+<!-- Tabs -->
+<nav class="nav-tabs">
+  <button class="nav-tab active" onclick="showTab('overview',this)">Overview</button>
+  <button class="nav-tab" onclick="showTab('production',this)">Production</button>
+  <button class="nav-tab" onclick="showTab('inventory',this)">Inventory</button>
+  <button class="nav-tab" onclick="showTab('forecast',this)">Forecast</button>
+  <button class="nav-tab" onclick="showTab('workforce',this)">Workforce</button>
+  <button class="nav-tab" onclick="showTab('financials',this)">Financials</button>
+  <button class="nav-tab" onclick="showTab('logistics',this)">Logistics</button>
+  <button class="nav-tab" onclick="showTab('rawdata',this)">Raw Data</button>
+</nav>
+
+<!-- Panels -->
+<div class="panel active" id="panel-overview">
+  <div class="sec">Key Metrics Snapshot</div>
+  <div class="kpi-grid" id="ovCards"></div>
+  <div class="two-col">
+    <div class="chart-box">
+      <div class="chart-ttl">Conversion Cost (PHP/kg) — SC vs Overall</div>
+      <canvas id="ccChart" height="160"></canvas>
+      <div class="chart-leg">
+        <div class="leg-item"><div class="leg-dot" style="background:#00d4ff"></div>SC Only</div>
+        <div class="leg-item"><div class="leg-dot" style="background:#ff6b35"></div>Overall</div>
+      </div>
+    </div>
+    <div class="chart-box">
+      <div class="chart-ttl">SC Fill Rate vs Corp Fill Rate (%)</div>
+      <canvas id="ovFillChart" height="160"></canvas>
+      <div class="chart-leg">
+        <div class="leg-item"><div class="leg-dot" style="background:#00d4ff"></div>SC Fill</div>
+        <div class="leg-item"><div class="leg-dot" style="background:#ff6b35"></div>Corp Fill</div>
+      </div>
+    </div>
+  </div>
+  <div class="sec">Full KPI Summary</div>
+  <div class="tbl-wrap" id="sumTable"></div>
+</div>
+
+<div class="panel" id="panel-production">
+  <div class="sec">Production KPIs</div>
+  <div class="kpi-grid" id="prodCards"></div>
+  <div class="two-col">
+    <div class="chart-box">
+      <div class="chart-ttl">Downtime Breakdown % (Nov built-in / CSV avg)</div>
+      <canvas id="dtChart" height="220"></canvas>
+    </div>
+    <div class="chart-box">
+      <div class="chart-ttl">Absenteeism by Line</div>
+      <div class="ln-list" id="absLines"></div>
+    </div>
+  </div>
+  <div class="sec">Schedule Compliance by Line</div>
+  <div class="tbl-wrap"><table><thead><tr><th>Line</th><th class="num">Compliance %</th><th>Progress</th><th>Status</th></tr></thead><tbody id="compBody"></tbody></table></div>
+</div>
+
+<div class="panel" id="panel-inventory">
+  <div class="sec">Inventory KPIs</div>
+  <div class="kpi-grid" id="invCards"></div>
+  <div class="chart-box">
+    <div class="chart-ttl">DIO Trend (days) vs 70-Day Target</div>
+    <canvas id="dioChart" height="160"></canvas>
+  </div>
+  <div class="sec">Inventory Accuracy Detail</div>
+  <div class="tbl-wrap"><table><thead><tr><th>KPI</th><th class="num">Month</th><th class="num">Accuracy %</th><th>Status</th></tr></thead><tbody id="invAccBody"></tbody></table></div>
+</div>
+
+<div class="panel" id="panel-forecast">
+  <div class="sec">Forecast Accuracy by Product Line</div>
+  <div class="acc-grid" id="prodFA"></div>
+  <div class="sec">Forecast Accuracy by Geography / Channel</div>
+  <div class="acc-grid" id="geoFA"></div>
+  <div class="chart-box">
+    <div class="chart-ttl">Overall Forecast Accuracy Trend (%)</div>
+    <canvas id="faChart" height="160"></canvas>
+    <div class="chart-leg">
+      <div class="leg-item"><div class="leg-dot" style="background:#00d4ff"></div>Product Lines</div>
+      <div class="leg-item"><div class="leg-dot" style="background:#ff6b35"></div>Geography</div>
+    </div>
+  </div>
+</div>
+
+<div class="panel" id="panel-workforce">
+  <div class="sec">Workforce KPIs</div>
+  <div class="kpi-grid" id="wfCards"></div>
+  <div class="chart-box">
+    <div class="chart-ttl">Absenteeism & Overtime Rate by Month (%)</div>
+    <canvas id="wfChart" height="160"></canvas>
+    <div class="chart-leg">
+      <div class="leg-item"><div class="leg-dot" style="background:#ff3d5a"></div>Absenteeism %</div>
+      <div class="leg-item"><div class="leg-dot" style="background:#ffcc00"></div>Overtime %</div>
+    </div>
+  </div>
+  <div class="sec">Absenteeism by Production Line</div>
+  <div class="tbl-wrap"><table><thead><tr><th>Line</th><th class="num">Rate %</th><th>Visual</th><th>Status</th></tr></thead><tbody id="wfLineBody"></tbody></table></div>
+</div>
+
+<div class="panel" id="panel-financials">
+  <div class="sec">Financial KPIs</div>
+  <div class="kpi-grid" id="finCards"></div>
+  <div class="two-col">
+    <div class="chart-box">
+      <div class="chart-ttl">Operational Cost vs Budget (PHP M)</div>
+      <canvas id="opChart" height="180"></canvas>
+      <div class="chart-leg">
+        <div class="leg-item"><div class="leg-dot" style="background:#00d4ff"></div>Actual</div>
+        <div class="leg-item"><div class="leg-dot" style="background:#2a3550"></div>Budget</div>
+      </div>
+    </div>
+    <div class="chart-box">
+      <div class="chart-ttl">Conversion Cost Monthly (PHP/kg)</div>
+      <canvas id="finCCChart" height="180"></canvas>
+      <div class="chart-leg">
+        <div class="leg-item"><div class="leg-dot" style="background:#00d4ff"></div>SC Only</div>
+        <div class="leg-item"><div class="leg-dot" style="background:#ff6b35"></div>Overall</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="panel" id="panel-logistics">
+  <div class="sec">Logistics KPIs</div>
+  <div class="kpi-grid" id="logCards"></div>
+  <div class="chart-box">
+    <div class="chart-ttl">Fill Rate Trend (%)</div>
+    <canvas id="fillChart" height="160"></canvas>
+    <div class="chart-leg">
+      <div class="leg-item"><div class="leg-dot" style="background:#00d4ff"></div>SC Fill Rate</div>
+      <div class="leg-item"><div class="leg-dot" style="background:#ff6b35"></div>Corp Fill Rate</div>
+    </div>
+  </div>
+  <div class="sec">OTDL by Region (days)</div>
+  <div class="tbl-wrap"><table><thead><tr><th>Region</th><th class="num">Oct</th><th class="num">Nov</th><th class="num">Dec</th><th class="num">Jan</th><th class="num">Total</th></tr></thead><tbody id="otdlBody"></tbody></table></div>
+</div>
+
+<div class="panel" id="panel-rawdata">
+  <div class="sec">Raw Data · All Records</div>
+  <div id="rawWrap"></div>
+</div>
+
+</div><!-- /wrapper -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ─────────────────────────────────────────────
+// BUILT-IN DATA
+// ─────────────────────────────────────────────
+const BUILTIN = [
+  // Conversion Cost SC
+  {year:2026,month:'OCT',kpi:'Conversion Cost SC',category:'Financials',value:10.929592,target:11,unit:'PHP/kg'},
+  {year:2026,month:'NOV',kpi:'Conversion Cost SC',category:'Financials',value:9.903902,target:11,unit:'PHP/kg'},
+  {year:2026,month:'DEC',kpi:'Conversion Cost SC',category:'Financials',value:14.391261,target:11,unit:'PHP/kg'},
+  {year:2026,month:'JAN',kpi:'Conversion Cost SC',category:'Financials',value:9.934211,target:11,unit:'PHP/kg'},
+  // Conversion Cost Overall
+  {year:2026,month:'OCT',kpi:'Conversion Cost Overall',category:'Financials',value:18.577245,target:15,unit:'PHP/kg'},
+  {year:2026,month:'NOV',kpi:'Conversion Cost Overall',category:'Financials',value:15.555569,target:15,unit:'PHP/kg'},
+  {year:2026,month:'DEC',kpi:'Conversion Cost Overall',category:'Financials',value:23.639818,target:15,unit:'PHP/kg'},
+  {year:2026,month:'JAN',kpi:'Conversion Cost Overall',category:'Financials',value:15.056688,target:15,unit:'PHP/kg'},
+  // Volume Produced
+  {year:2026,month:'OCT',kpi:'Volume Produced',category:'Production',value:1235.077,target:1221.866,unit:'MT'},
+  {year:2026,month:'NOV',kpi:'Volume Produced',category:'Production',value:1603.406,target:1414.924,unit:'MT'},
+  {year:2026,month:'DEC',kpi:'Volume Produced',category:'Production',value:1115.199,target:1090.697,unit:'MT'},
+  {year:2026,month:'JAN',kpi:'Volume Produced',category:'Production',value:1621.034,target:1561.423,unit:'MT'},
+  // SC Fill Rate
+  {year:2026,month:'OCT',kpi:'SC Fill Rate',category:'Logistics',value:59.878,target:99,unit:'%'},
+  {year:2026,month:'NOV',kpi:'SC Fill Rate',category:'Logistics',value:80.769,target:99,unit:'%'},
+  {year:2026,month:'DEC',kpi:'SC Fill Rate',category:'Logistics',value:87.977,target:99,unit:'%'},
+  {year:2026,month:'JAN',kpi:'SC Fill Rate',category:'Logistics',value:98.941,target:99,unit:'%'},
+  // Corp Fill Rate
+  {year:2026,month:'OCT',kpi:'Corp Fill Rate',category:'Logistics',value:44.385,target:100,unit:'%'},
+  {year:2026,month:'NOV',kpi:'Corp Fill Rate',category:'Logistics',value:35.852,target:100,unit:'%'},
+  {year:2026,month:'DEC',kpi:'Corp Fill Rate',category:'Logistics',value:82.509,target:100,unit:'%'},
+  {year:2026,month:'JAN',kpi:'Corp Fill Rate',category:'Logistics',value:88.068,target:100,unit:'%'},
+  // DIO
+  {year:2026,month:'OCT',kpi:'DIO',category:'Inventory',value:107,target:70,unit:'days'},
+  {year:2026,month:'NOV',kpi:'DIO',category:'Inventory',value:111,target:70,unit:'days'},
+  {year:2026,month:'DEC',kpi:'DIO',category:'Inventory',value:137,target:70,unit:'days'},
+  {year:2026,month:'JAN',kpi:'DIO',category:'Inventory',value:154,target:70,unit:'days'},
+  // Inv Accuracy FG
+  {year:2026,month:'OCT',kpi:'Inv Accuracy FG',category:'Inventory',value:0.7905,target:100,unit:'%'},
+  {year:2026,month:'NOV',kpi:'Inv Accuracy FG',category:'Inventory',value:98.675,target:100,unit:'%'},
+  // Inv Accuracy RMPM
+  {year:2026,month:'OCT',kpi:'Inv Accuracy RMPM',category:'Inventory',value:50.198,target:100,unit:'%'},
+  {year:2026,month:'NOV',kpi:'Inv Accuracy RMPM',category:'Inventory',value:98.718,target:100,unit:'%'},
+  {year:2026,month:'DEC',kpi:'Inv Accuracy RMPM',category:'Inventory',value:98.734,target:100,unit:'%'},
+  {year:2026,month:'JAN',kpi:'Inv Accuracy RMPM',category:'Inventory',value:97.619,target:100,unit:'%'},
+  // Productive Time
+  {year:2026,month:'OCT',kpi:'Productive Time',category:'Production',value:29.11,target:80,unit:'%'},
+  {year:2026,month:'NOV',kpi:'Productive Time',category:'Production',value:21.15,target:80,unit:'%'},
+  {year:2026,month:'DEC',kpi:'Productive Time',category:'Production',value:10.20,target:80,unit:'%'},
+  // Machine Utilization
+  {year:2026,month:'OCT',kpi:'Machine Utilization',category:'Production',value:154.748,target:100,unit:'%'},
+  {year:2026,month:'NOV',kpi:'Machine Utilization',category:'Production',value:126.882,target:100,unit:'%'},
+  {year:2026,month:'DEC',kpi:'Machine Utilization',category:'Production',value:97.144,target:100,unit:'%'},
+  // Output vs Target
+  {year:2026,month:'OCT',kpi:'Output vs Target',category:'Production',value:73.484,target:90,unit:'%'},
+  {year:2026,month:'NOV',kpi:'Output vs Target',category:'Production',value:99.413,target:90,unit:'%'},
+  {year:2026,month:'DEC',kpi:'Output vs Target',category:'Production',value:88.294,target:90,unit:'%'},
+  {year:2026,month:'JAN',kpi:'Output vs Target',category:'Production',value:86.916,target:90,unit:'%'},
+  // Absenteeism (overall)
+  {year:2026,month:'OCT',kpi:'Absenteeism',category:'Workforce',value:15.569,target:5,unit:'%'},
+  {year:2026,month:'NOV',kpi:'Absenteeism',category:'Workforce',value:12.107,target:5,unit:'%'},
+  {year:2026,month:'DEC',kpi:'Absenteeism',category:'Workforce',value:14.975,target:5,unit:'%'},
+  {year:2026,month:'JAN',kpi:'Absenteeism',category:'Workforce',value:2.218,target:5,unit:'%'},
+  // Overtime Rate
+  {year:2026,month:'OCT',kpi:'Overtime Rate',category:'Workforce',value:26.480,target:20,unit:'%'},
+  {year:2026,month:'NOV',kpi:'Overtime Rate',category:'Workforce',value:32.691,target:20,unit:'%'},
+  // RMPM Savings
+  {year:2026,month:'OCT',kpi:'RMPM Savings',category:'Financials',value:2018550.36,target:3333333,unit:'PHP'},
+  {year:2026,month:'NOV',kpi:'RMPM Savings',category:'Financials',value:2428474.12,target:3333333,unit:'PHP'},
+  // Operational Cost
+  {year:2026,month:'OCT',kpi:'Operational Cost',category:'Financials',value:13498890.24,target:16189431.26,unit:'PHP'},
+  {year:2026,month:'NOV',kpi:'Operational Cost',category:'Financials',value:15879974.2,target:16210987.83,unit:'PHP'},
+  {year:2026,month:'DEC',kpi:'Operational Cost',category:'Financials',value:16049113.59,target:17645272.82,unit:'PHP'},
+  {year:2026,month:'JAN',kpi:'Operational Cost',category:'Financials',value:16103697.51,target:17976491.26,unit:'PHP'},
+  // Capital Expenditures
+  {year:2026,month:'OCT',kpi:'Capital Expenditures',category:'Financials',value:2042360,target:1946800,unit:'PHP'},
+  {year:2026,month:'NOV',kpi:'Capital Expenditures',category:'Financials',value:2033330,target:1966800,unit:'PHP'},
+  // Forecast — Product
+  {year:2026,month:'NOV',kpi:'FA Epoxy Marine',category:'Forecast',value:45.773,target:null,unit:'%'},
+  {year:2026,month:'NOV',kpi:'FA Elastoseal',category:'Forecast',value:76.972,target:null,unit:'%'},
+  {year:2026,month:'NOV',kpi:'FA Mighty Bond',category:'Forecast',value:66.920,target:null,unit:'%'},
+  {year:2026,month:'NOV',kpi:'FA Pro-Epoxy',category:'Forecast',value:64.811,target:null,unit:'%'},
+  {year:2026,month:'NOV',kpi:'FA Builders Bond',category:'Forecast',value:48.098,target:null,unit:'%'},
+  {year:2026,month:'NOV',kpi:'FA Coating Marine',category:'Forecast',value:41.566,target:null,unit:'%'},
+  {year:2026,month:'NOV',kpi:'FA Transportation',category:'Forecast',value:27.658,target:null,unit:'%'},
+  {year:2026,month:'NOV',kpi:'FA Other Consumer',category:'Forecast',value:0.654,target:null,unit:'%'},
+  {year:2026,month:'NOV',kpi:'FA Pro-Sealant',category:'Forecast',value:50.318,target:null,unit:'%'},
+  {year:2026,month:'NOV',kpi:'FA Pro-Waterproofing',category:'Forecast',value:53.572,target:null,unit:'%'},
+  {year:2026,month:'NOV',kpi:'FA Pro-Painting',category:'Forecast',value:69.714,target:null,unit:'%'},
+  {year:2026,month:'NOV',kpi:'FA Pro-Adhesives',category:'Forecast',value:20.556,target:null,unit:'%'},
+  {year:2026,month:'NOV',kpi:'FA Mining',category:'Forecast',value:15.823,target:null,unit:'%'},
+  // Forecast — Geo
+  {year:2026,month:'NOV',kpi:'FA Local PH',category:'Forecast Geo',value:37.710,target:null,unit:'%'},
+  {year:2026,month:'NOV',kpi:'FA GMA',category:'Forecast Geo',value:37.470,target:null,unit:'%'},
+  {year:2026,month:'NOV',kpi:'FA North Luzon',category:'Forecast Geo',value:49.528,target:null,unit:'%'},
+  {year:2026,month:'NOV',kpi:'FA South Luzon',category:'Forecast Geo',value:39.307,target:null,unit:'%'},
+  {year:2026,month:'NOV',kpi:'FA Visayas',category:'Forecast Geo',value:38.475,target:null,unit:'%'},
+  {year:2026,month:'NOV',kpi:'FA Mindanao',category:'Forecast Geo',value:29.967,target:null,unit:'%'},
+  {year:2026,month:'NOV',kpi:'FA Modern Trade',category:'Forecast Geo',value:69.221,target:null,unit:'%'},
+  {year:2026,month:'NOV',kpi:'FA Export',category:'Forecast Geo',value:12.195,target:null,unit:'%'},
+  {year:2026,month:'NOV',kpi:'FA Indonesia',category:'Forecast Geo',value:31.873,target:null,unit:'%'},
+  {year:2026,month:'NOV',kpi:'FA Direct Export',category:'Forecast Geo',value:4.713,target:null,unit:'%'},
+  // Overall FA
+  {year:2026,month:'OCT',kpi:'Overall FA Product',category:'Forecast',value:9.992,target:null,unit:'%'},
+  {year:2026,month:'NOV',kpi:'Overall FA Product',category:'Forecast',value:41.603,target:null,unit:'%'},
+  {year:2026,month:'DEC',kpi:'Overall FA Product',category:'Forecast',value:41.862,target:null,unit:'%'},
+  {year:2026,month:'OCT',kpi:'Overall FA Geo',category:'Forecast Geo',value:8.251,target:null,unit:'%'},
+  {year:2026,month:'NOV',kpi:'Overall FA Geo',category:'Forecast Geo',value:24.953,target:null,unit:'%'},
+  {year:2026,month:'DEC',kpi:'Overall FA Geo',category:'Forecast Geo',value:15.843,target:null,unit:'%'},
+  // Absenteeism by line
+  {year:2026,month:'NOV',kpi:'Absenteeism',category:'Workforce',value:11.25,unit:'%',line:'L06 Epoxy'},
+  {year:2026,month:'NOV',kpi:'Absenteeism',category:'Workforce',value:15.07,unit:'%',line:'L04B Elasto'},
+  {year:2026,month:'NOV',kpi:'Absenteeism',category:'Workforce',value:29.60,unit:'%',line:'L03 Cyano Tube'},
+  {year:2026,month:'NOV',kpi:'Absenteeism',category:'Workforce',value:6.22,unit:'%',line:'L01 Coatings'},
+  {year:2026,month:'NOV',kpi:'Absenteeism',category:'Workforce',value:7.40,unit:'%',line:'L07 Epoxy Tube'},
+  {year:2026,month:'NOV',kpi:'Absenteeism',category:'Workforce',value:16.91,unit:'%',line:'Line 9 EPS'},
+  {year:2026,month:'NOV',kpi:'Absenteeism',category:'Workforce',value:33.83,unit:'%',line:'L10 Contact Bond'},
+  {year:2026,month:'NOV',kpi:'Absenteeism',category:'Workforce',value:6.34,unit:'%',line:'L11 Silicone'},
+  {year:2026,month:'NOV',kpi:'Absenteeism',category:'Workforce',value:11.48,unit:'%',line:'L12 Special'},
+  {year:2026,month:'NOV',kpi:'Absenteeism',category:'Workforce',value:19.03,unit:'%',line:'L13 Special'},
+  {year:2026,month:'NOV',kpi:'Absenteeism',category:'Workforce',value:6.77,unit:'%',line:'Line 14'},
+  {year:2026,month:'NOV',kpi:'Absenteeism',category:'Workforce',value:16.29,unit:'%',line:'Labeling'},
+  // Schedule compliance by line
+  {year:2026,month:'NOV',kpi:'Schedule Compliance',category:'Production',value:99.413,unit:'%',line:'All Lines'},
+  {year:2026,month:'NOV',kpi:'Schedule Compliance',category:'Production',value:99.97,unit:'%',line:'L06 Epoxy'},
+  {year:2026,month:'NOV',kpi:'Schedule Compliance',category:'Production',value:81.52,unit:'%',line:'L04B Elasto'},
+  {year:2026,month:'NOV',kpi:'Schedule Compliance',category:'Production',value:56.24,unit:'%',line:'L03 Cyano'},
+  {year:2026,month:'NOV',kpi:'Schedule Compliance',category:'Production',value:81.76,unit:'%',line:'L01 Coatings'},
+  {year:2026,month:'NOV',kpi:'Schedule Compliance',category:'Production',value:111.94,unit:'%',line:'L07 Epoxy Tube'},
+  {year:2026,month:'NOV',kpi:'Schedule Compliance',category:'Production',value:70.10,unit:'%',line:'Line 9 EPS'},
+  {year:2026,month:'NOV',kpi:'Schedule Compliance',category:'Production',value:147.86,unit:'%',line:'L10 Contact Bond'},
+  {year:2026,month:'NOV',kpi:'Schedule Compliance',category:'Production',value:94.07,unit:'%',line:'L11 Silicone'},
+  {year:2026,month:'NOV',kpi:'Schedule Compliance',category:'Production',value:106.63,unit:'%',line:'L12 Special'},
+  {year:2026,month:'NOV',kpi:'Schedule Compliance',category:'Production',value:190.72,unit:'%',line:'L13 Special'},
+  {year:2026,month:'NOV',kpi:'Schedule Compliance',category:'Production',value:147.18,unit:'%',line:'Line 14'},
+  // OTDL
+  {year:2026,month:'OCT',kpi:'OTDL',category:'Logistics',value:10.83,unit:'days',line:'GMA'},
+  {year:2026,month:'NOV',kpi:'OTDL',category:'Logistics',value:2.03,unit:'days',line:'GMA'},
+  {year:2026,month:'DEC',kpi:'OTDL',category:'Logistics',value:2.75,unit:'days',line:'GMA'},
+  {year:2026,month:'JAN',kpi:'OTDL',category:'Logistics',value:2.05,unit:'days',line:'GMA'},
+  {year:2026,month:'OCT',kpi:'OTDL',category:'Logistics',value:20.67,unit:'days',line:'North Luzon'},
+  {year:2026,month:'NOV',kpi:'OTDL',category:'Logistics',value:6.65,unit:'days',line:'North Luzon'},
+  {year:2026,month:'DEC',kpi:'OTDL',category:'Logistics',value:6.65,unit:'days',line:'North Luzon'},
+  {year:2026,month:'JAN',kpi:'OTDL',category:'Logistics',value:10.46,unit:'days',line:'North Luzon'},
+  {year:2026,month:'OCT',kpi:'OTDL',category:'Logistics',value:16.85,unit:'days',line:'South Luzon'},
+  {year:2026,month:'NOV',kpi:'OTDL',category:'Logistics',value:5.78,unit:'days',line:'South Luzon'},
+  {year:2026,month:'DEC',kpi:'OTDL',category:'Logistics',value:5.78,unit:'days',line:'South Luzon'},
+  {year:2026,month:'JAN',kpi:'OTDL',category:'Logistics',value:9.12,unit:'days',line:'South Luzon'},
+  {year:2026,month:'OCT',kpi:'OTDL',category:'Logistics',value:26.80,unit:'days',line:'Visayas'},
+  {year:2026,month:'OCT',kpi:'OTDL',category:'Logistics',value:26.54,unit:'days',line:'Mindanao'},
+  {year:2026,month:'NOV',kpi:'OTDL',category:'Logistics',value:13.09,unit:'days',line:'Mindanao'},
+  {year:2026,month:'DEC',kpi:'OTDL',category:'Logistics',value:13.33,unit:'days',line:'Mindanao'},
+  {year:2026,month:'JAN',kpi:'OTDL',category:'Logistics',value:18.0,unit:'days',line:'Mindanao'},
+  {year:2026,month:'OCT',kpi:'OTDL',category:'Logistics',value:8.88,unit:'days',line:'Modern Trade'},
+  {year:2026,month:'NOV',kpi:'OTDL',category:'Logistics',value:4.88,unit:'days',line:'Modern Trade'},
+  {year:2026,month:'DEC',kpi:'OTDL',category:'Logistics',value:6.90,unit:'days',line:'Modern Trade'},
+  {year:2026,month:'JAN',kpi:'OTDL',category:'Logistics',value:1.64,unit:'days',line:'Modern Trade'},
+];
+
+// ─────────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────────
+let allData = [...BUILTIN];
+let csvRows = null;
+let activeYear = 2026;
+let activeMonth = 'all';
+let activeCat = 'all';
+let activeTab = 'overview';
+
+// ─────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────
+window.addEventListener('load', () => { buildYearPills(); applyFilters(); initDrag(); });
+
+function buildYearPills() {
+  const years = [...new Set(allData.map(d => d.year))].sort();
+  const c = document.getElementById('yearPills');
+  c.innerHTML = '';
+  years.forEach(y => {
+    const b = document.createElement('button');
+    b.className = 'year-pill' + (y === activeYear ? ' active' : '');
+    b.textContent = 'FY' + y;
+    b.onclick = () => { activeYear = y; buildYearPills(); applyFilters(); };
+    c.appendChild(b);
+  });
+}
+
+function applyFilters() {
+  activeMonth = document.getElementById('monthFilter').value;
+  activeCat = document.getElementById('catFilter').value;
+  updateHeader();
+  const d = filtered();
+  renderByTab(d);
+}
+
+function filtered() {
+  return allData.filter(r =>
+    r.year === activeYear &&
+    (activeMonth === 'all' || r.month === activeMonth) &&
+    (activeCat === 'all' || (r.category||'') === activeCat)
+  );
+}
+
+function updateHeader() {
+  document.getElementById('hdr-fy').textContent = 'FY' + activeYear;
+  const ms = [...new Set(allData.filter(d => d.year === activeYear && !d.line).map(d => d.month))];
+  document.getElementById('hdr-period').textContent =
+    activeMonth === 'all' ? (ms.length ? ms[0]+'–'+ms[ms.length-1] : '') + ' DATA' : activeMonth + ' ONLY';
+  document.getElementById('hdr-src').textContent = csvRows ? '📄 CSV + Built-in' : '🗄 Built-in Dataset';
+}
+
+// ─────────────────────────────────────────────
+// TAB SWITCH
+// ─────────────────────────────────────────────
+function showTab(id, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  if (btn) btn.classList.add('active');
+  activeTab = id;
+  renderByTab(filtered());
+}
+
+function renderByTab(d) {
+  if (activeTab === 'overview') renderOverview(d);
+  else if (activeTab === 'production') renderProduction(d);
+  else if (activeTab === 'inventory') renderInventory(d);
+  else if (activeTab === 'forecast') renderForecast(d);
+  else if (activeTab === 'workforce') renderWorkforce(d);
+  else if (activeTab === 'financials') renderFinancials(d);
+  else if (activeTab === 'logistics') renderLogistics(d);
+  else if (activeTab === 'rawdata') renderRaw(d);
+}
+
+// ─────────────────────────────────────────────
+// HELPERS
+// ─────────────────────────────────────────────
+const MONTH_ORD = ['OCT','NOV','DEC','JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP'];
+const fmt = (v, unit) => {
+  if (v == null) return '—';
+  if (unit === 'PHP') { if (Math.abs(v)>=1e6) return '₱'+(v/1e6).toFixed(2)+'M'; return '₱'+v.toLocaleString(); }
+  if (unit === 'PHP/kg') return '₱'+Number(v).toFixed(2);
+  if (unit === '%') return Number(v).toFixed(1)+'%';
+  if (unit === 'MT') return Number(v).toLocaleString(undefined,{maximumFractionDigits:1})+' MT';
+  if (unit === 'days') return Number(v).toFixed(0)+'d';
+  return Number(v).toLocaleString(undefined,{maximumFractionDigits:2});
+};
+const latest = (d, kpi) => {
+  const rows = d.filter(r => r.kpi === kpi && !r.line);
+  if (!rows.length) return null;
+  return rows.sort((a,b) => MONTH_ORD.indexOf(b.month) - MONTH_ORD.indexOf(a.month))[0];
+};
+const monthsOf = d => [...new Set(d.filter(r=>!r.line).map(r=>r.month))].sort((a,b)=>MONTH_ORD.indexOf(a)-MONTH_ORD.indexOf(b));
+const seriesOf = (d, kpi) => {
+  const ms = monthsOf(d);
+  return { months: ms, values: ms.map(m => { const r=d.find(x=>x.kpi===kpi&&x.month===m&&!x.line); return r?r.value:null; }) };
+};
+const statusOf = (val, tgt, lowerBetter) => {
+  if (val==null||tgt==null) return '<span class="badge b-blue">N/A</span>';
+  const ratio = lowerBetter ? tgt/val : val/tgt;
+  if (ratio >= 0.9) return '<span class="badge b-green">▲ ON TARGET</span>';
+  if (ratio >= 0.7) return '<span class="badge b-yellow">▲ NEAR</span>';
+  return '<span class="badge b-red">▼ BELOW</span>';
+};
+const bClass = (val, tgt, lowerBetter) => {
+  if (val==null||tgt==null) return 'b-blue';
+  const ratio = lowerBetter ? tgt/val : val/tgt;
+  return ratio>=0.9?'b-green':ratio>=0.7?'b-yellow':'b-red';
+};
+
+// ─────────────────────────────────────────────
+// RENDER — OVERVIEW
+// ─────────────────────────────────────────────
+function renderOverview(d) {
+  const CARDS = [
+    {kpi:'Conversion Cost SC',label:'Conv. Cost SC',accent:'#00d4ff',low:true},
+    {kpi:'Conversion Cost Overall',label:'Conv. Cost Overall',accent:'#ff6b35',low:true},
+    {kpi:'Volume Produced',label:'Volume Produced',accent:'#7fff6f',low:false},
+    {kpi:'SC Fill Rate',label:'SC Fill Rate',accent:'#ffcc00',low:false},
+    {kpi:'Corp Fill Rate',label:'Corp Fill Rate',accent:'#ff3d5a',low:false},
+    {kpi:'DIO',label:'Days Inv. (DIO)',accent:'#ff6b35',low:true},
+    {kpi:'Productive Time',label:'Productive Time',accent:'#ffcc00',low:false},
+    {kpi:'Machine Utilization',label:'Machine Util.',accent:'#7fff6f',low:false},
+    {kpi:'Output vs Target',label:'Output vs Target',accent:'#00d4ff',low:false},
+    {kpi:'RMPM Savings',label:'RMPM Savings',accent:'#7fff6f',low:false},
+    {kpi:'Absenteeism',label:'Absenteeism',accent:'#ff3d5a',low:true},
+    {kpi:'Operational Cost',label:'Op. Cost',accent:'#00d4ff',low:true},
+  ];
+  const g = document.getElementById('ovCards'); g.innerHTML='';
+  CARDS.forEach(c => {
+    const r = latest(d, c.kpi); if(!r) return;
+    g.innerHTML += `<div class="kpi-card" style="--card-accent:${c.accent}">
+      <div class="kpi-label">${c.label}<br><span style="color:var(--muted);font-size:9px">${r.month} ${r.year}</span></div>
+      <div class="kpi-val sm">${fmt(r.value,r.unit)}</div>
+      <div class="kpi-sub">Tgt: ${fmt(r.target,r.unit)} &nbsp;${statusOf(r.value,r.target,c.low)}</div>
+    </div>`;
+  });
+
+  const cc = seriesOf(d,'Conversion Cost SC'), ccOv = seriesOf(d,'Conversion Cost Overall');
+  const tCC = d.find(r=>r.kpi==='Conversion Cost SC');
+  drawLine('ccChart', cc.months, [{data:cc.values,color:'#00d4ff'},{data:ccOv.values,color:'#ff6b35'}], {target:tCC?tCC.target:11});
+  const sc = seriesOf(d,'SC Fill Rate'), cp = seriesOf(d,'Corp Fill Rate');
+  drawLine('ovFillChart', sc.months, [{data:sc.values,color:'#00d4ff'},{data:cp.values,color:'#ff6b35'}], {pct:true,target:99});
+
+  // Summary table
+  const kpis=[...new Set(d.filter(r=>!r.line).map(r=>r.kpi))];
+  const ms=monthsOf(d);
+  let html=`<table><thead><tr><th>KPI</th><th>Category</th><th>Unit</th>`;
+  ms.forEach(m=>html+=`<th class="num">${m}</th>`);
+  html+=`<th class="num">Target</th><th>Status</th></tr></thead><tbody>`;
+  kpis.forEach(kpi=>{
+    const rows=d.filter(r=>r.kpi===kpi&&!r.line);
+    if(!rows.length)return;
+    const ex=rows[0]; const isLow=['Conversion Cost SC','Conversion Cost Overall','DIO','Absenteeism','Overtime Rate','Capital Expenditures','Operational Cost'].includes(kpi);
+    html+=`<tr><td>${kpi}</td><td>${ex.category||''}</td><td>${ex.unit||''}</td>`;
+    ms.forEach(m=>{const r=rows.find(x=>x.month===m);html+=`<td class="num">${r?fmt(r.value,r.unit):'—'}</td>`;});
+    const lat=latest(d,kpi);
+    html+=`<td class="num">${lat?fmt(lat.target,lat.unit):'—'}</td><td>${lat?statusOf(lat.value,lat.target,isLow):''}</td></tr>`;
+  });
+  html+='</tbody></table>';
+  document.getElementById('sumTable').innerHTML=html;
+}
+
+// ─────────────────────────────────────────────
+// RENDER — PRODUCTION
+// ─────────────────────────────────────────────
+function renderProduction(d) {
+  const CARDS=[
+    {kpi:'Output vs Target',label:'Output vs Target',accent:'#00d4ff',low:false},
+    {kpi:'Productive Time',label:'Productive Time',accent:'#ff3d5a',low:false},
+    {kpi:'Machine Utilization',label:'Machine Util.',accent:'#7fff6f',low:false},
+    {kpi:'Volume Produced',label:'Volume Produced',accent:'#ffcc00',low:false},
+  ];
+  const g=document.getElementById('prodCards'); g.innerHTML='';
+  CARDS.forEach(c=>{const r=latest(d,c.kpi);if(!r)return;
+    g.innerHTML+=`<div class="kpi-card" style="--card-accent:${c.accent}">
+      <div class="kpi-label">${c.label} · ${r.month}</div>
+      <div class="kpi-val sm">${fmt(r.value,r.unit)}</div>
+      <div class="kpi-sub">Tgt: ${fmt(r.target,r.unit)} &nbsp;${statusOf(r.value,r.target,c.low)}</div>
+    </div>`;
+  });
+
+  // Downtime breakdown — derive from productive time data or use static
+  const pt = d.filter(r=>r.kpi==='Productive Time'&&!r.line);
+  const avgPT = pt.length ? pt.reduce((s,r)=>s+r.value,0)/pt.length : 21.15;
+  const dtItems=[
+    {label:'No Plan',val:21.15,color:'#5a6880'},
+    {label:'No HC',val:19.99,color:'#ff6b35'},
+    {label:'No Mpr',val:6.88,color:'#ff3d5a'},
+    {label:'Chg Over',val:2.16,color:'#ffcc00'},
+    {label:'No OT',val:0.89,color:'#8898b0'},
+    {label:'No Mix',val:2.79,color:'#a855f7'},
+    {label:'Transfer',val:3.00,color:'#3b82f6'},
+    {label:'Productive',val:avgPT,color:'#7fff6f'},
+    {label:'Other',val:Math.max(0,100-avgPT-21.15-19.99-6.88-2.16-0.89-2.79-3.00).toFixed(1)*1,color:'#2a3550'},
+  ];
+  drawPerBar('dtChart',dtItems,40,true);
+
+  // Absenteeism by line
+  const lineAbs = d.filter(r=>r.kpi==='Absenteeism'&&r.line);
+  const absDiv=document.getElementById('absLines'); absDiv.innerHTML='';
+  if(lineAbs.length){
+    lineAbs.forEach(r=>{
+      const col=r.value>20?'#ff3d5a':r.value>10?'#ffcc00':'#7fff6f';
+      absDiv.innerHTML+=`<div class="ln-row"><span class="ln-name">${r.line}</span>
+        <div class="ln-bw"><div class="ln-bf" style="width:${Math.min(r.value/35*100,100)}%;background:${col}"></div></div>
+        <span class="ln-pct" style="color:${col}">${r.value.toFixed(1)}%</span></div>`;
+    });
+  } else { absDiv.innerHTML='<div style="color:var(--muted);font-size:11px;padding:10px">No line data for selected period</div>'; }
+
+  // Compliance
+  const comp=d.filter(r=>r.kpi==='Schedule Compliance'&&r.line);
+  const tb=document.getElementById('compBody'); tb.innerHTML='';
+  comp.forEach(r=>{
+    const col=r.value>=90?'#7fff6f':r.value>=70?'#ffcc00':'#ff3d5a';
+    const bc=r.value>=90?'b-ok':r.value>=70?'b-warn':'b-bad';
+    tb.innerHTML+=`<tr><td>${r.line}</td>
+      <td class="num" style="color:${col}">${r.value.toFixed(1)}%</td>
+      <td><div class="bw"><div class="bf" style="width:${Math.min(r.value,100)}%;background:${col}"></div></div></td>
+      <td><span class="${bc}">${r.value>=90?'ON TARGET':r.value>=70?'NEAR':'BELOW'}</span></td></tr>`;
+  });
+  if(!comp.length) tb.innerHTML='<tr><td colspan="4" style="color:var(--muted);text-align:center;padding:14px">No compliance data</td></tr>';
+}
+
+// ─────────────────────────────────────────────
+// RENDER — INVENTORY
+// ─────────────────────────────────────────────
+function renderInventory(d) {
+  const CARDS=[{kpi:'DIO',label:'DIO',accent:'#ff3d5a',low:true},{kpi:'Inv Accuracy FG',label:'Inv Accuracy FG',accent:'#7fff6f',low:false},{kpi:'Inv Accuracy RMPM',label:'Inv Accuracy RMPM',accent:'#00d4ff',low:false}];
+  const g=document.getElementById('invCards'); g.innerHTML='';
+  CARDS.forEach(c=>{const r=latest(d,c.kpi);if(!r)return;
+    g.innerHTML+=`<div class="kpi-card" style="--card-accent:${c.accent}">
+      <div class="kpi-label">${c.label}</div><div class="kpi-val sm">${fmt(r.value,r.unit)}</div>
+      <div class="kpi-sub">Tgt: ${fmt(r.target,r.unit)} &nbsp;${statusOf(r.value,r.target,c.low)}</div></div>`;
+  });
+  const dio=seriesOf(d,'DIO');
+  const tDIO=d.find(r=>r.kpi==='DIO');
+  drawBar('dioChart',dio.months,[{data:dio.values,color:'#ff3d5a'}],{target:tDIO?tDIO.target:70});
+  const tb=document.getElementById('invAccBody'); tb.innerHTML='';
+  d.filter(r=>['Inv Accuracy FG','Inv Accuracy RMPM'].includes(r.kpi)&&!r.line).forEach(r=>{
+    const col=r.value>=95?'#7fff6f':r.value>=70?'#ffcc00':'#ff3d5a';
+    const bc=r.value>=95?'b-ok':r.value>=70?'b-warn':'b-bad';
+    tb.innerHTML+=`<tr><td>${r.kpi}</td><td class="num">${r.month}</td>
+      <td class="num" style="color:${col}">${r.value.toFixed(1)}%</td>
+      <td><span class="${bc}">${r.value>=95?'GOOD':r.value>=70?'FAIR':'LOW'}</span></td></tr>`;
+  });
+  if(!tb.innerHTML) tb.innerHTML='<tr><td colspan="4" style="color:var(--muted);text-align:center;padding:14px">No data</td></tr>';
+}
+
+// ─────────────────────────────────────────────
+// RENDER — FORECAST
+// ─────────────────────────────────────────────
+function renderForecast(d) {
+  const mkCards=(rows,id)=>{
+    const c=document.getElementById(id); c.innerHTML='';
+    if(!rows.length){c.innerHTML='<div style="color:var(--muted);font-size:11px">No forecast data</div>';return;}
+    rows.forEach(r=>{
+      const col=r.value>=60?'#7fff6f':r.value>=30?'#ffcc00':'#ff3d5a';
+      c.innerHTML+=`<div class="acc-card"><div class="acc-name">${r.kpi.replace('FA ','')}</div>
+        <div class="acc-val" style="color:${col}">${r.value.toFixed(1)}%</div>
+        <div class="acc-bar"><div class="acc-bf" style="width:${Math.min(r.value,100)}%;background:${col}"></div></div></div>`;
+    });
+  };
+  mkCards(d.filter(r=>r.category==='Forecast'&&!r.kpi.startsWith('Overall')),'prodFA');
+  mkCards(d.filter(r=>r.category==='Forecast Geo'&&!r.kpi.startsWith('Overall')),'geoFA');
+  const ms=monthsOf(d);
+  const fa1=ms.map(m=>{const r=d.find(x=>x.kpi==='Overall FA Product'&&x.month===m);return r?r.value:null;});
+  const fa2=ms.map(m=>{const r=d.find(x=>x.kpi==='Overall FA Geo'&&x.month===m);return r?r.value:null;});
+  drawLine('faChart',ms,[{data:fa1,color:'#00d4ff'},{data:fa2,color:'#ff6b35'}],{pct:true});
+}
+
+// ─────────────────────────────────────────────
+// RENDER — WORKFORCE
+// ─────────────────────────────────────────────
+function renderWorkforce(d) {
+  const g=document.getElementById('wfCards'); g.innerHTML='';
+  const rAbs=latest(d,'Absenteeism'), rOT=latest(d,'Overtime Rate');
+  if(rAbs) g.innerHTML+=`<div class="kpi-card" style="--card-accent:#ff3d5a">
+    <div class="kpi-label">Absenteeism · ${rAbs.month}</div>
+    <div class="kpi-val">${rAbs.value.toFixed(1)}%</div>
+    <div class="kpi-sub">${statusOf(rAbs.value,rAbs.target,true)}</div></div>`;
+  if(rOT) g.innerHTML+=`<div class="kpi-card" style="--card-accent:#ffcc00">
+    <div class="kpi-label">Overtime Rate · ${rOT.month}</div>
+    <div class="kpi-val">${rOT.value.toFixed(1)}%</div>
+    <div class="kpi-sub">${statusOf(rOT.value,rOT.target,true)}</div></div>`;
+
+  const ms=monthsOf(d);
+  const abs=ms.map(m=>{const r=d.find(x=>x.kpi==='Absenteeism'&&x.month===m&&!x.line);return r?r.value:null;});
+  const ot=ms.map(m=>{const r=d.find(x=>x.kpi==='Overtime Rate'&&x.month===m&&!x.line);return r?r.value:null;});
+  drawLine('wfChart',ms,[{data:abs,color:'#ff3d5a'},{data:ot,color:'#ffcc00'}],{pct:true});
+
+  const tb=document.getElementById('wfLineBody'); tb.innerHTML='';
+  d.filter(r=>r.kpi==='Absenteeism'&&r.line).forEach(r=>{
+    const col=r.value>20?'#ff3d5a':r.value>10?'#ffcc00':'#7fff6f';
+    const bc=r.value>20?'b-bad':r.value>10?'b-warn':'b-ok';
+    tb.innerHTML+=`<tr><td>${r.line}</td>
+      <td class="num" style="color:${col}">${r.value.toFixed(1)}%</td>
+      <td><div class="bw"><div class="bf" style="width:${Math.min(r.value/35*100,100)}%;background:${col}"></div></div></td>
+      <td><span class="${bc}">${r.value>20?'HIGH':r.value>10?'MODERATE':'LOW'}</span></td></tr>`;
+  });
+  if(!tb.innerHTML) tb.innerHTML='<tr><td colspan="4" style="color:var(--muted);text-align:center;padding:14px">No line data</td></tr>';
+}
+
+// ─────────────────────────────────────────────
+// RENDER — FINANCIALS
+// ─────────────────────────────────────────────
+function renderFinancials(d) {
+  const CARDS=[
+    {kpi:'Operational Cost',label:'Operational Cost',accent:'#00d4ff',low:true},
+    {kpi:'Capital Expenditures',label:'CapEx',accent:'#ff6b35',low:true},
+    {kpi:'RMPM Savings',label:'RMPM Savings',accent:'#7fff6f',low:false},
+    {kpi:'Conversion Cost SC',label:'Conv. Cost SC',accent:'#ffcc00',low:true},
+  ];
+  const g=document.getElementById('finCards'); g.innerHTML='';
+  CARDS.forEach(c=>{const r=latest(d,c.kpi);if(!r)return;
+    g.innerHTML+=`<div class="kpi-card" style="--card-accent:${c.accent}">
+      <div class="kpi-label">${c.label} · ${r.month}</div>
+      <div class="kpi-val sm">${fmt(r.value,r.unit)}</div>
+      <div class="kpi-sub">Tgt: ${fmt(r.target,r.unit)} &nbsp;${statusOf(r.value,r.target,c.low)}</div></div>`;
+  });
+  const ms=monthsOf(d);
+  const act=ms.map(m=>{const r=d.find(x=>x.kpi==='Operational Cost'&&x.month===m&&!x.line);return r?r.value/1e6:null;});
+  const bud=ms.map(m=>{const r=d.find(x=>x.kpi==='Operational Cost'&&x.month===m&&!x.line);return r?r.target/1e6:null;});
+  drawBar('opChart',ms,[{data:act,color:'#00d4ff'},{data:bud,color:'#2a3550'}],{});
+  const sc=ms.map(m=>{const r=d.find(x=>x.kpi==='Conversion Cost SC'&&x.month===m&&!x.line);return r?r.value:null;});
+  const ov=ms.map(m=>{const r=d.find(x=>x.kpi==='Conversion Cost Overall'&&x.month===m&&!x.line);return r?r.value:null;});
+  const tg=d.find(r=>r.kpi==='Conversion Cost SC');
+  drawLine('finCCChart',ms,[{data:sc,color:'#00d4ff'},{data:ov,color:'#ff6b35'}],{target:tg?tg.target:11});
+}
+
+// ─────────────────────────────────────────────
+// RENDER — LOGISTICS
+// ─────────────────────────────────────────────
+function renderLogistics(d) {
+  const CARDS=[{kpi:'SC Fill Rate',label:'SC Fill Rate',accent:'#00d4ff',low:false},{kpi:'Corp Fill Rate',label:'Corp Fill Rate',accent:'#ff6b35',low:false}];
+  const g=document.getElementById('logCards'); g.innerHTML='';
+  CARDS.forEach(c=>{const r=latest(d,c.kpi);if(!r)return;
+    g.innerHTML+=`<div class="kpi-card" style="--card-accent:${c.accent}">
+      <div class="kpi-label">${c.label} · ${r.month}</div>
+      <div class="kpi-val">${fmt(r.value,r.unit)}</div>
+      <div class="kpi-sub">Tgt: ${fmt(r.target,r.unit)} &nbsp;${statusOf(r.value,r.target,false)}</div></div>`;
+  });
+  const ms=monthsOf(d);
+  const sc=ms.map(m=>{const r=d.find(x=>x.kpi==='SC Fill Rate'&&x.month===m&&!x.line);return r?r.value:null;});
+  const cp=ms.map(m=>{const r=d.find(x=>x.kpi==='Corp Fill Rate'&&x.month===m&&!x.line);return r?r.value:null;});
+  drawLine('fillChart',ms,[{data:sc,color:'#00d4ff'},{data:cp,color:'#ff6b35'}],{pct:true,target:99});
+  const regs=[...new Set(d.filter(r=>r.kpi==='OTDL').map(r=>r.line))];
+  const tb=document.getElementById('otdlBody'); tb.innerHTML='';
+  regs.forEach(reg=>{
+    let html=`<tr><td>${reg}</td>`;let tot=0;
+    ['OCT','NOV','DEC','JAN'].forEach(m=>{const r=d.find(x=>x.kpi==='OTDL'&&x.line===reg&&x.month===m);html+=`<td class="num">${r?r.value.toFixed(1):'—'}</td>`;if(r)tot+=r.value;});
+    html+=`<td class="num">${tot.toFixed(1)}</td></tr>`;tb.innerHTML+=html;
+  });
+  if(!regs.length) tb.innerHTML='<tr><td colspan="6" style="color:var(--muted);text-align:center;padding:14px">No OTDL data</td></tr>';
+}
+
+// ─────────────────────────────────────────────
+// RENDER — RAW DATA
+// ─────────────────────────────────────────────
+function renderRaw(d) {
+  const c=document.getElementById('rawWrap');
+  if(!d.length){c.innerHTML='<div class="empty">No records match the selected filters.</div>';return;}
+  const keys=['year','month','kpi','category','value','target','unit','line'];
+  let html=`<div style="font-size:10px;color:var(--muted2);margin-bottom:8px">${d.length} records</div>
+    <div class="tbl-wrap"><table class="raw-tbl"><thead><tr>${keys.map(k=>`<th>${k}</th>`).join('')}</tr></thead><tbody>`;
+  d.forEach(r=>{ html+=`<tr>${keys.map(k=>`<td>${r[k]!=null?r[k]:''}</td>`).join('')}</tr>`; });
+  html+='</tbody></table></div>';
+  c.innerHTML=html;
+}
+
+// ─────────────────────────────────────────────
+// CSV UPLOAD
+// ─────────────────────────────────────────────
+function toggleUpload() {
+  const a=document.getElementById('uploadArea');
+  const b=document.getElementById('uploadToggle');
+  const vis=a.classList.toggle('visible');
+  b.classList.toggle('active',vis);
+}
+
+function initDrag() {
+  const z=document.getElementById('dropZone');
+  z.addEventListener('dragover',e=>{e.preventDefault();z.classList.add('drag-over');});
+  z.addEventListener('dragleave',()=>z.classList.remove('drag-over'));
+  z.addEventListener('drop',e=>{e.preventDefault();z.classList.remove('drag-over');const f=e.dataTransfer.files[0];if(f)processFile(f);});
+}
+
+function handleFile(e) { const f=e.target.files[0]; if(f) processFile(f); }
+
+function processFile(file) {
+  const errEl=document.getElementById('csvErr'); errEl.style.display='none';
+  if(!file.name.toLowerCase().endsWith('.csv')){showCsvErr('Please upload a .csv file.');return;}
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try {
+      const rows=parseCSV(e.target.result);
+      if(!rows.length){showCsvErr('No valid records found.');return;}
+      csvRows=rows;
+      allData=[...BUILTIN,...csvRows];
+      buildYearPills();
+      const csvYrs=[...new Set(csvRows.map(r=>r.year))].sort();
+      if(csvYrs.length) activeYear=csvYrs[csvYrs.length-1];
+      applyFilters();
+      const badge=document.getElementById('srcBadge');
+      badge.textContent=`📄 ${file.name} · ${rows.length} rows`;
+      badge.classList.add('csv');
+      document.getElementById('resetBtn').style.display='';
+      document.getElementById('uploadStat').textContent=`✓ ${rows.length} records loaded from ${file.name}`;
+      showPreview(rows.slice(0,5));
+      toast(`✓ Loaded ${rows.length} records from ${file.name}`,'ok');
+    } catch(ex){showCsvErr('Parse error: '+ex.message);}
+  };
+  reader.readAsText(file);
+}
+
+function parseCSV(text) {
+  const lines=text.trim().split('\n').filter(l=>l.trim());
+  if(lines.length<2) throw new Error('Need a header row and at least one data row.');
+  const hdrs=lines[0].split(',').map(h=>h.trim().replace(/^"|"$/g,'').toLowerCase());
+  ['year','month','kpi','value'].forEach(c=>{if(!hdrs.includes(c))throw new Error(`Missing column: "${c}"`);});
+  return lines.slice(1).map(line=>{
+    const vals=splitLine(line);
+    const obj={};
+    hdrs.forEach((h,i)=>{
+      let v=(vals[i]||'').trim().replace(/^"|"$/g,'');
+      if(['value','target'].includes(h)) obj[h]=v===''||v==='—'?null:parseFloat(v);
+      else if(h==='year') obj[h]=parseInt(v)||new Date().getFullYear();
+      else obj[h]=v;
+    });
+    return (obj.kpi&&obj.month&&obj.year)?obj:null;
+  }).filter(Boolean);
+}
+
+function splitLine(line) {
+  const r=[]; let cur=''; let q=false;
+  for(let c of line){if(c==='"'){q=!q;}else if(c===','&&!q){r.push(cur);cur='';}else{cur+=c;}}
+  r.push(cur); return r;
+}
+
+function showPreview(rows) {
+  const box=document.getElementById('csvPreview'); box.style.display='block';
+  const keys=Object.keys(rows[0]);
+  let html=`<table class="raw-tbl"><thead><tr>${keys.map(k=>`<th>${k}</th>`).join('')}</tr></thead><tbody>`;
+  rows.forEach(r=>{ html+=`<tr>${keys.map(k=>`<td>${r[k]!=null?r[k]:''}</td>`).join('')}</tr>`; });
+  html+='</tbody></table>';
+  document.getElementById('csvPreviewTable').innerHTML=html;
+}
+
+function showCsvErr(msg) {
+  const e=document.getElementById('csvErr'); e.textContent=msg; e.style.display='block';
+  toast('⚠ '+msg,'err');
+}
+
+function resetCSV() {
+  csvRows=null; allData=[...BUILTIN];
+  activeYear=2026;
+  buildYearPills(); applyFilters();
+  document.getElementById('srcBadge').textContent='BUILT-IN DATA';
+  document.getElementById('srcBadge').classList.remove('csv');
+  document.getElementById('resetBtn').style.display='none';
+  document.getElementById('uploadStat').textContent='';
+  document.getElementById('csvPreview').style.display='none';
+  document.getElementById('csvErr').style.display='none';
+  document.getElementById('csvInput').value='';
+  toast('CSV cleared — showing built-in data','ok');
+}
+
+function dlTemplate() {
+  const hdr='year,month,kpi,category,value,target,unit,line';
+  const rows=[
+    '2026,OCT,Conversion Cost SC,Financials,10.93,11,PHP/kg,',
+    '2026,NOV,Conversion Cost SC,Financials,9.90,11,PHP/kg,',
+    '2026,OCT,Volume Produced,Production,1235.07,1221.87,MT,',
+    '2026,OCT,SC Fill Rate,Logistics,59.88,99,%,',
+    '2026,OCT,DIO,Inventory,107,70,days,',
+    '2026,OCT,Absenteeism,Workforce,11.25,5,%,L06 Epoxy',
+    '2026,OCT,Schedule Compliance,Production,73.48,90,%,All Lines',
+    '2027,OCT,Conversion Cost SC,Financials,9.50,10,PHP/kg,',
+    '2027,NOV,SC Fill Rate,Logistics,85.2,99,%,',
+  ];
+  const blob=new Blob([[hdr,...rows].join('\n')],{type:'text/csv'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download='pioneer_kpi_template.csv'; a.click();
+  toast('Template downloaded!','ok');
+}
+
+// ─────────────────────────────────────────────
+// CHARTS
+// ─────────────────────────────────────────────
+function prep(id, hpx) {
+  const el=document.getElementById(id); if(!el) return null;
+  const dpr=window.devicePixelRatio||1;
+  const w=el.getBoundingClientRect().width||el.parentElement.clientWidth||600;
+  const h=hpx||parseInt(el.getAttribute('height'))||160;
+  el.width=w*dpr; el.height=h*dpr;
+  el.style.width=w+'px'; el.style.height=h+'px';
+  const ctx=el.getContext('2d'); ctx.scale(dpr,dpr);
+  ctx.clearRect(0,0,w,h);
+  return {ctx,W:w,H:h};
+}
+
+function grid(ctx,pad,cW,cH,maxV,minV,pct) {
+  for(let i=0;i<=4;i++){
+    const y=pad.top+cH*(1-i/4);
+    ctx.strokeStyle='rgba(30,40,64,.8)';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(pad.left,y);ctx.lineTo(pad.left+cW,y);ctx.stroke();
+    ctx.fillStyle='#5a6880';ctx.font='9px DM Mono';ctx.textAlign='right';
+    const v=(maxV-minV)*i/4+minV;
+    ctx.fillText(pct?v.toFixed(0)+'%':v.toFixed(v>=100?0:1),pad.left-5,y+3);
+  }
+}
+
+function tgtLine(ctx,pad,cW,cH,maxV,minV,tgt,lbl) {
+  if(tgt==null)return;
+  const ty=pad.top+cH*(1-(tgt-minV)/(maxV-minV));
+  ctx.strokeStyle='rgba(255,204,0,.45)';ctx.setLineDash([4,3]);ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.moveTo(pad.left,ty);ctx.lineTo(pad.left+cW,ty);ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle='#ffcc00';ctx.font='9px DM Mono';ctx.textAlign='left';
+  ctx.fillText(lbl||'Target',pad.left+4,ty-4);
+}
+
+function drawBar(id, labels, datasets, opts={}) {
+  const c=prep(id); if(!c)return;
+  const {ctx,W,H}=c;
+  const pad={top:20,right:14,bottom:34,left:50};
+  const cW=W-pad.left-pad.right, cH=H-pad.top-pad.bottom;
+  const vals=datasets.flatMap(d=>d.data.filter(v=>v!=null));
+  let maxV=Math.max(...vals,opts.target||0,0.1); maxV=Math.ceil(maxV*1.15);
+  grid(ctx,pad,cW,cH,maxV,0,false);
+  tgtLine(ctx,pad,cW,cH,maxV,0,opts.target);
+  const nG=labels.length,nD=datasets.length;
+  const gW=cW/nG, bW=Math.min(gW*0.7/nD,30);
+  datasets.forEach((ds,di)=>ds.data.forEach((v,gi)=>{
+    if(v==null)return;
+    const x=pad.left+gW*gi+gW*(1-nD*bW/gW)/2+di*(bW+2);
+    const bh=(v/maxV)*cH, y=pad.top+cH-bh;
+    ctx.fillStyle=ds.color;
+    if(ctx.roundRect)ctx.beginPath(),ctx.roundRect(x,y,bW,bh,[2,2,0,0]),ctx.fill();
+    else ctx.fillRect(x,y,bW,bh);
+  }));
+  ctx.fillStyle='#5a6880';ctx.font='9px DM Mono';ctx.textAlign='center';
+  labels.forEach((l,i)=>ctx.fillText(l,pad.left+gW*i+gW/2,H-6));
+}
+
+function drawLine(id, labels, datasets, opts={}) {
+  const c=prep(id); if(!c)return;
+  const {ctx,W,H}=c;
+  if(!labels||!labels.length)return;
+  const pad={top:20,right:14,bottom:34,left:50};
+  const cW=W-pad.left-pad.right, cH=H-pad.top-pad.bottom;
+  const vals=datasets.flatMap(d=>d.data.filter(v=>v!=null));
+  let maxV=Math.max(...vals,opts.target||0,0.1); maxV=Math.ceil(maxV*1.12);
+  const minV=0;
+  grid(ctx,pad,cW,cH,maxV,minV,opts.pct);
+  tgtLine(ctx,pad,cW,cH,maxV,minV,opts.target);
+  datasets.forEach(ds=>{
+    const pts=ds.data.map((v,i)=>({
+      x:labels.length>1?pad.left+(i/(labels.length-1))*cW:pad.left+cW/2,
+      y:v!=null?pad.top+cH*(1-(v-minV)/(maxV-minV)):null
+    })).filter(p=>p.y!=null);
+    if(!pts.length)return;
+    ctx.beginPath();ctx.moveTo(pts[0].x,pts[0].y);pts.slice(1).forEach(p=>ctx.lineTo(p.x,p.y));
+    ctx.lineTo(pts[pts.length-1].x,pad.top+cH);ctx.lineTo(pts[0].x,pad.top+cH);ctx.closePath();
+    ctx.fillStyle=ds.color+'1a';ctx.fill();
+    ctx.beginPath();ctx.strokeStyle=ds.color;ctx.lineWidth=2;ctx.moveTo(pts[0].x,pts[0].y);
+    pts.slice(1).forEach(p=>ctx.lineTo(p.x,p.y));ctx.stroke();
+    pts.forEach(p=>{ctx.beginPath();ctx.arc(p.x,p.y,3,0,Math.PI*2);ctx.fillStyle=ds.color;ctx.fill();});
+  });
+  ctx.fillStyle='#5a6880';ctx.font='9px DM Mono';ctx.textAlign='center';
+  labels.forEach((l,i)=>{const x=labels.length>1?pad.left+(i/(labels.length-1))*cW:pad.left+cW/2;ctx.fillText(l,x,H-6);});
+}
+
+function drawPerBar(id, items, maxV, pct) {
+  const c=prep(id); if(!c)return;
+  const {ctx,W,H}=c;
+  const pad={top:20,right:14,bottom:34,left:50};
+  const cW=W-pad.left-pad.right, cH=H-pad.top-pad.bottom;
+  for(let i=0;i<=4;i++){
+    const y=pad.top+cH*(1-i/4);
+    ctx.strokeStyle='rgba(30,40,64,.8)';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(pad.left,y);ctx.lineTo(pad.left+cW,y);ctx.stroke();
+    ctx.fillStyle='#5a6880';ctx.font='9px DM Mono';ctx.textAlign='right';
+    ctx.fillText(pct?(maxV*i/4).toFixed(0)+'%':(maxV*i/4).toFixed(0),pad.left-5,y+3);
+  }
+  const bW=cW/items.length*0.64, gW=cW/items.length;
+  items.forEach((d,i)=>{
+    const bh=(Math.max(0,d.val)/maxV)*cH, x=pad.left+gW*i+gW*0.18, y=pad.top+cH-bh;
+    ctx.fillStyle=d.color;ctx.fillRect(x,y,bW,bh);
+    ctx.fillStyle='#5a6880';ctx.font='8px DM Mono';ctx.textAlign='center';
+    ctx.fillText(d.label,x+bW/2,H-6);
+  });
+}
+
+// ─────────────────────────────────────────────
+// TOAST
+// ─────────────────────────────────────────────
+function toast(msg, type) {
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className='toast '+type; t.classList.add('show');
+  clearTimeout(t._timer); t._timer=setTimeout(()=>t.classList.remove('show'),3200);
+}
+</script>
+</body>
+</html>

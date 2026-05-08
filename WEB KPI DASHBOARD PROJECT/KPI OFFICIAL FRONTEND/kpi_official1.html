@@ -1,0 +1,1875 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SC Operations Hub</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --teal: #01b8aa;
+            --teal-dark: #019f92;
+            --teal-light: #e6f3f2;
+            --teal-faint: #f0faf9;
+            --navy: #1a2332;
+            --navy-mid: #243144;
+            --navy-light: #2d3d54;
+            --text-primary: #1e2a3a;
+            --text-secondary: #5f6e82;
+            --text-muted: #8fa0b4;
+            --border: #e4eaf2;
+            --border-light: #f0f4fa;
+            --bg: #f4f7fb;
+            --white: #ffffff;
+            --green: #107c41;
+            --green-light: #e6f9ed;
+            --blue: #0d47a1;
+            --blue-light: #e3f2fd;
+            --orange: #d83b01;
+            --orange-light: #fff1e0;
+            --red: #c62828;
+            --red-light: #ffebee;
+            --amber: #966c00;
+            --amber-light: #fef7e0;
+            --sidebar-w: 220px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text-primary);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* ===== SIDEBAR ===== */
+        .sidebar {
+            width: var(--sidebar-w);
+            background: var(--navy);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 0; left: 0; bottom: 0;
+            z-index: 100;
+            overflow-y: auto;
+        }
+
+        .sidebar-brand {
+            padding: 20px 16px 16px;
+            border-bottom: 1px solid var(--navy-light);
+        }
+
+        .sidebar-brand-title {
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--teal);
+        }
+
+        .sidebar-brand-sub {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .sidebar-filters {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--navy-light);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .sidebar-filter-label {
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 2px;
+        }
+
+        .sidebar-select {
+            width: 100%;
+            padding: 6px 10px;
+            background: var(--navy-light);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 6px;
+            color: #d0dae8;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 12px;
+            cursor: pointer;
+            outline: none;
+        }
+
+        .sidebar-select:focus { border-color: var(--teal); }
+
+        .sidebar-nav { padding: 12px 0; flex: 1; }
+
+        .nav-section-label {
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            padding: 8px 16px 4px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 16px;
+            cursor: pointer;
+            transition: all 0.15s;
+            border-left: 3px solid transparent;
+            color: #8fa0b4;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .nav-item:hover {
+            background: rgba(255,255,255,0.05);
+            color: #c8d5e8;
+        }
+
+        .nav-item.active {
+            border-left-color: var(--teal);
+            background: rgba(1,184,170,0.1);
+            color: var(--teal);
+        }
+
+        .nav-icon { font-size: 15px; flex-shrink: 0; }
+
+        .sidebar-footer {
+            padding: 12px 16px;
+            border-top: 1px solid var(--navy-light);
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        /* ===== MAIN ===== */
+        .main {
+            margin-left: var(--sidebar-w);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* ===== TOP BAR ===== */
+        .topbar {
+            background: var(--white);
+            border-bottom: 1px solid var(--border);
+            padding: 0 28px;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .topbar-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .topbar-period {
+            font-size: 12px;
+            color: var(--text-secondary);
+            background: var(--teal-light);
+            color: var(--teal-dark);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        /* ===== CONTENT ===== */
+        .content {
+            padding: 24px 28px;
+            flex: 1;
+        }
+
+        /* ===== MODULE PAGES ===== */
+        .module-page { display: none; }
+        .module-page.active { display: block; }
+
+        /* ===== INNER TABS ===== */
+        .tab-bar {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 0;
+        }
+
+        .tab-btn {
+            padding: 8px 16px;
+            border: none;
+            background: none;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-radius: 4px 4px 0 0;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+            transition: all 0.15s;
+        }
+
+        .tab-btn:hover { color: var(--teal); background: var(--teal-faint); }
+        .tab-btn.active { color: var(--teal); border-bottom-color: var(--teal); background: var(--teal-faint); }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* ===== MODULE SWITCHER (Production) ===== */
+        .module-switcher {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .mod-btn {
+            padding: 9px 18px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--white);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .mod-btn:hover { border-color: var(--teal); color: var(--teal); }
+        .mod-btn.active { background: var(--teal); border-color: var(--teal); color: white; }
+
+        .sub-module { display: none; }
+        .sub-module.active { display: block; }
+
+        /* ===== KPI GRID ===== */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .kpi-grid-2 { grid-template-columns: repeat(2, 1fr); }
+        .kpi-grid-3 { grid-template-columns: repeat(3, 1fr); }
+        .kpi-grid-4 { grid-template-columns: repeat(4, 1fr); }
+
+        /* ===== CARD ===== */
+        .card {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 18px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+            transition: box-shadow 0.2s, border-color 0.2s;
+        }
+
+        .card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.07); border-color: var(--teal); }
+
+        .card-title {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+        }
+
+        .card-value {
+            font-family: 'DM Mono', monospace;
+            font-size: 28px;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            line-height: 1;
+        }
+
+        .card-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: var(--text-secondary);
+            padding: 5px 0;
+            border-bottom: 1px dashed var(--border-light);
+        }
+
+        .card-row:last-child { border-bottom: none; }
+        .card-row-val { font-weight: 600; color: var(--text-primary); }
+
+        .progress-track {
+            height: 5px;
+            background: var(--border-light);
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 10px 0 8px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: var(--teal);
+            border-radius: 3px;
+            transition: width 0.4s ease;
+        }
+
+        .progress-bar.danger { background: var(--orange); }
+
+        /* ===== BADGES ===== */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .badge-excellent { background: var(--green-light); color: var(--green); }
+        .badge-good { background: var(--blue-light); color: var(--blue); }
+        .badge-warning { background: var(--orange-light); color: var(--orange); }
+        .badge-critical { background: var(--red-light); color: var(--red); }
+        .badge-neutral { background: var(--amber-light); color: var(--amber); }
+
+        /* ===== SECTION HEADER ===== */
+        .section-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 24px 0 14px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--teal);
+        }
+
+        /* ===== TABLE ===== */
+        .table-wrap {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+        }
+
+        .table-head {
+            padding: 14px 18px;
+            border-bottom: 1px solid var(--border);
+            background: var(--bg);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .table-total-pill {
+            font-size: 12px;
+            color: var(--text-secondary);
+            background: var(--white);
+            padding: 3px 12px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+        }
+
+        table { width: 100%; border-collapse: collapse; }
+
+        th {
+            text-align: left;
+            padding: 11px 16px;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid var(--border);
+            background: var(--bg);
+        }
+
+        td {
+            padding: 10px 16px;
+            font-size: 13px;
+            color: var(--text-primary);
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: var(--teal-faint); }
+
+        /* ===== INPUT PANEL ===== */
+        .input-panel {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            margin: 16px 0;
+        }
+
+        .input-panel-head {
+            padding: 14px 18px;
+            border-bottom: 1px solid var(--border);
+            background: var(--bg);
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-primary);
+            border-radius: 10px 10px 0 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .input-controls {
+            display: flex;
+            gap: 16px;
+            padding: 14px 18px;
+            border-bottom: 1px solid var(--border);
+            background: var(--bg);
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .input-control-label {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            white-space: nowrap;
+        }
+
+        .input-control-select {
+            padding: 7px 14px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13px;
+            color: var(--text-primary);
+            background: var(--white);
+            flex: 1;
+            max-width: 480px;
+            outline: none;
+        }
+
+        .input-control-select:focus { border-color: var(--teal); }
+
+        .input-grid-wrap {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            padding: 18px;
+            max-height: 540px;
+            overflow-y: auto;
+        }
+
+        .input-section {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+        }
+
+        .input-section-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .input-fields-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .input-field-wrap { display: flex; flex-direction: column; gap: 4px; }
+
+        .input-field-label {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-secondary);
+        }
+
+        .input-field {
+            padding: 7px 10px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13px;
+            color: var(--text-primary);
+            background: var(--white);
+            transition: border-color 0.15s;
+            outline: none;
+        }
+
+        .input-field:focus { border-color: var(--teal); }
+        .input-field::placeholder { color: var(--text-muted); font-style: italic; }
+
+        .input-panel-actions {
+            padding: 14px 18px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+        }
+
+        /* ===== BUTTONS ===== */
+        .btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1px solid var(--border);
+            background: var(--white);
+            color: var(--text-primary);
+            transition: all 0.15s;
+        }
+
+        .btn:hover { background: var(--bg); }
+
+        .btn-primary { background: var(--teal); border-color: var(--teal); color: white; }
+        .btn-primary:hover { background: var(--teal-dark); }
+        .btn-danger { background: var(--orange); border-color: var(--orange); color: white; }
+        .btn-danger:hover { background: #b32e01; }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            text-align: right;
+            font-size: 11px;
+            color: var(--text-muted);
+            padding: 16px 28px;
+            border-top: 1px solid var(--border);
+        }
+
+        /* ===== CATEGORY BADGE ===== */
+        .cat-badge {
+            display: inline-block;
+            padding: 2px 7px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 700;
+            background: var(--border-light);
+            color: var(--text-secondary);
+            margin-right: 4px;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 900px) {
+            .sidebar { width: 60px; }
+            .sidebar-brand-title, .sidebar-brand-sub, .nav-item span, .nav-section-label, .sidebar-filters, .sidebar-footer { display: none; }
+            .main { margin-left: 60px; }
+            .nav-item { justify-content: center; padding: 12px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+    <div class="sidebar-brand">
+        <div class="sidebar-brand-title">SC OPS HUB</div>
+        <div class="sidebar-brand-sub">Supply Chain Operations</div>
+    </div>
+    <div class="sidebar-filters">
+        <div>
+            <div class="sidebar-filter-label">Year</div>
+            <select class="sidebar-select" id="globalYear" onchange="globalFilterChange()">
+                <option value="2020">2020</option><option value="2021">2021</option><option value="2022">2022</option>
+                <option value="2023">2023</option><option value="2024">2024</option><option value="2025">2025</option>
+                <option value="2026" selected>2026</option><option value="2027">2027</option><option value="2028">2028</option>
+                <option value="2029">2029</option><option value="2030">2030</option>
+            </select>
+        </div>
+        <div>
+            <div class="sidebar-filter-label">Month</div>
+            <select class="sidebar-select" id="globalMonth" onchange="globalFilterChange()">
+                <option>January</option><option>February</option><option>March</option><option>April</option>
+                <option>May</option><option>June</option><option>July</option><option>August</option>
+                <option>September</option><option selected>October</option><option>November</option><option>December</option>
+            </select>
+        </div>
+    </div>
+    <nav class="sidebar-nav">
+        <div class="nav-section-label">Modules</div>
+        <div class="nav-item active" onclick="switchModule('finance', this)">
+            <span class="nav-icon">💰</span><span>Finance</span>
+        </div>
+        <div class="nav-item" onclick="switchModule('planning', this)">
+            <span class="nav-icon">📦</span><span>SC Planning</span>
+        </div>
+        <div class="nav-item" onclick="switchModule('procurement', this)">
+            <span class="nav-icon">🛒</span><span>Procurement</span>
+        </div>
+        <div class="nav-item" onclick="switchModule('production', this)">
+            <span class="nav-icon">🏭</span><span>Production</span>
+        </div>
+        <div class="nav-item" onclick="switchModule('warehouse', this)">
+            <span class="nav-icon">🚚</span><span>Warehouse & Logistics</span>
+        </div>
+    </nav>
+    <div class="sidebar-footer">SC Operations Hub v1.0</div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+
+    <!-- TOP BAR -->
+    <div class="topbar">
+        <div class="topbar-title" id="topbarTitle">Finance Dashboard</div>
+        <div class="topbar-period" id="topbarPeriod">October 2026</div>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="content">
+
+        <!-- ============================================================ -->
+        <!-- MODULE: FINANCE                                               -->
+        <!-- ============================================================ -->
+        <div id="mod-finance" class="module-page active">
+            <div class="tab-bar">
+                <button class="tab-btn active" onclick="switchTab('finance','dashboard',this)">Dashboard</button>
+                <button class="tab-btn" onclick="switchTab('finance','cost',this)">Cost Analysis</button>
+                <button class="tab-btn" onclick="switchTab('finance','labor',this)">Labor Reports</button>
+                <button class="tab-btn" onclick="switchTab('finance','input',this)">Data Input</button>
+            </div>
+
+            <!-- Dashboard tab -->
+            <div id="finance-dashboard" class="tab-content active">
+                <div class="kpi-grid kpi-grid-4">
+                    <div class="card">
+                        <div class="card-title">Production Volume</div>
+                        <div class="card-value" id="fin-prodVal">0 MT</div>
+                        <div class="card-row"><span>Target</span><span class="card-row-val" id="fin-prodTarget">0 MT</span></div>
+                        <div class="progress-track"><div class="progress-bar" id="fin-prodBar" style="width:0%"></div></div>
+                        <div class="card-row"><span>Achieved</span><span class="card-row-val" id="fin-prodPct">0%</span></div>
+                    </div>
+                    <div class="card">
+                        <div class="card-title">Operational Cost</div>
+                        <div class="card-value" id="fin-opVal">₱0</div>
+                        <div class="card-row"><span>Budget</span><span class="card-row-val" id="fin-opBudget">₱0</span></div>
+                        <div class="progress-track"><div class="progress-bar" id="fin-opBar" style="width:0%"></div></div>
+                        <div class="card-row"><span>of Budget</span><span class="card-row-val" id="fin-opPct">0%</span></div>
+                    </div>
+                    <div class="card">
+                        <div class="card-title">Capital Expenditure</div>
+                        <div class="card-value" id="fin-capVal">₱0</div>
+                        <div class="card-row"><span>Budget</span><span class="card-row-val" id="fin-capBudget">₱0</span></div>
+                        <div class="progress-track"><div class="progress-bar" id="fin-capBar" style="width:0%"></div></div>
+                        <div class="card-row"><span>of Budget</span><span class="card-row-val" id="fin-capPct">0%</span></div>
+                    </div>
+                    <div class="card">
+                        <div class="card-title">Other Expenses</div>
+                        <div class="card-value" id="fin-otherVal">₱0</div>
+                        <div class="card-row"><span>Budget</span><span class="card-row-val" id="fin-otherBudget">₱0</span></div>
+                        <div class="progress-track"><div class="progress-bar" id="fin-otherBar" style="width:0%"></div></div>
+                        <div class="card-row"><span>of Budget</span><span class="card-row-val" id="fin-otherPct">0%</span></div>
+                    </div>
+                </div>
+                <div class="kpi-grid kpi-grid-4">
+                    <div class="card">
+                        <div class="card-title">Financial Summary</div>
+                        <div class="card-value" id="fin-totalAct">₱0</div>
+                        <div class="card-row"><span>Total Budget</span><span class="card-row-val" id="fin-totalBudget">₱0</span></div>
+                        <div class="card-row"><span>Variance</span><span class="card-row-val" id="fin-totalVar">₱0</span></div>
+                    </div>
+                    <div class="card">
+                        <div class="card-title">Cost Efficiency</div>
+                        <div class="card-value" id="fin-totalPct">0%</div>
+                        <div class="card-row"><span>Under Budget</span><span class="card-row-val" id="fin-under">0</span></div>
+                        <div class="card-row"><span>Over Budget</span><span class="card-row-val" id="fin-over">0</span></div>
+                    </div>
+                    <div class="card">
+                        <div class="card-title">Labor Hours</div>
+                        <div class="card-value" id="fin-totalHrs">0 hrs</div>
+                        <div class="card-row"><span>Regular</span><span class="card-row-val" id="fin-regHrs">0 hrs</span></div>
+                        <div class="card-row"><span>Overtime</span><span class="card-row-val" id="fin-otHrs">0 hrs</span></div>
+                    </div>
+                    <div class="card">
+                        <div class="card-title">Labor Overview</div>
+                        <div class="card-value" id="fin-wfTotal">0</div>
+                        <div class="card-row"><span>OT Rate</span><span class="card-row-val" id="fin-otRate">0%</span></div>
+                        <div class="card-row"><span>DL OT %</span><span class="card-row-val" id="fin-dlOt">0%</span></div>
+                        <div class="card-row"><span>IL OT %</span><span class="card-row-val" id="fin-ilOt">0%</span></div>
+                    </div>
+                </div>
+                <div class="section-title">Cost Analysis</div>
+                <div class="table-wrap">
+                    <div class="table-head"><span>Cost Breakdown by Category</span><span class="table-total-pill" id="fin-costTotal">Total: ₱0</span></div>
+                    <table><thead><tr><th>Category</th><th>Actual</th><th>Budget</th><th>Variance</th><th>%</th><th>Status</th></tr></thead>
+                    <tbody id="fin-costTbl"></tbody></table>
+                </div>
+                <div class="section-title">Labor Analysis</div>
+                <div class="table-wrap">
+                    <div class="table-head"><span>Labor Breakdown by Type</span><span class="table-total-pill" id="fin-laborTotal">Total Hours: 0</span></div>
+                    <table><thead><tr><th>Labor Type</th><th>Regular</th><th>Overtime</th><th>Total</th><th>OT %</th><th>Status</th></tr></thead>
+                    <tbody id="fin-laborTbl"></tbody></table>
+                </div>
+            </div>
+
+            <!-- Cost tab -->
+            <div id="finance-cost" class="tab-content">
+                <div class="kpi-grid kpi-grid-4">
+                    <div class="card"><div class="card-title">Total Costs</div><div class="card-value" id="fc-totalAct">₱0</div><div class="card-row"><span>Budget</span><span class="card-row-val" id="fc-totalBudget">₱0</span></div></div>
+                    <div class="card"><div class="card-title">Operational</div><div class="card-value" id="fc-opAct">₱0</div><div class="card-row"><span>Budget</span><span class="card-row-val" id="fc-opBudget">₱0</span></div><div class="card-row"><span>Variance</span><span class="card-row-val" id="fc-opVar">₱0</span></div></div>
+                    <div class="card"><div class="card-title">Capital</div><div class="card-value" id="fc-capAct">₱0</div><div class="card-row"><span>Budget</span><span class="card-row-val" id="fc-capBudget">₱0</span></div><div class="card-row"><span>Variance</span><span class="card-row-val" id="fc-capVar">₱0</span></div></div>
+                    <div class="card"><div class="card-title">Other</div><div class="card-value" id="fc-otherAct">₱0</div><div class="card-row"><span>Budget</span><span class="card-row-val" id="fc-otherBudget">₱0</span></div><div class="card-row"><span>Variance</span><span class="card-row-val" id="fc-otherVar">₱0</span></div></div>
+                </div>
+                <div class="table-wrap">
+                    <div class="table-head"><span>Cost Analysis - All Categories</span><span class="table-total-pill" id="fc-detailTotal">₱0</span></div>
+                    <table><thead><tr><th>Category</th><th>Actual</th><th>Budget</th><th>Variance</th><th>%</th><th>Status</th></tr></thead>
+                    <tbody id="fc-detailTbl"></tbody></table>
+                </div>
+            </div>
+
+            <!-- Labor tab -->
+            <div id="finance-labor" class="tab-content">
+                <div class="kpi-grid kpi-grid-4">
+                    <div class="card"><div class="card-title">Total Hours</div><div class="card-value" id="fl-totalHrs">0 hrs</div><div class="card-row"><span>Regular</span><span class="card-row-val" id="fl-reg">0</span></div><div class="card-row"><span>Overtime</span><span class="card-row-val" id="fl-ot">0</span></div></div>
+                    <div class="card"><div class="card-title">Direct Labor</div><div class="card-value" id="fl-dlTotal">0 hrs</div><div class="card-row"><span>Regular</span><span class="card-row-val" id="fl-dlReg">0</span></div><div class="card-row"><span>Overtime</span><span class="card-row-val" id="fl-dlOT">0</span></div><div class="card-row"><span>OT Rate</span><span class="card-row-val" id="fl-dlRate">0%</span></div></div>
+                    <div class="card"><div class="card-title">Indirect Labor</div><div class="card-value" id="fl-ilTotal">0 hrs</div><div class="card-row"><span>Regular</span><span class="card-row-val" id="fl-ilReg">0</span></div><div class="card-row"><span>Overtime</span><span class="card-row-val" id="fl-ilOT">0</span></div><div class="card-row"><span>OT Rate</span><span class="card-row-val" id="fl-ilRate">0%</span></div></div>
+                    <div class="card"><div class="card-title">OT Analysis</div><div class="card-value" id="fl-otRate">0%</div><div class="card-row"><span>DL OT %</span><span class="card-row-val" id="fl-dlOTp">0%</span></div><div class="card-row"><span>IL OT %</span><span class="card-row-val" id="fl-ilOTp">0%</span></div></div>
+                </div>
+                <div class="table-wrap">
+                    <div class="table-head"><span>Labor Analysis - All Types</span><span class="table-total-pill" id="fl-total">Total: 0</span></div>
+                    <table><thead><tr><th>Labor Type</th><th>Regular</th><th>Overtime</th><th>Total</th><th>OT %</th><th>Status</th></tr></thead>
+                    <tbody id="fl-tbl"></tbody></table>
+                </div>
+            </div>
+
+            <!-- Input tab -->
+            <div id="finance-input" class="tab-content">
+                <div class="input-panel">
+                    <div class="input-panel-head">📝 Financial Data Input</div>
+                    <div class="input-controls">
+                        <span class="input-control-label">Category:</span>
+                        <select class="input-control-select" id="fin-inputCat" onchange="finLoadInput()">
+                            <option value="production">Production Volume</option>
+                            <option value="operational">Operational Cost</option>
+                            <option value="capital">Capital Expenditure</option>
+                            <option value="other">Other Expenses</option>
+                            <option value="labor-dl">Direct Labor</option>
+                            <option value="labor-il">Indirect Labor</option>
+                        </select>
+                    </div>
+                    <div class="input-grid-wrap" id="fin-inputSections"></div>
+                    <div class="input-panel-actions">
+                        <button class="btn btn-danger" onclick="finClear()">Clear</button>
+                        <button class="btn" onclick="finClearAll()">Clear All</button>
+                        <button class="btn btn-primary" onclick="finSave()">Save Data</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- MODULE: SC PLANNING                                           -->
+        <!-- ============================================================ -->
+        <div id="mod-planning" class="module-page">
+            <div class="tab-bar">
+                <button class="tab-btn active" onclick="switchTab('planning','overview',this)">Overview</button>
+                <button class="tab-btn" onclick="switchTab('planning','input',this)">Data Input</button>
+            </div>
+
+            <div id="planning-overview" class="tab-content active">
+                <div class="kpi-grid kpi-grid-4">
+                    <div class="card">
+                        <div class="card-title">Safety Stocks (Days)</div>
+                        <div class="card-row"><span>FG Total</span><span class="card-row-val" id="pl-fgTotal">0</span></div>
+                        <div class="card-row"><span>RM Total</span><span class="card-row-val" id="pl-rmTotal">0</span></div>
+                        <div class="card-row"><span>PM Total</span><span class="card-row-val" id="pl-pmTotal">0</span></div>
+                    </div>
+                    <div class="card">
+                        <div class="card-title">Total Inventory</div>
+                        <div class="card-row"><span>FG (kgs)</span><span class="card-row-val" id="pl-fgKgs">0</span></div>
+                        <div class="card-row"><span>FG (PHP)</span><span class="card-row-val" id="pl-fgPhp">₱0</span></div>
+                        <div class="card-row"><span>RM/PM (kgs)</span><span class="card-row-val" id="pl-rmKgs">0</span></div>
+                        <div class="card-row"><span>RM/PM (PHP)</span><span class="card-row-val" id="pl-rmPhp">₱0</span></div>
+                    </div>
+                    <div class="card">
+                        <div class="card-title">Inventory Accuracy</div>
+                        <div class="card-row"><span>FG Accuracy</span><span class="card-row-val" id="pl-fgAcc">0%</span></div>
+                        <div class="card-row"><span>RM/PM Accuracy</span><span class="card-row-val" id="pl-rmAcc">0%</span></div>
+                    </div>
+                    <div class="card">
+                        <div class="card-title">Forecast Accuracy</div>
+                        <div class="card-row"><span>Local PH</span><span class="card-row-val" id="pl-fcLocal">0%</span></div>
+                        <div class="card-row"><span>Export</span><span class="card-row-val" id="pl-fcExport">0%</span></div>
+                        <div class="card-row"><span>Product</span><span class="card-row-val" id="pl-fcProd">0%</span></div>
+                        <div class="card-row" style="border-top:2px solid var(--border);margin-top:4px;padding-top:6px;"><span><strong>Overall</strong></span><span class="card-row-val" id="pl-fcOverall">0%</span></div>
+                    </div>
+                </div>
+
+                <div class="section-title">Safety Stocks (Days) — Detailed</div>
+                <div class="kpi-grid kpi-grid-3">
+                    <div class="card">
+                        <div class="card-title">Finished Goods</div>
+                        <div class="card-row"><span>Class A</span><span class="card-row-val" id="pl-fgA">0</span></div>
+                        <div class="card-row"><span>Class B</span><span class="card-row-val" id="pl-fgB">0</span></div>
+                        <div class="card-row"><span>Class C</span><span class="card-row-val" id="pl-fgC">0</span></div>
+                        <div class="card-row"><span>All In</span><span class="card-row-val" id="pl-fgAllIn">0</span></div>
+                        <div class="card-row" style="border-top:2px solid var(--border);margin-top:4px;padding-top:6px;"><span><strong>Grand Total</strong></span><span class="card-row-val" id="pl-fgGT">0</span></div>
+                    </div>
+                    <div class="card">
+                        <div class="card-title">Raw Materials</div>
+                        <div class="card-row"><span>Class A</span><span class="card-row-val" id="pl-rmA">0</span></div>
+                        <div class="card-row"><span>Class B</span><span class="card-row-val" id="pl-rmB">0</span></div>
+                        <div class="card-row"><span>Class C</span><span class="card-row-val" id="pl-rmC">0</span></div>
+                        <div class="card-row" style="border-top:2px solid var(--border);margin-top:4px;padding-top:6px;"><span><strong>Grand Total</strong></span><span class="card-row-val" id="pl-rmGT">0</span></div>
+                    </div>
+                    <div class="card">
+                        <div class="card-title">Packaging Materials</div>
+                        <div class="card-row"><span>Core</span><span class="card-row-val" id="pl-pmCore">0</span></div>
+                        <div class="card-row"><span>M7</span><span class="card-row-val" id="pl-pmM7">0</span></div>
+                        <div class="card-row"><span>Others</span><span class="card-row-val" id="pl-pmOthers">0</span></div>
+                        <div class="card-row" style="border-top:2px solid var(--border);margin-top:4px;padding-top:6px;"><span><strong>Grand Total</strong></span><span class="card-row-val" id="pl-pmGT">0</span></div>
+                    </div>
+                </div>
+
+                <div class="section-title">FG Inventory</div>
+                <div class="kpi-grid kpi-grid-2">
+                    <div class="card">
+                        <div class="card-title">By Weight (KGS)</div>
+                        <div class="card-row"><span>Fast Moving Good A&B</span><span class="card-row-val" id="pl-fgKgsFG">0</span></div>
+                        <div class="card-row"><span>Fast Moving NTE A&B</span><span class="card-row-val" id="pl-fgKgsFN">0</span></div>
+                        <div class="card-row"><span>Slow/NTE Class C</span><span class="card-row-val" id="pl-fgKgsSL">0</span></div>
+                        <div class="card-row"><span>No Movement C</span><span class="card-row-val" id="pl-fgKgsNM">0</span></div>
+                        <div class="card-row"><span>Expired</span><span class="card-row-val" id="pl-fgKgsEX">0</span></div>
+                        <div class="card-row" style="border-top:2px solid var(--border);margin-top:4px;padding-top:6px;"><span><strong>Total</strong></span><span class="card-row-val" id="pl-fgKgsTot">0</span></div>
+                        <div class="card-row"><span>Inventory Days</span><span class="card-row-val" id="pl-fgKgsDays">0</span></div>
+                    </div>
+                    <div class="card">
+                        <div class="card-title">By Value (PHP)</div>
+                        <div class="card-row"><span>Fast Moving Good A&B</span><span class="card-row-val" id="pl-fgPhpFG">₱0</span></div>
+                        <div class="card-row"><span>Fast Moving NTE A&B</span><span class="card-row-val" id="pl-fgPhpFN">₱0</span></div>
+                        <div class="card-row"><span>Slow/NTE Class C</span><span class="card-row-val" id="pl-fgPhpSL">₱0</span></div>
+                        <div class="card-row"><span>No Movement C</span><span class="card-row-val" id="pl-fgPhpNM">₱0</span></div>
+                        <div class="card-row"><span>Expired</span><span class="card-row-val" id="pl-fgPhpEX">₱0</span></div>
+                        <div class="card-row" style="border-top:2px solid var(--border);margin-top:4px;padding-top:6px;"><span><strong>Total</strong></span><span class="card-row-val" id="pl-fgPhpTot">₱0</span></div>
+                        <div class="card-row"><span>Inventory Days</span><span class="card-row-val" id="pl-fgPhpDays">0</span></div>
+                    </div>
+                </div>
+
+                <div class="section-title">RM/PM Inventory</div>
+                <div class="kpi-grid kpi-grid-2">
+                    <div class="card">
+                        <div class="card-title">By Weight (KGS)</div>
+                        <div class="card-row"><span>Fast Moving Good A&B</span><span class="card-row-val" id="pl-rmKgsFG">0</span></div>
+                        <div class="card-row"><span>Fast Moving NTE A&B</span><span class="card-row-val" id="pl-rmKgsFN">0</span></div>
+                        <div class="card-row"><span>Slow/NTE Class C</span><span class="card-row-val" id="pl-rmKgsSL">0</span></div>
+                        <div class="card-row"><span>No Movement C</span><span class="card-row-val" id="pl-rmKgsNM">0</span></div>
+                        <div class="card-row"><span>Expired</span><span class="card-row-val" id="pl-rmKgsEX">0</span></div>
+                        <div class="card-row" style="border-top:2px solid var(--border);margin-top:4px;padding-top:6px;"><span><strong>Total</strong></span><span class="card-row-val" id="pl-rmKgsTot">0</span></div>
+                        <div class="card-row"><span>Inventory Days</span><span class="card-row-val" id="pl-rmKgsDays">0</span></div>
+                    </div>
+                    <div class="card">
+                        <div class="card-title">By Value (PHP)</div>
+                        <div class="card-row"><span>Fast Moving Good A&B</span><span class="card-row-val" id="pl-rmPhpFG">₱0</span></div>
+                        <div class="card-row"><span>Fast Moving NTE A&B</span><span class="card-row-val" id="pl-rmPhpFN">₱0</span></div>
+                        <div class="card-row"><span>Slow/NTE Class C</span><span class="card-row-val" id="pl-rmPhpSL">₱0</span></div>
+                        <div class="card-row"><span>No Movement C</span><span class="card-row-val" id="pl-rmPhpNM">₱0</span></div>
+                        <div class="card-row"><span>Expired</span><span class="card-row-val" id="pl-rmPhpEX">₱0</span></div>
+                        <div class="card-row" style="border-top:2px solid var(--border);margin-top:4px;padding-top:6px;"><span><strong>Total</strong></span><span class="card-row-val" id="pl-rmPhpTot">₱0</span></div>
+                        <div class="card-row"><span>Inventory Days</span><span class="card-row-val" id="pl-rmPhpDays">0</span></div>
+                    </div>
+                </div>
+
+                <div class="section-title">Inventory Accuracy</div>
+                <div class="kpi-grid kpi-grid-2">
+                    <div class="card">
+                        <div class="card-title">Finished Goods</div>
+                        <div class="card-row"><span>Total Count</span><span class="card-row-val" id="pl-fgCnt">0</span></div>
+                        <div class="card-row"><span>Total Missed</span><span class="card-row-val" id="pl-fgMiss">0</span></div>
+                        <div class="card-row" style="border-top:2px solid var(--border);margin-top:4px;padding-top:6px;"><span><strong>Accuracy</strong></span><span class="card-row-val" id="pl-fgAccDet">0%</span></div>
+                    </div>
+                    <div class="card">
+                        <div class="card-title">RM/PM</div>
+                        <div class="card-row"><span>Total Count</span><span class="card-row-val" id="pl-rmCnt">0</span></div>
+                        <div class="card-row"><span>Total Missed</span><span class="card-row-val" id="pl-rmMiss">0</span></div>
+                        <div class="card-row" style="border-top:2px solid var(--border);margin-top:4px;padding-top:6px;"><span><strong>Accuracy</strong></span><span class="card-row-val" id="pl-rmAccDet">0%</span></div>
+                    </div>
+                </div>
+
+                <div class="section-title">Forecast Accuracy</div>
+                <div class="kpi-grid kpi-grid-2">
+                    <div class="card">
+                        <div class="card-title">Local Philippines</div>
+                        <div class="card-row"><span>GMA</span><span class="card-row-val" id="pl-fcGma">0%</span></div>
+                        <div class="card-row"><span>North Luzon</span><span class="card-row-val" id="pl-fcNorth">0%</span></div>
+                        <div class="card-row"><span>South Luzon</span><span class="card-row-val" id="pl-fcSouth">0%</span></div>
+                        <div class="card-row"><span>Visayas</span><span class="card-row-val" id="pl-fcVis">0%</span></div>
+                        <div class="card-row"><span>Mindanao</span><span class="card-row-val" id="pl-fcMind">0%</span></div>
+                        <div class="card-row"><span>Modern Trade</span><span class="card-row-val" id="pl-fcMT">0%</span></div>
+                        <div class="card-row"><span>PSBSI</span><span class="card-row-val" id="pl-fcPsbsi">0%</span></div>
+                        <div class="card-row" style="border-top:2px solid var(--border);margin-top:4px;padding-top:6px;"><span><strong>Local Average</strong></span><span class="card-row-val" id="pl-fcLocalAvg">0%</span></div>
+                    </div>
+                    <div class="card">
+                        <div class="card-title">Export</div>
+                        <div class="card-row"><span>Indonesia</span><span class="card-row-val" id="pl-fcIndo">0%</span></div>
+                        <div class="card-row"><span>India</span><span class="card-row-val" id="pl-fcIndia">0%</span></div>
+                        <div class="card-row"><span>Direct Export</span><span class="card-row-val" id="pl-fcDirect">0%</span></div>
+                        <div class="card-row" style="border-top:2px solid var(--border);margin-top:4px;padding-top:6px;"><span><strong>Export Average</strong></span><span class="card-row-val" id="pl-fcExportAvg">0%</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="planning-input" class="tab-content">
+                <div class="input-panel">
+                    <div class="input-panel-head">📝 SC Planning Data Input</div>
+                    <div class="input-grid-wrap" id="pl-inputSections" style="grid-template-columns: repeat(3,1fr);">
+                        <!-- Safety Stocks -->
+                        <div class="input-section">
+                            <div class="input-section-title">Safety Stocks (Days)</div>
+                            <div class="input-fields-grid">
+                                <div class="input-field-wrap"><label class="input-field-label">FG Class A</label><input class="input-field" type="number" id="pl-i-fgA" placeholder="Days"></div>
+                                <div class="input-field-wrap"><label class="input-field-label">FG Class B</label><input class="input-field" type="number" id="pl-i-fgB" placeholder="Days"></div>
+                                <div class="input-field-wrap"><label class="input-field-label">FG Class C</label><input class="input-field" type="number" id="pl-i-fgC" placeholder="Days"></div>
+                                <div class="input-field-wrap"><label class="input-field-label">FG All In</label><input class="input-field" type="number" id="pl-i-fgAllIn" placeholder="Days"></div>
+                                <div class="input-field-wrap"><label class="input-field-label">RM Class A</label><input class="input-field" type="number" id="pl-i-rmA" placeholder="Days"></div>
+                                <div class="input-field-wrap"><label class="input-field-label">RM Class B</label><input class="input-field" type="number" id="pl-i-rmB" placeholder="Days"></div>
+                                <div class="input-field-wrap"><label class="input-field-label">RM Class C</label><input class="input-field" type="number" id="pl-i-rmC" placeholder="Days"></div>
+                                <div class="input-field-wrap"><label class="input-field-label">PM Core</label><input class="input-field" type="number" id="pl-i-pmCore" placeholder="Days"></div>
+                                <div class="input-field-wrap"><label class="input-field-label">PM M7</label><input class="input-field" type="number" id="pl-i-pmM7" placeholder="Days"></div>
+                                <div class="input-field-wrap"><label class="input-field-label">PM Others</label><input class="input-field" type="number" id="pl-i-pmOthers" placeholder="Days"></div>
+                            </div>
+                        </div>
+                        <!-- FG Inventory KGS -->
+                        <div class="input-section">
+                            <div class="input-section-title">FG Inventory (KGS)</div>
+                            <div class="input-fields-grid">
+                                <div class="input-field-wrap"><label class="input-field-label">Fast Good A&B</label><input class="input-field" type="number" id="pl-i-fgKgsFG" placeholder="kgs"></div>
+                                <div class="input-field-wrap"><label class="input-field-label">Fast NTE A&B</label><input class="input-field" type="number" id="pl-i-fgKgsFN" placeholder="kgs"></div>
+                                <div class="input-field-wrap"><label class="input-field-label">Slow/NTE C</label><input class="input-field" type="number" id="pl-i-fgKgsSL" placeholder="kgs"></div>
+                                <div class="input-field-wrap"><label class="input-field-label">No Move C</label><input class="input-field" type="number" id="pl-i-fgKgsNM" placeholder="kgs"></div>
+                                <div class="input-field-wrap"><label class="input-field-label">Expired</label><input class="input-field" type="number" id="pl-i-fgKgsEX" placeholder="kgs"></div>
+                                <div class="input-field-wrap"><label class="input-field-label">Inv Days</label><input class="input-field" type="number" id="pl-i-fgKgsDays" placeholder="days"></div>
+                            </div>
+                        </div>
+                        <!-- FG Inventory PHP -->
+                        <div class="input-section">
+                            <div class="input-section-title">FG Inventory (PHP)</div>
+                            <div class="input-fields-grid">
+                                <div class="input-field-wrap"><label class="input-field-label">Fast Good A&B</label><input class="input-field" type="number" id="pl-i-fgPhpFG" placeholder="₱"></div>
+                                <div class="input-field-wrap"><label class="input-field-label">Fast NTE A&B</label><input class="input-field" type="number" id="pl-i-fgPhpFN" placeholder="₱"></div>
+                                <div class="input-field-wrap"><label class="input-field-label">Slow/NTE C</label><input class="input-field" type="number" id="pl-i-fgPhpSL" placeholder="₱"></div>
+                                <div class="input-field-wrap"><label class="input-field-label">No Move C</label><input class="input-field" type="number" id="pl-i-fgPhpNM" placeholder="₱"></div>
+                                <div class="input-field-wrap"><label class="input-field-label">Expired</label><input class="input-field" type="number" id="pl-i-fgPhpEX" placeholder="₱"></div>
+                            </div>
+                        </div>
+                        <!-- RM/PM KGS -->
+                        <div class="input-section">
+                            <div class="input-section-title">RM/PM Inventory (KGS)</div>
+                            <div class="input-fields-grid">
+                                <div class="input-field-wrap"><label class="input-field-label">Fast Good A&B</label><input class="input-field" type="number" id="pl-i-rmKgsFG" placeholder="kgs"></div>
+                                <div class="input-field-wrap"><label class="input-field-label">Fast NTE A&B</label><input class="input-field" type="number" id="pl-i-rmKgsFN" placeholder="kgs"></div>
+                                <div class="input-field-wrap"><label class="input-field-label">Slow/NTE C</label><input class="input-field" type="number" id="pl-i-rmKgsSL" placeholder="kgs"></div>
+                                <div class="input-field-wrap"><label class="input-field-label">No Move C</label><input class="input-field" type="number" id="pl-i-rmKgsNM" placeholder="kgs"></div>
+                                <div class="input-field-wrap"><label class="input-field-label">Expired</label><input class="input-field" type="number" id="pl-i-rmKgsEX" placeholder="kgs"></div>
+                                <div class="input-field-wrap"><label class="input-field-label">Inv Days</label><input class="input-field" type="number" id="pl-i-rmKgsDays" placeholder="days"></div>
+                            </div>
+                        </div>
+                        <!-- RM/PM PHP -->
+                        <div class="input-section">
+                            <div class="input-section-title">RM/PM Inventory (PHP)</div>
+                            <div class="input-fields-grid">
+                                <div class="input-field-wrap"><label class="input-field-label">Fast Good A&B</label><input class="input-field" type="number" id="pl-i-rmPhpFG" placeholder="₱"></div>
+                                <div class="input-field-wrap"><label class="input-field-label">Fast NTE A&B</label><input class="input-field" type="number" id="pl-i-rmPhpFN" placeholder="₱"></div>
+                                <div class="input-field-wrap"><label class="input-field-label">Slow/NTE C</label><input class="input-field" type="number" id="pl-i-rmPhpSL" placeholder="₱"></div>
+                                <div class="input-field-wrap"><label class="input-field-label">No Move C</label><input class="input-field" type="number" id="pl-i-rmPhpNM" placeholder="₱"></div>
+                                <div class="input-field-wrap"><label class="input-field-label">Expired</label><input class="input-field" type="number" id="pl-i-rmPhpEX" placeholder="₱"></div>
+                            </div>
+                        </div>
+                        <!-- Accuracy -->
+                        <div class="input-section">
+                            <div class="input-section-title">Inventory Accuracy</div>
+                            <div class="input-fields-grid">
+                                <div class="input-field-wrap"><label class="input-field-label">FG Count</label><input class="input-field" type="number" id="pl-i-fgCnt" placeholder="count"></div>
+                                <div class="input-field-wrap"><label class="input-field-label">FG Missed</label><input class="input-field" type="number" id="pl-i-fgMiss" placeholder="count"></div>
+                                <div class="input-field-wrap"><label class="input-field-label">RM Count</label><input class="input-field" type="number" id="pl-i-rmCnt" placeholder="count"></div>
+                                <div class="input-field-wrap"><label class="input-field-label">RM Missed</label><input class="input-field" type="number" id="pl-i-rmMiss" placeholder="count"></div>
+                            </div>
+                        </div>
+                        <!-- Forecast Local -->
+                        <div class="input-section">
+                            <div class="input-section-title">Forecast — Local (%)</div>
+                            <div class="input-fields-grid">
+                                <div class="input-field-wrap"><label class="input-field-label">GMA</label><input class="input-field" type="number" id="pl-i-fcGma" placeholder="%"></div>
+                                <div class="input-field-wrap"><label class="input-field-label">North Luzon</label><input class="input-field" type="number" id="pl-i-fcNorth" placeholder="%"></div>
+                                <div class="input-field-wrap"><label class="input-field-label">South Luzon</label><input class="input-field" type="number" id="pl-i-fcSouth" placeholder="%"></div>
+                                <div class="input-field-wrap"><label class="input-field-label">Visayas</label><input class="input-field" type="number" id="pl-i-fcVis" placeholder="%"></div>
+                                <div class="input-field-wrap"><label class="input-field-label">Mindanao</label><input class="input-field" type="number" id="pl-i-fcMind" placeholder="%"></div>
+                                <div class="input-field-wrap"><label class="input-field-label">Modern Trade</label><input class="input-field" type="number" id="pl-i-fcMT" placeholder="%"></div>
+                                <div class="input-field-wrap"><label class="input-field-label">PSBSI</label><input class="input-field" type="number" id="pl-i-fcPsbsi" placeholder="%"></div>
+                            </div>
+                        </div>
+                        <!-- Forecast Export -->
+                        <div class="input-section">
+                            <div class="input-section-title">Forecast — Export (%)</div>
+                            <div class="input-fields-grid">
+                                <div class="input-field-wrap"><label class="input-field-label">Indonesia</label><input class="input-field" type="number" id="pl-i-fcIndo" placeholder="%"></div>
+                                <div class="input-field-wrap"><label class="input-field-label">India</label><input class="input-field" type="number" id="pl-i-fcIndia" placeholder="%"></div>
+                                <div class="input-field-wrap"><label class="input-field-label">Direct Export</label><input class="input-field" type="number" id="pl-i-fcDirect" placeholder="%"></div>
+                            </div>
+                        </div>
+                        <!-- Forecast Product -->
+                        <div class="input-section">
+                            <div class="input-section-title">Forecast — Product (%)</div>
+                            <div class="input-fields-grid">
+                                <div class="input-field-wrap"><label class="input-field-label">Epoxy</label><input class="input-field" type="number" id="pl-i-pEpoxy" placeholder="%"></div>
+                                <div class="input-field-wrap"><label class="input-field-label">Elastoseal</label><input class="input-field" type="number" id="pl-i-pElasto" placeholder="%"></div>
+                                <div class="input-field-wrap"><label class="input-field-label">Mighty Bond</label><input class="input-field" type="number" id="pl-i-pMighty" placeholder="%"></div>
+                                <div class="input-field-wrap"><label class="input-field-label">Pro-Epoxy</label><input class="input-field" type="number" id="pl-i-pProEpoxy" placeholder="%"></div>
+                                <div class="input-field-wrap"><label class="input-field-label">Builders Bond</label><input class="input-field" type="number" id="pl-i-pBuilders" placeholder="%"></div>
+                                <div class="input-field-wrap"><label class="input-field-label">Coating Marine</label><input class="input-field" type="number" id="pl-i-pCoating" placeholder="%"></div>
+                                <div class="input-field-wrap"><label class="input-field-label">Transportation</label><input class="input-field" type="number" id="pl-i-pTransport" placeholder="%"></div>
+                                <div class="input-field-wrap"><label class="input-field-label">Other Consumer</label><input class="input-field" type="number" id="pl-i-pOther" placeholder="%"></div>
+                                <div class="input-field-wrap"><label class="input-field-label">Pro-Sealant</label><input class="input-field" type="number" id="pl-i-pSealant" placeholder="%"></div>
+                                <div class="input-field-wrap"><label class="input-field-label">Pro-Waterproofing</label><input class="input-field" type="number" id="pl-i-pWaterproof" placeholder="%"></div>
+                                <div class="input-field-wrap"><label class="input-field-label">Pro-Painting</label><input class="input-field" type="number" id="pl-i-pPainting" placeholder="%"></div>
+                                <div class="input-field-wrap"><label class="input-field-label">Pro-Adhesives</label><input class="input-field" type="number" id="pl-i-pAdhesives" placeholder="%"></div>
+                                <div class="input-field-wrap"><label class="input-field-label">Mining</label><input class="input-field" type="number" id="pl-i-pMining" placeholder="%"></div>
+                                <div class="input-field-wrap"><label class="input-field-label">Others</label><input class="input-field" type="number" id="pl-i-pOthers" placeholder="%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="input-panel-actions">
+                        <button class="btn btn-danger" onclick="plClearAll()">Clear All</button>
+                        <button class="btn btn-primary" onclick="plUpdate()">Update Dashboard</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- MODULE: PROCUREMENT                                           -->
+        <!-- ============================================================ -->
+        <div id="mod-procurement" class="module-page">
+            <div class="kpi-grid" style="grid-template-columns:1fr;">
+                <div class="card">
+                    <div class="card-title">Savings Performance</div>
+                    <div class="card-value" id="proc-rate">0%</div>
+                    <div class="card-row"><span>Actual Savings</span><span class="card-row-val" id="proc-actual">₱0</span></div>
+                    <div class="card-row"><span>Target Savings</span><span class="card-row-val" id="proc-target">₱0</span></div>
+                    <div class="card-row"><span>Variance</span><span class="card-row-val" id="proc-variance">₱0</span></div>
+                    <div class="progress-track"><div class="progress-bar" id="proc-bar" style="width:0%"></div></div>
+                    <div class="card-row"><span>Status</span><span id="proc-status" class="badge badge-neutral">No Data</span></div>
+                </div>
+            </div>
+            <div class="input-panel">
+                <div class="input-panel-head">📝 Savings Data Input</div>
+                <div class="input-grid-wrap" style="grid-template-columns:1fr;">
+                    <div class="input-section" style="grid-column:span 1;">
+                        <div class="input-section-title">Savings</div>
+                        <div class="input-fields-grid">
+                            <div class="input-field-wrap"><label class="input-field-label">Actual Savings (₱)</label><input class="input-field" type="number" id="proc-i-actual" placeholder="Enter amount" oninput="procCalc()"></div>
+                            <div class="input-field-wrap"><label class="input-field-label">Target Savings (₱)</label><input class="input-field" type="number" id="proc-i-target" placeholder="Enter amount" oninput="procCalc()"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="input-panel-actions">
+                    <button class="btn" onclick="document.getElementById('proc-i-actual').value='';document.getElementById('proc-i-target').value='';procCalc()">Clear</button>
+                    <button class="btn btn-primary" onclick="procCalc()">Update</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- MODULE: PRODUCTION                                            -->
+        <!-- ============================================================ -->
+        <div id="mod-production" class="module-page">
+            <div class="module-switcher">
+                <button class="mod-btn active" onclick="switchSubMod('util', this)">🔧 Machine Utilization</button>
+                <button class="mod-btn" onclick="switchSubMod('waste', this)">📊 Output & Wastage</button>
+                <button class="mod-btn" onclick="switchSubMod('sched', this)">📅 Scheduling Attainment</button>
+            </div>
+
+            <!-- UTILIZATION -->
+            <div id="prod-util" class="sub-module active">
+                <div class="tab-bar">
+                    <button class="tab-btn active" onclick="switchTab('util','overview',this)">Overview</button>
+                    <button class="tab-btn" onclick="switchTab('util','input',this)">Data Input</button>
+                </div>
+                <div id="util-overview" class="tab-content active">
+                    <div class="kpi-grid kpi-grid-4">
+                        <div class="card"><div class="card-title">Overall Utilization</div><div class="card-value" id="util-overall">0%</div><div class="card-row"><span>Productive Time</span><span class="card-row-val" id="util-prod">0 hrs</span></div><div class="card-row"><span>Available Time</span><span class="card-row-val" id="util-avail">0 hrs</span></div><div class="progress-track"><div class="progress-bar" id="util-bar" style="width:0%"></div></div></div>
+                        <div class="card"><div class="card-title">Machine Summary</div><div class="card-value" id="util-mach">0</div><div class="card-row"><span>Available</span><span class="card-row-val" id="util-mAvail">0</span></div><div class="card-row"><span>Used</span><span class="card-row-val" id="util-mUsed">0</span></div><div class="card-row"><span>Prod Days</span><span class="card-row-val" id="util-days">0</span></div></div>
+                        <div class="card"><div class="card-title">Lines</div><div class="card-value" id="util-lines">16</div><div class="card-row"><span>Lines with Data</span><span class="card-row-val" id="util-linesData">0</span></div><div class="card-row"><span>Avg Util/Line</span><span class="card-row-val" id="util-avgUtil">0%</span></div></div>
+                        <div class="card"><div class="card-title">Top Downtime Causes</div><div id="util-downtime"><div class="card-row"><span>No Data</span><span>0 hrs</span></div></div></div>
+                    </div>
+                    <div class="section-title">Utilization by Production Line</div>
+                    <div class="table-wrap">
+                        <div class="table-head"><span>Machine Utilization by Line</span><span class="table-total-pill" id="util-totalTime">Total: 0 hrs</span></div>
+                        <table><thead><tr><th>Line</th><th>Productive</th><th>Total</th><th>Utilization %</th><th>Machines</th><th>Status</th></tr></thead>
+                        <tbody id="util-tbl"></tbody></table>
+                    </div>
+                </div>
+                <div id="util-input" class="tab-content">
+                    <div class="input-panel">
+                        <div class="input-panel-head">🔧 Machine Utilization Data Input</div>
+                        <div class="input-controls">
+                            <span class="input-control-label">Select Line:</span>
+                            <select class="input-control-select" id="util-lineSelect" onchange="utilLoadLine()">
+                                <option value="">— Select Line —</option>
+                                <option value="L06_FILLING">LINE 6 - EPOXY (FILLING)</option>
+                                <option value="L06_MIXER">LINE 6 - EPOXY (MIXER)</option>
+                                <option value="L04_FILLING">LINE 4 - ELASTO FILLING</option>
+                                <option value="L04_MIXING">LINE 4 - ELASTO MIXING</option>
+                                <option value="L03_ITALY">LINE 3 - ITALY MACHINE</option>
+                                <option value="L03_KOREA">LINE 3 - KOREA MACHINE</option>
+                                <option value="L01_MIXER">L01 - COATINGS (MIXER)</option>
+                                <option value="L01_MILLING">L01 - COATINGS (MILLING)</option>
+                                <option value="L07_TUBE">LINE 7 - EPOXY TUBE</option>
+                                <option value="L09_EPS">LINE 9 - EPS</option>
+                                <option value="L10_BOND">LINE 10 - CONTACT BOND</option>
+                                <option value="L11_SILICONE">LINE 11 - SILICONE NEW</option>
+                                <option value="L12_EPOXY">LINE 12 - EPOXY BASED</option>
+                                <option value="L13_WATER">LINE 13 - WATER BASED</option>
+                                <option value="L14_FILLING">LINE 14 - FILLING</option>
+                                <option value="L14_MIXING">LINE 14 - MIXING</option>
+                            </select>
+                        </div>
+                        <div class="input-grid-wrap" id="util-inputSections"></div>
+                        <div class="input-panel-actions">
+                            <button class="btn btn-danger" onclick="utilClearLine()">Clear Line</button>
+                            <button class="btn" onclick="utilClearAll()">Clear All</button>
+                            <button class="btn btn-primary" onclick="utilSave()">Save</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- OUTPUT & WASTAGE -->
+            <div id="prod-waste" class="sub-module">
+                <div class="tab-bar">
+                    <button class="tab-btn active" onclick="switchTab('waste','overview',this)">Overview</button>
+                    <button class="tab-btn" onclick="switchTab('waste','input',this)">Data Input</button>
+                </div>
+                <div id="waste-overview" class="tab-content active">
+                    <div class="kpi-grid kpi-grid-4">
+                        <div class="card"><div class="card-title">Total Output</div><div class="card-value" id="waste-total">0 kg</div><div class="card-row"><span>FG Output</span><span class="card-row-val" id="waste-fg">0 kg</span></div><div class="card-row"><span>Reprocess</span><span class="card-row-val" id="waste-rep">0 kg</span></div><div class="card-row"><span>Rejection</span><span class="card-row-val" id="waste-rej">0 kg</span></div></div>
+                        <div class="card"><div class="card-title">Net Output</div><div class="card-value" id="waste-net">0 kg</div></div>
+                        <div class="card"><div class="card-title">Waste Analysis</div><div class="card-value" id="waste-wasteKg">0 kg</div><div class="card-row"><span>Waste %</span><span class="card-row-val" id="waste-wastePct">0%</span></div><div class="progress-track"><div class="progress-bar danger" id="waste-bar" style="width:0%"></div></div></div>
+                        <div class="card"><div class="card-title">Lines</div><div class="card-value" id="waste-lines">14</div><div class="card-row"><span>With Output</span><span class="card-row-val" id="waste-linesData">0</span></div><div class="card-row"><span>With Waste</span><span class="card-row-val" id="waste-linesWaste">0</span></div></div>
+                    </div>
+                    <div class="section-title">Output & Waste by Line</div>
+                    <div class="table-wrap">
+                        <div class="table-head"><span>Production Output by Line</span><span class="table-total-pill" id="waste-totalDisp">Total: 0 kg</span></div>
+                        <table><thead><tr><th>Line</th><th>FG Output</th><th>Reprocess</th><th>Rejection</th><th>Net Output</th><th>Waste</th><th>Waste %</th><th>Status</th></tr></thead>
+                        <tbody id="waste-tbl"></tbody></table>
+                    </div>
+                </div>
+                <div id="waste-input" class="tab-content">
+                    <div class="input-panel">
+                        <div class="input-panel-head">📊 Output & Waste Data Input</div>
+                        <div class="input-controls">
+                            <span class="input-control-label">Select Line:</span>
+                            <select class="input-control-select" id="waste-lineSelect" onchange="wasteLoadLine()">
+                                <option value="">— Select Line —</option>
+                                <option value="L06_EPOXY">L06 - EPOXY</option>
+                                <option value="L04B_ELASTO">L04B - ELASTO</option>
+                                <option value="L03_CYANO">L03 - CYANO TUBE</option>
+                                <option value="L01_COATINGS">L01 - COATINGS</option>
+                                <option value="L07_TUBE">L07 - EPOXY TUBE</option>
+                                <option value="L09_EPS">LINE 9 - EPS</option>
+                                <option value="L10_BOND">L10 - CONTACT BOND</option>
+                                <option value="L11_SILICONE">L11 - SILICONE</option>
+                                <option value="L12_EPOXY">L12 - SPECIAL EPOXY</option>
+                                <option value="L13_WATER">L13 - SPECIAL WATER</option>
+                                <option value="L14">LINE 14</option>
+                                <option value="L05_CLAY">L05 - EPOXY CLAY</option>
+                                <option value="L02_BOTTLE">L02 - CYNO BOTTLE</option>
+                                <option value="LABELING">LABELING LINE</option>
+                            </select>
+                        </div>
+                        <div class="input-grid-wrap" id="waste-inputSections"></div>
+                        <div class="input-panel-actions">
+                            <button class="btn btn-danger" onclick="wasteClearLine()">Clear Line</button>
+                            <button class="btn" onclick="wasteClearAll()">Clear All</button>
+                            <button class="btn btn-primary" onclick="wasteSave()">Save</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SCHEDULING -->
+            <div id="prod-sched" class="sub-module">
+                <div class="tab-bar">
+                    <button class="tab-btn active" onclick="switchTab('sched','overview',this)">Overview</button>
+                    <button class="tab-btn" onclick="switchTab('sched','input',this)">Data Input</button>
+                </div>
+                <div id="sched-overview" class="tab-content active">
+                    <div class="kpi-grid kpi-grid-4">
+                        <div class="card"><div class="card-title">Overall Compliance</div><div class="card-value" id="sched-overall">0%</div><div class="card-row"><span>Total Actual</span><span class="card-row-val" id="sched-actual">0 kg</span></div><div class="card-row"><span>Total Planned</span><span class="card-row-val" id="sched-planned">0 kg</span></div><div class="progress-track"><div class="progress-bar" id="sched-bar" style="width:0%"></div></div></div>
+                        <div class="card"><div class="card-title">Top Performers</div><div id="sched-topPerf"><div class="card-row"><span>No Data</span></div></div></div>
+                        <div class="card"><div class="card-title">Needs Improvement</div><div id="sched-needsImp"><div class="card-row"><span>No Data</span></div></div></div>
+                        <div class="card"><div class="card-title">Lines</div><div class="card-value" id="sched-lines">13</div><div class="card-row"><span>With Data</span><span class="card-row-val" id="sched-linesData">0</span></div><div class="card-row"><span>Avg Compliance</span><span class="card-row-val" id="sched-avgComp">0%</span></div></div>
+                    </div>
+                    <div class="section-title">Scheduling Attainment by Line</div>
+                    <div class="table-wrap">
+                        <div class="table-head"><span>Actual vs Planned Output</span><span class="table-total-pill" id="sched-totalDisp">Total Actual: 0 kg</span></div>
+                        <table><thead><tr><th>Line</th><th>Actual (kg)</th><th>Planned (kg)</th><th>Compliance %</th><th>Status</th></tr></thead>
+                        <tbody id="sched-tbl"></tbody></table>
+                    </div>
+                </div>
+                <div id="sched-input" class="tab-content">
+                    <div class="input-panel">
+                        <div class="input-panel-head">📅 Scheduling Attainment Data Input</div>
+                        <div class="input-controls">
+                            <span class="input-control-label">Select Line:</span>
+                            <select class="input-control-select" id="sched-lineSelect" onchange="schedLoadLine()">
+                                <option value="">— Select Line —</option>
+                                <option value="L06_EPOXY">L06 - EPOXY</option>
+                                <option value="L04B_ELASTO">L04B - ELASTO</option>
+                                <option value="L03_CYANO">L03 - CYANO TUBE</option>
+                                <option value="L01_COATINGS">L01 - COATINGS</option>
+                                <option value="L07_TUBE">L07 - EPOXY TUBE</option>
+                                <option value="L09_EPS">LINE 9 - EPS</option>
+                                <option value="L10_BOND">L10 - CONTACT BOND</option>
+                                <option value="L11_SILICONE">L11 - SILICONE</option>
+                                <option value="L12_EPOXY">L12 - SPECIAL EPOXY</option>
+                                <option value="L13_WATER">L13 - SPECIAL</option>
+                                <option value="L14">LINE 14</option>
+                                <option value="L05_CLAY">L05 - EPOXY CLAY</option>
+                                <option value="L02_BOTTLE">L02 - CYNO BOTTLE</option>
+                            </select>
+                        </div>
+                        <div class="input-grid-wrap" id="sched-inputSections"></div>
+                        <div class="input-panel-actions">
+                            <button class="btn btn-danger" onclick="schedClearLine()">Clear Line</button>
+                            <button class="btn" onclick="schedClearAll()">Clear All</button>
+                            <button class="btn btn-primary" onclick="schedSave()">Save</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- MODULE: WAREHOUSE & LOGISTICS                                 -->
+        <!-- ============================================================ -->
+        <div id="mod-warehouse" class="module-page">
+            <div class="tab-bar">
+                <button class="tab-btn active" onclick="switchTab('wh','overview',this)">Overview</button>
+                <button class="tab-btn" onclick="switchTab('wh','fillrates',this)">Fill Rates</button>
+                <button class="tab-btn" onclick="switchTab('wh','nonotif',this)">Non-OTIF</button>
+                <button class="tab-btn" onclick="switchTab('wh','stockouts',this)">Stock Outs</button>
+                <button class="tab-btn" onclick="switchTab('wh','warehouseutil',this)">Warehouse</button>
+                <button class="tab-btn" onclick="switchTab('wh','manpower',this)">Manpower</button>
+                <button class="tab-btn" onclick="switchTab('wh','input',this)">Data Input</button>
+            </div>
+
+            <div id="wh-overview" class="tab-content active">
+                <div class="kpi-grid kpi-grid-3">
+                    <div class="card"><div class="card-title">OTIF Rate</div><div class="card-value" id="wh-otif">0%</div><div class="card-row"><span>Served</span><span class="card-row-val" id="wh-otifServed">0</span></div><div class="card-row"><span>Total</span><span class="card-row-val" id="wh-otifTotal">0</span></div><div class="progress-track"><div class="progress-bar" id="wh-otifBar" style="width:0%"></div></div><div class="card-row"><span>Status</span><span id="wh-otifStatus" class="badge badge-neutral">No Data</span></div></div>
+                    <div class="card"><div class="card-title">Volume Fill</div><div class="card-value" id="wh-volFill">0%</div><div class="card-row"><span>Delivered</span><span class="card-row-val" id="wh-volDel">₱0</span></div><div class="card-row"><span>Orders</span><span class="card-row-val" id="wh-volOrd">₱0</span></div><div class="progress-track"><div class="progress-bar" id="wh-volBar" style="width:0%"></div></div><div class="card-row"><span>Status</span><span id="wh-volStatus" class="badge badge-neutral">No Data</span></div></div>
+                    <div class="card"><div class="card-title">WH Utilization</div><div class="card-value" id="wh-whUtil">0%</div><div class="card-row"><span>Used</span><span class="card-row-val" id="wh-whUsed">0</span></div><div class="card-row"><span>Total</span><span class="card-row-val" id="wh-whTotal">0</span></div><div class="progress-track"><div class="progress-bar" id="wh-whBar" style="width:0%"></div></div><div class="card-row"><span>Status</span><span id="wh-whStatus" class="badge badge-neutral">No Data</span></div></div>
+                </div>
+                <div class="section-title">Fill Rates — Hit Rate</div>
+                <div class="kpi-grid kpi-grid-4">
+                    <div class="card"><div class="card-title">Corporate</div><div class="card-value" id="wh-corpRate">0%</div><div class="card-row"><span>Delivered</span><span class="card-row-val" id="wh-corpDel">₱0</span></div><div class="card-row"><span>Orders</span><span class="card-row-val" id="wh-corpOrd">₱0</span></div><div class="card-row"><span>Status</span><span id="wh-corpStatus" class="badge badge-neutral">No Data</span></div></div>
+                    <div class="card"><div class="card-title">SC Fill</div><div class="card-value" id="wh-scRate">0%</div><div class="card-row"><span>Delivered</span><span class="card-row-val" id="wh-scDel">₱0</span></div><div class="card-row"><span>Orders</span><span class="card-row-val" id="wh-scOrd">₱0</span></div><div class="card-row"><span>Status</span><span id="wh-scStatus" class="badge badge-neutral">No Data</span></div></div>
+                    <div class="card"><div class="card-title">Core Products</div><div class="card-value" id="wh-coreRate">0%</div><div class="card-row"><span>Delivered</span><span class="card-row-val" id="wh-coreDel">₱0</span></div><div class="card-row"><span>Orders</span><span class="card-row-val" id="wh-coreOrd">₱0</span></div><div class="card-row"><span>Status</span><span id="wh-coreStatus" class="badge badge-neutral">No Data</span></div></div>
+                    <div class="card"><div class="card-title">Emerging</div><div class="card-value" id="wh-emergRate">0%</div><div class="card-row"><span>Delivered</span><span class="card-row-val" id="wh-emergDel">₱0</span></div><div class="card-row"><span>Orders</span><span class="card-row-val" id="wh-emergOrd">₱0</span></div><div class="card-row"><span>Status</span><span id="wh-emergStatus" class="badge badge-neutral">No Data</span></div></div>
+                </div>
+                <div class="section-title">Key Metrics</div>
+                <div class="kpi-grid kpi-grid-4">
+                    <div class="card"><div class="card-title">Non-OTIF Issues</div><div class="card-value" id="wh-nonOtifTotal">0</div><div class="card-row"><span>Top Category</span><span class="card-row-val" id="wh-nonOtifTop">—</span></div></div>
+                    <div class="card"><div class="card-title">Stock Outs</div><div class="card-value" id="wh-stockVal">₱0</div><div class="card-row"><span>Weight</span><span class="card-row-val" id="wh-stockWt">0 KGS</span></div></div>
+                    <div class="card"><div class="card-title">OTDL Average</div><div class="card-value" id="wh-otdlAvg">0 days</div><div class="card-row"><span>Regions with Data</span><span class="card-row-val" id="wh-otdlReg">0</span></div></div>
+                    <div class="card"><div class="card-title">Trucks Volume</div><div class="card-value" id="wh-truckVol">0 cbm</div><div class="card-row"><span>Active Types</span><span class="card-row-val" id="wh-truckTypes">0</span></div></div>
+                </div>
+                <div class="section-title">Manpower Overview</div>
+                <div class="kpi-grid kpi-grid-3">
+                    <div class="card"><div class="card-title">Headcount</div><div class="card-value" id="wh-hcTotal">0</div><div class="card-row"><span>Regular</span><span class="card-row-val" id="wh-hcReg">0</span></div><div class="card-row"><span>Agency</span><span class="card-row-val" id="wh-hcAgy">0</span></div><div class="card-row"><span>Attrition</span><span class="card-row-val" id="wh-hcAttr">0%</span></div></div>
+                    <div class="card"><div class="card-title">Manhours</div><div class="card-value" id="wh-mhTotal">0</div><div class="card-row"><span>Regular</span><span class="card-row-val" id="wh-mhReg">0</span></div><div class="card-row"><span>Agency</span><span class="card-row-val" id="wh-mhAgy">0</span></div><div class="card-row"><span>OT Rate</span><span class="card-row-val" id="wh-mhOT">0%</span></div></div>
+                    <div class="card"><div class="card-title">Absences</div><div class="card-value" id="wh-absRate">0%</div><div class="card-row"><span>Count</span><span class="card-row-val" id="wh-absCnt">0</span></div><div class="card-row"><span>Required Days</span><span class="card-row-val" id="wh-absReq">0</span></div></div>
+                </div>
+            </div>
+
+            <div id="wh-fillrates" class="tab-content">
+                <div class="section-title">Fill Rates — All Categories</div>
+                <div class="kpi-grid kpi-grid-4">
+                    <div class="card"><div class="card-title">Corporate</div><div class="card-value" id="fr-corp">0%</div><div class="card-row"><span>Delivered</span><span class="card-row-val" id="fr-corpDel">₱0</span></div><div class="card-row"><span>Orders</span><span class="card-row-val" id="fr-corpOrd">₱0</span></div><div class="card-row"><span>Status</span><span id="fr-corpSt" class="badge badge-neutral">No Data</span></div></div>
+                    <div class="card"><div class="card-title">SC Fill</div><div class="card-value" id="fr-sc">0%</div><div class="card-row"><span>Delivered</span><span class="card-row-val" id="fr-scDel">₱0</span></div><div class="card-row"><span>Orders</span><span class="card-row-val" id="fr-scOrd">₱0</span></div><div class="card-row"><span>Status</span><span id="fr-scSt" class="badge badge-neutral">No Data</span></div></div>
+                    <div class="card"><div class="card-title">Core Products</div><div class="card-value" id="fr-core">0%</div><div class="card-row"><span>Delivered</span><span class="card-row-val" id="fr-coreDel">₱0</span></div><div class="card-row"><span>Orders</span><span class="card-row-val" id="fr-coreOrd">₱0</span></div><div class="card-row"><span>Status</span><span id="fr-coreSt" class="badge badge-neutral">No Data</span></div></div>
+                    <div class="card"><div class="card-title">Emerging</div><div class="card-value" id="fr-emerg">0%</div><div class="card-row"><span>Delivered</span><span class="card-row-val" id="fr-emergDel">₱0</span></div><div class="card-row"><span>Orders</span><span class="card-row-val" id="fr-emergOrd">₱0</span></div><div class="card-row"><span>Status</span><span id="fr-emergSt" class="badge badge-neutral">No Data</span></div></div>
+                </div>
+            </div>
+
+            <div id="wh-nonotif" class="tab-content">
+                <div class="table-wrap">
+                    <div class="table-head"><span>Non-OTIF Breakdown</span><span class="table-total-pill" id="wh-nonOtifTot">Total: 0</span></div>
+                    <table><thead><tr><th>Category</th><th>Issue Type</th><th>Count</th></tr></thead>
+                    <tbody id="wh-nonOtifTbl"></tbody></table>
+                </div>
+            </div>
+
+            <div id="wh-stockouts" class="tab-content">
+                <div class="kpi-grid kpi-grid-2">
+                    <div class="table-wrap">
+                        <div class="table-head"><span>Stock Outs by Value</span><span class="table-total-pill" id="wh-soValTot">₱0</span></div>
+                        <table><thead><tr><th>Category</th><th>Issue</th><th>Amount</th></tr></thead>
+                        <tbody id="wh-soValTbl"></tbody></table>
+                    </div>
+                    <div class="table-wrap">
+                        <div class="table-head"><span>Stock Outs by Weight</span><span class="table-total-pill" id="wh-soWtTot">0 KGS</span></div>
+                        <table><thead><tr><th>Category</th><th>Issue</th><th>Weight</th></tr></thead>
+                        <tbody id="wh-soWtTbl"></tbody></table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="wh-warehouseutil" class="tab-content">
+                <div class="kpi-grid kpi-grid-2">
+                    <div class="card">
+                        <div class="card-title">Warehouse Utilization</div>
+                        <div class="card-row"><span>RM/PM Pallet Positions</span><span class="card-row-val" id="wh-rmTot">0</span></div>
+                        <div class="card-row"><span>RM/PM Used</span><span class="card-row-val" id="wh-rmUsed">0</span></div>
+                        <div class="card-row"><span>RM/PM Util%</span><span class="card-row-val" id="wh-rmUtil">0%</span></div>
+                        <div class="card-row"><span>FG Pallet Positions</span><span class="card-row-val" id="wh-fgTot">0</span></div>
+                        <div class="card-row"><span>FG Used</span><span class="card-row-val" id="wh-fgUsed">0</span></div>
+                        <div class="card-row"><span>FG Util%</span><span class="card-row-val" id="wh-fgUtil">0%</span></div>
+                    </div>
+                    <div class="card">
+                        <div class="card-title">External Warehouse</div>
+                        <div class="card-row"><span>Pallet Positions</span><span class="card-row-val" id="wh-extTot">0</span></div>
+                        <div class="card-row"><span>Used</span><span class="card-row-val" id="wh-extUsed">0</span></div>
+                        <div class="card-row"><span>Utilization</span><span class="card-row-val" id="wh-extUtil">0%</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="wh-manpower" class="tab-content">
+                <div class="kpi-grid kpi-grid-3">
+                    <div class="card"><div class="card-title">Headcount</div><div class="card-row"><span>Regular</span><span class="card-row-val" id="wh-mp-reg">0</span></div><div class="card-row"><span>Agency</span><span class="card-row-val" id="wh-mp-agy">0</span></div><div class="card-row"><span>Resigned</span><span class="card-row-val" id="wh-mp-res">0</span></div><div class="card-row"><span>Attrition</span><span class="card-row-val" id="wh-mp-attr">0%</span></div></div>
+                    <div class="card"><div class="card-title">Manhours</div><div class="card-row"><span>Regular Hours</span><span class="card-row-val" id="wh-mp-regH">0</span></div><div class="card-row"><span>Agency Hours</span><span class="card-row-val" id="wh-mp-agyH">0</span></div><div class="card-row"><span>Overtime Hours</span><span class="card-row-val" id="wh-mp-otH">0</span></div><div class="card-row"><span>OT Rate</span><span class="card-row-val" id="wh-mp-otR">0%</span></div></div>
+                    <div class="card"><div class="card-title">Absences</div><div class="card-row"><span>Absences Count</span><span class="card-row-val" id="wh-mp-absC">0</span></div><div class="card-row"><span>Required Days</span><span class="card-row-val" id="wh-mp-absD">0</span></div><div class="card-row"><span>Absenteeism Rate</span><span class="card-row-val" id="wh-mp-absR">0%</span></div></div>
+                </div>
+            </div>
+
+            <div id="wh-input" class="tab-content">
+                <div class="input-panel">
+                    <div class="input-panel-head">📝 Warehouse & Logistics Data Input</div>
+                    <div class="input-controls">
+                        <span class="input-control-label">Category:</span>
+                        <select class="input-control-select" id="wh-inputCat" onchange="whLoadInput()">
+                            <option value="otif">OTIF Rate</option>
+                            <option value="volume">Volume Fill</option>
+                            <option value="fillrates">Fill Rates</option>
+                            <option value="nonotif">Non-OTIF</option>
+                            <option value="stockouts">Stock Outs</option>
+                            <option value="warehouse">Warehouse</option>
+                            <option value="otdl">OTDL Days</option>
+                            <option value="trucks">Truck Utilization</option>
+                            <option value="manpower">Manpower</option>
+                        </select>
+                    </div>
+                    <div class="input-grid-wrap" id="wh-inputSections"></div>
+                    <div class="input-panel-actions">
+                        <button class="btn btn-danger" onclick="whClearCat()">Clear Category</button>
+                        <button class="btn" onclick="whClearAll()">Clear All</button>
+                        <button class="btn btn-primary" onclick="whSave()">Save Data</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- /content -->
+
+    <div class="footer">Last updated: <span id="lastUpdate">—</span></div>
+
+</div><!-- /main -->
+
+<script>
+// =====================================================================
+// GLOBAL HELPERS
+// =====================================================================
+const moduleNames = { finance:'Finance Dashboard', planning:'SC Planning', procurement:'SC Procurement', production:'Production Dashboard', warehouse:'Warehouse & Logistics' };
+
+function fmtN(n, d=2) {
+    if (!n || isNaN(n) || +n===0) return '0';
+    return (+n).toLocaleString(undefined,{minimumFractionDigits:d,maximumFractionDigits:d});
+}
+function fmtC(n) {
+    if (!n || isNaN(n) || +n===0) return '₱0';
+    if (Math.abs(+n)>=1e6) return '₱'+(+n/1e6).toFixed(1)+'M';
+    if (Math.abs(+n)>=1e3) return '₱'+(+n/1e3).toFixed(1)+'K';
+    return '₱'+(+n).toFixed(2);
+}
+function fmtP(n) { return isNaN(n)||!n ? '0%' : (+n).toFixed(1)+'%'; }
+function badgeClass(r,bounds=[98,90,80]) {
+    if (r>=bounds[0]) return 'badge-excellent';
+    if (r>=bounds[1]) return 'badge-good';
+    if (r>=bounds[2]) return 'badge-warning';
+    return 'badge-critical';
+}
+function badgeText(r,bounds=[98,90,80]) {
+    if (r>=bounds[0]) return 'Excellent';
+    if (r>=bounds[1]) return 'Good';
+    if (r>=bounds[2]) return 'Warning';
+    return 'Critical';
+}
+function setText(id, val) { const el=document.getElementById(id); if(el) el.textContent=val; }
+function setHTML(id, val) { const el=document.getElementById(id); if(el) el.innerHTML=val; }
+function setW(id, w) { const el=document.getElementById(id); if(el) el.style.width=Math.min(w,100)+'%'; }
+function setBadge(id, cls, txt) { const el=document.getElementById(id); if(el){el.className='badge '+cls; el.textContent=txt;} }
+function setOldBadge(id, cls, txt) { const el=document.getElementById(id); if(el){el.className='status-badge '+cls; el.textContent=txt;} }
+function getVal(id) { return parseFloat(document.getElementById(id)?.value)||0; }
+
+function switchModule(mod, el) {
+    document.querySelectorAll('.nav-item').forEach(e=>e.classList.remove('active'));
+    if(el) el.classList.add('active');
+    document.querySelectorAll('.module-page').forEach(e=>e.classList.remove('active'));
+    const pg = document.getElementById('mod-'+mod);
+    if(pg) pg.classList.add('active');
+    setText('topbarTitle', moduleNames[mod]||mod);
+    globalFilterChange();
+}
+
+function switchTab(scope, tab, el) {
+    const parent = el ? el.closest('.tab-bar, .module-page, .sub-module') : null;
+    const container = el ? (el.closest('.module-page, .sub-module') || document.body) : document.body;
+    if(parent) parent.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    if(el) el.classList.add('active');
+    const prefix = scope + '-';
+    container.querySelectorAll('.tab-content').forEach(c=>{
+        if(c.id && c.id.startsWith(prefix)) c.classList.remove('active');
+    });
+    const tc = document.getElementById(scope+'-'+tab);
+    if(tc) tc.classList.add('active');
+    if(tab==='input') {
+        if(scope==='finance') finLoadInput();
+        else if(scope==='wh') whLoadInput();
+        else if(scope==='util') utilLoadLine();
+        else if(scope==='waste') wasteLoadLine();
+        else if(scope==='sched') schedLoadLine();
+    }
+}
+
+function switchSubMod(mod, el) {
+    document.querySelectorAll('.mod-btn').forEach(b=>b.classList.remove('active'));
+    if(el) el.classList.add('active');
+    document.querySelectorAll('.sub-module').forEach(m=>m.classList.remove('active'));
+    const sm = document.getElementById('prod-'+mod);
+    if(sm) sm.classList.add('active');
+}
+
+function globalFilterChange() {
+    const y = document.getElementById('globalYear').value;
+    const m = document.getElementById('globalMonth').value;
+    setText('topbarPeriod', m+' '+y);
+    setText('lastUpdate', new Date().toLocaleString()+` (${m} ${y})`);
+    finCalc();
+    procCalc();
+    utilCalcAll();
+    wasteCalcAll();
+    schedCalcAll();
+    whCalc();
+    plUpdate();
+}
+
+// =====================================================================
+// FINANCE
+// =====================================================================
+let finDB = {};
+['2020','2021','2022','2023','2024','2025','2026','2027','2028','2029','2030'].forEach(y=>{
+    finDB[y]={};
+    ['January','February','March','April','May','June','July','August','September','October','November','December'].forEach(mo=>{
+        finDB[y][mo]={prod:{actual:'',target:''},op:{actual:'',budget:''},cap:{actual:'',budget:''},other:{actual:'',budget:''},labor:{dl:{reg:'',ot:''},il:{reg:'',ot:''}}};
+    });
+});
+function finData(){const y=document.getElementById('globalYear').value,m=document.getElementById('globalMonth').value;return finDB[y][m];}
+
+function finCalc(){
+    const d=finData();
+    const pa=+d.prod.actual||0,pt=+d.prod.target||0,pp=pt>0?pa/pt*100:0;
+    setText('fin-prodVal',pa?fmtN(pa,2)+' MT':'0 MT');setText('fin-prodTarget',pt?fmtN(pt,2)+' MT':'0 MT');
+    setW('fin-prodBar',pp);setText('fin-prodPct',pp.toFixed(1)+'%');
+    const oa=+d.op.actual||0,ob=+d.op.budget||0,op=ob>0?oa/ob*100:0;
+    const ca=+d.cap.actual||0,cb=+d.cap.budget||0,cp=cb>0?ca/cb*100:0;
+    const oa2=+d.other.actual||0,ob2=+d.other.budget||0,op2=ob2>0?oa2/ob2*100:0;
+    setText('fin-opVal',fmtC(oa));setText('fin-opBudget',fmtC(ob));setW('fin-opBar',op);setText('fin-opPct',op.toFixed(1)+'%');
+    setText('fin-capVal',fmtC(ca));setText('fin-capBudget',fmtC(cb));setW('fin-capBar',cp);setText('fin-capPct',cp.toFixed(1)+'%');
+    setText('fin-otherVal',fmtC(oa2));setText('fin-otherBudget',fmtC(ob2));setW('fin-otherBar',op2);setText('fin-otherPct',op2.toFixed(1)+'%');
+    const ta=oa+ca+oa2,tb=ob+cb+ob2,tv=ta-tb,tp=tb>0?ta/tb*100:0;
+    setText('fin-totalAct',fmtC(ta));setText('fin-totalBudget',fmtC(tb));setText('fin-totalVar',(tv>=0?'+':'')+fmtC(tv));setText('fin-totalPct',tp.toFixed(1)+'%');
+    let u=0,o=0;
+    if(ob>0)oa<=ob?u++:o++;if(cb>0)ca<=cb?u++:o++;if(ob2>0)oa2<=ob2?u++:o++;
+    setText('fin-under',u);setText('fin-over',o);
+    const dlr=+d.labor.dl.reg||0,dlot=+d.labor.dl.ot||0,ilr=+d.labor.il.reg||0,ilot=+d.labor.il.ot||0;
+    const tr=dlr+ilr,tot=dlot+ilot,th=tr+tot,otr=th>0?tot/th*100:0,dlOtP=dlr>0?dlot/dlr*100:0,ilOtP=ilr>0?ilot/ilr*100:0;
+    setText('fin-totalHrs',fmtN(th)+' hrs');setText('fin-regHrs',fmtN(tr)+' hrs');setText('fin-otHrs',fmtN(tot)+' hrs');
+    setText('fin-wfTotal',fmtN(th,0));setText('fin-otRate',otr.toFixed(1)+'%');setText('fin-dlOt',dlOtP.toFixed(1)+'%');setText('fin-ilOt',ilOtP.toFixed(1)+'%');
+    // Cost table
+    const costs=[{n:'Operational',a:oa,b:ob},{n:'Capital',a:ca,b:cb},{n:'Other',a:oa2,b:ob2}];
+    let ctbl='';
+    costs.forEach(c=>{const v=c.a-c.b,p=c.b>0?c.a/c.b*100:0;let sc='badge-neutral',st='No Budget';if(c.b>0){st=c.a<=c.b?'Under':'Over';sc=c.a<=c.b?'badge-good':'badge-warning';}
+    ctbl+=`<tr><td>${c.n}</td><td>${fmtC(c.a)}</td><td>${fmtC(c.b)}</td><td>${(v>=0?'+':'')+fmtC(v)}</td><td>${p.toFixed(1)}%</td><td><span class="badge ${sc}">${st}</span></td></tr>`;});
+    setHTML('fin-costTbl',ctbl);setText('fin-costTotal','Total: '+fmtC(ta));
+    // Labor table
+    const labs=[{n:'Direct Labor',r:dlr,o:dlot},{n:'Indirect Labor',r:ilr,o:ilot}];
+    let ltbl='';
+    labs.forEach(l=>{const t=l.r+l.o,p=l.r>0?l.o/l.r*100:0;let sc='badge-neutral',st='No Data';if(l.r>0){if(p<=25){sc='badge-good';st='Normal';}else if(p<=35){sc='badge-neutral';st='High';}else{sc='badge-warning';st='Critical';}}
+    ltbl+=`<tr><td>${l.n}</td><td>${fmtN(l.r,0)}</td><td>${fmtN(l.o,0)}</td><td>${fmtN(t,0)}</td><td>${p.toFixed(1)}%</td><td><span class="badge ${sc}">${st}</span></td></tr>`;});
+    ltbl+=`<tr style="font-weight:700;background:var(--bg)"><td>TOTAL</td><td>${fmtN(tr,0)}</td><td>${fmtN(tot,0)}</td><td>${fmtN(th,0)}</td><td>${otr.toFixed(1)}%</td><td><span class="badge ${th===0?'badge-neutral':otr<=25?'badge-good':otr<=35?'badge-neutral':'badge-warning'}">${th===0?'No Data':otr<=25?'Normal':otr<=35?'High':'Critical'}</span></td></tr>`;
+    setHTML('fin-laborTbl',ltbl);setText('fin-laborTotal','Total Hours: '+fmtN(th));
+    // Cost details tab
+    setText('fc-totalAct',fmtC(ta));setText('fc-totalBudget',fmtC(tb));
+    setText('fc-opAct',fmtC(oa));setText('fc-opBudget',fmtC(ob));setText('fc-opVar',(oa-ob>=0?'+':'')+fmtC(oa-ob));
+    setText('fc-capAct',fmtC(ca));setText('fc-capBudget',fmtC(cb));setText('fc-capVar',(ca-cb>=0?'+':'')+fmtC(ca-cb));
+    setText('fc-otherAct',fmtC(oa2));setText('fc-otherBudget',fmtC(ob2));setText('fc-otherVar',(oa2-ob2>=0?'+':'')+fmtC(oa2-ob2));
+    setHTML('fc-detailTbl',ctbl);setText('fc-detailTotal','Total: '+fmtC(ta));
+    // Labor details tab
+    setText('fl-totalHrs',fmtN(th)+' hrs');setText('fl-reg',fmtN(tr));setText('fl-ot',fmtN(tot));
+    setText('fl-dlTotal',fmtN(dlr+dlot)+' hrs');setText('fl-dlReg',fmtN(dlr));setText('fl-dlOT',fmtN(dlot));setText('fl-dlRate',dlOtP.toFixed(1)+'%');
+    setText('fl-ilTotal',fmtN(ilr+ilot)+' hrs');setText('fl-ilReg',fmtN(ilr));setText('fl-ilOT',fmtN(ilot));setText('fl-ilRate',ilOtP.toFixed(1)+'%');
+    setText('fl-otRate',otr.toFixed(1)+'%');setText('fl-dlOTp',dlOtP.toFixed(1)+'%');setText('fl-ilOTp',ilOtP.toFixed(1)+'%');
+    setHTML('fl-tbl',ltbl);setText('fl-total','Total: '+fmtN(th));
+}
+
+function finLoadInput(){
+    const cat=document.getElementById('fin-inputCat').value, d=finData();
+    let h='';
+    const fields={
+        production:[['Volume Produced (MT)','prod','actual','MT'],['Volume Target (MT)','prod','target','MT']],
+        operational:[['Actual (₱)','op','actual','₱'],['Budget (₱)','op','budget','₱']],
+        capital:[['Actual (₱)','cap','actual','₱'],['Budget (₱)','cap','budget','₱']],
+        other:[['Actual (₱)','other','actual','₱'],['Budget (₱)','other','budget','₱']],
+        'labor-dl':[['Regular Hours','labor.dl','reg','hrs'],['Overtime Hours','labor.dl','ot','hrs']],
+        'labor-il':[['Regular Hours','labor.il','reg','hrs'],['Overtime Hours','labor.il','ot','hrs']]
+    }[cat];
+    const title={production:'PRODUCTION VOLUME',operational:'OPERATIONAL COST',capital:'CAPITAL EXPENDITURE',other:'OTHER EXPENSES','labor-dl':'DIRECT LABOR','labor-il':'INDIRECT LABOR'}[cat];
+    h=`<div class="input-section" style="grid-column:span 3"><div class="input-section-title">${title}</div><div class="input-fields-grid">`;
+    fields.forEach(([lbl,path,key,ph])=>{
+        const parts=path.split('.');
+        let v=d; parts.forEach(p=>v=v[p]||v); v=v[key]||'';
+        h+=`<div class="input-field-wrap"><label class="input-field-label">${lbl}</label><input class="input-field" type="number" id="fin_i_${path.replace('.','_')}_${key}" value="${v}" placeholder="${ph}"></div>`;
+    });
+    h+=`</div></div>`;
+    document.getElementById('fin-inputSections').innerHTML=h;
+}
+function finSave(){
+    const cat=document.getElementById('fin-inputCat').value, d=finData();
+    const g=(id)=>document.getElementById(id)?.value||'';
+    if(cat==='production'){d.prod.actual=g('fin_i_prod_actual');d.prod.target=g('fin_i_prod_target');}
+    else if(cat==='operational'){d.op.actual=g('fin_i_op_actual');d.op.budget=g('fin_i_op_budget');}
+    else if(cat==='capital'){d.cap.actual=g('fin_i_cap_actual');d.cap.budget=g('fin_i_cap_budget');}
+    else if(cat==='other'){d.other.actual=g('fin_i_other_actual');d.other.budget=g('fin_i_other_budget');}
+    else if(cat==='labor-dl'){d.labor.dl.reg=g('fin_i_labor_dl_reg');d.labor.dl.ot=g('fin_i_labor_dl_ot');}
+    else if(cat==='labor-il'){d.labor.il.reg=g('fin_i_labor_il_reg');d.labor.il.ot=g('fin_i_labor_il_ot');}
+    alert('Saved!'); finCalc();
+}
+function finClear(){document.querySelectorAll('#fin-inputSections input').forEach(e=>e.value='');finSave();}
+function finClearAll(){if(confirm('Clear all finance data for this month?')){const d=finData();d.prod={actual:'',target:''};d.op={actual:'',budget:''};d.cap={actual:'',budget:''};d.other={actual:'',budget:''};d.labor={dl:{reg:'',ot:''},il:{reg:'',ot:''}};finLoadInput();finCalc();}}
+
+// =====================================================================
+// SC PLANNING
+// =====================================================================
+let plState={};
+function plGet(id){return parseFloat(document.getElementById('pl-i-'+id)?.value)||0;}
+function plUpdate(){
+    const fgA=plGet('fgA'),fgB=plGet('fgB'),fgC=plGet('fgC'),fgAllIn=plGet('fgAllIn');
+    const rmA=plGet('rmA'),rmB=plGet('rmB'),rmC=plGet('rmC');
+    const pmCore=plGet('pmCore'),pmM7=plGet('pmM7'),pmOthers=plGet('pmOthers');
+    const fgTotal=fgA+fgB+fgC+fgAllIn,rmTotal=rmA+rmB+rmC,pmTotal=pmCore+pmM7+pmOthers;
+    setText('pl-fgA',fgA.toFixed(1));setText('pl-fgB',fgB.toFixed(1));setText('pl-fgC',fgC.toFixed(1));setText('pl-fgAllIn',fgAllIn.toFixed(1));setText('pl-fgGT',fgTotal.toFixed(1));setText('pl-fgTotal',fgTotal.toFixed(1));
+    setText('pl-rmA',rmA.toFixed(1));setText('pl-rmB',rmB.toFixed(1));setText('pl-rmC',rmC.toFixed(1));setText('pl-rmGT',rmTotal.toFixed(1));setText('pl-rmTotal',rmTotal.toFixed(1));
+    setText('pl-pmCore',pmCore.toFixed(1));setText('pl-pmM7',pmM7.toFixed(1));setText('pl-pmOthers',pmOthers.toFixed(1));setText('pl-pmGT',pmTotal.toFixed(1));setText('pl-pmTotal',pmTotal.toFixed(1));
+    const fkFG=plGet('fgKgsFG'),fkFN=plGet('fgKgsFN'),fkSL=plGet('fgKgsSL'),fkNM=plGet('fgKgsNM'),fkEX=plGet('fgKgsEX'),fkDays=plGet('fgKgsDays');
+    const fkTot=fkFG+fkFN+fkSL+fkNM+fkEX;
+    setText('pl-fgKgsFG',fmtN(fkFG));setText('pl-fgKgsFN',fmtN(fkFN));setText('pl-fgKgsSL',fmtN(fkSL));setText('pl-fgKgsNM',fmtN(fkNM));setText('pl-fgKgsEX',fmtN(fkEX));setText('pl-fgKgsTot',fmtN(fkTot));setText('pl-fgKgsDays',fkDays.toFixed(1));setText('pl-fgKgs',fmtN(fkTot));
+    const fpFG=plGet('fgPhpFG'),fpFN=plGet('fgPhpFN'),fpSL=plGet('fgPhpSL'),fpNM=plGet('fgPhpNM'),fpEX=plGet('fgPhpEX');
+    const fpTot=fpFG+fpFN+fpSL+fpNM+fpEX;
+    setText('pl-fgPhpFG',fmtC(fpFG));setText('pl-fgPhpFN',fmtC(fpFN));setText('pl-fgPhpSL',fmtC(fpSL));setText('pl-fgPhpNM',fmtC(fpNM));setText('pl-fgPhpEX',fmtC(fpEX));setText('pl-fgPhpTot',fmtC(fpTot));setText('pl-fgPhpDays',fkDays.toFixed(1));setText('pl-fgPhp',fmtC(fpTot));
+    const rkFG=plGet('rmKgsFG'),rkFN=plGet('rmKgsFN'),rkSL=plGet('rmKgsSL'),rkNM=plGet('rmKgsNM'),rkEX=plGet('rmKgsEX'),rkDays=plGet('rmKgsDays');
+    const rkTot=rkFG+rkFN+rkSL+rkNM+rkEX;
+    setText('pl-rmKgsFG',fmtN(rkFG));setText('pl-rmKgsFN',fmtN(rkFN));setText('pl-rmKgsSL',fmtN(rkSL));setText('pl-rmKgsNM',fmtN(rkNM));setText('pl-rmKgsEX',fmtN(rkEX));setText('pl-rmKgsTot',fmtN(rkTot));setText('pl-rmKgsDays',rkDays.toFixed(1));setText('pl-rmKgs',fmtN(rkTot));
+    const rpFG=plGet('rmPhpFG'),rpFN=plGet('rmPhpFN'),rpSL=plGet('rmPhpSL'),rpNM=plGet('rmPhpNM'),rpEX=plGet('rmPhpEX');
+    const rpTot=rpFG+rpFN+rpSL+rpNM+rpEX;
+    setText('pl-rmPhpFG',fmtC(rpFG));setText('pl-rmPhpFN',fmtC(rpFN));setText('pl-rmPhpSL',fmtC(rpSL));setText('pl-rmPhpNM',fmtC(rpNM));setText('pl-rmPhpEX',fmtC(rpEX));setText('pl-rmPhpTot',fmtC(rpTot));setText('pl-rmPhpDays',rkDays.toFixed(1));setText('pl-rmPhp',fmtC(rpTot));
+    const fgCnt=plGet('fgCnt'),fgMiss=plGet('fgMiss'),rmCnt=plGet('rmCnt'),rmMiss=plGet('rmMiss');
+    const fgAcc=fgCnt>0?(fgCnt-fgMiss)/fgCnt*100:0,rmAcc=rmCnt>0?(rmCnt-rmMiss)/rmCnt*100:0;
+    setText('pl-fgCnt',fmtN(fgCnt));setText('pl-fgMiss',fmtN(fgMiss));setText('pl-fgAccDet',fgAcc.toFixed(1)+'%');setText('pl-fgAcc',fgAcc.toFixed(1)+'%');
+    setText('pl-rmCnt',fmtN(rmCnt));setText('pl-rmMiss',fmtN(rmMiss));setText('pl-rmAccDet',rmAcc.toFixed(1)+'%');setText('pl-rmAcc',rmAcc.toFixed(1)+'%');
+    const localIds=['fcGma','fcNorth','fcSouth','fcVis','fcMind','fcMT','fcPsbsi'];
+    const localVals=localIds.map(id=>plGet(id));
+    localIds.forEach((id,i)=>setText('pl-'+id,fmtP(localVals[i])));
+    const localAvg=localVals.reduce((a,b)=>a+b,0)/7;
+    setText('pl-fcLocalAvg',fmtP(localAvg));setText('pl-fcLocal',fmtP(localAvg));
+    const expIds=['fcIndo','fcIndia','fcDirect'];
+    const expVals=expIds.map(id=>plGet(id));
+    expIds.forEach((id,i)=>setText('pl-'+id,fmtP(expVals[i])));
+    const expAvg=expVals.reduce((a,b)=>a+b,0)/3;
+    setText('pl-fcExportAvg',fmtP(expAvg));setText('pl-fcExport',fmtP(expAvg));
+    const prodIds=['pEpoxy','pElasto','pMighty','pProEpoxy','pBuilders','pCoating','pTransport','pOther','pSealant','pWaterproof','pPainting','pAdhesives','pMining','pOthers'];
+    const prodVals=prodIds.map(id=>plGet(id));
+    const prodAvg=prodVals.reduce((a,b)=>a+b,0)/14;
+    setText('pl-fcProd',fmtP(prodAvg));
+    const overall=(localAvg+expAvg)/2;
+    setText('pl-fcOverall',fmtP(overall));
+}
+function plClearAll(){document.querySelectorAll('#pl-inputSections input').forEach(e=>e.value='');plUpdate();}
+document.addEventListener('DOMContentLoaded',()=>{
+    document.querySelectorAll('#pl-inputSections input[type=number]').forEach(i=>i.addEventListener('input',plUpdate));
+});
+
+// =====================================================================
+// PROCUREMENT
+// =====================================================================
+function procCalc(){
+    const a=getVal('proc-i-actual'),t=getVal('proc-i-target');
+    const r=t>0?a/t*100:0,v=a-t;
+    setText('proc-rate',r.toFixed(1)+'%');setText('proc-actual',fmtC(a));setText('proc-target',fmtC(t));setText('proc-variance',(v>=0?'+':'')+fmtC(v));setW('proc-bar',r);
+    let bc='badge-neutral',bt='No Data';
+    if(t>0){if(r>=100){bc='badge-excellent';bt='Exceeded Target';}else if(r>=90){bc='badge-good';bt='Near Target';}else if(r>=75){bc='badge-warning';bt='Below Target';}else if(r>0){bc='badge-critical';bt='Critical';}}
+    setBadge('proc-status',bc,bt);
+}
+
+// =====================================================================
+// PRODUCTION - MACHINE UTILIZATION
+// =====================================================================
+const utilLines=['L06_FILLING','L06_MIXER','L04_FILLING','L04_MIXING','L03_ITALY','L03_KOREA','L01_MIXER','L01_MILLING','L07_TUBE','L09_EPS','L10_BOND','L11_SILICONE','L12_EPOXY','L13_WATER','L14_FILLING','L14_MIXING'];
+const utilLineNames={L06_FILLING:'LINE 6 EPOXY (FILLING)',L06_MIXER:'LINE 6 EPOXY (MIXER)',L04_FILLING:'LINE 4 ELASTO FILLING',L04_MIXING:'LINE 4 ELASTO MIXING',L03_ITALY:'LINE 3 ITALY MACHINE',L03_KOREA:'LINE 3 KOREA MACHINE',L01_MIXER:'L01 COATINGS (MIXER)',L01_MILLING:'L01 COATINGS (MILLING)',L07_TUBE:'LINE 7 EPOXY TUBE',L09_EPS:'LINE 9 EPS',L10_BOND:'LINE 10 CONTACT BOND',L11_SILICONE:'LINE 11 SILICONE NEW',L12_EPOXY:'LINE 12 EPOXY BASED',L13_WATER:'LINE 13 WATER BASED',L14_FILLING:'LINE 14 FILLING',L14_MIXING:'LINE 14 MIXING'};
+const utilCats=['Actual Productive Time','No Production Plan','No Head Count Allocation','Change Over Time','Meeting','Sanitation Time','Start-up/Setup','Shutdown/cooldown','Testing Time','Breaktime','Preventive Maintenance','Force Majeure','Electrical Breakdown','Mechanical Breakdown','Materials Supply','Sorting/Reworking','Technical Downtime','No Manpower','UDT-Meeting','No OT','No Bulkmix','Transfer','Idle time'];
+const utilKeys2=['productive','noPlan','noHc','changeOver','meeting','sanitation','startup','shutdown','testing','breaktime','pm','force','elec','mech','material','sorting','tech','noManpower','udt','noOt','noBulk','transfer','idle'];
+let utilDB={};
+['2020','2021','2022','2023','2024','2025','2026','2027','2028','2029','2030'].forEach(y=>{utilDB[y]={};['January','February','March','April','May','June','July','August','September','October','November','December'].forEach(m=>{utilDB[y][m]={};utilLines.forEach(l=>{utilDB[y][m][l]={...Object.fromEntries(utilKeys2.map(k=>[k,''])),mAvail:'',mUsed:'',days:''};});});});
+function utilGetDB(){const y=document.getElementById('globalYear').value,m=document.getElementById('globalMonth').value;return utilDB[y][m];}
+function utilTotal(d){return utilKeys2.reduce((s,k)=>s+(+d[k]||0),0);}
+function utilCalcAll(){
+    const db=utilGetDB();let tProd=0,tTime=0,tAvail=0,tUsed=0,linesData=0,utilArr=[],downt={};
+    let tbl='';
+    utilLines.forEach(l=>{
+        const d=db[l],tot=utilTotal(d),prod=+d.productive||0;
+        if(tot>0){linesData++;utilArr.push(tot>0?prod/tot*100:0);}
+        tProd+=prod;tTime+=tot;tAvail+=+d.mAvail||0;tUsed+=+d.mUsed||0;
+        utilKeys2.forEach((k,i)=>{if(k!=='productive'){const v=+d[k]||0;if(v>0)downt[utilCats[i]]=(downt[utilCats[i]]||0)+v;}});
+        const u=tot>0?prod/tot*100:0;let sc='badge-neutral',st='No Data';
+        if(tot>0){if(u>=70){sc='badge-excellent';st='Excellent';}else if(u>=50){sc='badge-good';st='Good';}else if(u>=30){sc='badge-warning';st='Warning';}else{sc='badge-critical';st='Critical';}}
+        tbl+=`<tr><td><strong>${utilLineNames[l]}</strong></td><td>${fmtN(prod)}</td><td>${fmtN(tot)}</td><td>${u.toFixed(1)}%</td><td>${d.mAvail||0}/${d.mUsed||0}</td><td><span class="badge ${sc}">${st}</span></td></tr>`;
+    });
+    const ou=tTime>0?tProd/tTime*100:0,avg=utilArr.length>0?utilArr.reduce((a,b)=>a+b,0)/utilArr.length:0;
+    setText('util-overall',ou.toFixed(1)+'%');setText('util-prod',fmtN(tProd)+' hrs');setText('util-avail',fmtN(tTime)+' hrs');setW('util-bar',ou);
+    setText('util-mach',fmtN(tAvail,0));setText('util-mAvail',fmtN(tAvail,0));setText('util-mUsed',fmtN(tUsed,0));
+    setText('util-linesData',linesData);setText('util-avgUtil',avg.toFixed(1)+'%');
+    const top5=Object.entries(downt).sort((a,b)=>b[1]-a[1]).slice(0,5);
+    setHTML('util-downtime',top5.length?top5.map(([n,v])=>`<div class="card-row"><span>${n}</span><span class="card-row-val">${fmtN(v)} hrs</span></div>`).join(''):'<div class="card-row"><span>No downtime</span></div>');
+    setHTML('util-tbl',tbl);setText('util-totalTime','Total: '+fmtN(tTime)+' hrs');
+}
+function utilLoadLine(){
+    const l=document.getElementById('util-lineSelect').value;
+    if(!l){document.getElementById('util-inputSections').innerHTML='<div class="input-section" style="grid-column:span 3;text-align:center;padding:24px;"><div class="input-section-title">Select a production line to enter data</div></div>';return;}
+    const d=utilGetDB()[l];
+    let h=`<div class="input-section" style="grid-column:span 3"><div class="input-section-title">${utilLineNames[l]} — 23 Utilization Categories (hrs)</div><div class="input-fields-grid" style="grid-template-columns:repeat(4,1fr)">`;
+    utilKeys2.forEach((k,i)=>h+=`<div class="input-field-wrap"><label class="input-field-label">${i+1}. ${utilCats[i]}</label><input class="input-field" type="number" id="util_in_${k}" value="${d[k]||''}" step="0.01" placeholder="hrs"></div>`);
+    h+=`</div></div><div class="input-section"><div class="input-section-title">Machine Summary</div><div class="input-fields-grid">`;
+    h+=`<div class="input-field-wrap"><label class="input-field-label">Machines Available</label><input class="input-field" type="number" id="util_in_mAvail" value="${d.mAvail||''}" placeholder="count"></div>`;
+    h+=`<div class="input-field-wrap"><label class="input-field-label">Machines Used</label><input class="input-field" type="number" id="util_in_mUsed" value="${d.mUsed||''}" placeholder="count"></div>`;
+    h+=`<div class="input-field-wrap"><label class="input-field-label">Production Days</label><input class="input-field" type="number" id="util_in_days" value="${d.days||''}" placeholder="days"></div>`;
+    h+=`</div></div>`;
+    document.getElementById('util-inputSections').innerHTML=h;
+}
+function utilSave(){
+    const l=document.getElementById('util-lineSelect').value;if(!l)return;
+    const d=utilGetDB()[l];
+    utilKeys2.forEach(k=>{const el=document.getElementById('util_in_'+k);if(el)d[k]=el.value;});
+    ['mAvail','mUsed','days'].forEach(k=>{const el=document.getElementById('util_in_'+k);if(el)d[k]=el.value;});
+    alert('Saved!');utilCalcAll();
+}
+function utilClearLine(){const l=document.getElementById('util-lineSelect').value;if(!l)return;const d=utilGetDB()[l];utilKeys2.forEach(k=>d[k]='');d.mAvail='';d.mUsed='';d.days='';utilLoadLine();utilCalcAll();}
+function utilClearAll(){if(confirm('Clear all utilization data?')){const db=utilGetDB();utilLines.forEach(l=>{utilKeys2.forEach(k=>db[l][k]='');db[l].mAvail='';db[l].mUsed='';db[l].days='';});utilLoadLine();utilCalcAll();}}
+
+// =====================================================================
+// PRODUCTION - WASTE
+// =====================================================================
+const wasteLines=['L06_EPOXY','L04B_ELASTO','L03_CYANO','L01_COATINGS','L07_TUBE','L09_EPS','L10_BOND','L11_SILICONE','L12_EPOXY','L13_WATER','L14','L05_CLAY','L02_BOTTLE','LABELING'];
+const wasteLineNames={L06_EPOXY:'L06 - EPOXY',L04B_ELASTO:'L04B - ELASTO',L03_CYANO:'L03 - CYANO TUBE',L01_COATINGS:'L01 - COATINGS',L07_TUBE:'L07 - EPOXY TUBE',L09_EPS:'LINE 9 - EPS',L10_BOND:'L10 - CONTACT BOND',L11_SILICONE:'L11 - SILICONE',L12_EPOXY:'L12 - SPECIAL EPOXY',L13_WATER:'L13 - SPECIAL WATER',L14:'LINE 14',L05_CLAY:'L05 - EPOXY CLAY',L02_BOTTLE:'L02 - CYNO BOTTLE',LABELING:'LABELING LINE'};
+let wasteDB={};
+['2020','2021','2022','2023','2024','2025','2026','2027','2028','2029','2030'].forEach(y=>{wasteDB[y]={};['January','February','March','April','May','June','July','August','September','October','November','December'].forEach(m=>{wasteDB[y][m]={};wasteLines.forEach(l=>{wasteDB[y][m][l]={fg:'',rep:'',rej:'',waste:''};});});});
+function wasteGetDB(){const y=document.getElementById('globalYear').value,m=document.getElementById('globalMonth').value;return wasteDB[y][m];}
+function wasteCalcAll(){
+    const db=wasteGetDB();let tFg=0,tRep=0,tRej=0,tW=0,lData=0,lWaste=0,tbl='';
+    wasteLines.forEach(l=>{
+        const d=db[l],fg=+d.fg||0,rep=+d.rep||0,rej=+d.rej||0,w=+d.waste||0,net=fg+rep-rej,wp=(fg+w)>0?w/(fg+w)*100:0;
+        if(fg>0)lData++;if(w>0)lWaste++;tFg+=fg;tRep+=rep;tRej+=rej;tW+=w;
+        let sc='badge-neutral',st='No Data';if(fg>0){if(wp<=1){sc='badge-excellent';st='Excellent';}else if(wp<=3){sc='badge-good';st='Good';}else if(wp<=5){sc='badge-warning';st='Warning';}else{sc='badge-critical';st='Critical';}}
+        tbl+=`<tr><td><strong>${wasteLineNames[l]}</strong></td><td>${fmtN(fg)}</td><td>${fmtN(rep)}</td><td>${fmtN(rej)}</td><td>${fmtN(net)}</td><td>${fmtN(w)}</td><td>${wp.toFixed(2)}%</td><td><span class="badge ${sc}">${st}</span></td></tr>`;
+    });
+    const tNet=tFg+tRep-tRej,tWp=(tFg+tW)>0?tW/(tFg+tW)*100:0;
+    setText('waste-total',fmtN(tFg)+' kg');setText('waste-fg',fmtN(tFg)+' kg');setText('waste-rep',fmtN(tRep)+' kg');setText('waste-rej',fmtN(tRej)+' kg');
+    setText('waste-net',fmtN(tNet)+' kg');setText('waste-wasteKg',fmtN(tW)+' kg');setText('waste-wastePct',tWp.toFixed(2)+'%');setW('waste-bar',tWp);
+    setText('waste-linesData',lData);setText('waste-linesWaste',lWaste);setHTML('waste-tbl',tbl);setText('waste-totalDisp','Total: '+fmtN(tFg)+' kg');
+}
+function wasteLoadLine(){
+    const l=document.getElementById('waste-lineSelect').value;
+    if(!l){document.getElementById('waste-inputSections').innerHTML='<div class="input-section" style="grid-column:span 3;text-align:center;padding:24px;"><div class="input-section-title">Select a production line</div></div>';return;}
+    const d=wasteGetDB()[l];
+    const h=`<div class="input-section" style="grid-column:span 3"><div class="input-section-title">${wasteLineNames[l]} — Output & Waste (KGS)</div><div class="input-fields-grid"><div class="input-field-wrap"><label class="input-field-label">FG Output</label><input class="input-field" type="number" id="waste_in_fg" value="${d.fg||''}" placeholder="kg"></div><div class="input-field-wrap"><label class="input-field-label">Reprocess</label><input class="input-field" type="number" id="waste_in_rep" value="${d.rep||''}" placeholder="kg"></div><div class="input-field-wrap"><label class="input-field-label">Rejection</label><input class="input-field" type="number" id="waste_in_rej" value="${d.rej||''}" placeholder="kg"></div><div class="input-field-wrap"><label class="input-field-label">Waste</label><input class="input-field" type="number" id="waste_in_waste" value="${d.waste||''}" placeholder="kg"></div></div></div>`;
+    document.getElementById('waste-inputSections').innerHTML=h;
+}
+function wasteSave(){const l=document.getElementById('waste-lineSelect').value;if(!l)return;const d=wasteGetDB()[l];['fg','rep','rej','waste'].forEach(k=>{const el=document.getElementById('waste_in_'+k);if(el)d[k]=el.value;});alert('Saved!');wasteCalcAll();}
+function wasteClearLine(){const l=document.getElementById('waste-lineSelect').value;if(!l)return;const d=wasteGetDB()[l];['fg','rep','rej','waste'].forEach(k=>d[k]='');wasteLoadLine();wasteCalcAll();}
+function wasteClearAll(){if(confirm('Clear all waste data?')){const db=wasteGetDB();wasteLines.forEach(l=>['fg','rep','rej','waste'].forEach(k=>db[l][k]=''));wasteLoadLine();wasteCalcAll();}}
+
+// =====================================================================
+// PRODUCTION - SCHEDULING
+// =====================================================================
+const schedLines=['L06_EPOXY','L04B_ELASTO','L03_CYANO','L01_COATINGS','L07_TUBE','L09_EPS','L10_BOND','L11_SILICONE','L12_EPOXY','L13_WATER','L14','L05_CLAY','L02_BOTTLE'];
+const schedLineNames={L06_EPOXY:'L06 - EPOXY',L04B_ELASTO:'L04B - ELASTO',L03_CYANO:'L03 - CYANO TUBE',L01_COATINGS:'L01 - COATINGS',L07_TUBE:'L07 - EPOXY TUBE',L09_EPS:'LINE 9 - EPS',L10_BOND:'L10 - CONTACT BOND',L11_SILICONE:'L11 - SILICONE',L12_EPOXY:'L12 - SPECIAL EPOXY',L13_WATER:'L13 - SPECIAL',L14:'LINE 14',L05_CLAY:'L05 - EPOXY CLAY',L02_BOTTLE:'L02 - CYNO BOTTLE'};
+let schedDB={};
+['2020','2021','2022','2023','2024','2025','2026','2027','2028','2029','2030'].forEach(y=>{schedDB[y]={};['January','February','March','April','May','June','July','August','September','October','November','December'].forEach(m=>{schedDB[y][m]={};schedLines.forEach(l=>{schedDB[y][m][l]={actual:'',planned:''};});});});
+function schedGetDB(){const y=document.getElementById('globalYear').value,m=document.getElementById('globalMonth').value;return schedDB[y][m];}
+function schedCalcAll(){
+    const db=schedGetDB();let tAct=0,tPlan=0,lData=0,comps=[],top=[],needs=[],tbl='';
+    schedLines.forEach(l=>{
+        const d=db[l],a=+d.actual||0,p=+d.planned||0,c=p>0?a/p*100:0,v=a-p;
+        if(a>0||p>0){lData++;comps.push(c);if(c>=90)top.push({n:schedLineNames[l],c});else if(c<75&&c>0)needs.push({n:schedLineNames[l],c});}
+        tAct+=a;tPlan+=p;
+        let sc='badge-neutral',st='No Data';if(p>0){if(c>=95){sc='badge-excellent';st='Excellent';}else if(c>=85){sc='badge-good';st='Good';}else if(c>=75){sc='badge-warning';st='Warning';}else{sc='badge-critical';st='Critical';}}
+        tbl+=`<tr><td><strong>${schedLineNames[l]}</strong></td><td>${fmtN(a)}</td><td>${fmtN(p)}</td><td>${c.toFixed(1)}%</td><td><span class="badge ${sc}">${st}</span></td></tr>`;
+    });
+    const oc=tPlan>0?tAct/tPlan*100:0,avg=comps.length?comps.reduce((a,b)=>a+b,0)/comps.length:0;
+    setText('sched-overall',oc.toFixed(1)+'%');setText('sched-actual',fmtN(tAct)+' kg');setText('sched-planned',fmtN(tPlan)+' kg');setW('sched-bar',oc);
+    setText('sched-linesData',lData);setText('sched-avgComp',avg.toFixed(1)+'%');
+    top.sort((a,b)=>b.c-a.c);needs.sort((a,b)=>a.c-b.c);
+    setHTML('sched-topPerf',top.length?top.slice(0,3).map(p=>`<div class="card-row"><span>${p.n}</span><span class="card-row-val">${p.c.toFixed(1)}%</span></div>`).join(''):'<div class="card-row"><span>No top performers</span></div>');
+    setHTML('sched-needsImp',needs.length?needs.slice(0,3).map(p=>`<div class="card-row"><span>${p.n}</span><span class="card-row-val">${p.c.toFixed(1)}%</span></div>`).join(''):'<div class="card-row"><span>All lines performing well</span></div>');
+    setHTML('sched-tbl',tbl);setText('sched-totalDisp','Total Actual: '+fmtN(tAct)+' kg');
+}
+function schedLoadLine(){
+    const l=document.getElementById('sched-lineSelect').value;
+    if(!l){document.getElementById('sched-inputSections').innerHTML='<div class="input-section" style="grid-column:span 3;text-align:center;padding:24px;"><div class="input-section-title">Select a production line</div></div>';return;}
+    const d=schedGetDB()[l];
+    const h=`<div class="input-section" style="grid-column:span 3"><div class="input-section-title">${schedLineNames[l]} — Scheduling Attainment (KGS)</div><div class="input-fields-grid"><div class="input-field-wrap"><label class="input-field-label">Actual Output</label><input class="input-field" type="number" id="sched_in_actual" value="${d.actual||''}" placeholder="kg"></div><div class="input-field-wrap"><label class="input-field-label">Planned Output</label><input class="input-field" type="number" id="sched_in_planned" value="${d.planned||''}" placeholder="kg"></div></div></div>`;
+    document.getElementById('sched-inputSections').innerHTML=h;
+}
+function schedSave(){const l=document.getElementById('sched-lineSelect').value;if(!l)return;const d=schedGetDB()[l];['actual','planned'].forEach(k=>{const el=document.getElementById('sched_in_'+k);if(el)d[k]=el.value;});alert('Saved!');schedCalcAll();}
+function schedClearLine(){const l=document.getElementById('sched-lineSelect').value;if(!l)return;const d=schedGetDB()[l];d.actual='';d.planned='';schedLoadLine();schedCalcAll();}
+function schedClearAll(){if(confirm('Clear all scheduling data?')){const db=schedGetDB();schedLines.forEach(l=>{db[l].actual='';db[l].planned='';});schedLoadLine();schedCalcAll();}}
+
+// =====================================================================
+// WAREHOUSE & LOGISTICS
+// =====================================================================
+const whNonOtifIssues=[{c:'PL',i:'Material constraint'},{c:'PL',i:'Planning error'},{c:'PL',i:'Capacity Constraint'},{c:'PL',i:'Acumatica Inventory Issue'},{c:'FG',i:'Warehouse Constraint'},{c:'FG',i:'Truck unavailability'},{c:'FG',i:'Dispatch Issue'},{c:'FG',i:'Custom Issue'},{c:'FG',i:'Permits'},{c:'PR',i:'Machine downtime'},{c:'PR',i:'Production Under run'},{c:'PR',i:'Manpower constraint'},{c:'PR',i:'Production delay'},{c:'PR',i:'Acumatica Confirmation delay'},{c:'PR',i:'Subcon delay'},{c:'TE',i:'Developmental Issue'},{c:'TE',i:'Quality Issue'},{c:'SA',i:'Cancelled Order'},{c:'SA',i:'Demand Shift'},{c:'SA',i:'CS Issue'},{c:'FI',i:'Pricing Issue'}];
+const whSOIssues=[{c:'PL',i:'Material constraint'},{c:'PL',i:'Planning error'},{c:'PL',i:'Capacity Constraint'},{c:'PL',i:'Acumatica Inventory Issue'},{c:'FG',i:'Warehouse Constraint'},{c:'FG',i:'Truck unavailability'},{c:'FG',i:'Dispatch Issue'},{c:'FG',i:'Custom Issue'},{c:'FG',i:'Permits'},{c:'PR',i:'Machine downtime'},{c:'PR',i:'Production Under run'},{c:'PR',i:'Manpower constraint'},{c:'PR',i:'Production delay'},{c:'PR',i:'Acumatica Confirmation delay'},{c:'PR',i:'Subcon delay'},{c:'TE',i:'Developmental Issue'},{c:'TE',i:'Quality Issue'},{c:'SA',i:'Cancelled Order'},{c:'SA',i:'Demand Shift'},{c:'SA',i:'CS Issue'},{c:'SA',i:'Beyond forecast'},{c:'FI',i:'Pricing Issue'}];
+const catNames={PL:'Planning',FG:'Finished Goods',PR:'Production',TE:'Technical',SA:'Sales',FI:'Finance'};
+let whDB={};
+function whInitDB(y,m){return{otif:{served:'',total:''},vol:{del:'',ord:''},fr:{corp:{del:'',ord:''},sc:{del:'',ord:''},core:{del:'',ord:''},emerg:{del:'',ord:''}},nonOtif:Object.fromEntries(whNonOtifIssues.map((_,i)=>['no'+i,''])),soVal:Object.fromEntries(whSOIssues.map((_,i)=>['sv'+i,''])),soWt:Object.fromEntries(whSOIssues.map((_,i)=>['sw'+i,''])),wh:{rmTot:'',rmUsed:'',fgTot:'',fgUsed:'',extTot:'',extUsed:''},otdl:{gma:'',north:'',central:'',south:'',vis:'',mind:'',mt:'',pai:''},trucks:{t10:'',auv:'',t6:'',t4:'',c20:''},mp:{reg:'',agy:'',res:'',regH:'',agyH:'',otH:'',abs:'',days:''}};}
+['2020','2021','2022','2023','2024','2025','2026','2027','2028','2029','2030'].forEach(y=>{whDB[y]={};['January','February','March','April','May','June','July','August','September','October','November','December'].forEach(m=>{whDB[y][m]=whInitDB(y,m);});});
+function whGetDB(){const y=document.getElementById('globalYear').value,m=document.getElementById('globalMonth').value;return whDB[y][m];}
+function whFillStatus(r){if(r>=98)return['badge-excellent','Excellent'];if(r>=90)return['badge-good','Good'];if(r>=80)return['badge-warning','Warning'];return['badge-critical','Critical'];}
+function whCalc(){
+    const d=whGetDB();
+    const sv=+d.otif.served||0,tot=+d.otif.total||0,or=tot>0?sv/tot*100:0;
+    setText('wh-otif',or.toFixed(1)+'%');setText('wh-otifServed',fmtN(sv));setText('wh-otifTotal',fmtN(tot));setW('wh-otifBar',or);
+    let ob='badge-neutral',ot='No Data';if(tot>0){if(or>=95){ob='badge-excellent';ot='Excellent';}else if(or>=85){ob='badge-good';ot='Good';}else if(or>=75){ob='badge-warning';ot='Warning';}else{ob='badge-critical';ot='Critical';}}
+    setBadge('wh-otifStatus',ob,ot);
+    const vd=+d.vol.del||0,vo=+d.vol.ord||0,vr=vo>0?vd/vo*100:0;
+    setText('wh-volFill',vr.toFixed(1)+'%');setText('wh-volDel',fmtC(vd));setText('wh-volOrd',fmtC(vo));setW('wh-volBar',vr);
+    let vb='badge-neutral',vt='No Data';if(vo>0){[vb,vt]=whFillStatus(vr);}
+    setBadge('wh-volStatus',vb,vt);
+    const rm={tot:+d.wh.rmTot||0,used:+d.wh.rmUsed||0},fg={tot:+d.wh.fgTot||0,used:+d.wh.fgUsed||0},ex={tot:+d.wh.extTot||0,used:+d.wh.extUsed||0};
+    const wTot=rm.tot+fg.tot+ex.tot,wUsed=rm.used+fg.used+ex.used,wu=wTot>0?wUsed/wTot*100:0;
+    setText('wh-whUtil',wu.toFixed(1)+'%');setText('wh-whUsed',fmtN(wUsed));setText('wh-whTotal',fmtN(wTot));setW('wh-whBar',wu);
+    let wb='badge-neutral',wt='No Data';if(wTot>0){if(wu<=75){wb='badge-warning';wt='Under-Utilized';}else if(wu<=85){wb='badge-excellent';wt='Optimal';}else if(wu<=95){wb='badge-good';wt='Good';}else{wb='badge-warning';wt='Near Capacity';}}
+    setBadge('wh-whStatus',wb,wt);
+    const updateFR=(key,rId,dId,oId,stId)=>{const fd=d.fr[key],fd_=+fd.del||0,fo=+fd.ord||0,fr=fo>0?fd_/fo*100:0;setText(rId,fr.toFixed(1)+'%');setText(dId,fmtC(fd_));setText(oId,fmtC(fo));let [bc,bt]=['badge-neutral','No Data'];if(fo>0)[bc,bt]=whFillStatus(fr);setBadge(stId,bc,bt);return{r:fr,del:fd_,ord:fo,bc,bt};};
+    const corp=updateFR('corp','wh-corpRate','wh-corpDel','wh-corpOrd','wh-corpStatus');
+    const sc=updateFR('sc','wh-scRate','wh-scDel','wh-scOrd','wh-scStatus');
+    const core=updateFR('core','wh-coreRate','wh-coreDel','wh-coreOrd','wh-coreStatus');
+    const emerg=updateFR('emerg','wh-emergRate','wh-emergDel','wh-emergOrd','wh-emergStatus');
+    updateFR('corp','fr-corp','fr-corpDel','fr-corpOrd','fr-corpSt');updateFR('sc','fr-sc','fr-scDel','fr-scOrd','fr-scSt');
+    updateFR('core','fr-core','fr-coreDel','fr-coreOrd','fr-coreSt');updateFR('emerg','fr-emerg','fr-emergDel','fr-emergOrd','fr-emergSt');
+    let nonTotal=0,catCnt={};
+    let nonTbl=whNonOtifIssues.map((item,i)=>{const v=+d.nonOtif['no'+i]||0;nonTotal+=v;if(v>0)catCnt[item.c]=(catCnt[item.c]||0)+v;return`<tr><td><span class="cat-badge">${item.c}</span>${catNames[item.c]}</td><td>${item.i}</td><td>${v||0}</td></tr>`;}).join('');
+    setHTML('wh-nonOtifTbl',nonTbl);setText('wh-nonOtifTot','Total: '+nonTotal);setText('wh-nonOtifTotal',nonTotal);
+    let topCat='—',topCnt=0;for(let c in catCnt)if(catCnt[c]>topCnt){topCnt=catCnt[c];topCat=c+' ('+topCnt+')';}
+    setText('wh-nonOtifTop',topCat);
+    let soValTot=0,soWtTot=0;
+    const soValTbl=whSOIssues.map((item,i)=>{const v=+d.soVal['sv'+i]||0;soValTot+=v;return`<tr><td><span class="cat-badge">${item.c}</span>${catNames[item.c]}</td><td>${item.i}</td><td>${fmtC(v)}</td></tr>`;}).join('');
+    const soWtTbl=whSOIssues.map((item,i)=>{const w=+d.soWt['sw'+i]||0;soWtTot+=w;return`<tr><td><span class="cat-badge">${item.c}</span>${catNames[item.c]}</td><td>${item.i}</td><td>${fmtN(w)} KGS</td></tr>`;}).join('');
+    setHTML('wh-soValTbl',soValTbl);setHTML('wh-soWtTbl',soWtTbl);setText('wh-soValTot','₱'+fmtN(soValTot));setText('wh-soWtTot',fmtN(soWtTot)+' KGS');setText('wh-stockVal',fmtC(soValTot));setText('wh-stockWt',fmtN(soWtTot)+' KGS');
+    const rmUtil=rm.tot>0?rm.used/rm.tot*100:0,fgUtil=fg.tot>0?fg.used/fg.tot*100:0,extUtil=ex.tot>0?ex.used/ex.tot*100:0;
+    setText('wh-rmTot',fmtN(rm.tot));setText('wh-rmUsed',fmtN(rm.used));setText('wh-rmUtil',rmUtil.toFixed(1)+'%');
+    setText('wh-fgTot',fmtN(fg.tot));setText('wh-fgUsed',fmtN(fg.used));setText('wh-fgUtil',fgUtil.toFixed(1)+'%');
+    setText('wh-extTot',fmtN(ex.tot));setText('wh-extUsed',fmtN(ex.used));setText('wh-extUtil',extUtil.toFixed(1)+'%');
+    const otdlKeys=['gma','north','central','south','vis','mind','mt','pai'];const otdlNames=['GMA','North Luzon','Central Luzon','South Luzon','Visayas','Mindanao','Modern Trade','PAI OTDL'];
+    let otdlTot=0,otdlCnt=0;otdlKeys.forEach((k,i)=>{const v=+d.otdl[k]||0;if(v>0){otdlTot+=v;otdlCnt++;}});
+    const otdlAvg=otdlCnt>0?otdlTot/otdlCnt:0;setText('wh-otdlAvg',otdlAvg.toFixed(1)+' days');setText('wh-otdlReg',otdlCnt);
+    const truckVals=[+d.trucks.t10||0,+d.trucks.auv||0,+d.trucks.t6||0,+d.trucks.t4||0,+d.trucks.c20||0];
+    const truckTot=truckVals.reduce((a,b)=>a+b,0),truckTypes=truckVals.filter(v=>v>0).length;
+    setText('wh-truckVol',fmtN(truckTot)+' cbm');setText('wh-truckTypes',truckTypes);
+    const reg=+d.mp.reg||0,agy=+d.mp.agy||0,res=+d.mp.res||0,regH=+d.mp.regH||0,agyH=+d.mp.agyH||0,otH=+d.mp.otH||0,abs=+d.mp.abs||0,days=+d.mp.days||0;
+    const totHC=reg+agy,avgHC=totHC>0?(totHC+(totHC-res))/2:totHC,attr=avgHC>0?res/avgHC*100:0;
+    const totMH=regH+agyH,otR=totMH>0?otH/totMH*100:0,absR=days>0?abs/days*100:0;
+    ['hcTotal','hcReg','hcAgy','hcAttr','mhTotal','mhReg','mhAgy','mhOT','absRate','absCnt','absReq'].forEach((id,i)=>{
+        const vals=[fmtN(totHC,0),fmtN(reg,0),fmtN(agy,0),attr.toFixed(1)+'%',fmtN(totMH,0),fmtN(regH,0),fmtN(agyH,0),otR.toFixed(1)+'%',absR.toFixed(1)+'%',fmtN(abs,0),days.toFixed(2)];
+        setText('wh-'+id,vals[i]);
+    });
+    setText('wh-mp-reg',fmtN(reg,0));setText('wh-mp-agy',fmtN(agy,0));setText('wh-mp-res',fmtN(res,0));setText('wh-mp-attr',attr.toFixed(2)+'%');
+    setText('wh-mp-regH',fmtN(regH)+' hrs');setText('wh-mp-agyH',fmtN(agyH)+' hrs');setText('wh-mp-otH',fmtN(otH)+' hrs');setText('wh-mp-otR',otR.toFixed(1)+'%');
+    setText('wh-mp-absC',fmtN(abs,0));setText('wh-mp-absD',days.toFixed(2));setText('wh-mp-absR',absR.toFixed(2)+'%');
+}
+function whLoadInput(){
+    const cat=document.getElementById('wh-inputCat').value,d=whGetDB();
+    let h='';
+    if(cat==='otif'){h=`<div class="input-section" style="grid-column:span 3"><div class="input-section-title">OTIF Rate</div><div class="input-fields-grid"><div class="input-field-wrap"><label class="input-field-label">Served per Line Item</label><input class="input-field" type="number" id="wh_i_otif_served" value="${d.otif.served}" placeholder="Count"></div><div class="input-field-wrap"><label class="input-field-label">Total Line Items</label><input class="input-field" type="number" id="wh_i_otif_total" value="${d.otif.total}" placeholder="Count"></div></div></div>`;}
+    else if(cat==='volume'){h=`<div class="input-section" style="grid-column:span 3"><div class="input-section-title">Volume Fill Rate</div><div class="input-fields-grid"><div class="input-field-wrap"><label class="input-field-label">Delivered (₱)</label><input class="input-field" type="number" id="wh_i_vol_del" value="${d.vol.del}" placeholder="₱"></div><div class="input-field-wrap"><label class="input-field-label">Orders (₱)</label><input class="input-field" type="number" id="wh_i_vol_ord" value="${d.vol.ord}" placeholder="₱"></div></div></div>`;}
+    else if(cat==='fillrates'){const keys=['corp','sc','core','emerg'],names=['Corporate','SC Fill','Core Products','Emerging'];h=keys.map((k,i)=>`<div class="input-section"><div class="input-section-title">${names[i]}</div><div class="input-fields-grid"><div class="input-field-wrap"><label class="input-field-label">Delivered (₱)</label><input class="input-field" type="number" id="wh_i_fr_${k}_del" value="${d.fr[k].del}" placeholder="₱"></div><div class="input-field-wrap"><label class="input-field-label">Orders (₱)</label><input class="input-field" type="number" id="wh_i_fr_${k}_ord" value="${d.fr[k].ord}" placeholder="₱"></div></div></div>`).join('');}
+    else if(cat==='nonotif'){h=`<div class="input-section" style="grid-column:span 3"><div class="input-section-title">Non-OTIF Issues (Count)</div><div class="input-fields-grid" style="grid-template-columns:repeat(4,1fr)">`+whNonOtifIssues.map((it,i)=>`<div class="input-field-wrap"><label class="input-field-label">${it.c} - ${it.i}</label><input class="input-field" type="number" id="wh_i_no_${i}" value="${d.nonOtif['no'+i]||''}" placeholder="Count"></div>`).join('')+`</div></div>`;}
+    else if(cat==='stockouts'){h=`<div class="input-section" style="grid-column:span 3"><div class="input-section-title">Stock Outs — Value (₱)</div><div class="input-fields-grid" style="grid-template-columns:repeat(4,1fr)">`+whSOIssues.map((it,i)=>`<div class="input-field-wrap"><label class="input-field-label">${it.c} - ${it.i}</label><input class="input-field" type="number" id="wh_i_sv_${i}" value="${d.soVal['sv'+i]||''}" placeholder="₱"></div>`).join('')+`</div></div><div class="input-section" style="grid-column:span 3"><div class="input-section-title">Stock Outs — Weight (KGS)</div><div class="input-fields-grid" style="grid-template-columns:repeat(4,1fr)">`+whSOIssues.map((it,i)=>`<div class="input-field-wrap"><label class="input-field-label">${it.c} - ${it.i}</label><input class="input-field" type="number" id="wh_i_sw_${i}" value="${d.soWt['sw'+i]||''}" placeholder="KGS"></div>`).join('')+`</div></div>`;}
+    else if(cat==='warehouse'){h=`<div class="input-section"><div class="input-section-title">RM/PM Warehouse</div><div class="input-fields-grid"><div class="input-field-wrap"><label class="input-field-label">Pallet Positions</label><input class="input-field" type="number" id="wh_i_rm_tot" value="${d.wh.rmTot}"></div><div class="input-field-wrap"><label class="input-field-label">Pallet Used</label><input class="input-field" type="number" id="wh_i_rm_used" value="${d.wh.rmUsed}"></div></div></div><div class="input-section"><div class="input-section-title">FG Warehouse</div><div class="input-fields-grid"><div class="input-field-wrap"><label class="input-field-label">Pallet Positions</label><input class="input-field" type="number" id="wh_i_fg_tot" value="${d.wh.fgTot}"></div><div class="input-field-wrap"><label class="input-field-label">Pallet Used</label><input class="input-field" type="number" id="wh_i_fg_used" value="${d.wh.fgUsed}"></div></div></div><div class="input-section"><div class="input-section-title">External Warehouse</div><div class="input-fields-grid"><div class="input-field-wrap"><label class="input-field-label">Pallet Positions</label><input class="input-field" type="number" id="wh_i_ext_tot" value="${d.wh.extTot}"></div><div class="input-field-wrap"><label class="input-field-label">Pallet Used</label><input class="input-field" type="number" id="wh_i_ext_used" value="${d.wh.extUsed}"></div></div></div>`;}
+    else if(cat==='otdl'){h=`<div class="input-section" style="grid-column:span 3"><div class="input-section-title">OTDL Days</div><div class="input-fields-grid" style="grid-template-columns:repeat(4,1fr)">${[['gma','GMA'],['north','North Luzon'],['central','Central Luzon'],['south','South Luzon'],['vis','Visayas'],['mind','Mindanao'],['mt','Modern Trade'],['pai','PAI OTDL']].map(([k,l])=>`<div class="input-field-wrap"><label class="input-field-label">${l}</label><input class="input-field" type="number" id="wh_i_otdl_${k}" value="${d.otdl[k]}"></div>`).join('')}</div></div>`;}
+    else if(cat==='trucks'){h=`<div class="input-section" style="grid-column:span 3"><div class="input-section-title">Truck Utilization (CBM)</div><div class="input-fields-grid">${[['t10','10-wheeler'],['auv','AUV'],['t6','6-wheeler'],['t4','4-wheeler'],['c20','20-ft container']].map(([k,l])=>`<div class="input-field-wrap"><label class="input-field-label">${l}</label><input class="input-field" type="number" id="wh_i_tr_${k}" value="${d.trucks[k]}"></div>`).join('')}</div></div>`;}
+    else if(cat==='manpower'){h=`<div class="input-section"><div class="input-section-title">Headcount</div><div class="input-fields-grid"><div class="input-field-wrap"><label class="input-field-label">Regular</label><input class="input-field" type="number" id="wh_i_mp_reg" value="${d.mp.reg}"></div><div class="input-field-wrap"><label class="input-field-label">Agency</label><input class="input-field" type="number" id="wh_i_mp_agy" value="${d.mp.agy}"></div><div class="input-field-wrap"><label class="input-field-label">Resigned</label><input class="input-field" type="number" id="wh_i_mp_res" value="${d.mp.res}"></div></div></div><div class="input-section"><div class="input-section-title">Manhours</div><div class="input-fields-grid"><div class="input-field-wrap"><label class="input-field-label">Regular Hours</label><input class="input-field" type="number" id="wh_i_mp_regH" value="${d.mp.regH}"></div><div class="input-field-wrap"><label class="input-field-label">Agency Hours</label><input class="input-field" type="number" id="wh_i_mp_agyH" value="${d.mp.agyH}"></div><div class="input-field-wrap"><label class="input-field-label">Overtime Hours</label><input class="input-field" type="number" id="wh_i_mp_otH" value="${d.mp.otH}"></div></div></div><div class="input-section"><div class="input-section-title">Absences</div><div class="input-fields-grid"><div class="input-field-wrap"><label class="input-field-label">Absences Count</label><input class="input-field" type="number" id="wh_i_mp_abs" value="${d.mp.abs}"></div><div class="input-field-wrap"><label class="input-field-label">Required Days</label><input class="input-field" type="number" id="wh_i_mp_days" value="${d.mp.days}"></div></div></div>`;}
+    document.getElementById('wh-inputSections').innerHTML=h;
+}
+function whSave(){
+    const cat=document.getElementById('wh-inputCat').value,d=whGetDB();
+    const g=id=>document.getElementById(id)?.value||'';
+    if(cat==='otif'){d.otif.served=g('wh_i_otif_served');d.otif.total=g('wh_i_otif_total');}
+    else if(cat==='volume'){d.vol.del=g('wh_i_vol_del');d.vol.ord=g('wh_i_vol_ord');}
+    else if(cat==='fillrates'){['corp','sc','core','emerg'].forEach(k=>{d.fr[k].del=g('wh_i_fr_'+k+'_del');d.fr[k].ord=g('wh_i_fr_'+k+'_ord');});}
+    else if(cat==='nonotif'){whNonOtifIssues.forEach((_,i)=>d.nonOtif['no'+i]=g('wh_i_no_'+i));}
+    else if(cat==='stockouts'){whSOIssues.forEach((_,i)=>{d.soVal['sv'+i]=g('wh_i_sv_'+i);d.soWt['sw'+i]=g('wh_i_sw_'+i);});}
+    else if(cat==='warehouse'){d.wh.rmTot=g('wh_i_rm_tot');d.wh.rmUsed=g('wh_i_rm_used');d.wh.fgTot=g('wh_i_fg_tot');d.wh.fgUsed=g('wh_i_fg_used');d.wh.extTot=g('wh_i_ext_tot');d.wh.extUsed=g('wh_i_ext_used');}
+    else if(cat==='otdl'){['gma','north','central','south','vis','mind','mt','pai'].forEach(k=>d.otdl[k]=g('wh_i_otdl_'+k));}
+    else if(cat==='trucks'){['t10','auv','t6','t4','c20'].forEach(k=>d.trucks[k]=g('wh_i_tr_'+k));}
+    else if(cat==='manpower'){['reg','agy','res','regH','agyH','otH','abs','days'].forEach(k=>d.mp[k]=g('wh_i_mp_'+k));}
+    alert('Saved!');whCalc();
+}
+function whClearCat(){document.querySelectorAll('#wh-inputSections input').forEach(e=>e.value='');whSave();}
+function whClearAll(){if(confirm('Clear all warehouse data for this month?')){const y=document.getElementById('globalYear').value,m=document.getElementById('globalMonth').value;whDB[y][m]=whInitDB(y,m);whLoadInput();whCalc();}}
+
+// =====================================================================
+// INIT
+// =====================================================================
+window.onload=function(){
+    globalFilterChange();
+    // Listen to planning inputs for live update
+    setTimeout(()=>{
+        document.querySelectorAll('#planning-input input[type=number]').forEach(i=>i.addEventListener('input',plUpdate));
+    },200);
+};
+</script>
+</body>
+</html>

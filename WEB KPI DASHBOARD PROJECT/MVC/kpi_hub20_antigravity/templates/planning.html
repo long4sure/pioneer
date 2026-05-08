@@ -1,0 +1,94 @@
+<div class="tab-bar">
+                <button class="tab-btn active" onclick="switchTab('planning','overview',this)">Overview</button>
+                <button class="tab-btn" onclick="switchTab('planning','input',this)" data-tab="input">Data Entry</button>
+            </div>
+            <div id="planning-overview" class="tab-content active">
+                <div class="kpi-grid kpi-grid-4">
+                    <div class="card"><div class="card-title">Safety Stocks (Days)</div><div class="card-row"><span>FG Total</span><span class="card-row-val" id="pl-fgTotal">0</span></div><div class="card-row"><span>RM Total</span><span class="card-row-val" id="pl-rmTotal">0</span></div><div class="card-row"><span>PM Total</span><span class="card-row-val" id="pl-pmTotal">0</span></div></div>
+                    <div class="card"><div class="card-title">Total Inventory</div><div class="card-row"><span>FG (kgs)</span><span class="card-row-val" id="pl-fgKgs">0</span></div><div class="card-row"><span>FG (PHP)</span><span class="card-row-val" id="pl-fgPhp">₱0</span></div><div class="card-row"><span>RM/PM (kgs)</span><span class="card-row-val" id="pl-rmKgs">0</span></div><div class="card-row"><span>RM/PM (PHP)</span><span class="card-row-val" id="pl-rmPhp">₱0</span></div></div>
+                    <div class="card"><div class="card-title">Inventory Accuracy</div><div class="card-row"><span>FG Accuracy</span><span class="card-row-val" id="pl-fgAcc">0%</span></div><div class="card-row"><span>RM/PM Accuracy</span><span class="card-row-val" id="pl-rmAcc">0%</span></div></div>
+                    <div class="card"><div class="card-title">Forecast Accuracy</div><div class="card-row"><span>Local PH</span><span class="card-row-val" id="pl-fcLocal">0%</span></div><div class="card-row"><span>Export</span><span class="card-row-val" id="pl-fcExport">0%</span></div><div class="card-row"><span>Product</span><span class="card-row-val" id="pl-fcProd">0%</span></div><div class="card-row" style="border-top:2px solid var(--border);margin-top:4px;padding-top:6px;"><span><strong>Overall</strong></span><span class="card-row-val" id="pl-fcOverall">0%</span></div></div>
+                </div>
+                <div class="section-title">Safety Stocks — Detailed View</div>
+                <div class="kpi-grid kpi-grid-3">
+                    <div class="card"><div class="card-title">Finished Goods</div><div class="card-row"><span>Core</span><span class="card-row-val" id="pl-fgA">0</span></div><div class="card-row"><span>M7</span><span class="card-row-val" id="pl-fgB">0</span></div><div class="card-row"><span>Others</span><span class="card-row-val" id="pl-fgC">0</span></div><div class="card-row"><span>All In</span><span class="card-row-val" id="pl-fgAllIn">0</span></div><div class="card-row" style="border-top:2px solid var(--border);margin-top:4px;padding-top:6px;"><span><strong>Grand Total</strong></span><span class="card-row-val" id="pl-fgGT">0</span></div></div>
+                    <div class="card"><div class="card-title">Raw Materials</div><div class="card-row"><span>Core</span><span class="card-row-val" id="pl-rmA">0</span></div><div class="card-row"><span>M7</span><span class="card-row-val" id="pl-rmB">0</span></div><div class="card-row"><span>Others</span><span class="card-row-val" id="pl-rmC">0</span></div><div class="card-row" style="border-top:2px solid var(--border);margin-top:4px;padding-top:6px;"><span><strong>Grand Total</strong></span><span class="card-row-val" id="pl-rmGT">0</span></div></div>
+                    <div class="card"><div class="card-title">Packaging Materials</div><div class="card-row"><span>Core</span><span class="card-row-val" id="pl-pmCore">0</span></div><div class="card-row"><span>M7</span><span class="card-row-val" id="pl-pmM7">0</span></div><div class="card-row"><span>Others</span><span class="card-row-val" id="pl-pmOthers">0</span></div><div class="card-row" style="border-top:2px solid var(--border);margin-top:4px;padding-top:6px;"><span><strong>Grand Total</strong></span><span class="card-row-val" id="pl-pmGT">0</span></div></div>
+                </div>
+                <div class="section-title">FG Inventory</div>
+                <div class="kpi-grid kpi-grid-2">
+                    <div class="card"><div class="card-title">By Weight (KGS)</div><div class="card-row"><span>Core</span><span class="card-row-val" id="pl-fgKgsFG">0</span></div><div class="card-row"><span>M7</span><span class="card-row-val" id="pl-fgKgsFN">0</span></div><div class="card-row"><span>Others</span><span class="card-row-val" id="pl-fgKgsSL">0</span></div><div class="card-row"><span>Expired</span><span class="card-row-val" id="pl-fgKgsEX">0</span></div><div class="card-row" style="border-top:2px solid var(--border);margin-top:4px;padding-top:6px;"><span><strong>Total</strong></span><span class="card-row-val" id="pl-fgKgsTot">0</span></div><div class="card-row"><span>Inventory Days</span><span class="card-row-val" id="pl-fgKgsDays">0</span></div></div>
+                    <div class="card"><div class="card-title">By Value (PHP)</div><div class="card-row"><span>Core</span><span class="card-row-val" id="pl-fgPhpFG">₱0</span></div><div class="card-row"><span>M7</span><span class="card-row-val" id="pl-fgPhpFN">₱0</span></div><div class="card-row"><span>Others</span><span class="card-row-val" id="pl-fgPhpSL">₱0</span></div><div class="card-row"><span>Expired</span><span class="card-row-val" id="pl-fgPhpEX">₱0</span></div><div class="card-row" style="border-top:2px solid var(--border);margin-top:4px;padding-top:6px;"><span><strong>Total</strong></span><span class="card-row-val" id="pl-fgPhpTot">₱0</span></div><div class="card-row"><span>Inventory Days</span><span class="card-row-val" id="pl-fgPhpDays">0</span></div></div>
+                </div>
+                <div class="section-title">RM/PM Inventory</div>
+                <div class="kpi-grid kpi-grid-2">
+                    <div class="card"><div class="card-title">By Weight (KGS)</div><div class="card-row"><span>Core</span><span class="card-row-val" id="pl-rmKgsFG">0</span></div><div class="card-row"><span>M7</span><span class="card-row-val" id="pl-rmKgsFN">0</span></div><div class="card-row"><span>Others</span><span class="card-row-val" id="pl-rmKgsSL">0</span></div><div class="card-row"><span>Expired</span><span class="card-row-val" id="pl-rmKgsEX">0</span></div><div class="card-row" style="border-top:2px solid var(--border);margin-top:4px;padding-top:6px;"><span><strong>Total</strong></span><span class="card-row-val" id="pl-rmKgsTot">0</span></div><div class="card-row"><span>Inventory Days</span><span class="card-row-val" id="pl-rmKgsDays">0</span></div></div>
+                    <div class="card"><div class="card-title">By Value (PHP)</div><div class="card-row"><span>Core</span><span class="card-row-val" id="pl-rmPhpFG">₱0</span></div><div class="card-row"><span>M7</span><span class="card-row-val" id="pl-rmPhpFN">₱0</span></div><div class="card-row"><span>Others</span><span class="card-row-val" id="pl-rmPhpSL">₱0</span></div><div class="card-row"><span>Expired</span><span class="card-row-val" id="pl-rmPhpEX">₱0</span></div><div class="card-row" style="border-top:2px solid var(--border);margin-top:4px;padding-top:6px;"><span><strong>Total</strong></span><span class="card-row-val" id="pl-rmPhpTot">₱0</span></div><div class="card-row"><span>Inventory Days</span><span class="card-row-val" id="pl-rmPhpDays">0</span></div></div>
+                </div>
+                <div class="section-title">Inventory Accuracy</div>
+                <div class="kpi-grid kpi-grid-2">
+                    <div class="card"><div class="card-title">Finished Goods</div><div class="card-row"><span>Total Count</span><span class="card-row-val" id="pl-fgCnt">0</span></div><div class="card-row"><span>Total Missed</span><span class="card-row-val" id="pl-fgMiss">0</span></div><div class="card-row" style="border-top:2px solid var(--border);margin-top:4px;padding-top:6px;"><span><strong>Accuracy</strong></span><span class="card-row-val" id="pl-fgAccDet">0%</span></div></div>
+                    <div class="card"><div class="card-title">RM/PM</div><div class="card-row"><span>Total Count</span><span class="card-row-val" id="pl-rmCnt">0</span></div><div class="card-row"><span>Total Missed</span><span class="card-row-val" id="pl-rmMiss">0</span></div><div class="card-row" style="border-top:2px solid var(--border);margin-top:4px;padding-top:6px;"><span><strong>Accuracy</strong></span><span class="card-row-val" id="pl-rmAccDet">0%</span></div></div>
+                </div>
+                <div class="section-title">Forecast Accuracy</div>
+                <div class="kpi-grid kpi-grid-2">
+                    <div class="card"><div class="card-title">Local Philippines</div><div class="card-row"><span>GMA</span><span class="card-row-val" id="pl-fcGma">0%</span></div><div class="card-row"><span>North Luzon</span><span class="card-row-val" id="pl-fcNorth">0%</span></div><div class="card-row"><span>South Luzon</span><span class="card-row-val" id="pl-fcSouth">0%</span></div><div class="card-row"><span>Visayas</span><span class="card-row-val" id="pl-fcVis">0%</span></div><div class="card-row"><span>Mindanao</span><span class="card-row-val" id="pl-fcMind">0%</span></div><div class="card-row"><span>Modern Trade</span><span class="card-row-val" id="pl-fcMT">0%</span></div><div class="card-row"><span>PSBSI</span><span class="card-row-val" id="pl-fcPsbsi">0%</span></div><div class="card-row" style="border-top:2px solid var(--border);margin-top:4px;padding-top:6px;"><span><strong>Local Average</strong></span><span class="card-row-val" id="pl-fcLocalAvg">0%</span></div></div>
+                    <div class="card"><div class="card-title">Export</div><div class="card-row"><span>Indonesia</span><span class="card-row-val" id="pl-fcIndo">0%</span></div><div class="card-row"><span>India</span><span class="card-row-val" id="pl-fcIndia">0%</span></div><div class="card-row"><span>Direct Export</span><span class="card-row-val" id="pl-fcDirect">0%</span></div><div class="card-row" style="border-top:2px solid var(--border);margin-top:4px;padding-top:6px;"><span><strong>Export Average</strong></span><span class="card-row-val" id="pl-fcExportAvg">0%</span></div></div>
+                </div>
+                <div class="section-title">Forecast Accuracy by Product</div>
+                <div class="card"><div class="card-title">Product Lines</div><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:0;">
+                    <div class="card-row"><span>Epoxy</span><span class="card-row-val" id="pl-pEpoxy">0%</span></div>
+                    <div class="card-row"><span>Elastoseal</span><span class="card-row-val" id="pl-pElasto">0%</span></div>
+                    <div class="card-row"><span>Mighty Bond</span><span class="card-row-val" id="pl-pMighty">0%</span></div>
+                    <div class="card-row"><span>Pro-Epoxy</span><span class="card-row-val" id="pl-pProEpoxy">0%</span></div>
+                    <div class="card-row"><span>Builders Bond</span><span class="card-row-val" id="pl-pBuilders">0%</span></div>
+                    <div class="card-row"><span>Coating Marine</span><span class="card-row-val" id="pl-pCoating">0%</span></div>
+                    <div class="card-row"><span>Transportation</span><span class="card-row-val" id="pl-pTransport">0%</span></div>
+                    <div class="card-row"><span>Other Consumer</span><span class="card-row-val" id="pl-pOther">0%</span></div>
+                    <div class="card-row"><span>Pro-Sealant</span><span class="card-row-val" id="pl-pSealant">0%</span></div>
+                    <div class="card-row"><span>Pro-Waterproofing</span><span class="card-row-val" id="pl-pWaterproof">0%</span></div>
+                    <div class="card-row"><span>Pro-Painting</span><span class="card-row-val" id="pl-pPainting">0%</span></div>
+                    <div class="card-row"><span>Pro-Adhesives</span><span class="card-row-val" id="pl-pAdhesives">0%</span></div>
+                    <div class="card-row"><span>Mining</span><span class="card-row-val" id="pl-pMining">0%</span></div>
+                    <div class="card-row"><span>Others</span><span class="card-row-val" id="pl-pOthers">0%</span></div>
+                    <div class="card-row" style="border-top:2px solid var(--border);margin-top:4px;padding-top:6px;grid-column:1/-1;"><span><strong>Product Average</strong></span><span class="card-row-val" id="pl-fcProdAvg">0%</span></div>
+                </div></div>
+            </div>
+            <div id="planning-input" class="tab-content">
+                <div class="input-panel">
+                    <div class="input-panel-head">SC Planning — Data Entry</div>
+                    <div style="display:none" id="pl-inputSections">
+                        <input type="number" id="pl-i-fgA"><input type="number" id="pl-i-fgB"><input type="number" id="pl-i-fgC"><input type="number" id="pl-i-fgAllIn">
+                        <input type="number" id="pl-i-rmA"><input type="number" id="pl-i-rmB"><input type="number" id="pl-i-rmC">
+                        <input type="number" id="pl-i-pmCore"><input type="number" id="pl-i-pmM7"><input type="number" id="pl-i-pmOthers">
+                        <input type="number" id="pl-i-fgKgsFG"><input type="number" id="pl-i-fgKgsFN"><input type="number" id="pl-i-fgKgsSL"><input type="number" id="pl-i-fgKgsEX"><input type="number" id="pl-i-fgKgsDays">
+                        <input type="number" id="pl-i-fgPhpFG"><input type="number" id="pl-i-fgPhpFN"><input type="number" id="pl-i-fgPhpSL"><input type="number" id="pl-i-fgPhpEX">
+                        <input type="number" id="pl-i-rmKgsFG"><input type="number" id="pl-i-rmKgsFN"><input type="number" id="pl-i-rmKgsSL"><input type="number" id="pl-i-rmKgsEX"><input type="number" id="pl-i-rmKgsDays">
+                        <input type="number" id="pl-i-rmPhpFG"><input type="number" id="pl-i-rmPhpFN"><input type="number" id="pl-i-rmPhpSL"><input type="number" id="pl-i-rmPhpEX">
+                        <input type="number" id="pl-i-fgCnt"><input type="number" id="pl-i-fgMiss"><input type="number" id="pl-i-rmCnt"><input type="number" id="pl-i-rmMiss">
+                        <input type="number" id="pl-i-fcGma"><input type="number" id="pl-i-fcNorth"><input type="number" id="pl-i-fcSouth"><input type="number" id="pl-i-fcVis"><input type="number" id="pl-i-fcMind"><input type="number" id="pl-i-fcMT"><input type="number" id="pl-i-fcPsbsi">
+                        <input type="number" id="pl-i-fcIndo"><input type="number" id="pl-i-fcIndia"><input type="number" id="pl-i-fcDirect">
+                        <input type="number" id="pl-i-pEpoxy"><input type="number" id="pl-i-pElasto"><input type="number" id="pl-i-pMighty"><input type="number" id="pl-i-pProEpoxy"><input type="number" id="pl-i-pBuilders"><input type="number" id="pl-i-pCoating"><input type="number" id="pl-i-pTransport"><input type="number" id="pl-i-pOther"><input type="number" id="pl-i-pSealant"><input type="number" id="pl-i-pWaterproof"><input type="number" id="pl-i-pPainting"><input type="number" id="pl-i-pAdhesives"><input type="number" id="pl-i-pMining"><input type="number" id="pl-i-pOthers">
+                    </div>
+                    <div class="input-controls">
+                        <span class="input-control-label">Category:</span>
+                        <select class="input-control-select" id="pl-inputCat" onchange="plLoadCat()">
+                            <option value="safety">Safety Stocks (Days)</option>
+                            <option value="fgKgs">FG Inventory — Weight (KGS)</option>
+                            <option value="fgPhp">FG Inventory — Value (PHP)</option>
+                            <option value="rmKgs">RM/PM Inventory — Weight (KGS)</option>
+                            <option value="rmPhp">RM/PM Inventory — Value (PHP)</option>
+                            <option value="accuracy">Inventory Accuracy</option>
+                            <option value="fcLocal">Forecast — Local PH (%)</option>
+                            <option value="fcExport">Forecast — Export (%)</option>
+                            <option value="fcProduct">Forecast — Product (%)</option>
+                        </select>
+                    </div>
+                    <div class="input-grid-wrap" id="pl-catSections" style="grid-template-columns:1fr;"></div>
+                    <div class="input-panel-actions">
+                        <button class="btn btn-danger" onclick="plClearCat()">Clear</button>
+                        <button class="btn" onclick="plClearAll()">Clear All</button>
+                        <button class="btn btn-primary" onclick="plSaveCat()">Save</button>
+                    </div>
+                </div>
+            </div>

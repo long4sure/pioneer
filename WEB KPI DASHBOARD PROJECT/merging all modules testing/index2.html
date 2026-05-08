@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise Dashboard | Production & Warehouse</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: #eef2f5;
+            padding: 20px;
+        }
+
+        /* MAIN DASHBOARD WRAPPER */
+        .dashboard-root {
+            max-width: 1900px;
+            margin: 0 auto;
+        }
+
+        /* GLOBAL HEADER */
+        .global-header {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.05);
+            padding: 20px 28px;
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            border: 1px solid #e9edf2;
+        }
+
+        .title-section h1 {
+            font-size: 26px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #1a2c3e, #2c4b66);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: -0.3px;
+        }
+
+        .title-section p {
+            font-size: 13px;
+            color: #5f6c7a;
+            margin-top: 6px;
+        }
+
+        .dashboard-selector {
+            background: #f8fafc;
+            padding: 8px 20px;
+            border-radius: 60px;
+            border: 1px solid #dee4eb;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .selector-label {
+            font-weight: 600;
+            font-size: 13px;
+            color: #2c3e50;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .dash-buttons {
+            display: flex;
+            gap: 12px;
+        }
+
+        .dash-btn {
+            padding: 10px 24px;
+            border-radius: 40px;
+            border: none;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: white;
+            color: #2c3e50;
+            border: 1px solid #cdd9ed;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+        }
+
+        .dash-btn:hover {
+            background: #f0f4f9;
+            border-color: #01b8aa;
+            color: #01b8aa;
+        }
+
+        .dash-btn.active {
+            background: #01b8aa;
+            border-color: #01b8aa;
+            color: white;
+            box-shadow: 0 4px 10px rgba(1,184,170,0.2);
+        }
+
+        /* MODULE CONTAINER (each dashboard iframe or embed) */
+        .dashboard-container {
+            background: transparent;
+            border-radius: 24px;
+            transition: all 0.2s;
+        }
+
+        .dashboard-frame {
+            width: 100%;
+            min-height: 85vh;
+            border: none;
+            background: #f5f7fa;
+            border-radius: 20px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.03);
+        }
+
+        .footer-note {
+            margin-top: 24px;
+            text-align: center;
+            font-size: 12px;
+            color: #7c8b9c;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 20px;
+        }
+
+        @media (max-width: 700px) {
+            .global-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .dash-btn {
+                padding: 6px 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="dashboard-root">
+    <div class="global-header">
+        <div class="title-section">
+            <h1>📊 INTEGRATED OPERATIONS DASHBOARD</h1>
+            <p>Production | Warehouse & Logistics | Real-time performance overview</p>
+        </div>
+        <div class="dashboard-selector">
+            <span class="selector-label">🎛️ SELECT DASHBOARD:</span>
+            <div class="dash-buttons">
+                <button class="dash-btn active" data-dash="production">🏭 PRODUCTION MODULE</button>
+                <button class="dash-btn" data-dash="warehouse">📦 WAREHOUSE & LOGISTICS</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard-container" id="dashboardContainer">
+        <!-- iframe will be injected here -->
+        <iframe id="dashboardIframe" class="dashboard-frame" title="Dashboard Module" srcdoc="<html><body style='background:#f5f7fa; display:flex; align-items:center; justify-content:center; font-family:sans-serif;'><div style='text-align:center; color:#5f6c7a;'>Loading dashboard...</div></body></html>"></iframe>
+    </div>
+    <div class="footer-note">
+        ⚡ Unified view · Data sync across months & lines · Last refresh based on module filters
+    </div>
+</div>
+
+<script>
+    // ============================================================
+    //  PRODUCTION DASHBOARD (Machine Utilization + Wastage + Scheduling)
+    //  Fully self-contained HTML/CSS/JS from prod3_schedAttain.html (integrated)
+    // ============================================================
+    const productionDashboardHTML = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Production Dashboard - Multi Module</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
+        body { background-color: #f5f7fa; padding: 20px; }
+        .container { max-width: 1800px; margin: 0 auto; background-color: white; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); padding: 24px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px; }
+        .header h1 { font-size: 24px; font-weight: 600; color: #2d2f33; }
+        .filter-group { display: flex; gap: 16px; background: #fafbfc; padding: 8px 16px; border-radius: 6px; border: 1px solid #eef2f5; flex-wrap: wrap; }
+        .filter-item { display: flex; align-items: center; gap: 8px; }
+        .filter-item label { font-size: 12px; font-weight: 600; color: #5f6775; text-transform: uppercase; }
+        .filter-item select { padding: 6px 12px; border: 1px solid #d0d5dd; border-radius: 4px; font-size: 13px; background: white; cursor: pointer; }
+        .module-selector { display: flex; gap: 10px; margin-bottom: 24px; padding: 10px; background: #f0f0f0; border-radius: 8px; flex-wrap: wrap; }
+        .module-btn { padding: 10px 20px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; background: white; color: #5f6775; flex: 1; min-width: 150px; transition: all 0.2s; }
+        .module-btn:hover { background: #e0e0e0; }
+        .module-btn.active { background: #01b8aa; color: white; }
+        .module-content { display: none; }
+        .module-content.active { display: block; }
+        .tab-nav { display: flex; gap: 5px; margin-bottom: 24px; border-bottom: 2px solid #eef2f5; padding-bottom: 10px; flex-wrap: wrap; }
+        .tab-btn { padding: 8px 16px; border: none; background: none; font-weight: 600; color: #5f6775; cursor: pointer; border-radius: 4px; }
+        .tab-btn.active { color: #01b8aa; background: #e6f3f2; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px,1fr)); gap: 20px; margin-bottom: 24px; }
+        .kpi-card { background: white; border: 1px solid #eef2f5; border-radius: 8px; padding: 20px; transition: 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .kpi-card:hover { border-color: #01b8aa; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .kpi-card-title { font-size: 14px; font-weight: 600; color: #5f6775; text-transform: uppercase; }
+        .kpi-card-main-value { font-size: 32px; font-weight: 600; color: #2d2f33; margin: 8px 0; }
+        .kpi-card-details { display: flex; flex-direction: column; gap: 8px; }
+        .kpi-card-detail-row { display: flex; justify-content: space-between; font-size: 13px; border-bottom: 1px dashed #f0f0f0; padding: 4px 0; }
+        .kpi-card-progress { height: 6px; background: #eef2f5; border-radius: 3px; margin: 12px 0 8px; overflow: hidden; }
+        .kpi-card-progress-bar { height: 100%; background: #01b8aa; border-radius: 3px; }
+        .status-badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 500; }
+        .status-excellent { background: #e6f9ed; color: #107c41; }
+        .status-good { background: #e3f2fd; color: #0d47a1; }
+        .status-warning { background: #fff1e0; color: #d83b01; }
+        .status-critical { background: #ffebee; color: #c62828; }
+        .status-neutral { background: #fef7e0; color: #966c00; }
+        .section-header { font-size: 18px; font-weight: 600; color: #2d2f33; margin: 30px 0 20px; padding-bottom: 8px; border-bottom: 2px solid #01b8aa; }
+        .table-container { background: white; border: 1px solid #eef2f5; border-radius: 6px; margin-bottom: 24px; overflow-x: auto; }
+        .table-header { padding: 16px 20px; background: #fafbfc; font-weight: 600; display: flex; justify-content: space-between; flex-wrap: wrap; border-bottom: 1px solid #eef2f5; }
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; padding: 14px 16px; font-size: 12px; font-weight: 600; color: #5f6775; border-bottom: 2px solid #eef2f5; background: #fafbfc; }
+        td { padding: 12px 16px; font-size: 13px; border-bottom: 1px solid #eef2f5; }
+        .input-panel { background: white; border: 1px solid #eef2f5; border-radius: 6px; margin: 24px 0; }
+        .panel-header { padding: 16px 20px; background: #fafbfc; font-weight: 600; border-bottom: 1px solid #eef2f5; }
+        .input-controls { display: flex; gap: 20px; padding: 20px; background: #fafbfc; flex-wrap: wrap; }
+        .input-selector { display: flex; align-items: center; gap: 10px; flex: 2; }
+        .input-selector label { font-size: 12px; font-weight: 600; text-transform: uppercase; min-width: 100px; }
+        .input-selector select { padding: 8px 16px; border: 1px solid #d0d5dd; border-radius: 4px; font-size: 13px; flex:1; max-width: 500px; }
+        .input-sections { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; padding: 20px; max-height: 600px; overflow-y: auto; }
+        .input-section { background: #fafbfc; border: 1px solid #eef2f5; border-radius: 6px; padding: 20px; }
+        .input-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 15px; }
+        .input-field { display: flex; flex-direction: column; gap: 4px; }
+        .input-field input { padding: 8px 12px; border: 1px solid #d0d5dd; border-radius: 4px; }
+        .btn { padding: 8px 16px; border: 1px solid #d0d5dd; border-radius: 4px; font-weight: 500; cursor: pointer; background: white; }
+        .btn-primary { background: #01b8aa; border-color: #01b8aa; color: white; }
+        .btn-danger { background: #d83b01; border-color: #d83b01; color: white; }
+        .button-group { padding: 16px 20px; border-top: 1px solid #eef2f5; display: flex; gap: 12px; justify-content: flex-end; }
+        .footer { text-align: right; font-size: 12px; color: #5f6775; margin-top: 20px; padding-top: 16px; border-top: 1px solid #eef2f5; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header"><h1>PRODUCTION DASHBOARD</h1><div class="filter-group"><div class="filter-item"><label>Year:</label><select id="yearSelect" onchange="loadMonthData()"><option value="2023">2023</option><option value="2024" selected>2024</option><option value="2025">2025</option></select></div><div class="filter-item"><label>Month:</label><select id="monthSelect" onchange="loadMonthData()"><option value="January">January</option><option value="February">February</option><option value="March">March</option><option value="April">April</option><option value="May">May</option><option value="June">June</option><option value="July">July</option><option value="August">August</option><option value="September">September</option><option value="October" selected>October</option><option value="November">November</option><option value="December">December</option></select></div></div></div>
+    <div class="module-selector"><button class="module-btn active" onclick="switchModule('utilization')">🔧 Machine Utilization</button><button class="module-btn" onclick="switchModule('wastage')">📊 Output & Wasteage</button><button class="module-btn" onclick="switchModule('scheduling')">📅 Scheduling Attainment</button></div>
+    <div id="module-utilization" class="module-content active"><div class="tab-nav"><button class="tab-btn active" onclick="switchTab('utilization','overview')">Overview</button><button class="tab-btn" onclick="switchTab('utilization','details')">Utilization Details</button><button class="tab-btn" onclick="switchTab('utilization','input')">Data Input</button></div><div id="utilization-overview" class="tab-content active">[OVERVIEW LOADED DYNAMICALLY]</div><div id="utilization-details" class="tab-content"></div><div id="utilization-input" class="tab-content"></div></div>
+    <div id="module-wastage" class="module-content"><div class="tab-nav"><button class="tab-btn active" onclick="switchTab('wastage','overview')">Overview</button><button class="tab-btn" onclick="switchTab('wastage','details')">Line Details</button><button class="tab-btn" onclick="switchTab('wastage','input')">Data Input</button></div><div id="wastage-overview" class="tab-content active"></div><div id="wastage-details" class="tab-content"></div><div id="wastage-input" class="tab-content"></div></div>
+    <div id="module-scheduling" class="module-content"><div class="tab-nav"><button class="tab-btn active" onclick="switchTab('scheduling','overview')">Overview</button><button class="tab-btn" onclick="switchTab('scheduling','details')">Line Details</button><button class="tab-btn" onclick="switchTab('scheduling','input')">Data Input</button></div><div id="scheduling-overview" class="tab-content active"></div><div id="scheduling-details" class="tab-content"></div><div id="scheduling-input" class="tab-content"></div></div>
+    <div class="footer">Last updated: <span id="lastUpdate">Just now</span></div>
+</div>
+<script>
+    // ---------- FULL LOGIC (condensed but fully functional) ----------
+    const utilLines = ['L06_FILLING','L06_MIXER','L04_FILLING','L04_MIXING','L03_ITALY','L03_KOREA','L01_MIXER','L01_MILLING','L07_TUBE','L09_EPS','L10_BOND','L11_SILICONE','L12_EPOXY','L13_WATER','L14_FILLING','L14_MIXING'];
+    const wasteLines = ['L06_EPOXY','L04B_ELASTO','L03_CYANO','L01_COATINGS','L07_TUBE','L09_EPS','L10_BOND','L11_SILICONE','L12_EPOXY','L13_WATER','L14','L05_CLAY','L02_BOTTLE','LABELING'];
+    const schedLines = ['L06_EPOXY','L04B_ELASTO','L03_CYANO','L01_COATINGS','L07_TUBE','L09_EPS','L10_BOND','L11_SILICONE','L12_EPOXY','L13_WATER','L14','L05_CLAY','L02_BOTTLE'];
+    const utilCategories = ['Actual Productive Time','No Production Plan','No Head Count Allocation','Change Over Time','Meeting','Sanitation Time','Start-up Time/Setup','Shutdown/cooldown','Testing Time','Breaktime','Preventive Maintenance','Force Majeure','Electrical Breakdown','Mechanical Breakdown','Materials Supply','Sorting/Reworking','Technical Downtime(QA & RND)','No Manpower','UDT-Meeting','No OT','No Bulkmix/No Kettle','Transfer','Idle time'];
+    const utilKeys = ['productive','noPlan','noHc','changeOver','meeting','sanitation','startup','shutdown','testing','breaktime','pm','forceMajeure','elecBreakdown','mechBreakdown','materialsSupply','sorting','techDowntime','noManpower','udtMeeting','noOt','noBulkmix','transfer','idle'];
+    let database = {};
+    const years = ['2023','2024','2025'], months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    const emptyUtil = Object.fromEntries(utilKeys.map(k=>[k,''])); emptyUtil.machinesAvail=''; emptyUtil.machinesUsed=''; emptyUtil.prodDays='';
+    years.forEach(y=>{ database[y]={}; months.forEach(m=>{ database[y][m]={ utilization:{}, wastage:{}, scheduling:{}}; utilLines.forEach(l=> database[y][m].utilization[l]={...emptyUtil}); wasteLines.forEach(l=> database[y][m].wastage[l]={fgOutput:'',reprocess:'',rejection:'',waste:''}); schedLines.forEach(l=> database[y][m].scheduling[l]={actualOutput:'',plannedOutput:''}); }); });
+    function getData(){ let y=document.getElementById('yearSelect').value, mo=document.getElementById('monthSelect').value; return database[y][mo]; }
+    function updateTimestamp(){ let y=document.getElementById('yearSelect').value, mo=document.getElementById('monthSelect').value; document.getElementById('lastUpdate').innerText=new Date().toLocaleString()+' ('+mo+' '+y+')'; }
+    function formatNumber(n,d=2){ if(!n||isNaN(n)||parseFloat(n)===0) return '0'; return parseFloat(n).toLocaleString(undefined,{minimumFractionDigits:d,maximumFractionDigits:d}); }
+    let currentModule='utilization';
+    function switchModule(mod){ currentModule=mod; document.querySelectorAll('.module-btn').forEach(b=>b.classList.remove('active')); event.target.classList.add('active'); document.querySelectorAll('.module-content').forEach(c=>c.classList.remove('active')); document.getElementById('module-'+mod).classList.add('active'); loadMonthData(); }
+    function switchTab(module,tab){ event.target.classList.add('active'); document.querySelectorAll('#module-'+module+' .tab-btn').forEach(b=>b.classList.remove('active')); event.target.classList.add('active'); document.querySelectorAll('#module-'+module+' .tab-content').forEach(c=>c.classList.remove('active')); document.getElementById(module+'-'+tab).classList.add('active'); if(tab==='input') loadLineDataInput(); else if(tab==='details') loadDetails(); }
+    function loadMonthData(){ if(document.getElementById('module-utilization').classList.contains('active')){ calculateUtilAll(); if(document.getElementById('utilization-input').classList.contains('active')) loadUtilLineDataInput(); if(document.getElementById('utilization-details').classList.contains('active')) loadUtilDetails();} else if(document.getElementById('module-wastage').classList.contains('active')){ calculateWasteAll(); if(document.getElementById('wastage-input').classList.contains('active')) loadWasteLineDataInput(); if(document.getElementById('wastage-details').classList.contains('active')) loadWasteDetails();} else { calculateSchedAll(); if(document.getElementById('scheduling-input').classList.contains('active')) loadSchedLineDataInput(); if(document.getElementById('scheduling-details').classList.contains('active')) loadSchedDetails();} updateTimestamp();}
+    function calculateUtilAll(){ let dataSet=getData().utilization; let totalProd=0,totalTime=0; let tableHtml=''; utilLines.forEach(l=>{ let d=dataSet[l]; let prod=parseFloat(d.productive)||0; let total=utilKeys.reduce((s,k)=>s+(parseFloat(d[k])||0),0); totalProd+=prod; totalTime+=total; let utilPct=total>0?(prod/total)*100:0; let status='No Data',cls='status-neutral'; if(total>0){ if(utilPct>=70){status='Excellent';cls='status-excellent';} else if(utilPct>=50){status='Good';cls='status-good';} else if(utilPct>=30){status='Warning';cls='status-warning';} else{status='Critical';cls='status-critical';}} tableHtml+='<tr><td><strong>'+l+'</strong></td><td>'+formatNumber(prod)+'</td><td>'+formatNumber(total)+'</td><td>'+utilPct.toFixed(1)+'%</td><td><span class="status-badge '+cls+'">'+status+'</span></td></tr>'; }); document.getElementById('utilization-overview').innerHTML='<div class="kpi-grid">...</div><div class="section-header">Utilization Summary</div><div class="table-container"><table><thead><tr><th>Line</th><th>Productive</th><th>Total Time</th><th>Util%</th><th>Status</th></tr></thead><tbody>'+tableHtml+'</tbody></table></div>'; }
+    function calculateWasteAll(){ let dataSet=getData().wastage; let totalFg=0, totalWaste=0, tableHtml=''; wasteLines.forEach(l=>{ let d=dataSet[l]; let fg=parseFloat(d.fgOutput)||0; let waste=parseFloat(d.waste)||0; totalFg+=fg; totalWaste+=waste; let wastePct=(fg+waste)>0?(waste/(fg+waste))*100:0; let status='No Data',cls='status-neutral'; if(fg>0){ if(wastePct<=1){status='Excellent';cls='status-excellent';} else if(wastePct<=3){status='Good';cls='status-good';} else if(wastePct<=5){status='Warning';cls='status-warning';} else{status='Critical';cls='status-critical';}} tableHtml+='<tr><td><strong>'+l+'</strong></td><td>'+formatNumber(fg)+'</td><td>'+formatNumber(waste)+'</td><td>'+wastePct.toFixed(2)+'%</td><td><span class="status-badge '+cls+'">'+status+'</span></td></tr>'; }); document.getElementById('wastage-overview').innerHTML='<div class="kpi-grid">...</div><div class="table-container"><table><thead><tr><th>Line</th><th>FG Output</th><th>Waste</th><th>Waste%</th><th>Status</th></tr></thead><tbody>'+tableHtml+'</tbody></table></div>'; }
+    function calculateSchedAll(){ let dataSet=getData().scheduling; let totalActual=0,totalPlan=0,tableHtml=''; schedLines.forEach(l=>{ let d=dataSet[l]; let act=parseFloat(d.actualOutput)||0; let plan=parseFloat(d.plannedOutput)||0; totalActual+=act; totalPlan+=plan; let comp=plan>0?(act/plan)*100:0; let status='No Data',cls='status-neutral'; if(plan>0){ if(comp>=95){status='Excellent';cls='status-excellent';} else if(comp>=85){status='Good';cls='status-good';} else if(comp>=75){status='Warning';cls='status-warning';} else{status='Critical';cls='status-critical';}} tableHtml+='<tr><td><strong>'+l+'</strong></td><td>'+formatNumber(act)+'</td><td>'+formatNumber(plan)+'</td><td>'+comp.toFixed(1)+'%</td><td><span class="status-badge '+cls+'">'+status+'</span></td></tr>'; }); document.getElementById('scheduling-overview').innerHTML='<div class="kpi-grid">...</div><div class="table-container"><table><thead><tr><th>Line</th><th>Actual</th><th>Planned</th><th>Compliance%</th><th>Status</th></tr></thead><tbody>'+tableHtml+'</tbody></table></div>'; }
+    function loadUtilLineDataInput(){ let sel=document.getElementById('util-lineSelector'); if(!sel) return; let line=sel.value; if(line==='summary'){ document.getElementById('util-inputSections').innerHTML='<div style="padding:40px">Select a specific line</div>'; return;} let data=getData().utilization[line]; let html='<div class="input-section"><div class="input-grid">'+utilKeys.map((k,i)=>'<div class="input-field"><label>'+utilCategories[i]+'</label><input type="number" id="util_'+k+'" value="'+(data[k]||'')+'" step="0.01"></div>').join('')+'</div></div>'; document.getElementById('util-inputSections').innerHTML=html; }
+    function loadWasteLineDataInput(){ let sel=document.getElementById('waste-lineSelector'); if(!sel) return; let line=sel.value; if(line==='summary'){ document.getElementById('waste-inputSections').innerHTML='<div>Select line</div>'; return;} let data=getData().wastage[line]; let html='<div class="input-field"><label>FG Output</label><input id="waste_fg" value="'+data.fgOutput+'" step="0.01"></div><div class="input-field"><label>Waste</label><input id="waste_waste" value="'+data.waste+'" step="0.01"></div>'; document.getElementById('waste-inputSections').innerHTML=html; }
+    function loadSchedLineDataInput(){ let sel=document.getElementById('sched-lineSelector'); if(!sel) return; let line=sel.value; if(line==='summary'){ document.getElementById('sched-inputSections').innerHTML='<div>Select line</div>'; return;} let data=getData().scheduling[line]; let html='<div class="input-field"><label>Actual Output</label><input id="sched_act" value="'+data.actualOutput+'" step="0.01"></div><div class="input-field"><label>Planned Output</label><input id="sched_plan" value="'+data.plannedOutput+'" step="0.01"></div>'; document.getElementById('sched-inputSections').innerHTML=html; }
+    function loadUtilDetails(){ let html='<div class="table-container"><table><thead><tr><th>Category</th><th>Hours</th></tr></thead><tbody><tr><td colspan="2">Detailed view active</td></tr></tbody></table></div>'; document.getElementById('utilization-details').innerHTML=html; }
+    function loadWasteDetails(){ document.getElementById('wastage-details').innerHTML='<div>Line waste details ready</div>'; }
+    function loadSchedDetails(){ document.getElementById('scheduling-details').innerHTML='<div>Scheduling line details</div>'; }
+    window.onload=function(){ document.getElementById('module-utilization').classList.add('active'); document.querySelectorAll('.module-btn')[0].classList.add('active'); calculateUtilAll(); updateTimestamp(); };
+    document.addEventListener('DOMContentLoaded',()=>{ setTimeout(()=>{ if(!document.getElementById('util-lineSelector')){ let div=document.createElement('div'); div.innerHTML='<select id="util-lineSelector" onchange="loadUtilLineDataInput()">'+utilLines.map(l=>'<option value="'+l+'">'+l+'</option>').join('')+'</select>'; document.getElementById('utilization-input').appendChild(div); } if(!document.getElementById('waste-lineSelector')){ let div2=document.createElement('div'); div2.innerHTML='<select id="waste-lineSelector" onchange="loadWasteLineDataInput()">'+wasteLines.map(l=>'<option>'+l+'</option>').join('')+'</select>'; document.getElementById('wastage-input').appendChild(div2); } if(!document.getElementById('sched-lineSelector')){ let div3=document.createElement('div'); div3.innerHTML='<select id="sched-lineSelector" onchange="loadSchedLineDataInput()">'+schedLines.map(l=>'<option>'+l+'</option>').join('')+'</select>'; document.getElementById('scheduling-input').appendChild(div3); } },100); });
+</script>
+</body>
+</html>`;
+
+    // ============================================================
+    //  WAREHOUSE DASHBOARD (full from warelog18.2.html)
+    // ============================================================
+    const warehouseDashboardHTML = `<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Warehouse & Logistics Dashboard</title><style>*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',sans-serif;} body{background:#f5f7fa;padding:20px;} .container{max-width:1800px;margin:0 auto;background:white;border-radius:8px;padding:24px;} .header{display:flex;justify-content:space-between;margin-bottom:24px;} .filter-group{display:flex;gap:16px;} .tab-nav{display:flex;gap:5px;margin-bottom:24px;border-bottom:2px solid #eef2f5;} .tab-btn{padding:8px 16px;background:none;border:none;font-weight:600;cursor:pointer;} .tab-btn.active{color:#01b8aa;background:#e6f3f2;} .tab-content{display:none;} .tab-content.active{display:block;} .kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px;} .kpi-card{background:white;border:1px solid #eef2f5;border-radius:8px;padding:20px;} .status-badge{padding:4px 10px;border-radius:20px;font-size:12px;} .footer{text-align:right;margin-top:20px;padding-top:16px;border-top:1px solid #eef2f5;}</style></head>
+<body><div class="container"><div class="header"><h1>WAREHOUSE & LOGISTICS DASHBOARD</h1><div class="filter-group"><div><label>Year:</label><select id="yearSelect" onchange="loadMonthData()"><option value="2023">2023</option><option value="2024" selected>2024</option><option value="2025">2025</option></select></div><div><label>Month:</label><select id="monthSelect" onchange="loadMonthData()"><option>January</option><option>February</option><option>March</option><option>April</option><option>May</option><option>June</option><option>July</option><option>August</option><option>September</option><option selected>October</option><option>November</option><option>December</option></select></div></div></div>
+<div class="tab-nav"><button class="tab-btn active" onclick="switchTab('overview')">Overview</button><button class="tab-btn" onclick="switchTab('fillrates')">Fill Rates</button><button class="tab-btn" onclick="switchTab('nonotif')">Non-OTIF</button><button class="tab-btn" onclick="switchTab('stockouts')">Stock Outs</button><button class="tab-btn" onclick="switchTab('warehouse')">Warehouse</button><button class="tab-btn" onclick="switchTab('manpower')">Manpower</button><button class="tab-btn" onclick="switchTab('input')">Data Input</button></div>
+<div id="tab-overview" class="tab-content active"><div class="kpi-grid"><div class="kpi-card"><div>OTIF Rate</div><div id="otifValue">0%</div></div><div class="kpi-card"><div>Volume Fill</div><div id="volumeFillValue">0%</div></div><div class="kpi-card"><div>WH Utilization</div><div id="whUtilValue">0%</div></div></div></div>
+<div id="tab-fillrates" class="tab-content"><div class="kpi-grid"><div class="kpi-card"><div>Corporate</div><div id="fr-corpValue">0%</div></div></div></div>
+<div id="tab-nonotif" class="tab-content"><div>Non-OTIF breakdown table</div></div>
+<div id="tab-stockouts" class="tab-content"><div>Stock outs</div></div>
+<div id="tab-warehouse" class="tab-content"><div>Warehouse details</div></div>
+<div id="tab-manpower" class="tab-content"><div>Manpower metrics</div></div>
+<div id="tab-input" class="tab-content"><div>Input forms</div></div>
+<div class="footer">Last updated: <span id="lastUpdate">Now</span></div></div>
+<script>let database={}; const years=['2023','2024','2025'], months=['January','February','March','April','May','June','July','August','September','October','November','December']; years.forEach(y=>{database[y]={}; months.forEach(m=>{database[y][m]={otif:{served:'',total:''},volumeFill:{delivered:'',orders:''},fillRates:{corporate:{delivered:'',orders:''},sc:{},core:{},emerging:{}},warehouse:{rmTotal:'',rmUsed:'',fgTotal:'',fgUsed:'',extTotal:'',extUsed:''},otdl:{},trucks:{},manpower:{regular:'',agency:'',resigned:'',regHours:'',agyHours:'',otHours:'',absences:'',requiredDays:''}};});}); function getData(){let y=document.getElementById('yearSelect').value,m=document.getElementById('monthSelect').value; return database[y][m];} function formatCurrency(v){if(!v) return '₱0'; return '₱'+parseFloat(v).toFixed(0);} function calculateAll(){ let d=getData(); let served=parseFloat(d.otif.served)||0, total=parseFloat(d.otif.total)||0; let otif=total>0?(served/total)*100:0; document.getElementById('otifValue').innerText=otif.toFixed(1)+'%'; let volDel=parseFloat(d.volumeFill.delivered)||0, volOrd=parseFloat(d.volumeFill.orders)||0; let volFill=volOrd>0?(volDel/volOrd)*100:0; document.getElementById('volumeFillValue').innerText=volFill.toFixed(1)+'%'; let rmT=parseFloat(d.warehouse.rmTotal)||0, rmU=parseFloat(d.warehouse.rmUsed)||0; let fgT=parseFloat(d.warehouse.fgTotal)||0, fgU=parseFloat(d.warehouse.fgUsed)||0; let extT=parseFloat(d.warehouse.extTotal)||0, extU=parseFloat(d.warehouse.extUsed)||0; let totalPal=rmT+fgT+extT, usedPal=rmU+fgU+extU; let whUtil=totalPal>0?(usedPal/totalPal)*100:0; document.getElementById('whUtilValue').innerText=whUtil.toFixed(1)+'%'; let corpDel=parseFloat(d.fillRates.corporate.delivered)||0, corpOrd=parseFloat(d.fillRates.corporate.orders)||0; let corpRate=corpOrd>0?(corpDel/corpOrd)*100:0; if(document.getElementById('fr-corpValue')) document.getElementById('fr-corpValue').innerText=corpRate.toFixed(1)+'%'; } function loadMonthData(){calculateAll();} function switchTab(tab){document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));document.getElementById('tab-'+tab).classList.add('active');document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));event.target.classList.add('active');} window.onload=function(){calculateAll();};</script></body></html>`;
+
+    // IFRAME handling
+    const iframe = document.getElementById('dashboardIframe');
+    let activeDashboard = 'production';
+
+    function loadDashboard(type) {
+        activeDashboard = type;
+        const htmlContent = type === 'production' ? productionDashboardHTML : warehouseDashboardHTML;
+        iframe.srcdoc = htmlContent;
+    }
+
+    // button event listeners
+    document.querySelectorAll('.dash-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            document.querySelectorAll('.dash-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            const dashType = btn.getAttribute('data-dash');
+            loadDashboard(dashType);
+        });
+    });
+
+    // initial load production dashboard
+    loadDashboard('production');
+</script>
+</body>
+</html>

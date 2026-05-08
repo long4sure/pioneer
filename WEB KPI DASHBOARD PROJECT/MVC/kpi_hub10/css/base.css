@@ -1,0 +1,125 @@
+/* ============================================================
+   BASE.CSS — Design Tokens, Reset, Layout Shell
+   ============================================================ */
+
+:root {
+    /* ── Pioneer Brand Colors ── */
+    --pioneer-red:       #c8202a;
+    --pioneer-red-dark:  #a01820;
+    --pioneer-red-light: #fde8e9;
+    --pioneer-blue:      #1e5fc8;
+    --pioneer-blue-dark: #1a2744;
+    --pioneer-blue-mid:  #2d4a8a;
+    --pioneer-blue-light:#dbeafe;
+    --pioneer-cobalt:    #4a9fd4;
+    --pioneer-gold:      #f0c020;
+    --pioneer-gold-light:#fef9e0;
+    --pioneer-silver:    #d8dde8;
+
+    /* ── UI Tokens ── */
+    --accent:        var(--pioneer-blue);
+    --accent-dark:   var(--pioneer-blue-dark);
+    --accent-light:  #e8f0fd;
+    --accent-faint:  #f4f7fe;
+    --danger:        var(--pioneer-red);
+    --danger-light:  var(--pioneer-red-light);
+
+    --navy:          #0a0f1e;
+    --navy-mid:      #1a2744;
+    --navy-light:    #2d4a8a;
+    --navy-border:   rgba(74,159,212,0.18);
+
+    --text-primary:  #0a0f1e;
+    --text-secondary:#3d5070;
+    --text-muted:    #7a90b0;
+    --border:        #dde4f0;
+    --border-light:  #eef2f9;
+    --bg:            #f5f7fc;
+    --white:         #ffffff;
+
+    --green:         #15803d;
+    --green-light:   #dcfce7;
+    --green-mid:     #22c55e;
+    --amber:         #92400e;
+    --amber-light:   #fef3c7;
+    --amber-mid:     #f59e0b;
+    --red:           var(--pioneer-red);
+    --red-light:     var(--pioneer-red-light);
+
+    --sidebar-w:         240px;
+    --sidebar-collapsed: 64px;
+    --topbar-h:          60px;
+    --radius:            12px;
+    --radius-sm:         8px;
+    --shadow-sm:         0 1px 3px rgba(10,15,30,0.07), 0 1px 2px rgba(10,15,30,0.04);
+    --shadow-md:         0 4px 16px rgba(10,15,30,0.10), 0 2px 4px rgba(10,15,30,0.05);
+    --shadow-lg:         0 12px 36px rgba(10,15,30,0.14), 0 4px 8px rgba(10,15,30,0.07);
+}
+
+/* ── Reset ── */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text-primary);
+    display: flex;
+    min-height: 100vh;
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* ── Layout Shell ── */
+.main {
+    margin-left: var(--sidebar-w);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    transition: margin-left 0.22s cubic-bezier(.4,0,.2,1);
+}
+.main.expanded { margin-left: var(--sidebar-collapsed); }
+
+.content {
+    flex: 1;
+    padding: 24px 28px 40px;
+    max-width: 1600px;
+    width: 100%;
+}
+
+.module-page         { display: none; }
+.module-page.active  { display: block; }
+
+/* ── UI Enhancements ── */
+
+/* Smooth scrolling everywhere */
+html { scroll-behavior: smooth; }
+
+/* Selection color matches brand */
+::selection { background: var(--pioneer-blue-light); color: var(--pioneer-blue-dark); }
+
+/* Content area subtle divider between sections */
+.content > .module-page > .section-title:first-child { margin-top: 0; }
+
+/* Sticky tab bar improvements */
+.tab-bar { box-shadow: 0 2px 8px rgba(10,15,30,0.06); }
+
+/* Input fields: auto-growing numeric alignment */
+.card-value { font-variant-numeric: tabular-nums; }
+
+/* Subtle hover on table rows */
+tbody tr { transition: background 0.1s; }
+
+/* No-data state improvement */
+.card-empty { display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 32px; }
+
+/* Progress bar animation on load */
+.progress-bar { will-change: width; }
+
+/* Improved button click feedback */
+.btn:active { transform: scale(0.98); }
+.login-btn:active { transform: scale(0.99); }
+
+/* Topbar shadow refinement */
+.topbar { box-shadow: 0 1px 0 var(--border), 0 4px 12px rgba(10,15,30,0.04); }

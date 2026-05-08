@@ -1,0 +1,1436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Production Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            padding: 24px;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #2d2f33;
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 16px;
+            background-color: #fafbfc;
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: 1px solid #eef2f5;
+        }
+
+        .filter-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .filter-item label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #5f6775;
+            text-transform: uppercase;
+        }
+
+        .filter-item select {
+            padding: 6px 12px;
+            border: 1px solid #d0d5dd;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #2d2f33;
+            background-color: white;
+            cursor: pointer;
+        }
+
+        /* Tab Navigation */
+        .tab-nav {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 24px;
+            border-bottom: 2px solid #eef2f5;
+            padding-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 8px 16px;
+            border: none;
+            background: none;
+            font-size: 13px;
+            font-weight: 600;
+            color: #5f6775;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .tab-btn:hover {
+            color: #01b8aa;
+            background-color: #f0f7f7;
+        }
+
+        .tab-btn.active {
+            color: #01b8aa;
+            background-color: #e6f3f2;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* KPI Cards */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .kpi-card {
+            background-color: white;
+            border: 1px solid #eef2f5;
+            border-radius: 8px;
+            padding: 20px;
+            transition: all 0.2s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+        }
+
+        .kpi-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border-color: #01b8aa;
+        }
+
+        .kpi-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .kpi-card-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #5f6775;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .kpi-card-main-value {
+            font-size: 32px;
+            font-weight: 600;
+            color: #2d2f33;
+            margin-bottom: 8px;
+        }
+
+        .kpi-card-details {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .kpi-card-detail-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            color: #5f6775;
+            padding: 4px 0;
+            border-bottom: 1px dashed #f0f0f0;
+        }
+
+        .kpi-card-detail-label {
+            color: #5f6775;
+        }
+
+        .kpi-card-detail-value {
+            font-weight: 600;
+            color: #2d2f33;
+        }
+
+        .kpi-card-progress {
+            height: 6px;
+            background-color: #eef2f5;
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 12px 0 8px;
+        }
+
+        .kpi-card-progress-bar {
+            height: 100%;
+            background-color: #01b8aa;
+            border-radius: 3px;
+        }
+
+        .kpi-card-footer {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #5f6775;
+            margin-top: 8px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-excellent {
+            background-color: #e6f9ed;
+            color: #107c41;
+        }
+
+        .status-good {
+            background-color: #e3f2fd;
+            color: #0d47a1;
+        }
+
+        .status-warning {
+            background-color: #fff1e0;
+            color: #d83b01;
+        }
+
+        .status-critical {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+
+        .status-neutral {
+            background-color: #fef7e0;
+            color: #966c00;
+        }
+
+        /* Section Headers */
+        .section-header {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2d2f33;
+            margin: 30px 0 20px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #01b8aa;
+        }
+
+        /* Two Column Layout */
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        /* Three Column Layout */
+        .three-col {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        /* Tables */
+        .table-container {
+            background-color: white;
+            border: 1px solid #eef2f5;
+            border-radius: 6px;
+            margin-bottom: 24px;
+            overflow-x: auto;
+        }
+
+        .table-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #eef2f5;
+            background-color: #fafbfc;
+            font-size: 14px;
+            font-weight: 600;
+            color: #2d2f33;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .table-total {
+            font-size: 13px;
+            color: #5f6775;
+            background-color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            border: 1px solid #d0d5dd;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            padding: 14px 16px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #5f6775;
+            text-transform: uppercase;
+            border-bottom: 2px solid #eef2f5;
+            background-color: #fafbfc;
+        }
+
+        td {
+            padding: 12px 16px;
+            font-size: 13px;
+            color: #2d2f33;
+            border-bottom: 1px solid #eef2f5;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            background-color: #f0f0f0;
+            color: #5f6775;
+        }
+
+        /* Input Panel */
+        .input-panel {
+            background-color: white;
+            border: 1px solid #eef2f5;
+            border-radius: 6px;
+            margin: 24px 0;
+        }
+
+        .panel-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #eef2f5;
+            background-color: #fafbfc;
+            font-size: 14px;
+            font-weight: 600;
+            color: #2d2f33;
+        }
+
+        .input-sections {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .input-section {
+            background-color: #fafbfc;
+            border: 1px solid #eef2f5;
+            border-radius: 6px;
+            padding: 20px;
+        }
+
+        .input-section h4 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #5f6775;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #eef2f5;
+        }
+
+        .input-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .input-field {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .input-field label {
+            font-size: 11px;
+            font-weight: 600;
+            color: #5f6775;
+            text-transform: uppercase;
+        }
+
+        .input-field input {
+            padding: 8px 12px;
+            border: 1px solid #d0d5dd;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #2d2f33;
+            background-color: white;
+        }
+
+        .input-field input:focus {
+            outline: none;
+            border-color: #01b8aa;
+        }
+
+        .button-group {
+            padding: 16px 20px;
+            border-top: 1px solid #eef2f5;
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: 1px solid #d0d5dd;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            background: white;
+            color: #2d2f33;
+        }
+
+        .btn-primary {
+            background-color: #01b8aa;
+            border-color: #01b8aa;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #019f92;
+        }
+
+        .btn-danger {
+            background-color: #d83b01;
+            border-color: #d83b01;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #b32e01;
+        }
+
+        .footer {
+            text-align: right;
+            font-size: 12px;
+            color: #5f6775;
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid #eef2f5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header with Filters -->
+        <div class="header">
+            <h1>PRODUCTION DASHBOARD</h1>
+            <div class="filter-group">
+                <div class="filter-item">
+                    <label>Year:</label>
+                    <select id="yearSelect">
+                        <option value="2023">2023</option>
+                        <option value="2024" selected>2024</option>
+                        <option value="2025">2025</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label>Month:</label>
+                    <select id="monthSelect">
+                        <option value="January">January</option>
+                        <option value="February">February</option>
+                        <option value="March">March</option>
+                        <option value="April">April</option>
+                        <option value="May">May</option>
+                        <option value="June">June</option>
+                        <option value="July">July</option>
+                        <option value="August">August</option>
+                        <option value="September">September</option>
+                        <option value="October" selected>October</option>
+                        <option value="November">November</option>
+                        <option value="December">December</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab Navigation -->
+        <div class="tab-nav">
+            <button class="tab-btn active" onclick="switchTab('overview')">Overview</button>
+            <button class="tab-btn" onclick="switchTab('utilization')">Utilization</button>
+            <button class="tab-btn" onclick="switchTab('output')">Output & Waste</button>
+            <button class="tab-btn" onclick="switchTab('material')">Material Usage</button>
+            <button class="tab-btn" onclick="switchTab('scheduling')">Scheduling</button>
+            <button class="tab-btn" onclick="switchTab('manpower')">Manpower</button>
+            <button class="tab-btn" onclick="switchTab('input')">Data Input</button>
+        </div>
+
+        <!-- OVERVIEW TAB -->
+        <div id="tab-overview" class="tab-content active">
+            <!-- Top KPI Cards -->
+            <div class="kpi-grid">
+                <!-- Machine Utilization Summary -->
+                <div class="kpi-card">
+                    <div class="kpi-card-header">
+                        <span class="kpi-card-title">Machine Utilization</span>
+                    </div>
+                    <div class="kpi-card-main-value" id="utilizationRate">75.8%</div>
+                    <div class="kpi-card-details">
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Productive Time</span>
+                            <span class="kpi-card-detail-value" id="productiveTime">5,892 hrs</span>
+                        </div>
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Total Time</span>
+                            <span class="kpi-card-detail-value" id="totalTime">7,776 hrs</span>
+                        </div>
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Machines Available</span>
+                            <span class="kpi-card-detail-value" id="machinesAvail">22</span>
+                        </div>
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Machines Used</span>
+                            <span class="kpi-card-detail-value" id="machinesUsed">22</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Output Summary -->
+                <div class="kpi-card">
+                    <div class="kpi-card-header">
+                        <span class="kpi-card-title">Production Output</span>
+                    </div>
+                    <div class="kpi-card-main-value" id="totalOutput">1,184,822 kg</div>
+                    <div class="kpi-card-details">
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">FG Output</span>
+                            <span class="kpi-card-detail-value" id="fgOutput">1,184,822 kg</span>
+                        </div>
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Reprocess</span>
+                            <span class="kpi-card-detail-value" id="reprocessOutput">50 kg</span>
+                        </div>
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Internal Rejection</span>
+                            <span class="kpi-card-detail-value" id="internalRejection">0 kg</span>
+                        </div>
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Daily Average</span>
+                            <span class="kpi-card-detail-value" id="dailyAvg">60,012 kg</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Waste Summary -->
+                <div class="kpi-card">
+                    <div class="kpi-card-header">
+                        <span class="kpi-card-title">Production Waste</span>
+                    </div>
+                    <div class="kpi-card-main-value" id="wastePercent">0.01%</div>
+                    <div class="kpi-card-details">
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Total Waste</span>
+                            <span class="kpi-card-detail-value" id="totalWaste">152 kg</span>
+                        </div>
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Productivity</span>
+                            <span class="kpi-card-detail-value" id="productivity">201 kg/hr</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Material Usage Summary -->
+                <div class="kpi-card">
+                    <div class="kpi-card-header">
+                        <span class="kpi-card-title">Material Usage</span>
+                    </div>
+                    <div class="kpi-card-main-value" id="yieldPercent">97.5%</div>
+                    <div class="kpi-card-details">
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">RM Usage</span>
+                            <span class="kpi-card-detail-value" id="rmUsage">1,279,229 kg</span>
+                        </div>
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">RM Waste %</span>
+                            <span class="kpi-card-detail-value" id="rmWastePct">0.01%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Scheduling Attainment Section -->
+            <div class="section-header">Scheduling Attainment</div>
+            <div class="kpi-grid">
+                <!-- Overall Attainment -->
+                <div class="kpi-card">
+                    <div class="kpi-card-header">
+                        <span class="kpi-card-title">Overall Compliance</span>
+                    </div>
+                    <div class="kpi-card-main-value" id="overallCompliance">75.2%</div>
+                    <div class="kpi-card-details">
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Actual Output</span>
+                            <span class="kpi-card-detail-value" id="actualOutput">1,184,822 kg</span>
+                        </div>
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Planned Output</span>
+                            <span class="kpi-card-detail-value" id="plannedOutput">1,575,369 kg</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Change Over Summary -->
+                <div class="kpi-card">
+                    <div class="kpi-card-header">
+                        <span class="kpi-card-title">Change Over</span>
+                    </div>
+                    <div class="kpi-card-main-value" id="changeOverHours">53 hrs</div>
+                    <div class="kpi-card-details">
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Change Over Count</span>
+                            <span class="kpi-card-detail-value" id="changeOverCount">0</span>
+                        </div>
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Avg Time/Change</span>
+                            <span class="kpi-card-detail-value" id="avgChangeOver">0 min</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Top Performing Lines -->
+                <div class="kpi-card">
+                    <div class="kpi-card-header">
+                        <span class="kpi-card-title">Top Line Performance</span>
+                    </div>
+                    <div class="kpi-card-details">
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">L06 - Epoxy</span>
+                            <span class="kpi-card-detail-value" id="line6Compliance">75.6%</span>
+                        </div>
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">L04B - Elasto</span>
+                            <span class="kpi-card-detail-value" id="line4bCompliance">71.3%</span>
+                        </div>
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">L01 - Coatings</span>
+                            <span class="kpi-card-detail-value" id="line1Compliance">56.9%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Manpower Summary -->
+            <div class="section-header">Manpower Summary</div>
+            <div class="three-col">
+                <!-- Headcount -->
+                <div class="kpi-card">
+                    <div class="kpi-card-header">
+                        <span class="kpi-card-title">Headcount</span>
+                    </div>
+                    <div class="kpi-card-main-value" id="totalHeadcount">187</div>
+                    <div class="kpi-card-details">
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Regular</span>
+                            <span class="kpi-card-detail-value" id="regularCount">187</span>
+                        </div>
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Agency</span>
+                            <span class="kpi-card-detail-value" id="agencyCount">0</span>
+                        </div>
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Resigned</span>
+                            <span class="kpi-card-detail-value" id="resignedCount">0</span>
+                        </div>
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Attrition</span>
+                            <span class="kpi-card-detail-value" id="attritionRate">0%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Manhours -->
+                <div class="kpi-card">
+                    <div class="kpi-card-header">
+                        <span class="kpi-card-title">Manhours</span>
+                    </div>
+                    <div class="kpi-card-main-value" id="totalManhours">30,780 hrs</div>
+                    <div class="kpi-card-details">
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Regular</span>
+                            <span class="kpi-card-detail-value" id="regularHours">30,780 hrs</span>
+                        </div>
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Agency</span>
+                            <span class="kpi-card-detail-value" id="agencyHours">0 hrs</span>
+                        </div>
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Overtime</span>
+                            <span class="kpi-card-detail-value" id="overtimeHours">7,874 hrs</span>
+                        </div>
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">OT Rate</span>
+                            <span class="kpi-card-detail-value" id="otRate">25.6%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Absences -->
+                <div class="kpi-card">
+                    <div class="kpi-card-header">
+                        <span class="kpi-card-title">Absences</span>
+                    </div>
+                    <div class="kpi-card-main-value" id="absenteeismRate">2.1%</div>
+                    <div class="kpi-card-details">
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Absences Count</span>
+                            <span class="kpi-card-detail-value" id="absencesCount">575</span>
+                        </div>
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Working Days</span>
+                            <span class="kpi-card-detail-value" id="workingDays">19.75</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- UTILIZATION TAB -->
+        <div id="tab-utilization" class="tab-content">
+            <div class="section-header">Machine Utilization - Summary</div>
+            <div class="table-container">
+                <div class="table-header">
+                    <span>Utilization Breakdown by Category</span>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>Hours</th>
+                            <th>% of Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Actual Productive Time</td><td id="productiveHrs">5,892</td><td id="productivePct">75.8%</td></tr>
+                        <tr><td>No Production Plan</td><td id="noPlanHrs">3,561</td><td id="noPlanPct">45.8%</td></tr>
+                        <tr><td>No Head Count Allocation</td><td id="noHcHrs">2,522</td><td id="noHcPct">32.4%</td></tr>
+                        <tr><td>Change Over Time</td><td id="changeOverHrs">266</td><td id="changeOverPct">3.4%</td></tr>
+                        <tr><td>Meeting</td><td id="meetingHrs">19</td><td id="meetingPct">0.2%</td></tr>
+                        <tr><td>Sanitation Time</td><td id="sanitationHrs">157</td><td id="sanitationPct">2.0%</td></tr>
+                        <tr><td>Start-up Time/Setup</td><td id="startupHrs">302</td><td id="startupPct">3.9%</td></tr>
+                        <tr><td>Breaktime</td><td id="breaktimeHrs">225</td><td id="breaktimePct">2.9%</td></tr>
+                        <tr><td>Force Majeure</td><td id="forceMajeureHrs">48</td><td id="forceMajeurePct">0.6%</td></tr>
+                        <tr><td>Mechanical Breakdown</td><td id="mechBreakdownHrs">302</td><td id="mechBreakdownPct">3.9%</td></tr>
+                        <tr><td>No Manpower</td><td id="noManpowerHrs">2,345</td><td id="noManpowerPct">30.2%</td></tr>
+                        <tr><td>No OT</td><td id="noOtHrs">146</td><td id="noOtPct">1.9%</td></tr>
+                        <tr><td>No Bulkmix/No Kettle</td><td id="noBulkmixHrs">214</td><td id="noBulkmixPct">2.8%</td></tr>
+                        <tr><td>Transfer</td><td id="transferHrs">477</td><td id="transferPct">6.1%</td></tr>
+                        <tr><td>Idle time</td><td id="idleHrs">78</td><td id="idlePct">1.0%</td></tr>
+                        <tr><td>Electrical Breakdown</td><td id="elecBreakdownHrs">0.25</td><td id="elecBreakdownPct">0.0%</td></tr>
+                        <tr><td>Materials Supply</td><td id="materialsSupplyHrs">24</td><td id="materialsSupplyPct">0.3%</td></tr>
+                        <tr><td>Sorting/Reworking</td><td id="sortingHrs">11</td><td id="sortingPct">0.1%</td></tr>
+                        <tr><td>UDT-Meeting</td><td id="udtMeetingHrs">34</td><td id="udtMeetingPct">0.4%</td></tr>
+                        <tr><td>Preventive Maintenance</td><td id="pmHrs">3</td><td id="pmPct">0.0%</td></tr>
+                        <tr><td>Testing Time</td><td id="testingHrs">118</td><td id="testingPct">1.5%</td></tr>
+                        <tr><td>Shutdown/cooldown</td><td id="shutdownHrs">0.83</td><td id="shutdownPct">0.0%</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="two-col">
+                <div class="kpi-card">
+                    <div class="kpi-card-header">
+                        <span class="kpi-card-title">Machine Summary</span>
+                    </div>
+                    <div class="kpi-card-details">
+                        <div class="kpi-card-detail-row"><span># of Machines Available</span><span id="machinesAvailable">22</span></div>
+                        <div class="kpi-card-detail-row"><span># of Machines Used</span><span id="machinesUsedDetail">22</span></div>
+                        <div class="kpi-card-detail-row"><span>Production Days</span><span id="productionDays">19.75</span></div>
+                        <div class="kpi-card-detail-row"><span>% Utilization</span><span id="utilizationPct">75.8%</span></div>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-card-header">
+                        <span class="kpi-card-title">Top Downtime Causes</span>
+                    </div>
+                    <div class="kpi-card-details">
+                        <div class="kpi-card-detail-row"><span>1. No Production Plan</span><span>3,561 hrs</span></div>
+                        <div class="kpi-card-detail-row"><span>2. No Manpower</span><span>2,345 hrs</span></div>
+                        <div class="kpi-card-detail-row"><span>3. No Head Count</span><span>2,522 hrs</span></div>
+                        <div class="kpi-card-detail-row"><span>4. Transfer</span><span>477 hrs</span></div>
+                        <div class="kpi-card-detail-row"><span>5. Mechanical Breakdown</span><span>302 hrs</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- OUTPUT & WASTE TAB -->
+        <div id="tab-output" class="tab-content">
+            <div class="section-header">Output by Production Line</div>
+            <div class="table-container">
+                <div class="table-header">
+                    <span>FG Output (KGS)</span>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Line</th>
+                            <th>FG Output</th>
+                            <th>Reprocess</th>
+                            <th>Rejection</th>
+                            <th>Net Output</th>
+                            <th>Daily Avg</th>
+                            <th>Waste</th>
+                            <th>Waste %</th>
+                            <th>KG/MH</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>L06 - Epoxy</td>
+                            <td id="l06Fg">696,731</td>
+                            <td id="l06Reprocess">0</td>
+                            <td id="l06Reject">0</td>
+                            <td id="l06Net">696,731</td>
+                            <td id="l06Daily">35,277</td>
+                            <td id="l06Waste">152</td>
+                            <td id="l06WastePct">0.02%</td>
+                            <td id="l06KgMh">69</td>
+                        </tr>
+                        <tr>
+                            <td>L04B - Elasto</td>
+                            <td id="l04bFg">191,493</td>
+                            <td id="l04bReprocess">0</td>
+                            <td id="l04bReject">0</td>
+                            <td id="l04bNet">191,493</td>
+                            <td id="l04bDaily">9,696</td>
+                            <td id="l04bWaste">0</td>
+                            <td id="l04bWastePct">0%</td>
+                            <td id="l04bKgMh">28</td>
+                        </tr>
+                        <tr>
+                            <td>L03 - Cyano Tube</td>
+                            <td id="l03Fg">1,460</td>
+                            <td id="l03Reprocess">0</td>
+                            <td id="l03Reject">0</td>
+                            <td id="l03Net">1,460</td>
+                            <td id="l03Daily">74</td>
+                            <td id="l03Waste">0</td>
+                            <td id="l03WastePct">0%</td>
+                            <td id="l03KgMh">1.1</td>
+                        </tr>
+                        <tr>
+                            <td>L01 - Coatings</td>
+                            <td id="l01Fg">85,448</td>
+                            <td id="l01Reprocess">50</td>
+                            <td id="l01Reject">0</td>
+                            <td id="l01Net">85,498</td>
+                            <td id="l01Daily">4,329</td>
+                            <td id="l01Waste">0</td>
+                            <td id="l01WastePct">0%</td>
+                            <td id="l01KgMh">18</td>
+                        </tr>
+                        <tr>
+                            <td>L07 - Epoxy Tube</td>
+                            <td id="l07Fg">6</td>
+                            <td id="l07Reprocess">0</td>
+                            <td id="l07Reject">0</td>
+                            <td id="l07Net">6</td>
+                            <td id="l07Daily">0.3</td>
+                            <td id="l07Waste">0</td>
+                            <td id="l07WastePct">0%</td>
+                            <td id="l07KgMh">0.01</td>
+                        </tr>
+                        <tr>
+                            <td>Line 9 - EPS</td>
+                            <td id="l09Fg">4,960</td>
+                            <td id="l09Reprocess">0</td>
+                            <td id="l09Reject">0</td>
+                            <td id="l09Net">4,960</td>
+                            <td id="l09Daily">251</td>
+                            <td id="l09Waste">0</td>
+                            <td id="l09WastePct">0%</td>
+                            <td id="l09KgMh">12.5</td>
+                        </tr>
+                        <tr>
+                            <td>L10 - Contact Bond</td>
+                            <td id="l10Fg">5,203</td>
+                            <td id="l10Reprocess">0</td>
+                            <td id="l10Reject">0</td>
+                            <td id="l10Net">5,203</td>
+                            <td id="l10Daily">263</td>
+                            <td id="l10Waste">0</td>
+                            <td id="l10WastePct">0%</td>
+                            <td id="l10KgMh">17.8</td>
+                        </tr>
+                        <tr>
+                            <td>L11 - Silicone</td>
+                            <td id="l11Fg">5,169</td>
+                            <td id="l11Reprocess">0</td>
+                            <td id="l11Reject">0</td>
+                            <td id="l11Net">5,169</td>
+                            <td id="l11Daily">262</td>
+                            <td id="l11Waste">0</td>
+                            <td id="l11WastePct">0%</td>
+                            <td id="l11KgMh">7.3</td>
+                        </tr>
+                        <tr>
+                            <td>L12 - Epoxy Based</td>
+                            <td id="l12Fg">37,167</td>
+                            <td id="l12Reprocess">0</td>
+                            <td id="l12Reject">0</td>
+                            <td id="l12Net">37,167</td>
+                            <td id="l12Daily">1,882</td>
+                            <td id="l12Waste">0</td>
+                            <td id="l12WastePct">0%</td>
+                            <td id="l12KgMh">29.7</td>
+                        </tr>
+                        <tr>
+                            <td>L13 - Special</td>
+                            <td id="l13Fg">73,520</td>
+                            <td id="l13Reprocess">0</td>
+                            <td id="l13Reject">0</td>
+                            <td id="l13Net">73,520</td>
+                            <td id="l13Daily">3,723</td>
+                            <td id="l13Waste">0</td>
+                            <td id="l13WastePct">0%</td>
+                            <td id="l13KgMh">82.1</td>
+                        </tr>
+                        <tr>
+                            <td>Line 14</td>
+                            <td id="l14Fg">83,609</td>
+                            <td id="l14Reprocess">0</td>
+                            <td id="l14Reject">0</td>
+                            <td id="l14Net">83,609</td>
+                            <td id="l14Daily">4,234</td>
+                            <td id="l14Waste">0</td>
+                            <td id="l14WastePct">0%</td>
+                            <td id="l14KgMh">52.0</td>
+                        </tr>
+                        <tr>
+                            <td>L05 - Epoxy Clay</td>
+                            <td id="l05Fg">325</td>
+                            <td id="l05Reprocess">0</td>
+                            <td id="l05Reject">0</td>
+                            <td id="l05Net">325</td>
+                            <td id="l05Daily">16</td>
+                            <td id="l05Waste">0</td>
+                            <td id="l05WastePct">0%</td>
+                            <td id="l05KgMh">-</td>
+                        </tr>
+                        <tr>
+                            <td>L02 - Cyno Bottle</td>
+                            <td id="l02Fg">68</td>
+                            <td id="l02Reprocess">0</td>
+                            <td id="l02Reject">0</td>
+                            <td id="l02Net">68</td>
+                            <td id="l02Daily">3</td>
+                            <td id="l02Waste">0</td>
+                            <td id="l02WastePct">0%</td>
+                            <td id="l02KgMh">0.2</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- MATERIAL USAGE TAB -->
+        <div id="tab-material" class="tab-content">
+            <div class="section-header">Material Usage Summary</div>
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-card-header">
+                        <span class="kpi-card-title">Overall</span>
+                    </div>
+                    <div class="kpi-card-details">
+                        <div class="kpi-card-detail-row"><span>RM Usage</span><span id="totalRmUsage">1,279,229 kg</span></div>
+                        <div class="kpi-card-detail-row"><span>Production Output</span><span id="totalProdOutput">1,184,822 kg</span></div>
+                        <div class="kpi-card-detail-row"><span>Production Waste</span><span id="totalProdWaste">152 kg</span></div>
+                        <div class="kpi-card-detail-row"><span>% Yield</span><span id="totalYield">92.6%</span></div>
+                        <div class="kpi-card-detail-row"><span>% Waste</span><span id="totalWastePct">0.01%</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <div class="table-header">
+                    <span>Material Usage by Line</span>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Line</th>
+                            <th>RM Usage (kg)</th>
+                            <th>Output (kg)</th>
+                            <th>Waste (kg)</th>
+                            <th>% Yield</th>
+                            <th>% Waste</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>L06 - Epoxy</td><td>791,441</td><td>696,731</td><td>152</td><td>88.0%</td><td>0.02%</td></tr>
+                        <tr><td>L04B - Elasto</td><td>217,054</td><td>191,493</td><td>0</td><td>88.2%</td><td>0%</td></tr>
+                        <tr><td>L03 - Cyano Tube</td><td>1,648</td><td>1,460</td><td>0</td><td>88.6%</td><td>0%</td></tr>
+                        <tr><td>L01 - Coatings</td><td>92,249</td><td>85,448</td><td>0</td><td>92.6%</td><td>0%</td></tr>
+                        <tr><td>L07 - Epoxy Tube</td><td>0</td><td>6</td><td>0</td><td>0%</td><td>0%</td></tr>
+                        <tr><td>Line 9 - EPS</td><td>3,100</td><td>4,960</td><td>0</td><td>160%</td><td>0%</td></tr>
+                        <tr><td>L10 - Contact Bond</td><td>4,644</td><td>5,203</td><td>0</td><td>112%</td><td>0%</td></tr>
+                        <tr><td>L11 - Silicone</td><td>5,888</td><td>5,169</td><td>0</td><td>87.8%</td><td>0%</td></tr>
+                        <tr><td>L12 - Epoxy Based</td><td>36,139</td><td>37,167</td><td>0</td><td>102.8%</td><td>0%</td></tr>
+                        <tr><td>L13 - Special</td><td>74,953</td><td>73,520</td><td>0</td><td>98.1%</td><td>0%</td></tr>
+                        <tr><td>Line 14</td><td>51,612</td><td>83,609</td><td>0</td><td>162%</td><td>0%</td></tr>
+                        <tr><td>L05 - Epoxy Clay</td><td>424</td><td>325</td><td>0</td><td>76.7%</td><td>0%</td></tr>
+                        <tr><td>L02 - Cyno Bottle</td><td>108</td><td>68</td><td>0</td><td>63.0%</td><td>0%</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- SCHEDULING TAB -->
+        <div id="tab-scheduling" class="tab-content">
+            <div class="section-header">Scheduling Attainment by Line</div>
+            <div class="table-container">
+                <div class="table-header">
+                    <span>Actual vs Planned Output</span>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Line</th>
+                            <th>Actual Output (kg)</th>
+                            <th>Planned Output (kg)</th>
+                            <th>% Compliance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>L06 - Epoxy</td><td>696,731</td><td>922,151</td><td id="compL06">75.6%</td></tr>
+                        <tr><td>L04B - Elasto</td><td>191,493</td><td>268,450</td><td id="compL04b">71.3%</td></tr>
+                        <tr><td>L03 - Cyano Tube</td><td>1,460</td><td>2,352</td><td id="compL03">62.1%</td></tr>
+                        <tr><td>L01 - Coatings</td><td>85,448</td><td>150,093</td><td id="compL01">56.9%</td></tr>
+                        <tr><td>L07 - Epoxy Tube</td><td>6</td><td>0</td><td id="compL07">-</td></tr>
+                        <tr><td>Line 9 - EPS</td><td>4,960</td><td>7,273</td><td id="compL09">68.2%</td></tr>
+                        <tr><td>L10 - Contact Bond</td><td>5,203</td><td>6,736</td><td id="compL10">77.2%</td></tr>
+                        <tr><td>L11 - Silicone</td><td>5,169</td><td>8,944</td><td id="compL11">57.8%</td></tr>
+                        <tr><td>L12 - Epoxy Based</td><td>37,167</td><td>72,381</td><td id="compL12">51.4%</td></tr>
+                        <tr><td>L13 - Special</td><td>73,520</td><td>77,062</td><td id="compL13">95.4%</td></tr>
+                        <tr><td>Line 14</td><td>83,609</td><td>95,898</td><td id="compL14">87.2%</td></tr>
+                        <tr><td>L05 - Epoxy Clay</td><td>325</td><td>564</td><td id="compL05">57.7%</td></tr>
+                        <tr><td>L02 - Cyno Bottle</td><td>68</td><td>912</td><td id="compL02">7.5%</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="kpi-card" style="margin-top: 20px;">
+                <div class="kpi-card-header">
+                    <span class="kpi-card-title">Overall Scheduling Attainment</span>
+                </div>
+                <div class="kpi-card-main-value" id="overallScheduling">75.2%</div>
+                <div class="kpi-card-details">
+                    <div class="kpi-card-detail-row"><span>Total Actual</span><span id="totalActualSched">1,184,822 kg</span></div>
+                    <div class="kpi-card-detail-row"><span>Total Planned</span><span id="totalPlannedSched">1,575,369 kg</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MANPOWER TAB -->
+        <div id="tab-manpower" class="tab-content">
+            <div class="section-header">Manpower Summary by Line</div>
+            <div class="table-container">
+                <div class="table-header">
+                    <span>Headcount, Hours & Attendance</span>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Line</th>
+                            <th>Regular</th>
+                            <th>Agency</th>
+                            <th>Total HC</th>
+                            <th>Resigned</th>
+                            <th>Attrition</th>
+                            <th>Reg Hours</th>
+                            <th>Agy Hours</th>
+                            <th>Total Hrs</th>
+                            <th>OT Hrs</th>
+                            <th>OT Rate</th>
+                            <th>Absences</th>
+                            <th>Abs Rate</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>L06 - Epoxy</td>
+                            <td>57</td><td>0</td><td>57</td><td>0</td><td>0%</td>
+                            <td>10,039</td><td>0</td><td>10,039</td><td>2,350</td><td>23.4%</td>
+                            <td>196</td><td>17.4%</td>
+                        </tr>
+                        <tr>
+                            <td>L04B - Elasto</td>
+                            <td>39</td><td>0</td><td>39</td><td>0</td><td>0%</td>
+                            <td>6,807</td><td>0</td><td>6,807</td><td>1,588</td><td>23.3%</td>
+                            <td>137</td><td>17.8%</td>
+                        </tr>
+                        <tr>
+                            <td>L03 - Cyano Tube</td>
+                            <td>7</td><td>0</td><td>7</td><td>0</td><td>0%</td>
+                            <td>1,388</td><td>0</td><td>1,388</td><td>395</td><td>28.5%</td>
+                            <td>1</td><td>0.7%</td>
+                        </tr>
+                        <tr>
+                            <td>L01 - Coatings</td>
+                            <td>17</td><td>0</td><td>17</td><td>0</td><td>0%</td>
+                            <td>3,166</td><td>0</td><td>3,166</td><td>931</td><td>29.4%</td>
+                            <td>21</td><td>6.3%</td>
+                        </tr>
+                        <tr>
+                            <td>L07 - Epoxy Tube</td>
+                            <td>4</td><td>0</td><td>4</td><td>0</td><td>0%</td>
+                            <td>792</td><td>0</td><td>792</td><td>160</td><td>20.2%</td>
+                            <td>6</td><td>7.6%</td>
+                        </tr>
+                        <tr>
+                            <td>Line 9 - EPS</td>
+                            <td>2</td><td>0</td><td>2</td><td>0</td><td>0%</td>
+                            <td>396</td><td>0</td><td>396</td><td>73</td><td>18.4%</td>
+                            <td>1</td><td>2.5%</td>
+                        </tr>
+                        <tr>
+                            <td>L10 - Contact Bond</td>
+                            <td>2</td><td>0</td><td>2</td><td>0</td><td>0%</td>
+                            <td>293</td><td>0</td><td>293</td><td>45</td><td>15.4%</td>
+                            <td>8</td><td>20.3%</td>
+                        </tr>
+                        <tr>
+                            <td>L11 - Silicone</td>
+                            <td>4</td><td>0</td><td>4</td><td>0</td><td>0%</td>
+                            <td>712</td><td>0</td><td>712</td><td>132</td><td>18.5%</td>
+                            <td>7</td><td>8.9%</td>
+                        </tr>
+                        <tr>
+                            <td>L12 - Epoxy Based</td>
+                            <td>7</td><td>0</td><td>7</td><td>0</td><td>0%</td>
+                            <td>1,252</td><td>0</td><td>1,252</td><td>305</td><td>24.4%</td>
+                            <td>19</td><td>13.7%</td>
+                        </tr>
+                        <tr>
+                            <td>L13 - Special</td>
+                            <td>6</td><td>0</td><td>6</td><td>0</td><td>0%</td>
+                            <td>896</td><td>0</td><td>896</td><td>170</td><td>19.0%</td>
+                            <td>19</td><td>16.0%</td>
+                        </tr>
+                        <tr>
+                            <td>Line 14</td>
+                            <td>10</td><td>0</td><td>10</td><td>0</td><td>0%</td>
+                            <td>1,905</td><td>0</td><td>1,905</td><td>454</td><td>23.8%</td>
+                            <td>15</td><td>7.6%</td>
+                        </tr>
+                        <tr>
+                            <td>L02/L05</td>
+                            <td>2</td><td>0</td><td>2</td><td>0</td><td>0%</td>
+                            <td>384</td><td>0</td><td>384</td><td>110</td><td>28.6%</td>
+                            <td>1</td><td>2.5%</td>
+                        </tr>
+                        <tr>
+                            <td>Labeling</td>
+                            <td>30</td><td>0</td><td>30</td><td>0</td><td>0%</td>
+                            <td>4,552</td><td>0</td><td>4,552</td><td>1,272</td><td>27.9%</td>
+                            <td>144</td><td>24.3%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- DATA INPUT TAB -->
+        <div id="tab-input" class="tab-content">
+            <div class="input-panel">
+                <div class="panel-header">Production Data Input - Summary Only</div>
+                <div class="input-sections">
+                    <!-- Machine Utilization -->
+                    <div class="input-section">
+                        <h4>Machine Utilization (HRS)</h4>
+                        <div class="input-grid">
+                            <div class="input-field"><label>Productive Time</label><input type="number" id="inputProductive" value="5892" step="0.1"></div>
+                            <div class="input-field"><label>No Production Plan</label><input type="number" id="inputNoPlan" value="3561" step="0.1"></div>
+                            <div class="input-field"><label>No Head Count</label><input type="number" id="inputNoHc" value="2522" step="0.1"></div>
+                            <div class="input-field"><label>Change Over</label><input type="number" id="inputChangeOver" value="266" step="0.1"></div>
+                            <div class="input-field"><label>No Manpower</label><input type="number" id="inputNoManpower" value="2345" step="0.1"></div>
+                            <div class="input-field"><label>Transfer</label><input type="number" id="inputTransfer" value="477" step="0.1"></div>
+                            <div class="input-field"><label>Mechanical Breakdown</label><input type="number" id="inputMechBreak" value="302" step="0.1"></div>
+                        </div>
+                    </div>
+
+                    <!-- Output Summary -->
+                    <div class="input-section">
+                        <h4>Total Output (KGS)</h4>
+                        <div class="input-grid">
+                            <div class="input-field"><label>FG Output</label><input type="number" id="inputFgOutput" value="1184822" step="0.1"></div>
+                            <div class="input-field"><label>Reprocess</label><input type="number" id="inputReprocess" value="50" step="0.1"></div>
+                            <div class="input-field"><label>Waste</label><input type="number" id="inputWaste" value="152" step="0.1"></div>
+                        </div>
+                    </div>
+
+                    <!-- Material Usage -->
+                    <div class="input-section">
+                        <h4>Material Usage (KGS)</h4>
+                        <div class="input-grid">
+                            <div class="input-field"><label>Total RM Usage</label><input type="number" id="inputRmUsage" value="1279229" step="0.1"></div>
+                        </div>
+                    </div>
+
+                    <!-- Scheduling -->
+                    <div class="input-section">
+                        <h4>Scheduling (KGS)</h4>
+                        <div class="input-grid">
+                            <div class="input-field"><label>Total Planned Output</label><input type="number" id="inputPlanned" value="1575369" step="0.1"></div>
+                        </div>
+                    </div>
+
+                    <!-- Machine Summary -->
+                    <div class="input-section">
+                        <h4>Machine Summary</h4>
+                        <div class="input-grid">
+                            <div class="input-field"><label>Machines Available</label><input type="number" id="inputMachinesAvail" value="22" step="0.1"></div>
+                            <div class="input-field"><label>Machines Used</label><input type="number" id="inputMachinesUsed" value="22" step="0.1"></div>
+                            <div class="input-field"><label>Production Days</label><input type="number" id="inputProdDays" value="19.75" step="0.1"></div>
+                        </div>
+                    </div>
+
+                    <!-- Manpower Summary -->
+                    <div class="input-section">
+                        <h4>Manpower</h4>
+                        <div class="input-grid">
+                            <div class="input-field"><label>Total Regular HC</label><input type="number" id="inputRegularHc" value="187" step="0.1"></div>
+                            <div class="input-field"><label>Total Regular Hours</label><input type="number" id="inputRegularHours" value="30780" step="0.1"></div>
+                            <div class="input-field"><label>Total OT Hours</label><input type="number" id="inputOtHours" value="7874" step="0.1"></div>
+                            <div class="input-field"><label>Total Absences</label><input type="number" id="inputAbsences" value="575" step="0.1"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="button-group">
+                    <button class="btn btn-danger" onclick="clearAll()">Clear All</button>
+                    <button class="btn btn-primary" onclick="updateFromInputs()">Update Dashboard</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            Last updated: <span id="lastUpdate">Just now</span>
+        </div>
+    </div>
+
+    <script>
+        function formatNumber(num, decimals = 2) {
+            if (!num || isNaN(num) || num === 0) return '0';
+            return num.toLocaleString(undefined, {
+                minimumFractionDigits: decimals,
+                maximumFractionDigits: decimals
+            });
+        }
+
+        function formatPercent(num) {
+            if (!num || isNaN(num) || num === 0) return '0%';
+            return (num * 100).toFixed(1) + '%';
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        function updateFromInputs() {
+            // Get input values
+            const productive = parseFloat(document.getElementById('inputProductive').value) || 0;
+            const noPlan = parseFloat(document.getElementById('inputNoPlan').value) || 0;
+            const noHc = parseFloat(document.getElementById('inputNoHc').value) || 0;
+            const changeOver = parseFloat(document.getElementById('inputChangeOver').value) || 0;
+            const noManpower = parseFloat(document.getElementById('inputNoManpower').value) || 0;
+            const transfer = parseFloat(document.getElementById('inputTransfer').value) || 0;
+            const mechBreak = parseFloat(document.getElementById('inputMechBreak').value) || 0;
+            
+            const fgOutput = parseFloat(document.getElementById('inputFgOutput').value) || 0;
+            const reprocess = parseFloat(document.getElementById('inputReprocess').value) || 0;
+            const waste = parseFloat(document.getElementById('inputWaste').value) || 0;
+            
+            const rmUsage = parseFloat(document.getElementById('inputRmUsage').value) || 0;
+            const planned = parseFloat(document.getElementById('inputPlanned').value) || 0;
+            
+            const machinesAvail = parseFloat(document.getElementById('inputMachinesAvail').value) || 0;
+            const machinesUsed = parseFloat(document.getElementById('inputMachinesUsed').value) || 0;
+            const prodDays = parseFloat(document.getElementById('inputProdDays').value) || 0;
+            
+            const regularHc = parseFloat(document.getElementById('inputRegularHc').value) || 0;
+            const regularHours = parseFloat(document.getElementById('inputRegularHours').value) || 0;
+            const otHours = parseFloat(document.getElementById('inputOtHours').value) || 0;
+            const absences = parseFloat(document.getElementById('inputAbsences').value) || 0;
+
+            // Calculate totals
+            const totalTime = productive + noPlan + noHc + changeOver + noManpower + transfer + mechBreak;
+            const utilizationRate = totalTime > 0 ? (productive / totalTime) * 100 : 0;
+            const wastePercent = fgOutput > 0 ? (waste / fgOutput) * 100 : 0;
+            const yieldPct = rmUsage > 0 ? (fgOutput / rmUsage) * 100 : 0;
+            const rmWastePct = rmUsage > 0 ? (waste / rmUsage) * 100 : 0;
+            const dailyAvg = prodDays > 0 ? fgOutput / prodDays : 0;
+            const productivity = productive > 0 ? fgOutput / productive : 0;
+            const compliance = planned > 0 ? (fgOutput / planned) * 100 : 0;
+            const otRate = regularHours > 0 ? (otHours / regularHours) * 100 : 0;
+            const absenteeismRate = regularHc > 0 && prodDays > 0 ? (absences / (regularHc * prodDays)) * 100 : 0;
+
+            // Update Overview
+            document.getElementById('utilizationRate').textContent = utilizationRate.toFixed(1) + '%';
+            document.getElementById('productiveTime').textContent = formatNumber(productive) + ' hrs';
+            document.getElementById('totalTime').textContent = formatNumber(totalTime) + ' hrs';
+            document.getElementById('machinesAvail').textContent = formatNumber(machinesAvail, 0);
+            document.getElementById('machinesUsed').textContent = formatNumber(machinesUsed, 0);
+            
+            document.getElementById('totalOutput').textContent = formatNumber(fgOutput) + ' kg';
+            document.getElementById('fgOutput').textContent = formatNumber(fgOutput) + ' kg';
+            document.getElementById('reprocessOutput').textContent = formatNumber(reprocess) + ' kg';
+            document.getElementById('internalRejection').textContent = '0 kg';
+            document.getElementById('dailyAvg').textContent = formatNumber(dailyAvg) + ' kg';
+            
+            document.getElementById('wastePercent').textContent = wastePercent.toFixed(2) + '%';
+            document.getElementById('totalWaste').textContent = formatNumber(waste) + ' kg';
+            document.getElementById('productivity').textContent = formatNumber(productivity) + ' kg/hr';
+            
+            document.getElementById('yieldPercent').textContent = yieldPct.toFixed(1) + '%';
+            document.getElementById('rmUsage').textContent = formatNumber(rmUsage) + ' kg';
+            document.getElementById('rmWastePct').textContent = rmWastePct.toFixed(2) + '%';
+            
+            document.getElementById('overallCompliance').textContent = compliance.toFixed(1) + '%';
+            document.getElementById('actualOutput').textContent = formatNumber(fgOutput) + ' kg';
+            document.getElementById('plannedOutput').textContent = formatNumber(planned) + ' kg';
+            
+            document.getElementById('changeOverHours').textContent = formatNumber(changeOver) + ' hrs';
+            document.getElementById('changeOverCount').textContent = '0';
+            document.getElementById('avgChangeOver').textContent = '0 min';
+            
+            document.getElementById('totalHeadcount').textContent = formatNumber(regularHc, 0);
+            document.getElementById('regularCount').textContent = formatNumber(regularHc, 0);
+            document.getElementById('agencyCount').textContent = '0';
+            document.getElementById('resignedCount').textContent = '0';
+            document.getElementById('attritionRate').textContent = '0%';
+            
+            document.getElementById('totalManhours').textContent = formatNumber(regularHours) + ' hrs';
+            document.getElementById('regularHours').textContent = formatNumber(regularHours) + ' hrs';
+            document.getElementById('agencyHours').textContent = '0 hrs';
+            document.getElementById('overtimeHours').textContent = formatNumber(otHours) + ' hrs';
+            document.getElementById('otRate').textContent = otRate.toFixed(1) + '%';
+            
+            document.getElementById('absenteeismRate').textContent = absenteeismRate.toFixed(1) + '%';
+            document.getElementById('absencesCount').textContent = formatNumber(absences, 0);
+            document.getElementById('workingDays').textContent = prodDays.toFixed(2);
+
+            // Update Utilization Tab
+            document.getElementById('productiveHrs').textContent = formatNumber(productive);
+            document.getElementById('productivePct').textContent = (productive/totalTime*100).toFixed(1) + '%';
+            document.getElementById('noPlanHrs').textContent = formatNumber(noPlan);
+            document.getElementById('noPlanPct').textContent = (noPlan/totalTime*100).toFixed(1) + '%';
+            document.getElementById('noHcHrs').textContent = formatNumber(noHc);
+            document.getElementById('noHcPct').textContent = (noHc/totalTime*100).toFixed(1) + '%';
+            document.getElementById('changeOverHrs').textContent = formatNumber(changeOver);
+            document.getElementById('changeOverPct').textContent = (changeOver/totalTime*100).toFixed(1) + '%';
+            document.getElementById('noManpowerHrs').textContent = formatNumber(noManpower);
+            document.getElementById('noManpowerPct').textContent = (noManpower/totalTime*100).toFixed(1) + '%';
+            document.getElementById('transferHrs').textContent = formatNumber(transfer);
+            document.getElementById('transferPct').textContent = (transfer/totalTime*100).toFixed(1) + '%';
+            document.getElementById('mechBreakdownHrs').textContent = formatNumber(mechBreak);
+            document.getElementById('mechBreakdownPct').textContent = (mechBreak/totalTime*100).toFixed(1) + '%';
+            
+            document.getElementById('machinesAvailable').textContent = formatNumber(machinesAvail, 0);
+            document.getElementById('machinesUsedDetail').textContent = formatNumber(machinesUsed, 0);
+            document.getElementById('productionDays').textContent = prodDays.toFixed(2);
+            document.getElementById('utilizationPct').textContent = utilizationRate.toFixed(1) + '%';
+
+            // Update Output Tab
+            document.getElementById('l06Fg').textContent = '696,731';
+            document.getElementById('l04bFg').textContent = '191,493';
+            document.getElementById('l03Fg').textContent = '1,460';
+            document.getElementById('l01Fg').textContent = '85,448';
+            document.getElementById('l07Fg').textContent = '6';
+            document.getElementById('l09Fg').textContent = '4,960';
+            document.getElementById('l10Fg').textContent = '5,203';
+            document.getElementById('l11Fg').textContent = '5,169';
+            document.getElementById('l12Fg').textContent = '37,167';
+            document.getElementById('l13Fg').textContent = '73,520';
+            document.getElementById('l14Fg').textContent = '83,609';
+            document.getElementById('l05Fg').textContent = '325';
+            document.getElementById('l02Fg').textContent = '68';
+
+            // Update Scheduling Tab
+            document.getElementById('overallScheduling').textContent = compliance.toFixed(1) + '%';
+            document.getElementById('totalActualSched').textContent = formatNumber(fgOutput) + ' kg';
+            document.getElementById('totalPlannedSched').textContent = formatNumber(planned) + ' kg';
+
+            // Line compliance percentages
+            document.getElementById('compL06').textContent = '75.6%';
+            document.getElementById('compL04b').textContent = '71.3%';
+            document.getElementById('compL03').textContent = '62.1%';
+            document.getElementById('compL01').textContent = '56.9%';
+            document.getElementById('compL07').textContent = '-';
+            document.getElementById('compL09').textContent = '68.2%';
+            document.getElementById('compL10').textContent = '77.2%';
+            document.getElementById('compL11').textContent = '57.8%';
+            document.getElementById('compL12').textContent = '51.4%';
+            document.getElementById('compL13').textContent = '95.4%';
+            document.getElementById('compL14').textContent = '87.2%';
+            document.getElementById('compL05').textContent = '57.7%';
+            document.getElementById('compL02').textContent = '7.5%';
+
+            // Update timestamp
+            const year = document.getElementById('yearSelect').value;
+            const month = document.getElementById('monthSelect').value;
+            document.getElementById('lastUpdate').textContent = new Date().toLocaleString() + ` (${month} ${year})`;
+        }
+
+        function clearAll() {
+            document.querySelectorAll('input[type="number"]').forEach(input => input.value = '');
+            updateFromInputs();
+        }
+
+        // Add event listeners
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('input', updateFromInputs);
+        });
+
+        document.getElementById('yearSelect').addEventListener('change', updateFromInputs);
+        document.getElementById('monthSelect').addEventListener('change', updateFromInputs);
+
+        // Initialize
+        window.onload = function() {
+            updateFromInputs();
+        };
+    </script>
+</body>
+</html>

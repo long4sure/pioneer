@@ -1,0 +1,1287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Warehouse & Logistics Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            padding: 24px;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #2d2f33;
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 16px;
+            background-color: #fafbfc;
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: 1px solid #eef2f5;
+        }
+
+        .filter-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .filter-item label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #5f6775;
+            text-transform: uppercase;
+        }
+
+        .filter-item select {
+            padding: 6px 12px;
+            border: 1px solid #d0d5dd;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #2d2f33;
+            background-color: white;
+            cursor: pointer;
+        }
+
+        /* KPI Cards */
+        .kpi-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .kpi-card {
+            background-color: white;
+            border: 1px solid #eef2f5;
+            border-radius: 6px;
+            padding: 20px;
+            transition: all 0.2s;
+        }
+
+        .kpi-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border-color: #01b8aa;
+        }
+
+        .kpi-header {
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .kpi-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #5f6775;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .kpi-target {
+            font-size: 11px;
+            color: #5f6775;
+            background-color: #f0f0f0;
+            padding: 2px 8px;
+            border-radius: 12px;
+        }
+
+        .kpi-main-value {
+            font-size: 32px;
+            font-weight: 600;
+            color: #2d2f33;
+            margin-bottom: 4px;
+        }
+
+        .kpi-sub-value {
+            font-size: 12px;
+            color: #5f6775;
+            margin-bottom: 12px;
+        }
+
+        .kpi-progress {
+            height: 6px;
+            background-color: #eef2f5;
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 12px 0 8px;
+        }
+
+        .kpi-progress-bar {
+            height: 100%;
+            background-color: #01b8aa;
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+
+        .kpi-footer {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #5f6775;
+        }
+
+        /* Section Headers */
+        .section-header {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2d2f33;
+            margin: 30px 0 20px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #01b8aa;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .section-subheader {
+            font-size: 14px;
+            font-weight: 600;
+            color: #5f6775;
+            margin: 20px 0 15px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Metrics Grid */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .metric-card {
+            background-color: white;
+            border: 1px solid #eef2f5;
+            border-radius: 6px;
+            padding: 20px;
+        }
+
+        .metric-card h3 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #5f6775;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #eef2f5;
+        }
+
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            font-size: 13px;
+            padding: 4px 0;
+        }
+
+        .metric-label {
+            color: #5f6775;
+        }
+
+        .metric-value {
+            font-weight: 600;
+            color: #2d2f33;
+        }
+
+        .metric-value input {
+            width: 80px;
+            padding: 4px 8px;
+            border: 1px solid #d0d5dd;
+            border-radius: 4px;
+            text-align: right;
+        }
+
+        .metric-total {
+            margin-top: 15px;
+            padding-top: 10px;
+            border-top: 2px solid #eef2f5;
+            font-weight: 600;
+        }
+
+        /* Input Panel */
+        .input-panel {
+            background-color: white;
+            border: 1px solid #eef2f5;
+            border-radius: 6px;
+            margin: 24px 0;
+        }
+
+        .panel-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #eef2f5;
+            background-color: #fafbfc;
+            font-size: 14px;
+            font-weight: 600;
+            color: #2d2f33;
+        }
+
+        .input-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .input-group {
+            background-color: #fafbfc;
+            padding: 15px;
+            border-radius: 6px;
+        }
+
+        .input-group h4 {
+            font-size: 13px;
+            color: #2d2f33;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #d0d5dd;
+            font-weight: 600;
+        }
+
+        .input-field {
+            margin-bottom: 12px;
+        }
+
+        .input-field label {
+            display: block;
+            font-size: 11px;
+            font-weight: 600;
+            color: #5f6775;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .input-field input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #d0d5dd;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #2d2f33;
+            background-color: white;
+        }
+
+        .input-field input:focus {
+            outline: none;
+            border-color: #01b8aa;
+            box-shadow: 0 0 0 2px rgba(1,184,170,0.1);
+        }
+
+        .input-field input::placeholder {
+            color: #aaa;
+            font-style: italic;
+        }
+
+        .button-group {
+            padding: 16px 20px;
+            border-top: 1px solid #eef2f5;
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: 1px solid #d0d5dd;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            background: white;
+            color: #2d2f33;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            background-color: #f0f0f0;
+        }
+
+        .btn-primary {
+            background-color: #01b8aa;
+            border-color: #01b8aa;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #019f92;
+        }
+
+        /* Tables */
+        .table-container {
+            background-color: white;
+            border: 1px solid #eef2f5;
+            border-radius: 6px;
+            margin-bottom: 24px;
+            overflow-x: auto;
+        }
+
+        .table-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #eef2f5;
+            background-color: #fafbfc;
+            font-size: 14px;
+            font-weight: 600;
+            color: #2d2f33;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .table-total {
+            font-size: 13px;
+            color: #5f6775;
+            background-color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            border: 1px solid #d0d5dd;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            padding: 14px 16px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #5f6775;
+            text-transform: uppercase;
+            border-bottom: 2px solid #eef2f5;
+            background-color: #fafbfc;
+        }
+
+        td {
+            padding: 12px 16px;
+            font-size: 13px;
+            color: #2d2f33;
+            border-bottom: 1px solid #eef2f5;
+        }
+
+        td input {
+            width: 100px;
+            padding: 6px 10px;
+            border: 1px solid #d0d5dd;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .category-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            background-color: #f0f0f0;
+            color: #5f6775;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-excellent {
+            background-color: #e6f9ed;
+            color: #107c41;
+        }
+
+        .status-good {
+            background-color: #e3f2fd;
+            color: #0d47a1;
+        }
+
+        .status-warning {
+            background-color: #fff1e0;
+            color: #d83b01;
+        }
+
+        .status-critical {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+
+        .status-neutral {
+            background-color: #fef7e0;
+            color: #966c00;
+        }
+
+        .footer {
+            text-align: right;
+            font-size: 12px;
+            color: #5f6775;
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid #eef2f5;
+        }
+
+        /* Layout */
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .three-col {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        /* Summary Cards */
+        .summary-row {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 15px;
+            margin-bottom: 24px;
+        }
+
+        .summary-card {
+            background-color: #fafbfc;
+            border: 1px solid #eef2f5;
+            border-radius: 6px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .summary-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: #5f6775;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .summary-value {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2d2f33;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header with Filters -->
+        <div class="header">
+            <h1>WAREHOUSE & LOGISTICS DASHBOARD</h1>
+            <div class="filter-group">
+                <div class="filter-item">
+                    <label>Year:</label>
+                    <select id="yearSelect">
+                        <option value="2023">2023</option>
+                        <option value="2024" selected>2024</option>
+                        <option value="2025">2025</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label>Month:</label>
+                    <select id="monthSelect">
+                        <option value="January">January</option>
+                        <option value="February">February</option>
+                        <option value="March">March</option>
+                        <option value="April">April</option>
+                        <option value="May">May</option>
+                        <option value="June">June</option>
+                        <option value="July">July</option>
+                        <option value="August">August</option>
+                        <option value="September">September</option>
+                        <option value="October" selected>October</option>
+                        <option value="November">November</option>
+                        <option value="December">December</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary Row -->
+        <div class="summary-row">
+            <div class="summary-card">
+                <div class="summary-label">OTIF</div>
+                <div class="summary-value" id="summaryOtif">0%</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-label">Volume Fill</div>
+                <div class="summary-value" id="summaryVolumeFill">0%</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-label">Value Fill</div>
+                <div class="summary-value" id="summaryValueFill">0%</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-label">WH Util</div>
+                <div class="summary-value" id="summaryWhUtil">0%</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-label">LRA Accuracy</div>
+                <div class="summary-value" id="summaryLra">0%</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-label">Avg OTDL</div>
+                <div class="summary-value" id="summaryOtdl">0</div>
+            </div>
+        </div>
+
+        <!-- Top KPI Cards -->
+        <div class="kpi-row">
+            <!-- OTIF Card -->
+            <div class="kpi-card">
+                <div class="kpi-header">
+                    <span class="kpi-title">OTIF Rate</span>
+                    <span class="kpi-target">Target: 95%</span>
+                </div>
+                <div class="kpi-main-value" id="otifValue">0%</div>
+                <div class="kpi-sub-value" id="otifDetails">Served: 0 / Total: 0</div>
+                <div class="kpi-progress">
+                    <div class="kpi-progress-bar" id="otifProgress" style="width: 0%"></div>
+                </div>
+                <div class="kpi-footer">
+                    <span id="otifStatus" class="status-badge status-neutral">No Data</span>
+                    <span>vs Target</span>
+                </div>
+            </div>
+
+            <!-- Volume Fill Rate Card -->
+            <div class="kpi-card">
+                <div class="kpi-header">
+                    <span class="kpi-title">Volume Fill Rate</span>
+                    <span class="kpi-target">Target: 98%</span>
+                </div>
+                <div class="kpi-main-value" id="volumeFillValue">0%</div>
+                <div class="kpi-sub-value" id="volumeFillDetails">Delivered: ₱0 / Orders: ₱0</div>
+                <div class="kpi-progress">
+                    <div class="kpi-progress-bar" id="volumeFillProgress" style="width: 0%"></div>
+                </div>
+                <div class="kpi-footer">
+                    <span id="volumeFillStatus" class="status-badge status-neutral">No Data</span>
+                    <span>vs Target</span>
+                </div>
+            </div>
+
+            <!-- Value Fill Rate Card -->
+            <div class="kpi-card">
+                <div class="kpi-header">
+                    <span class="kpi-title">Value Fill Rate</span>
+                    <span class="kpi-target">Target: 98%</span>
+                </div>
+                <div class="kpi-main-value" id="valueFillValue">0%</div>
+                <div class="kpi-sub-value" id="valueFillDetails">Delivered: ₱0 / Orders: ₱0</div>
+                <div class="kpi-progress">
+                    <div class="kpi-progress-bar" id="valueFillProgress" style="width: 0%"></div>
+                </div>
+                <div class="kpi-footer">
+                    <span id="valueFillStatus" class="status-badge status-neutral">No Data</span>
+                    <span>vs Target</span>
+                </div>
+            </div>
+
+            <!-- Warehouse Utilization Card -->
+            <div class="kpi-card">
+                <div class="kpi-header">
+                    <span class="kpi-title">Warehouse Utilization</span>
+                    <span class="kpi-target">Target: 85%</span>
+                </div>
+                <div class="kpi-main-value" id="whUtilValue">0%</div>
+                <div class="kpi-sub-value" id="whUtilDetails">Used: 0 / Total: 0</div>
+                <div class="kpi-progress">
+                    <div class="kpi-progress-bar" id="whUtilProgress" style="width: 0%"></div>
+                </div>
+                <div class="kpi-footer">
+                    <span id="whUtilStatus" class="status-badge status-neutral">No Data</span>
+                    <span>Avg: RM/PM/FG</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Input Panel - Key Metrics Only -->
+        <div class="input-panel">
+            <div class="panel-header">KEY METRICS INPUT</div>
+            <div class="input-grid">
+                <!-- OTIF & Fill Rates -->
+                <div class="input-group">
+                    <h4>OTIF & FILL RATES</h4>
+                    <div class="input-field">
+                        <label>Served per Line Item</label>
+                        <input type="number" id="servedInput" placeholder="Enter count" step="0.01">
+                    </div>
+                    <div class="input-field">
+                        <label>Total per Line Item</label>
+                        <input type="number" id="totalInput" placeholder="Enter count" step="0.01">
+                    </div>
+                    <div class="input-field">
+                        <label>Actual Delivered (₱)</label>
+                        <input type="number" id="deliveredInput" placeholder="Enter amount" step="0.01">
+                    </div>
+                    <div class="input-field">
+                        <label>Actual Orders (₱)</label>
+                        <input type="number" id="ordersInput" placeholder="Enter amount" step="0.01">
+                    </div>
+                </div>
+
+                <!-- Warehouse Utilization -->
+                <div class="input-group">
+                    <h4>WAREHOUSE UTILIZATION</h4>
+                    <div class="input-field">
+                        <label>RM/PM Pallet Positions</label>
+                        <input type="number" id="rmPalletTotalInput" placeholder="Enter count" step="0.01">
+                    </div>
+                    <div class="input-field">
+                        <label>RM/PM Actual Used</label>
+                        <input type="number" id="rmPalletUsedInput" placeholder="Enter count" step="0.01">
+                    </div>
+                    <div class="input-field">
+                        <label>FG Pallet Positions</label>
+                        <input type="number" id="fgPalletTotalInput" placeholder="Enter count" step="0.01">
+                    </div>
+                    <div class="input-field">
+                        <label>FG Actual Used</label>
+                        <input type="number" id="fgPalletUsedInput" placeholder="Enter count" step="0.01">
+                    </div>
+                </div>
+
+                <!-- LRA Accuracy -->
+                <div class="input-group">
+                    <h4>LRA ACCURACY</h4>
+                    <div class="input-field">
+                        <label>RM/PM Hits</label>
+                        <input type="number" id="rmHitsInput" placeholder="Enter count" step="0.01">
+                    </div>
+                    <div class="input-field">
+                        <label>RM/PM Misses</label>
+                        <input type="number" id="rmMissesInput" placeholder="Enter count" step="0.01">
+                    </div>
+                    <div class="input-field">
+                        <label>FG Hits</label>
+                        <input type="number" id="fgHitsInput" placeholder="Enter count" step="0.01">
+                    </div>
+                    <div class="input-field">
+                        <label>FG Misses</label>
+                        <input type="number" id="fgMissesInput" placeholder="Enter count" step="0.01">
+                    </div>
+                </div>
+
+                <!-- OTDL Days -->
+                <div class="input-group">
+                    <h4>OTDL DAYS</h4>
+                    <div class="input-field">
+                        <label>GMA</label>
+                        <input type="number" id="gmaInput" placeholder="Days" step="0.01">
+                    </div>
+                    <div class="input-field">
+                        <label>North Luzon</label>
+                        <input type="number" id="northInput" placeholder="Days" step="0.01">
+                    </div>
+                    <div class="input-field">
+                        <label>South Luzon</label>
+                        <input type="number" id="southInput" placeholder="Days" step="0.01">
+                    </div>
+                    <div class="input-field">
+                        <label>Visayas</label>
+                        <input type="number" id="visayasInput" placeholder="Days" step="0.01">
+                    </div>
+                    <div class="input-field">
+                        <label>Mindanao</label>
+                        <input type="number" id="mindanaoInput" placeholder="Days" step="0.01">
+                    </div>
+                    <div class="input-field">
+                        <label>Modern Trade</label>
+                        <input type="number" id="modernTradeInput" placeholder="Days" step="0.01">
+                    </div>
+                </div>
+            </div>
+            <div class="button-group">
+                <button class="btn" onclick="clearAll()">CLEAR ALL</button>
+                <button class="btn btn-primary" onclick="calculateAll()">UPDATE</button>
+            </div>
+        </div>
+
+        <!-- Section: Fill Rates Detail -->
+        <div class="section-header">
+            <span>FILL RATES DETAIL</span>
+            <span class="table-total" id="fillRateNote">Corporate vs SC Fill Rates</span>
+        </div>
+
+        <div class="three-col">
+            <!-- Corporate Fill Rate -->
+            <div class="metric-card">
+                <h3>CORPORATE FILL RATE</h3>
+                <div class="metric-row">
+                    <span class="metric-label">Actual Delivered</span>
+                    <span class="metric-value" id="corpDelivered">₱0</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">Actual Orders</span>
+                    <span class="metric-value" id="corpOrders">₱0</span>
+                </div>
+                <div class="metric-row metric-total">
+                    <span class="metric-label">Hit Rate</span>
+                    <span class="metric-value" id="corpHitRate">0%</span>
+                </div>
+            </div>
+
+            <!-- SC Fill Rate -->
+            <div class="metric-card">
+                <h3>SC FILL RATE</h3>
+                <div class="metric-row">
+                    <span class="metric-label">Actual Delivered (SI)</span>
+                    <span class="metric-value" id="scDelivered">₱0</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">Actual Orders (SI)</span>
+                    <span class="metric-value" id="scOrders">₱0</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">Budget</span>
+                    <span class="metric-value" id="scBudget">₱0</span>
+                </div>
+                <div class="metric-row metric-total">
+                    <span class="metric-label">Hit Rate</span>
+                    <span class="metric-value" id="scHitRate">0%</span>
+                </div>
+            </div>
+
+            <!-- Core Products Fill Rate -->
+            <div class="metric-card">
+                <h3>CORE PRODUCTS</h3>
+                <div class="metric-row">
+                    <span class="metric-label">Actual Delivered</span>
+                    <span class="metric-value" id="coreDelivered">₱0</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">Actual Orders</span>
+                    <span class="metric-value" id="coreOrders">₱0</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">Budget</span>
+                    <span class="metric-value" id="coreBudget">₱0</span>
+                </div>
+                <div class="metric-row metric-total">
+                    <span class="metric-label">Hit Rate</span>
+                    <span class="metric-value" id="coreHitRate">0%</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section: Non-OTIF & Stock Outs -->
+        <div class="section-header">
+            <span>NON-OTIF & STOCK OUT ANALYSIS</span>
+            <span class="table-total">Root Cause Analysis</span>
+        </div>
+
+        <!-- Two Column Layout for Tables -->
+        <div class="two-col">
+            <!-- Non-OTIF Breakdown Table -->
+            <div class="table-container">
+                <div class="table-header">
+                    <span>NON-OTIF BREAKDOWN (Count)</span>
+                    <span class="table-total" id="nonOtifTotal">Total: 0</span>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>Issue Type</th>
+                            <th>Count</th>
+                        </tr>
+                    </thead>
+                    <tbody id="nonOtifTable">
+                        <!-- Filled by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Stock Outs by Value Table -->
+            <div class="table-container">
+                <div class="table-header">
+                    <span>STOCK OUTS BY VALUE (₱)</span>
+                    <span class="table-total" id="stockOutValueTotal">Total: ₱0</span>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>Issue Type</th>
+                            <th>Amount (₱)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="stockOutsValueTable">
+                        <!-- Filled by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Stock Outs by Weight Table -->
+        <div class="table-container">
+            <div class="table-header">
+                <span>STOCK OUTS BY WEIGHT (KGS)</span>
+                <span class="table-total" id="stockOutWeightTotal">Total: 0 KGS</span>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>Issue Type</th>
+                        <th>Weight (KGS)</th>
+                    </tr>
+                </thead>
+                <tbody id="stockOutsWeightTable">
+                    <!-- Filled by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Section: Operational Metrics -->
+        <div class="section-header">
+            <span>OPERATIONAL METRICS</span>
+        </div>
+
+        <!-- Three Column Layout -->
+        <div class="three-col">
+            <!-- OTDL by Region -->
+            <div class="metric-card">
+                <h3>OTDL DAYS BY REGION</h3>
+                <div id="otdlRegions">
+                    <!-- Filled by JavaScript -->
+                </div>
+                <div class="metric-row metric-total">
+                    <span class="metric-label">Average OTDL</span>
+                    <span class="metric-value" id="avgOtdl">0 days</span>
+                </div>
+            </div>
+
+            <!-- Warehouse Accuracy -->
+            <div class="metric-card">
+                <h3>WAREHOUSE ACCURACY (LRA)</h3>
+                <div id="warehouseAccuracy">
+                    <!-- Filled by JavaScript -->
+                </div>
+                <div class="metric-row metric-total">
+                    <span class="metric-label">Overall Accuracy</span>
+                    <span class="metric-value" id="overallAccuracy">0%</span>
+                </div>
+            </div>
+
+            <!-- Turnaround Times -->
+            <div class="metric-card">
+                <h3>TURNAROUND TIMES</h3>
+                <div class="metric-row">
+                    <span class="metric-label">Issuance (Target: 3hrs)</span>
+                    <span class="metric-value"><input type="number" id="issuanceTime" placeholder="hours" step="0.1" onchange="calculateAll()" value=""></span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">Receiving</span>
+                    <span class="metric-value"><input type="number" id="receivingTime" placeholder="hours" step="0.1" onchange="calculateAll()" value=""></span>
+                </div>
+                <div class="metric-row metric-total">
+                    <span class="metric-label">SLA Compliance</span>
+                    <span class="metric-value" id="slaCompliance">-</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            Last updated: <span id="lastUpdate">Just now</span>
+        </div>
+    </div>
+
+    <script>
+        // Category definitions
+        const categories = {
+            PL: 'Planning',
+            FG: 'Finished Goods',
+            PR: 'Production',
+            TE: 'Technical',
+            SA: 'Sales',
+            FI: 'Finance'
+        };
+
+        const nonOtifIssues = [
+            { cat: 'PL', issue: 'Material constraint' },
+            { cat: 'PL', issue: 'Planning error' },
+            { cat: 'PL', issue: 'Capacity Constraint' },
+            { cat: 'PL', issue: 'Acumatica Inventory Issue' },
+            { cat: 'FG', issue: 'Warehouse Constraint' },
+            { cat: 'FG', issue: 'Truck unavailability' },
+            { cat: 'FG', issue: 'Dispatch Issue' },
+            { cat: 'FG', issue: 'Custom Issue' },
+            { cat: 'FG', issue: 'Permits' },
+            { cat: 'PR', issue: 'Machine downtime' },
+            { cat: 'PR', issue: 'Production Under run' },
+            { cat: 'PR', issue: 'Manpower constraint' },
+            { cat: 'PR', issue: 'Production delay' },
+            { cat: 'PR', issue: 'Acumatica Confirmation delay' },
+            { cat: 'PR', issue: 'Subcon delay' },
+            { cat: 'TE', issue: 'Developmental Issue' },
+            { cat: 'TE', issue: 'Quality Issue' },
+            { cat: 'SA', issue: 'Cancelled Order' },
+            { cat: 'SA', issue: 'Demand Shift' },
+            { cat: 'SA', issue: 'CS Issue' },
+            { cat: 'FI', issue: 'Pricing Issue' }
+        ];
+
+        const stockOutIssues = [
+            { cat: 'PL', issue: 'Material constraint' },
+            { cat: 'PL', issue: 'Planning error' },
+            { cat: 'PL', issue: 'Capacity Constraint' },
+            { cat: 'PL', issue: 'Acumatica Inventory Issue' },
+            { cat: 'FG', issue: 'Warehouse Constraint' },
+            { cat: 'FG', issue: 'Truck unavailability' },
+            { cat: 'FG', issue: 'Dispatch Issue' },
+            { cat: 'FG', issue: 'Custom Issue' },
+            { cat: 'FG', issue: 'Permits' },
+            { cat: 'PR', issue: 'Machine downtime' },
+            { cat: 'PR', issue: 'Production Under run' },
+            { cat: 'PR', issue: 'Manpower constraint' },
+            { cat: 'PR', issue: 'Production delay' },
+            { cat: 'PR', issue: 'Acumatica Confirmation delay' },
+            { cat: 'PR', issue: 'Subcon delay' },
+            { cat: 'TE', issue: 'Developmental Issue' },
+            { cat: 'TE', issue: 'Quality Issue' },
+            { cat: 'SA', issue: 'Cancelled Order' },
+            { cat: 'SA', issue: 'Demand Shift' },
+            { cat: 'SA', issue: 'CS Issue' },
+            { cat: 'SA', issue: 'Beyond forecast' },
+            { cat: 'FI', issue: 'Pricing Issue' }
+        ];
+
+        function formatNumber(num, decimals = 2) {
+            if (!num || isNaN(num) || num === 0) return '0';
+            return num.toLocaleString(undefined, {
+                minimumFractionDigits: decimals,
+                maximumFractionDigits: decimals
+            });
+        }
+
+        function formatCurrency(num) {
+            if (!num || isNaN(num) || num === 0) return '₱0';
+            if (num >= 1000000) return '₱' + (num/1000000).toFixed(1) + 'M';
+            if (num >= 1000) return '₱' + (num/1000).toFixed(1) + 'K';
+            return '₱' + num.toFixed(2);
+        }
+
+        function getStatusClass(value, thresholds) {
+            if (value >= thresholds.good) return 'status-excellent';
+            if (value >= thresholds.average) return 'status-good';
+            if (value >= thresholds.poor) return 'status-warning';
+            return 'status-critical';
+        }
+
+        function calculateAll() {
+            // Get input values
+            const served = parseFloat(document.getElementById('servedInput').value) || 0;
+            const total = parseFloat(document.getElementById('totalInput').value) || 0;
+            const delivered = parseFloat(document.getElementById('deliveredInput').value) || 0;
+            const orders = parseFloat(document.getElementById('ordersInput').value) || 0;
+            
+            const rmPalletTotal = parseFloat(document.getElementById('rmPalletTotalInput').value) || 0;
+            const rmPalletUsed = parseFloat(document.getElementById('rmPalletUsedInput').value) || 0;
+            const fgPalletTotal = parseFloat(document.getElementById('fgPalletTotalInput').value) || 0;
+            const fgPalletUsed = parseFloat(document.getElementById('fgPalletUsedInput').value) || 0;
+            
+            const rmHits = parseFloat(document.getElementById('rmHitsInput').value) || 0;
+            const rmMisses = parseFloat(document.getElementById('rmMissesInput').value) || 0;
+            const fgHits = parseFloat(document.getElementById('fgHitsInput').value) || 0;
+            const fgMisses = parseFloat(document.getElementById('fgMissesInput').value) || 0;
+            
+            const gma = parseFloat(document.getElementById('gmaInput').value) || 0;
+            const north = parseFloat(document.getElementById('northInput').value) || 0;
+            const south = parseFloat(document.getElementById('southInput').value) || 0;
+            const visayas = parseFloat(document.getElementById('visayasInput').value) || 0;
+            const mindanao = parseFloat(document.getElementById('mindanaoInput').value) || 0;
+            const modernTrade = parseFloat(document.getElementById('modernTradeInput').value) || 0;
+
+            // Calculate OTIF
+            const otifRate = total > 0 ? (served / total) * 100 : 0;
+            document.getElementById('otifValue').textContent = otifRate.toFixed(1) + '%';
+            document.getElementById('otifDetails').textContent = `Served: ${formatNumber(served)} / Total: ${formatNumber(total)}`;
+            document.getElementById('otifProgress').style.width = Math.min(otifRate, 100) + '%';
+            
+            let otifStatus = 'No Data';
+            let otifClass = 'status-neutral';
+            if (total > 0) {
+                if (otifRate >= 95) {
+                    otifStatus = 'Excellent';
+                    otifClass = 'status-excellent';
+                } else if (otifRate >= 85) {
+                    otifStatus = 'Good';
+                    otifClass = 'status-good';
+                } else if (otifRate >= 75) {
+                    otifStatus = 'Warning';
+                    otifClass = 'status-warning';
+                } else {
+                    otifStatus = 'Critical';
+                    otifClass = 'status-critical';
+                }
+            }
+            document.getElementById('otifStatus').textContent = otifStatus;
+            document.getElementById('otifStatus').className = 'status-badge ' + otifClass;
+
+            // Calculate Volume Fill Rate
+            const volumeFillRate = orders > 0 ? (delivered / orders) * 100 : 0;
+            document.getElementById('volumeFillValue').textContent = volumeFillRate.toFixed(1) + '%';
+            document.getElementById('volumeFillDetails').textContent = `Delivered: ${formatCurrency(delivered)} / Orders: ${formatCurrency(orders)}`;
+            document.getElementById('volumeFillProgress').style.width = Math.min(volumeFillRate, 100) + '%';
+            
+            let volumeFillStatus = 'No Data';
+            let volumeFillClass = 'status-neutral';
+            if (orders > 0) {
+                if (volumeFillRate >= 98) {
+                    volumeFillStatus = 'Excellent';
+                    volumeFillClass = 'status-excellent';
+                } else if (volumeFillRate >= 90) {
+                    volumeFillStatus = 'Good';
+                    volumeFillClass = 'status-good';
+                } else if (volumeFillRate >= 80) {
+                    volumeFillStatus = 'Warning';
+                    volumeFillClass = 'status-warning';
+                } else {
+                    volumeFillStatus = 'Critical';
+                    volumeFillClass = 'status-critical';
+                }
+            }
+            document.getElementById('volumeFillStatus').textContent = volumeFillStatus;
+            document.getElementById('volumeFillStatus').className = 'status-badge ' + volumeFillClass;
+
+            // Calculate Value Fill Rate (using same for now)
+            document.getElementById('valueFillValue').textContent = volumeFillRate.toFixed(1) + '%';
+            document.getElementById('valueFillDetails').textContent = `Delivered: ${formatCurrency(delivered)} / Orders: ${formatCurrency(orders)}`;
+            document.getElementById('valueFillProgress').style.width = Math.min(volumeFillRate, 100) + '%';
+            document.getElementById('valueFillStatus').textContent = volumeFillStatus;
+            document.getElementById('valueFillStatus').className = 'status-badge ' + volumeFillClass;
+
+            // Calculate Warehouse Utilization
+            const totalPalletPositions = rmPalletTotal + fgPalletTotal;
+            const totalPalletUsed = rmPalletUsed + fgPalletUsed;
+            const whUtilRate = totalPalletPositions > 0 ? (totalPalletUsed / totalPalletPositions) * 100 : 0;
+            
+            document.getElementById('whUtilValue').textContent = whUtilRate.toFixed(1) + '%';
+            document.getElementById('whUtilDetails').textContent = `Used: ${formatNumber(totalPalletUsed)} / Total: ${formatNumber(totalPalletPositions)}`;
+            document.getElementById('whUtilProgress').style.width = Math.min(whUtilRate, 100) + '%';
+            
+            let whUtilStatus = 'No Data';
+            let whUtilClass = 'status-neutral';
+            if (totalPalletPositions > 0) {
+                if (whUtilRate <= 75) {
+                    whUtilStatus = 'Under-Utilized';
+                    whUtilClass = 'status-warning';
+                } else if (whUtilRate <= 85) {
+                    whUtilStatus = 'Optimal';
+                    whUtilClass = 'status-excellent';
+                } else if (whUtilRate <= 95) {
+                    whUtilStatus = 'Good';
+                    whUtilClass = 'status-good';
+                } else {
+                    whUtilStatus = 'Critical';
+                    whUtilClass = 'status-critical';
+                }
+            }
+            document.getElementById('whUtilStatus').textContent = whUtilStatus;
+            document.getElementById('whUtilStatus').className = 'status-badge ' + whUtilClass;
+
+            // Update Summary Row
+            document.getElementById('summaryOtif').textContent = otifRate.toFixed(1) + '%';
+            document.getElementById('summaryVolumeFill').textContent = volumeFillRate.toFixed(1) + '%';
+            document.getElementById('summaryValueFill').textContent = volumeFillRate.toFixed(1) + '%';
+            document.getElementById('summaryWhUtil').textContent = whUtilRate.toFixed(1) + '%';
+
+            // Fill Rates Detail
+            document.getElementById('corpDelivered').textContent = formatCurrency(delivered);
+            document.getElementById('corpOrders').textContent = formatCurrency(orders);
+            document.getElementById('corpHitRate').textContent = volumeFillRate.toFixed(1) + '%';
+
+            document.getElementById('scDelivered').textContent = formatCurrency(delivered);
+            document.getElementById('scOrders').textContent = formatCurrency(orders);
+            document.getElementById('scBudget').textContent = formatCurrency(orders * 0.98); // Example: 98% of orders
+            const scHitRate = orders > 0 ? (delivered / orders) * 100 : 0;
+            document.getElementById('scHitRate').textContent = scHitRate.toFixed(1) + '%';
+
+            document.getElementById('coreDelivered').textContent = formatCurrency(delivered * 0.7); // Example: 70% of total
+            document.getElementById('coreOrders').textContent = formatCurrency(orders * 0.7);
+            document.getElementById('coreBudget').textContent = formatCurrency(orders * 0.7 * 0.98);
+            const coreHitRate = orders > 0 ? (delivered / orders) * 100 : 0;
+            document.getElementById('coreHitRate').textContent = coreHitRate.toFixed(1) + '%';
+
+            // Non-OTIF Breakdown Table
+            let nonOtifHtml = '';
+            let nonOtifTotal = 0;
+            
+            nonOtifIssues.forEach((item, index) => {
+                const inputId = `nonOtif_${index}`;
+                const value = parseFloat(document.getElementById(inputId)?.value) || 0;
+                nonOtifTotal += value;
+                
+                nonOtifHtml += `
+                    <tr>
+                        <td><span class="category-badge">${item.cat}</span> ${categories[item.cat]}</td>
+                        <td>${item.issue}</td>
+                        <td><input type="number" id="${inputId}" value="${value || ''}" placeholder="0" step="0.01" onchange="calculateAll()" style="width: 100px;"></td>
+                    </tr>
+                `;
+            });
+            document.getElementById('nonOtifTable').innerHTML = nonOtifHtml;
+            document.getElementById('nonOtifTotal').textContent = `Total: ${formatNumber(nonOtifTotal)}`;
+
+            // Stock Outs by Value Table
+            let stockOutsValueHtml = '';
+            let stockOutValueTotal = 0;
+            
+            stockOutIssues.forEach((item, index) => {
+                const inputId = `stockOutValue_${index}`;
+                const value = parseFloat(document.getElementById(inputId)?.value) || 0;
+                stockOutValueTotal += value;
+                
+                stockOutsValueHtml += `
+                    <tr>
+                        <td><span class="category-badge">${item.cat}</span> ${categories[item.cat]}</td>
+                        <td>${item.issue}</td>
+                        <td><input type="number" id="${inputId}" value="${value || ''}" placeholder="0" step="0.01" onchange="calculateAll()" style="width: 100px;"></td>
+                    </tr>
+                `;
+            });
+            document.getElementById('stockOutsValueTable').innerHTML = stockOutsValueHtml;
+            document.getElementById('stockOutValueTotal').textContent = `Total: ${formatCurrency(stockOutValueTotal)}`;
+
+            // Stock Outs by Weight Table
+            let stockOutsWeightHtml = '';
+            let stockOutWeightTotal = 0;
+            
+            stockOutIssues.forEach((item, index) => {
+                const inputId = `stockOutWeight_${index}`;
+                const value = parseFloat(document.getElementById(inputId)?.value) || 0;
+                stockOutWeightTotal += value;
+                
+                stockOutsWeightHtml += `
+                    <tr>
+                        <td><span class="category-badge">${item.cat}</span> ${categories[item.cat]}</td>
+                        <td>${item.issue}</td>
+                        <td><input type="number" id="${inputId}" value="${value || ''}" placeholder="0" step="0.01" onchange="calculateAll()" style="width: 100px;"></td>
+                    </tr>
+                `;
+            });
+            document.getElementById('stockOutsWeightTable').innerHTML = stockOutsWeightHtml;
+            document.getElementById('stockOutWeightTotal').textContent = `Total: ${formatNumber(stockOutWeightTotal)} KGS`;
+
+            // OTDL by Region
+            const otdlRegions = [
+                { name: 'GMA', value: gma },
+                { name: 'North Luzon', value: north },
+                { name: 'South Luzon', value: south },
+                { name: 'Visayas', value: visayas },
+                { name: 'Mindanao', value: mindanao },
+                { name: 'Modern Trade', value: modernTrade }
+            ];
+
+            let otdlHtml = '';
+            let totalOtdl = 0;
+            let regionCount = 0;
+            
+            otdlRegions.forEach(region => {
+                if (region.value > 0) {
+                    totalOtdl += region.value;
+                    regionCount++;
+                }
+                otdlHtml += `
+                    <div class="metric-row">
+                        <span class="metric-label">${region.name}</span>
+                        <span class="metric-value">${region.value ? region.value.toFixed(1) + ' days' : '0 days'}</span>
+                    </div>
+                `;
+            });
+            
+            const avgOtdl = regionCount > 0 ? totalOtdl / regionCount : 0;
+            document.getElementById('otdlRegions').innerHTML = otdlHtml;
+            document.getElementById('avgOtdl').textContent = avgOtdl.toFixed(1) + ' days';
+            document.getElementById('summaryOtdl').textContent = avgOtdl.toFixed(1) + 'd';
+
+            // Warehouse Accuracy
+            const rmAccuracy = rmHits > 0 ? ((rmHits - rmMisses) / rmHits) * 100 : 0;
+            const fgAccuracy = fgHits > 0 ? ((fgHits - fgMisses) / fgHits) * 100 : 0;
+            const overallAccuracy = (rmHits + fgHits) > 0 ? ((rmHits + fgHits - rmMisses - fgMisses) / (rmHits + fgHits)) * 100 : 0;
+            
+            let accuracyHtml = `
+                <div class="metric-row">
+                    <span class="metric-label">RM/PM Accuracy</span>
+                    <span class="metric-value">${rmAccuracy.toFixed(1)}%</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">FG Accuracy</span>
+                    <span class="metric-value">${fgAccuracy.toFixed(1)}%</span>
+                </div>
+            `;
+            document.getElementById('warehouseAccuracy').innerHTML = accuracyHtml;
+            document.getElementById('overallAccuracy').textContent = overallAccuracy.toFixed(1) + '%';
+            document.getElementById('summaryLra').textContent = overallAccuracy.toFixed(1) + '%';
+
+            // Turnaround Times
+            const issuanceTime = parseFloat(document.getElementById('issuanceTime').value) || 0;
+            const receivingTime = parseFloat(document.getElementById('receivingTime').value) || 0;
+            
+            let slaCompliance = '-';
+            if (issuanceTime > 0) {
+                slaCompliance = issuanceTime <= 3 ? '✅ Within SLA' : '❌ Exceeded SLA';
+            }
+            document.getElementById('slaCompliance').textContent = slaCompliance;
+
+            // Update timestamp
+            const year = document.getElementById('yearSelect').value;
+            const month = document.getElementById('monthSelect').value;
+            document.getElementById('lastUpdate').textContent = new Date().toLocaleString() + ` (${month} ${year})`;
+        }
+
+        function clearAll() {
+            document.querySelectorAll('input[type="number"]').forEach(input => input.value = '');
+            calculateAll();
+        }
+
+        // Add event listeners
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('input', calculateAll);
+        });
+
+        document.getElementById('yearSelect').addEventListener('change', calculateAll);
+        document.getElementById('monthSelect').addEventListener('change', calculateAll);
+
+        // Initialize
+        window.onload = clearAll;
+    </script>
+</body>
+</html>

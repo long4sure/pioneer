@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SC Procurement Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            padding: 24px;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #2d2f33;
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 16px;
+            background-color: #fafbfc;
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: 1px solid #eef2f5;
+        }
+
+        .filter-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .filter-item label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #5f6775;
+            text-transform: uppercase;
+        }
+
+        .filter-item select {
+            padding: 6px 12px;
+            border: 1px solid #d0d5dd;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #2d2f33;
+            background-color: white;
+            cursor: pointer;
+        }
+
+        /* KPI Cards */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .kpi-card {
+            background-color: white;
+            border: 1px solid #eef2f5;
+            border-radius: 8px;
+            padding: 24px;
+            transition: all 0.2s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+        }
+
+        .kpi-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border-color: #01b8aa;
+        }
+
+        .kpi-card-header {
+            margin-bottom: 16px;
+        }
+
+        .kpi-card-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #5f6775;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .kpi-card-main-value {
+            font-size: 36px;
+            font-weight: 600;
+            color: #2d2f33;
+            margin-bottom: 8px;
+        }
+
+        .kpi-card-details {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .kpi-card-detail-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            color: #5f6775;
+            padding: 4px 0;
+        }
+
+        .kpi-card-detail-label {
+            color: #5f6775;
+        }
+
+        .kpi-card-detail-value {
+            font-weight: 600;
+            color: #2d2f33;
+        }
+
+        .kpi-card-progress {
+            height: 8px;
+            background-color: #eef2f5;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 16px 0 12px;
+        }
+
+        .kpi-card-progress-bar {
+            height: 100%;
+            background-color: #01b8aa;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .kpi-card-footer {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            color: #5f6775;
+            margin-top: 8px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-excellent {
+            background-color: #e6f9ed;
+            color: #107c41;
+        }
+
+        .status-good {
+            background-color: #e3f2fd;
+            color: #0d47a1;
+        }
+
+        .status-warning {
+            background-color: #fff1e0;
+            color: #d83b01;
+        }
+
+        .status-critical {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+
+        .status-neutral {
+            background-color: #fef7e0;
+            color: #966c00;
+        }
+
+        /* Input Panel */
+        .input-panel {
+            background-color: white;
+            border: 1px solid #eef2f5;
+            border-radius: 6px;
+            margin: 24px 0;
+        }
+
+        .panel-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #eef2f5;
+            background-color: #fafbfc;
+            font-size: 14px;
+            font-weight: 600;
+            color: #2d2f33;
+        }
+
+        .input-sections {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .input-section {
+            background-color: #fafbfc;
+            border: 1px solid #eef2f5;
+            border-radius: 6px;
+            padding: 20px;
+        }
+
+        .input-section h4 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #5f6775;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #eef2f5;
+        }
+
+        .input-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .input-field {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .input-field label {
+            font-size: 11px;
+            font-weight: 600;
+            color: #5f6775;
+            text-transform: uppercase;
+        }
+
+        .input-field input {
+            padding: 8px 12px;
+            border: 1px solid #d0d5dd;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #2d2f33;
+            background-color: white;
+        }
+
+        .input-field input:focus {
+            outline: none;
+            border-color: #01b8aa;
+        }
+
+        .input-field input::placeholder {
+            color: #aaa;
+            font-style: italic;
+        }
+
+        .button-group {
+            padding: 16px 20px;
+            border-top: 1px solid #eef2f5;
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: 1px solid #d0d5dd;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            background: white;
+            color: #2d2f33;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            background-color: #f0f0f0;
+        }
+
+        .btn-primary {
+            background-color: #01b8aa;
+            border-color: #01b8aa;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #019f92;
+        }
+
+        /* Summary Cards */
+        .summary-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .summary-card {
+            background-color: #fafbfc;
+            border: 1px solid #eef2f5;
+            border-radius: 6px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .summary-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #5f6775;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .summary-value {
+            font-size: 24px;
+            font-weight: 600;
+            color: #2d2f33;
+        }
+
+        .summary-sub {
+            font-size: 13px;
+            color: #5f6775;
+            margin-top: 5px;
+        }
+
+        .footer {
+            text-align: right;
+            font-size: 12px;
+            color: #5f6775;
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid #eef2f5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header with Filters -->
+        <div class="header">
+            <h1>SC PROCUREMENT DASHBOARD</h1>
+            <div class="filter-group">
+                <div class="filter-item">
+                    <label>Year:</label>
+                    <select id="yearSelect">
+                        <option value="2023">2023</option>
+                        <option value="2024" selected>2024</option>
+                        <option value="2025">2025</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label>Month:</label>
+                    <select id="monthSelect">
+                        <option value="January">January</option>
+                        <option value="February">February</option>
+                        <option value="March">March</option>
+                        <option value="April">April</option>
+                        <option value="May">May</option>
+                        <option value="June">June</option>
+                        <option value="July">July</option>
+                        <option value="August">August</option>
+                        <option value="September">September</option>
+                        <option value="October" selected>October</option>
+                        <option value="November">November</option>
+                        <option value="December">December</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary Row -->
+        <div class="summary-row">
+            <div class="summary-card">
+                <div class="summary-label">Actual Savings</div>
+                <div class="summary-value" id="summaryActual">₱0</div>
+                <div class="summary-sub">Current Month</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-label">Target Savings</div>
+                <div class="summary-value" id="summaryTarget">₱0</div>
+                <div class="summary-sub">Monthly Target</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-label">Achievement</div>
+                <div class="summary-value" id="summaryAchievement">0%</div>
+                <div class="summary-sub">vs Target</div>
+            </div>
+        </div>
+
+        <!-- Main KPI Card -->
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-card-header">
+                    <span class="kpi-card-title">Savings Performance</span>
+                </div>
+                <div class="kpi-card-main-value" id="savingsRate">0%</div>
+                <div class="kpi-card-details">
+                    <div class="kpi-card-detail-row">
+                        <span class="kpi-card-detail-label">Actual Savings</span>
+                        <span class="kpi-card-detail-value" id="actualSavings">₱0</span>
+                    </div>
+                    <div class="kpi-card-detail-row">
+                        <span class="kpi-card-detail-label">Target Savings</span>
+                        <span class="kpi-card-detail-value" id="targetSavings">₱0</span>
+                    </div>
+                    <div class="kpi-card-detail-row">
+                        <span class="kpi-card-detail-label">Variance</span>
+                        <span class="kpi-card-detail-value" id="varianceSavings">₱0</span>
+                    </div>
+                </div>
+                <div class="kpi-card-progress">
+                    <div class="kpi-card-progress-bar" id="savingsProgress" style="width: 0%"></div>
+                </div>
+                <div class="kpi-card-footer">
+                    <span id="savingsStatus" class="status-badge status-neutral">No Data</span>
+                    <span>Achievement Rate</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Input Panel -->
+        <div class="input-panel">
+            <div class="panel-header">Data Input</div>
+            <div class="input-sections">
+                <div class="input-section">
+                    <h4>Savings</h4>
+                    <div class="input-grid">
+                        <div class="input-field">
+                            <label>Actual Savings (₱)</label>
+                            <input type="number" id="actualInput" placeholder="Enter amount" step="0.01">
+                        </div>
+                        <div class="input-field">
+                            <label>Target Savings (₱)</label>
+                            <input type="number" id="targetInput" placeholder="Enter amount" step="0.01">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Placeholder for future procurement metrics -->
+                <div class="input-section">
+                    <h4>Additional Metrics (Coming Soon)</h4>
+                    <div class="input-grid">
+                        <div class="input-field">
+                            <label>Purchase Orders</label>
+                            <input type="number" id="poInput" placeholder="Count" step="0.01" disabled style="background-color: #f5f5f5;">
+                        </div>
+                        <div class="input-field">
+                            <label>Suppliers</label>
+                            <input type="number" id="supplierInput" placeholder="Count" step="0.01" disabled style="background-color: #f5f5f5;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="button-group">
+                <button class="btn" onclick="clearAll()">Clear All</button>
+                <button class="btn btn-primary" onclick="calculateAll()">Update</button>
+            </div>
+        </div>
+
+        <!-- Insights Card -->
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-card-header">
+                    <span class="kpi-card-title">Insights & Recommendations</span>
+                </div>
+                <div class="kpi-card-details" id="insightsList">
+                    <div class="kpi-card-detail-row">Enter savings data to see insights</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            Last updated: <span id="lastUpdate">Just now</span>
+        </div>
+    </div>
+
+    <script>
+        function formatNumber(num, decimals = 2) {
+            if (!num || isNaN(num) || num === 0) return '0';
+            return num.toLocaleString(undefined, {
+                minimumFractionDigits: decimals,
+                maximumFractionDigits: decimals
+            });
+        }
+
+        function formatCurrency(num) {
+            if (!num || isNaN(num) || num === 0) return '₱0';
+            if (num >= 1000000) return '₱' + (num/1000000).toFixed(1) + 'M';
+            if (num >= 1000) return '₱' + (num/1000).toFixed(1) + 'K';
+            return '₱' + num.toFixed(2);
+        }
+
+        function calculateAll() {
+            // Get input values
+            const actualSavings = parseFloat(document.getElementById('actualInput').value) || 0;
+            const targetSavings = parseFloat(document.getElementById('targetInput').value) || 0;
+
+            // Calculate savings rate
+            const savingsRate = targetSavings > 0 ? (actualSavings / targetSavings) * 100 : 0;
+            const variance = actualSavings - targetSavings;
+
+            // Update main display
+            document.getElementById('savingsRate').textContent = savingsRate.toFixed(1) + '%';
+            document.getElementById('actualSavings').textContent = formatCurrency(actualSavings);
+            document.getElementById('targetSavings').textContent = formatCurrency(targetSavings);
+            document.getElementById('varianceSavings').textContent = (variance >= 0 ? '+' : '') + formatCurrency(variance);
+            document.getElementById('savingsProgress').style.width = Math.min(savingsRate, 100) + '%';
+
+            // Update summary cards
+            document.getElementById('summaryActual').textContent = formatCurrency(actualSavings);
+            document.getElementById('summaryTarget').textContent = formatCurrency(targetSavings);
+            document.getElementById('summaryAchievement').textContent = savingsRate.toFixed(1) + '%';
+
+            // Determine status
+            let status = 'No Data';
+            let statusClass = 'status-neutral';
+            
+            if (targetSavings > 0) {
+                if (savingsRate >= 100) {
+                    status = 'Exceeded Target';
+                    statusClass = 'status-excellent';
+                } else if (savingsRate >= 90) {
+                    status = 'Near Target';
+                    statusClass = 'status-good';
+                } else if (savingsRate >= 75) {
+                    status = 'Below Target';
+                    statusClass = 'status-warning';
+                } else if (savingsRate > 0) {
+                    status = 'Critical';
+                    statusClass = 'status-critical';
+                }
+            }
+            
+            document.getElementById('savingsStatus').textContent = status;
+            document.getElementById('savingsStatus').className = 'status-badge ' + statusClass;
+
+            // Generate insights
+            let insights = [];
+            
+            if (targetSavings > 0) {
+                if (savingsRate >= 100) {
+                    insights.push('✅ Excellent performance! Savings target exceeded.');
+                    insights.push(`💰 Excess savings: ${formatCurrency(variance)}`);
+                } else if (savingsRate >= 90) {
+                    insights.push('⚠️ Close to target. Review remaining opportunities.');
+                    insights.push(`📊 Gap to target: ${formatCurrency(targetSavings - actualSavings)}`);
+                } else if (savingsRate >= 75) {
+                    insights.push('🔍 Significant gap detected. Investigate causes.');
+                    insights.push(`🎯 Need additional savings of ${formatCurrency(targetSavings - actualSavings)}`);
+                } else if (savingsRate > 0) {
+                    insights.push('🔴 Critical underperformance. Immediate action required.');
+                    insights.push(`⚠️ Shortfall: ${formatCurrency(targetSavings - actualSavings)}`);
+                } else {
+                    insights.push('📝 No savings recorded for this period.');
+                }
+            } else {
+                insights.push('📝 Enter target savings to track performance.');
+            }
+
+            // Display insights
+            const insightsHtml = insights.map(insight => 
+                `<div class="kpi-card-detail-row">${insight}</div>`
+            ).join('');
+            document.getElementById('insightsList').innerHTML = insightsHtml;
+
+            // Update timestamp
+            const year = document.getElementById('yearSelect').value;
+            const month = document.getElementById('monthSelect').value;
+            document.getElementById('lastUpdate').textContent = new Date().toLocaleString() + ` (${month} ${year})`;
+        }
+
+        function clearAll() {
+            document.querySelectorAll('input[type="number"]').forEach(input => input.value = '');
+            calculateAll();
+        }
+
+        // Add event listeners
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('input', calculateAll);
+        });
+
+        document.getElementById('yearSelect').addEventListener('change', calculateAll);
+        document.getElementById('monthSelect').addEventListener('change', calculateAll);
+
+        // Initialize with sample data (matching Excel file)
+        window.onload = function() {
+            document.getElementById('actualInput').value = '2018550.36';
+            document.getElementById('targetInput').value = '3333333.33';
+            calculateAll();
+        };
+    </script>
+</body>
+</html>

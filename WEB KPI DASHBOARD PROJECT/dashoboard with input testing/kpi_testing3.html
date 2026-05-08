@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2026 KPI Tracker - Pioneer</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+        body {
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 100%;
+            overflow-x: auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            margin: 0 0 5px 0;
+            font-size: 24px;
+        }
+        .subtitle {
+            color: #7f8c8d;
+            margin-top: 0;
+            font-size: 14px;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            font-size: 11px;
+            border: 1px solid #b0c4de;
+        }
+        th {
+            background-color: #2c3e50;
+            color: white;
+            font-weight: 600;
+            padding: 8px 4px;
+            text-align: center;
+            border: 1px solid #34495e;
+            white-space: nowrap;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        td {
+            border: 1px solid #b0c4de;
+            padding: 4px;
+            vertical-align: middle;
+        }
+        .category-header {
+            background-color: #3498db;
+            color: white;
+            font-weight: bold;
+            text-align: left;
+            padding: 8px 10px;
+            font-size: 14px;
+        }
+        .subcategory-header {
+            background-color: #85c1e9;
+            font-weight: bold;
+            text-align: left;
+            padding: 6px 10px;
+            font-size: 13px;
+        }
+        .kpi-name {
+            font-weight: 500;
+            background-color: #ebf5fb;
+            width: 220px;
+        }
+        .uom {
+            text-align: center;
+            background-color: #f8f9f9;
+            width: 50px;
+        }
+        .target {
+            background-color: #fef9e7;
+            width: 70px;
+        }
+        .month-input {
+            width: 60px;
+            text-align: center;
+            border: 1px solid #d5dbdb;
+            border-radius: 3px;
+            padding: 4px 2px;
+            font-size: 11px;
+        }
+        .actual-cell {
+            background-color: #e8f8f5;
+            width: 70px;
+        }
+        .control-panel {
+            margin-bottom: 15px;
+            padding: 5px;
+        }
+        .footer {
+            margin-top: 15px;
+            color: #7f8c8d;
+            font-size: 11px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>PIONEER</h1>
+        <div class="subtitle">2026 KPI TRACKER</div>
+
+        <table id="kpiTable">
+            <thead>
+                <tr>
+                    <th style="width: 30px;">#</th>
+                    <th style="width: 250px;">KPI</th>
+                    <th style="width: 50px;">UoM</th>
+                    <th style="width: 70px;">2026 TARGET</th>
+                    <th style="width: 65px;">OCT</th>
+                    <th style="width: 65px;">NOV</th>
+                    <th style="width: 65px;">DEC</th>
+                    <th style="width: 65px;">JAN</th>
+                    <th style="width: 65px;">FEB</th>
+                    <th style="width: 65px;">MAR</th>
+                    <th style="width: 65px;">APR</th>
+                    <th style="width: 65px;">MAY</th>
+                    <th style="width: 65px;">JUN</th>
+                    <th style="width: 65px;">JUL</th>
+                    <th style="width: 65px;">AUG</th>
+                    <th style="width: 65px;">SEP</th>
+                    <th style="width: 70px;">2026 ACTUAL</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+        <div class="footer">All values default to zero - Click any cell to edit</div>
+    </div>
+
+    <script>
+        // Complete KPI Data Structure with all zeros
+        const kpiData = [
+            // ==================== BUSINESS GOALS ====================
+            // FINANCIALS
+            { id: 1, category: 'BUSINESS GOALS', subcategory: 'FINANCIALS', kpi: 'Conversion Cost (SC only)', uom: 'PHP/KG' },
+            { id: 2, category: 'BUSINESS GOALS', subcategory: 'FINANCIALS', kpi: 'Conversion Cost (Overall)', uom: 'PHP/KG' },
+            { id: 3, category: 'BUSINESS GOALS', subcategory: 'FINANCIALS', kpi: 'Conversion Cost vs Target', uom: '%' },
+            { id: 4, category: 'BUSINESS GOALS', subcategory: 'FINANCIALS', kpi: 'Volume produced (MT) Actual', uom: 'MT' },
+            { id: 5, category: 'BUSINESS GOALS', subcategory: 'FINANCIALS', kpi: 'Volume produced (MT) Target', uom: 'MT' },
+            { id: 6, category: 'BUSINESS GOALS', subcategory: 'FINANCIALS', kpi: 'Volume produced %', uom: '%' },
+            
+            // FILL RATE
+            { id: 7, category: 'BUSINESS GOALS', subcategory: 'FILL RATE', kpi: 'Achievement (Value)', uom: '%' },
+            
+            // OTIF
+            { id: 8, category: 'BUSINESS GOALS', subcategory: 'OTIF', kpi: 'OTIF Rate', uom: '%' },
+            
+            // FINANCIALS (continued)
+            { id: 9, category: 'BUSINESS GOALS', subcategory: 'FINANCIALS', kpi: 'Operational Cost - Actual', uom: 'PHP' },
+            { id: 10, category: 'BUSINESS GOALS', subcategory: 'FINANCIALS', kpi: 'Operational Cost - Budget', uom: 'PHP' },
+            { id: 11, category: 'BUSINESS GOALS', subcategory: 'FINANCIALS', kpi: 'Operational Cost %', uom: '%' },
+            { id: 12, category: 'BUSINESS GOALS', subcategory: 'FINANCIALS', kpi: 'Capital Expenditures - Actual', uom: 'PHP' },
+            { id: 13, category: 'BUSINESS GOALS', subcategory: 'FINANCIALS', kpi: 'Capital Expenditures - Budget', uom: 'PHP' },
+            { id: 14, category: 'BUSINESS GOALS', subcategory: 'FINANCIALS', kpi: 'Capital Expenditure %', uom: '%' },
+            
+            // ==================== OPERATIONAL OBJECTIVES ====================
+            // Production Reports
+            { id: 15, category: 'OPERATIONAL OBJECTIVES', subcategory: 'Production Reports', kpi: 'Output vs Target (planned)', uom: '%' },
+            { id: 16, category: 'OPERATIONAL OBJECTIVES', subcategory: 'Production Reports', kpi: 'Output Actual', uom: 'MT' },
+            { id: 17, category: 'OPERATIONAL OBJECTIVES', subcategory: 'Production Reports', kpi: 'Output Target', uom: 'MT' },
+            
+            // Downtime Analysis
+            { id: 18, category: 'OPERATIONAL OBJECTIVES', subcategory: 'Downtime Analysis', kpi: 'Change Over Time', uom: '%' },
+            { id: 19, category: 'OPERATIONAL OBJECTIVES', subcategory: 'Downtime Analysis', kpi: 'Meeting', uom: '%' },
+            { id: 20, category: 'OPERATIONAL OBJECTIVES', subcategory: 'Downtime Analysis', kpi: 'Sanitation Time', uom: '%' },
+            { id: 21, category: 'OPERATIONAL OBJECTIVES', subcategory: 'Downtime Analysis', kpi: 'Start-up Time/Setup', uom: '%' },
+            { id: 22, category: 'OPERATIONAL OBJECTIVES', subcategory: 'Downtime Analysis', kpi: 'Testing Time', uom: '%' },
+            { id: 23, category: 'OPERATIONAL OBJECTIVES', subcategory: 'Downtime Analysis', kpi: 'Breaktime', uom: '%' },
+            { id: 24, category: 'OPERATIONAL OBJECTIVES', subcategory: 'Downtime Analysis', kpi: 'Breakdown', uom: '%' },
+            { id: 25, category: 'OPERATIONAL OBJECTIVES', subcategory: 'Downtime Analysis', kpi: 'Idle time', uom: '%' },
+            { id: 26, category: 'OPERATIONAL OBJECTIVES', subcategory: 'Downtime Analysis', kpi: 'Preventive Maintenance', uom: '%' },
+            
+            // Production Reports (continued)
+            { id: 27, category: 'OPERATIONAL OBJECTIVES', subcategory: 'Production Reports', kpi: 'Productive Time', uom: '%' },
+            { id: 28, category: 'OPERATIONAL OBJECTIVES', subcategory: 'Production Reports', kpi: 'Machine Utilization', uom: '%' },
+            
+            // Inventory Reports
+            { id: 29, category: 'OPERATIONAL OBJECTIVES', subcategory: 'Inventory Reports', kpi: 'DIO', uom: 'days' },
+            { id: 30, category: 'OPERATIONAL OBJECTIVES', subcategory: 'Inventory Reports', kpi: 'Inventory Accuracy FG', uom: '%' },
+            { id: 31, category: 'OPERATIONAL OBJECTIVES', subcategory: 'Inventory Reports', kpi: 'Inventory Accuracy RMPM', uom: '%' },
+            
+            // Warehouse Utilization
+            { id: 32, category: 'OPERATIONAL OBJECTIVES', subcategory: 'Warehouse Utilization', kpi: 'Warehouse Utilization FG', uom: '%' },
+            { id: 33, category: 'OPERATIONAL OBJECTIVES', subcategory: 'Warehouse Utilization', kpi: 'Warehouse Utilization RMPM', uom: '%' },
+            
+            // S&OP Reports - Product Forecast
+            { id: 34, category: 'OPERATIONAL OBJECTIVES', subcategory: 'S&OP Reports - Product Forecast', kpi: 'EPOXY (MARINE + CONSTRUCTION)', uom: '%' },
+            { id: 35, category: 'OPERATIONAL OBJECTIVES', subcategory: 'S&OP Reports - Product Forecast', kpi: 'ELASTOSEAL', uom: '%' },
+            { id: 36, category: 'OPERATIONAL OBJECTIVES', subcategory: 'S&OP Reports - Product Forecast', kpi: 'MIGHTY BOND', uom: '%' },
+            { id: 37, category: 'OPERATIONAL OBJECTIVES', subcategory: 'S&OP Reports - Product Forecast', kpi: 'PRO-EPOXY', uom: '%' },
+            { id: 38, category: 'OPERATIONAL OBJECTIVES', subcategory: 'S&OP Reports - Product Forecast', kpi: 'BUILDERS BOND', uom: '%' },
+            { id: 39, category: 'OPERATIONAL OBJECTIVES', subcategory: 'S&OP Reports - Product Forecast', kpi: 'COATING MARINE', uom: '%' },
+            { id: 40, category: 'OPERATIONAL OBJECTIVES', subcategory: 'S&OP Reports - Product Forecast', kpi: 'TRASPORTATION', uom: '%' },
+            { id: 41, category: 'OPERATIONAL OBJECTIVES', subcategory: 'S&OP Reports - Product Forecast', kpi: 'OTHER CONSUMER', uom: '%' },
+            { id: 42, category: 'OPERATIONAL OBJECTIVES', subcategory: 'S&OP Reports - Product Forecast', kpi: 'PRO-SEALANT', uom: '%' },
+            { id: 43, category: 'OPERATIONAL OBJECTIVES', subcategory: 'S&OP Reports - Product Forecast', kpi: 'PRO-WATERPROOFING', uom: '%' },
+            { id: 44, category: 'OPERATIONAL OBJECTIVES', subcategory: 'S&OP Reports - Product Forecast', kpi: 'PRO-PAINTING', uom: '%' },
+            { id: 45, category: 'OPERATIONAL OBJECTIVES', subcategory: 'S&OP Reports - Product Forecast', kpi: 'PRO-ADHESIVES', uom: '%' },
+            { id: 46, category: 'OPERATIONAL OBJECTIVES', subcategory: 'S&OP Reports - Product Forecast', kpi: 'MINING', uom: '%' },
+            
+            // S&OP Reports - Location Philippines
+            { id: 47, category: 'OPERATIONAL OBJECTIVES', subcategory: 'S&OP Reports - Location: PHILIPPINES', kpi: 'LOCAL PHILIPPINES (Overall)', uom: '%' },
+            { id: 48, category: 'OPERATIONAL OBJECTIVES', subcategory: 'S&OP Reports - Location: PHILIPPINES', kpi: 'GMA', uom: '%' },
+            { id: 49, category: 'OPERATIONAL OBJECTIVES', subcategory: 'S&OP Reports - Location: PHILIPPINES', kpi: 'NORTH LUZON', uom: '%' },
+            { id: 50, category: 'OPERATIONAL OBJECTIVES', subcategory: 'S&OP Reports - Location: PHILIPPINES', kpi: 'SOUTH LUZON', uom: '%' },
+            { id: 51, category: 'OPERATIONAL OBJECTIVES', subcategory: 'S&OP Reports - Location: PHILIPPINES', kpi: 'VISAYAS', uom: '%' },
+            { id: 52, category: 'OPERATIONAL OBJECTIVES', subcategory: 'S&OP Reports - Location: PHILIPPINES', kpi: 'MINDANAO', uom: '%' },
+            { id: 53, category: 'OPERATIONAL OBJECTIVES', subcategory: 'S&OP Reports - Location: PHILIPPINES', kpi: 'MODERN TRADE', uom: '%' },
+            { id: 54, category: 'OPERATIONAL OBJECTIVES', subcategory: 'S&OP Reports - Location: PHILIPPINES', kpi: 'PSBSI', uom: '%' },
+            
+            // S&OP Reports - Export Locations
+            { id: 55, category: 'OPERATIONAL OBJECTIVES', subcategory: 'S&OP Reports - Location: EXPORT', kpi: 'EXPORT (Overall)', uom: '%' },
+            { id: 56, category: 'OPERATIONAL OBJECTIVES', subcategory: 'S&OP Reports - Location: EXPORT', kpi: 'INDONESIA', uom: '%' },
+            { id: 57, category: 'OPERATIONAL OBJECTIVES', subcategory: 'S&OP Reports - Location: EXPORT', kpi: 'INDIA', uom: '%' },
+            { id: 58, category: 'OPERATIONAL OBJECTIVES', subcategory: 'S&OP Reports - Location: EXPORT', kpi: 'DIRECT EXPORT', uom: '%' },
+            
+            // ==================== WORKFORCE & LABOR REPORTS ====================
+            // Labor Productivity
+            { id: 59, category: 'WORKFORCE & LABOR', subcategory: 'Labor Productivity', kpi: 'Regular hours', uom: 'hrs' },
+            { id: 60, category: 'WORKFORCE & LABOR', subcategory: 'Labor Productivity', kpi: 'Overtime hours', uom: 'hrs' },
+            { id: 61, category: 'WORKFORCE & LABOR', subcategory: 'Labor Productivity', kpi: 'Overtime %', uom: '%' },
+            
+            // Labor Productivity - DL
+            { id: 62, category: 'WORKFORCE & LABOR', subcategory: 'Labor Productivity - DL', kpi: 'Regular hours DL', uom: 'hrs' },
+            { id: 63, category: 'WORKFORCE & LABOR', subcategory: 'Labor Productivity - DL', kpi: 'Overtime hours DL', uom: 'hrs' },
+            { id: 64, category: 'WORKFORCE & LABOR', subcategory: 'Labor Productivity - DL', kpi: 'Overtime % DL', uom: '%' },
+            
+            // Labor Productivity - IL
+            { id: 65, category: 'WORKFORCE & LABOR', subcategory: 'Labor Productivity - IL', kpi: 'Regular hours IL', uom: 'hrs' },
+            { id: 66, category: 'WORKFORCE & LABOR', subcategory: 'Labor Productivity - IL', kpi: 'Overtime hours IL', uom: 'hrs' },
+            { id: 67, category: 'WORKFORCE & LABOR', subcategory: 'Labor Productivity - IL', kpi: 'Overtime % IL', uom: '%' },
+            
+            // Attendance
+            { id: 68, category: 'WORKFORCE & LABOR', subcategory: 'Attendance', kpi: 'Absenteeism', uom: '%' },
+            { id: 69, category: 'WORKFORCE & LABOR', subcategory: 'Attendance', kpi: '# of Manpower', uom: 'count' },
+            { id: 70, category: 'WORKFORCE & LABOR', subcategory: 'Attendance', kpi: '# of Absences', uom: 'count' },
+            { id: 71, category: 'WORKFORCE & LABOR', subcategory: 'Attendance', kpi: '# of Working days', uom: 'count' },
+            
+            // Line Productivity
+            { id: 72, category: 'WORKFORCE & LABOR', subcategory: 'Line Productivity', kpi: 'L06 - EPOXY', uom: '%' },
+            { id: 73, category: 'WORKFORCE & LABOR', subcategory: 'Line Productivity', kpi: 'L04B - ELASTO', uom: '%' },
+            { id: 74, category: 'WORKFORCE & LABOR', subcategory: 'Line Productivity', kpi: 'L03 - CYANO TUBE', uom: '%' },
+            { id: 75, category: 'WORKFORCE & LABOR', subcategory: 'Line Productivity', kpi: 'L01 - COATINGS', uom: '%' },
+            { id: 76, category: 'WORKFORCE & LABOR', subcategory: 'Line Productivity', kpi: 'L07 - EPOXY TUBE', uom: '%' },
+            { id: 77, category: 'WORKFORCE & LABOR', subcategory: 'Line Productivity', kpi: 'LINE 9 - EPS', uom: '%' },
+            { id: 78, category: 'WORKFORCE & LABOR', subcategory: 'Line Productivity', kpi: 'L10 - CONTACT BOND', uom: '%' },
+            { id: 79, category: 'WORKFORCE & LABOR', subcategory: 'Line Productivity', kpi: 'GIP L11 - SILICONE', uom: '%' },
+            { id: 80, category: 'WORKFORCE & LABOR', subcategory: 'Line Productivity', kpi: 'L12 - SPECIAL - EPOXY BASED', uom: '%' },
+            { id: 81, category: 'WORKFORCE & LABOR', subcategory: 'Line Productivity', kpi: 'L13 - SPECIAL', uom: '%' },
+            { id: 82, category: 'WORKFORCE & LABOR', subcategory: 'Line Productivity', kpi: 'LINE 14', uom: '%' },
+            { id: 83, category: 'WORKFORCE & LABOR', subcategory: 'Line Productivity', kpi: 'L02 - CYNO BOTTLE / L05- EPOXY CLAY', uom: '%' },
+            { id: 84, category: 'WORKFORCE & LABOR', subcategory: 'Line Productivity', kpi: 'LABELING LINE', uom: '%' },
+            
+            // ==================== PROCUREMENT ====================
+            { id: 85, category: 'PROCUREMENT', subcategory: 'Savings', kpi: 'Savings (Actual)', uom: 'Php' },
+            { id: 86, category: 'PROCUREMENT', subcategory: 'Savings', kpi: 'Savings (Target)', uom: 'Php' },
+            { id: 87, category: 'PROCUREMENT', subcategory: 'Savings', kpi: 'Savings (%)', uom: '%' }
+        ];
+
+        const months = ['OCT', 'NOV', 'DEC', 'JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP'];
+
+        // Initialize all values to zero
+        kpiData.forEach(item => {
+            item.target = 0;
+            item.actual = 0;
+            item.months = {};
+            months.forEach(month => {
+                item.months[month] = 0;
+            });
+        });
+
+        function renderTable() {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+            
+            let lastCategory = '';
+            let lastSubcategory = '';
+            
+            kpiData.forEach((item, index) => {
+                const row = document.createElement('tr');
+                
+                // Add category header if new category
+                if (item.category !== lastCategory) {
+                    const categoryRow = document.createElement('tr');
+                    categoryRow.innerHTML = `<td colspan="17" class="category-header">${item.category}</td>`;
+                    tbody.appendChild(categoryRow);
+                    lastCategory = item.category;
+                    lastSubcategory = '';
+                }
+                
+                // Add subcategory header if new subcategory
+                if (item.subcategory !== lastSubcategory) {
+                    const subRow = document.createElement('tr');
+                    subRow.innerHTML = `<td colspan="17" class="subcategory-header">${item.subcategory}</td>`;
+                    tbody.appendChild(subRow);
+                    lastSubcategory = item.subcategory;
+                }
+                
+                // Row number
+                const numCell = document.createElement('td');
+                numCell.textContent = item.id;
+                numCell.style.textAlign = 'center';
+                row.appendChild(numCell);
+                
+                // KPI Name
+                const nameCell = document.createElement('td');
+                nameCell.className = 'kpi-name';
+                nameCell.textContent = item.kpi;
+                row.appendChild(nameCell);
+                
+                // UoM
+                const uomCell = document.createElement('td');
+                uomCell.className = 'uom';
+                uomCell.textContent = item.uom;
+                row.appendChild(uomCell);
+                
+                // Target
+                const targetCell = document.createElement('td');
+                targetCell.className = 'target';
+                const targetInput = document.createElement('input');
+                targetInput.type = 'number';
+                targetInput.value = item.target;
+                targetInput.style.width = '70px';
+                targetInput.style.padding = '4px';
+                targetInput.addEventListener('change', function(e) {
+                    item.target = e.target.value === '' ? 0 : parseFloat(e.target.value);
+                });
+                targetCell.appendChild(targetInput);
+                row.appendChild(targetCell);
+                
+                // Month columns
+                months.forEach(month => {
+                    const monthCell = document.createElement('td');
+                    monthCell.style.padding = '2px';
+                    
+                    const input = document.createElement('input');
+                    input.type = 'number';
+                    input.value = item.months[month];
+                    input.style.width = '60px';
+                    input.style.padding = '4px';
+                    input.addEventListener('change', function(e) {
+                        item.months[month] = e.target.value === '' ? 0 : parseFloat(e.target.value);
+                    });
+                    
+                    monthCell.appendChild(input);
+                    row.appendChild(monthCell);
+                });
+                
+                // Actual
+                const actualCell = document.createElement('td');
+                actualCell.className = 'actual-cell';
+                const actualInput = document.createElement('input');
+                actualInput.type = 'number';
+                actualInput.value = item.actual;
+                actualInput.style.width = '70px';
+                actualInput.style.padding = '4px';
+                actualInput.style.backgroundColor = '#e8f8f5';
+                actualInput.addEventListener('change', function(e) {
+                    item.actual = e.target.value === '' ? 0 : parseFloat(e.target.value);
+                });
+                actualCell.appendChild(actualInput);
+                row.appendChild(actualCell);
+                
+                tbody.appendChild(row);
+            });
+        }
+
+        // Initialize table
+        renderTable();
+    </script>
+</body>
+</html>

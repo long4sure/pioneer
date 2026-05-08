@@ -1,0 +1,70 @@
+/* ============================================================
+   RESPONSIVE.CSS — Breakpoints & Mobile Overrides
+   ============================================================ */
+
+/* ── TABLET (≤1100px) ── */
+@media (max-width: 1100px) {
+    .kpi-grid-4 { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ── MOBILE (≤768px) ── */
+@media (max-width: 768px) {
+    /* Hide desktop sidebar; show mobile elements */
+    .sidebar          { transform: translateX(-100%); transition: transform 0.25s; width: var(--sidebar-w) !important; }
+    .sidebar.mobile-open { transform: translateX(0); }
+    .main             { margin-left: 0 !important; padding-bottom: 64px; }
+    .hamburger-btn    { display: flex; }
+
+    /* Content padding */
+    .content { padding: 16px 14px 80px; }
+
+    /* Grid collapses to single column */
+    .kpi-grid,
+    .kpi-grid-2,
+    .kpi-grid-3,
+    .kpi-grid-4 { grid-template-columns: 1fr; }
+    .home-grid  { grid-template-columns: 1fr; }
+    .home-summary { grid-template-columns: repeat(2, 1fr); }
+
+    /* Input grid */
+    .input-grid-wrap { grid-template-columns: 1fr; }
+
+    /* Controls */
+    .input-controls       { flex-direction: column; align-items: stretch; gap: 8px; }
+    .input-control-label  { margin-bottom: 2px; }
+    .input-control-select { max-width: 100%; }
+
+    /* Buttons full-width */
+    .input-panel-actions          { justify-content: stretch; }
+    .input-panel-actions .btn     { flex: 1; justify-content: center; min-height: 44px; }
+
+    /* Tables */
+    .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    table       { min-width: 480px; }
+    td, th      { padding: 9px 12px; font-size: 12px; }
+
+    /* Section title */
+    .section-title { margin: 18px 0 12px; }
+
+    /* Toast: top-center */
+    .toast { bottom: auto; top: 70px; right: 12px; left: 12px; text-align: center; justify-content: center; }
+
+    /* Bottom nav */
+    .bottom-nav { display: flex; }
+
+    /* Module switcher stacks */
+    .module-switcher { flex-wrap: wrap; }
+    .mod-btn         { flex: 1 1 auto; min-width: 100px; border-right: none; border-bottom: 1px solid var(--border); }
+    .mod-btn:last-child { border-bottom: none; }
+}
+
+/* ── SMALL MOBILE (≤420px) ── */
+@media (max-width: 420px) {
+    .topbar-period         { display: none; }
+    .card-value            { font-size: 20px; }
+    .home-card-kpi-val     { font-size: 18px; }
+    .bottom-nav-item span  { display: none; }
+    .bottom-nav-item       { padding: 8px 4px; }
+    .input-fields-grid-4,
+    .input-fields-grid     { grid-template-columns: 1fr !important; }
+}

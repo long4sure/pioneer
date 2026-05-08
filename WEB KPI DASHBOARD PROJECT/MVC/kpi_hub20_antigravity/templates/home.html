@@ -1,0 +1,44 @@
+<div class="home-welcome">
+                <div>
+                    <div class="home-welcome-title">Operations at a Glance</div>
+                    <div class="home-welcome-sub">Select a module below to view KPIs, trends, and enter data for the selected period.</div>
+                </div>
+                <div class="topbar-period" id="home-period" style="align-self:flex-start;margin-top:4px;">October 2026</div>
+            </div>
+            <div class="home-grid">
+                <div class="home-card" onclick="switchModule('finance',null)">
+                    <div class="home-card-arrow">→</div>
+                    <div class="home-card-icon"><svg viewBox="0 0 20 20" fill="currentColor" width="28" height="28"><path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zm6-4a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zm6-3a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/></svg></div>
+                    <div class="home-card-title">Finance</div>
+                    <div class="home-card-desc">Actual vs budget: operational costs, capital expenditure, other expenses, and labor hours.</div>
+                    <div class="home-card-kpi"><div class="home-card-kpi-val" id="home-fin-kpi">₱0</div><div class="home-card-kpi-label">Total Actual Costs</div></div>
+                </div>
+                <div class="home-card" onclick="switchModule('planning',null)">
+                    <div class="home-card-arrow">→</div>
+                    <div class="home-card-icon"><svg viewBox="0 0 20 20" fill="currentColor" width="28" height="28"><path d="M4 3a2 2 0 100 4h12a2 2 0 100-4H4zM3 8a1 1 0 000 2h14a1 1 0 000-2H3zM3 13a1 1 0 000 2h10a1 1 0 000-2H3z"/></svg></div>
+                    <div class="home-card-title">SC Planning</div>
+                    <div class="home-card-desc">Safety stock levels (days), FG/RM/PM inventory by class, and forecast accuracy by region and product.</div>
+                    <div class="home-card-kpi"><div class="home-card-kpi-val" id="home-pl-kpi">0%</div><div class="home-card-kpi-label">Overall Forecast Accuracy</div></div>
+                </div>
+                <div class="home-card" onclick="switchModule('procurement',null)">
+                    <div class="home-card-arrow">→</div>
+                    <div class="home-card-icon"><svg viewBox="0 0 20 20" fill="currentColor" width="28" height="28"><path fill-rule="evenodd" d="M10 2a4 4 0 00-4 4v1H5a1 1 0 00-.994.89l-1 9A1 1 0 004 18h12a1 1 0 00.994-1.11l-1-9A1 1 0 0015 7h-1V6a4 4 0 00-4-4zm2 5V6a2 2 0 10-4 0v1h4zm-6 3a1 1 0 112 0 1 1 0 01-2 0zm7-1a1 1 0 100 2 1 1 0 000-2z" clip-rule="evenodd"/></svg></div>
+                    <div class="home-card-title">Procurement</div>
+                    <div class="home-card-desc">Actual savings vs target — tracks procurement savings achievement rate.</div>
+                    <div class="home-card-kpi"><div class="home-card-kpi-val" id="home-proc-kpi">0%</div><div class="home-card-kpi-label">Savings Achievement</div></div>
+                </div>
+                <div class="home-card" onclick="switchModule('production',null)">
+                    <div class="home-card-arrow">→</div>
+                    <div class="home-card-icon"><svg viewBox="0 0 20 20" fill="currentColor" width="28" height="28"><path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/></svg></div>
+                    <div class="home-card-title">Production</div>
+                    <div class="home-card-desc">Machine utilization by line, FG output and waste analysis, and scheduling compliance.</div>
+                    <div class="home-card-kpi"><div class="home-card-kpi-val" id="home-prod-kpi">0%</div><div class="home-card-kpi-label">Overall Machine Utilization</div></div>
+                </div>
+                <div class="home-card" onclick="switchModule('warehouse',null)">
+                    <div class="home-card-arrow">→</div>
+                    <div class="home-card-icon"><svg viewBox="0 0 20 20" fill="currentColor" width="28" height="28"><path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"/><path d="M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H10a1 1 0 001-1V5a1 1 0 00-1-1H3zM14 7a1 1 0 00-1 1v6.05A2.5 2.5 0 0115.95 16H17a1 1 0 001-1v-5a1 1 0 00-.293-.707l-2-2A1 1 0 0015 7h-1z"/></svg></div>
+                    <div class="home-card-title">Warehouse &amp; Logistics</div>
+                    <div class="home-card-desc">OTIF rate, volume and hit-rate fill, stock-out analysis, warehouse capacity, and manpower.</div>
+                    <div class="home-card-kpi"><div class="home-card-kpi-val" id="home-wh-kpi">0%</div><div class="home-card-kpi-label">SC Fill Rate</div></div>
+                </div>
+            </div>

@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finance Department Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            border-radius: 15px 15px 0 0;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .dashboard {
+            background: #f5f7fa;
+            border-radius: 0 0 15px 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .kpi-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .kpi-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .kpi-card h3 {
+            color: #666;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        .kpi-card .value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .kpi-card .unit {
+            color: #999;
+            font-size: 0.8em;
+        }
+
+        .kpi-card .comparison {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+
+        .budget {
+            color: #3498db;
+        }
+
+        .actual {
+            color: #2ecc71;
+        }
+
+        .variance {
+            color: #e74c3c;
+            font-weight: 500;
+        }
+
+        .section-title {
+            font-size: 1.5em;
+            color: #333;
+            margin: 30px 0 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            overflow-x: auto;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: #667eea;
+            color: white;
+            padding: 12px;
+            font-weight: 500;
+            text-align: left;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            color: #666;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .input-field {
+            padding: 8px 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 5px;
+            width: 140px;
+            font-size: 0.9em;
+            transition: all 0.3s;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .input-field.changed {
+            border-color: #2ecc71;
+            background-color: #f0fff4;
+        }
+
+        .btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background 0.3s;
+        }
+
+        .btn:hover {
+            background: #5a67d8;
+        }
+
+        .btn-success {
+            background: #2ecc71;
+        }
+
+        .btn-success:hover {
+            background: #27ae60;
+        }
+
+        .btn-danger {
+            background: #e74c3c;
+        }
+
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 500;
+        }
+
+        .status-good {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-critical {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .action-bar {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .calculation-note {
+            font-size: 0.8em;
+            color: #999;
+            margin-top: 5px;
+        }
+
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: help;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.8em;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .kpi-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .input-field {
+                width: 100px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Finance Department Dashboard</h1>
+            <p>October 2026 Actual vs Annual Business Plan (ABP) 2026</p>
+        </div>
+
+        <div class="dashboard">
+            <!-- Action Bar -->
+            <div class="action-bar">
+                <button class="btn" onclick="resetToDefault()">🔄 Reset to Default</button>
+                <button class="btn btn-success" onclick="saveData()">💾 Save to Browser</button>
+                <button class="btn" onclick="exportData()">📥 Export JSON</button>
+                <button class="btn btn-danger" onclick="clearSaved()">🗑️ Clear Saved</button>
+            </div>
+
+            <!-- Dynamic KPI Cards -->
+            <div class="kpi-cards" id="kpiCards">
+                <!-- Populated by JavaScript -->
+            </div>
+
+            <!-- Financials Section -->
+            <h2 class="section-title">💰 Financial Performance</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>KPI</th>
+                            <th>UoM</th>
+                            <th>2026 ABP (Budget)</th>
+                            <th>October Actual</th>
+                            <th>Variance</th>
+                            <th>% Variance</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="financialsTable">
+                        <!-- Populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Operational Costs -->
+            <h2 class="section-title">📋 Operational & Capital Costs</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>UoM</th>
+                            <th>Budget (PHP)</th>
+                            <th>Actual (PHP)</th>
+                            <th>Variance (PHP)</th>
+                            <th>% of Budget</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="operationalTable">
+                        <!-- Populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Workforce & Labor Reports -->
+            <h2 class="section-title">👥 Workforce & Labor Reports</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>Regular Hours</th>
+                            <th>Overtime Hours</th>
+                            <th>Total Hours</th>
+                            <th>Overtime %</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="laborTable">
+                        <!-- Populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Volume Production Summary -->
+            <h2 class="section-title">📊 Production Summary</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Metric</th>
+                            <th>Value</th>
+                            <th>Calculation</th>
+                        </tr>
+                    </thead>
+                    <tbody id="productionSummary">
+                        <!-- Populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Default values from Excel
+        const DEFAULT_DATA = {
+            financials: {
+                convCostSC: { budget: 11.0, actual: 10.93 },
+                convCostOverall: { budget: 15.0, actual: 18.58 },
+                volumeActual: { budget: 18814.0, actual: 1235.08 },
+                volumeTarget: { budget: 18814.0, actual: 1221.87 }
+            },
+            operational: {
+                opCost: { budget: 16189431.26, actual: 13498890.24 },
+                capEx: { budget: 1946800.00, actual: 2042360.00 },
+                varianceExp: { budget: 602100.00, actual: 675110.00 }
+            },
+            labor: {
+                dl: { regular: 30584.01, overtime: 7548.50 },
+                il: { regular: 6066.83, overtime: 2156.50 }
+            }
+        };
+
+        // Current data state
+        let currentData = JSON.parse(JSON.stringify(DEFAULT_DATA));
+
+        // Initialize the dashboard
+        function initializeDashboard() {
+            loadSavedData();
+            updateAllDisplays();
+            attachInputListeners();
+        }
+
+        // Load saved data from localStorage
+        function loadSavedData() {
+            const saved = localStorage.getItem('financeDashboardData');
+            if (saved) {
+                try {
+                    currentData = JSON.parse(saved);
+                    showNotification('Saved data loaded!', 'success');
+                } catch (e) {
+                    console.error('Failed to load saved data', e);
+                }
+            }
+        }
+
+        // Save current data to localStorage
+        function saveData() {
+            localStorage.setItem('financeDashboardData', JSON.stringify(currentData));
+            showNotification('Data saved to browser!', 'success');
+        }
+
+        // Clear saved data
+        function clearSaved() {
+            localStorage.removeItem('financeDashboardData');
+            resetToDefault();
+            showNotification('Saved data cleared!', 'info');
+        }
+
+        // Reset to default Excel values
+        function resetToDefault() {
+            currentData = JSON.parse(JSON.stringify(DEFAULT_DATA));
+            updateAllDisplays();
+            showNotification('Reset to default values!', 'info');
+        }
+
+        // Export data as JSON
+        function exportData() {
+            const dataStr = JSON.stringify(currentData, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `finance_dashboard_${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showNotification('Data exported successfully!', 'success');
+        }
+
+        // Update all displays
+        function updateAllDisplays() {
+            updateKPICards();
+            updateFinancialsTable();
+            updateOperationalTable();
+            updateLaborTable();
+            updateProductionSummary();
+        }
+
+        // Update KPI Cards
+        function updateKPICards() {
+            const volumeActual = currentData.financials.volumeActual.actual;
+            const volumeTarget = currentData.financials.volumeTarget.actual;
+            const volumePercent = (volumeActual / volumeTarget * 100).toFixed(1);
+            
+            const opCostActual = currentData.operational.opCost.actual;
+            const opCostBudget = currentData.operational.opCost.budget;
+            const opCostPercent = ((opCostBudget - opCostActual) / opCostBudget * 100).toFixed(1);
+            
+            const totalRegHours = currentData.labor.dl.regular + currentData.labor.il.regular;
+            const totalOTHours = currentData.labor.dl.overtime + currentData.labor.il.overtime;
+            const totalOTPercent = (totalOTHours / totalRegHours * 100).toFixed(1);
+            
+            const dlOTPercent = (currentData.labor.dl.overtime / currentData.labor.dl.regular * 100).toFixed(1);
+            const ilOTPercent = (currentData.labor.il.overtime / currentData.labor.il.regular * 100).toFixed(1);
+
+            const kpiCards = document.getElementById('kpiCards');
+            kpiCards.innerHTML = `
+                <div class="kpi-card">
+                    <h3>Conversion Cost (Overall)</h3>
+                    <div class="value">${currentData.financials.convCostOverall.actual.toFixed(2)} <span class="unit">PHP/KG</span></div>
+                    <div class="comparison">
+                        <span class="budget">Budget: ${currentData.financials.convCostOverall.budget.toFixed(1)}</span>
+                        <span class="actual">Actual: ${currentData.financials.convCostOverall.actual.toFixed(2)}</span>
+                    </div>
+                    <div class="variance">Variance: ${((currentData.financials.convCostOverall.actual - currentData.financials.convCostOverall.budget) / currentData.financials.convCostOverall.budget * 100).toFixed(1)}%</div>
+                </div>
+                <div class="kpi-card">
+                    <h3>Volume Produced</h3>
+                    <div class="value">${volumeActual.toFixed(2)} <span class="unit">MT</span></div>
+                    <div class="comparison">
+                        <span class="budget">Target: ${volumeTarget.toFixed(2)}</span>
+                        <span class="actual">Actual: ${volumeActual.toFixed(2)}</span>
+                    </div>
+                    <div class="variance ${volumePercent >= 100 ? 'status-good' : 'status-warning'}">Achieved: ${volumePercent}%</div>
+                </div>
+                <div class="kpi-card">
+                    <h3>Operational Cost</h3>
+                    <div class="value">${(opCostActual / 1000000).toFixed(2)}M <span class="unit">PHP</span></div>
+                    <div class="comparison">
+                        <span class="budget">Budget: ${(opCostBudget / 1000000).toFixed(2)}M</span>
+                        <span class="actual">Actual: ${(opCostActual / 1000000).toFixed(2)}M</span>
+                    </div>
+                    <div class="variance ${opCostActual <= opCostBudget ? 'status-good' : 'status-critical'}">${opCostActual <= opCostBudget ? 'Under' : 'Over'} Budget: ${Math.abs(opCostPercent)}%</div>
+                </div>
+                <div class="kpi-card">
+                    <h3>Overtime %</h3>
+                    <div class="value">${totalOTPercent}%</div>
+                    <div class="comparison">
+                        <span class="budget">DL: ${dlOTPercent}%</span>
+                        <span class="actual">IL: ${ilOTPercent}%</span>
+                    </div>
+                    <div class="variance ${totalOTPercent <= 20 ? 'status-good' : (totalOTPercent <= 30 ? 'status-warning' : 'status-critical')}">
+                        ${totalOTPercent > 30 ? 'Critical' : (totalOTPercent > 20 ? 'High' : 'Normal')} OT
+                    </div>
+                </div>
+            `;
+        }
+
+        // Update Financials Table
+        function updateFinancialsTable() {
+            const table = document.getElementById('financialsTable');
+            const f = currentData.financials;
+            
+            table.innerHTML = `
+                <tr>
+                    <td>Conversion Cost (SC only)</td>
+                    <td>PHP/KG</td>
+                    <td>${f.convCostSC.budget.toFixed(1)}</td>
+                    <td class="input-group">
+                        <input type="number" class="input-field" id="convCostSC" value="${f.convCostSC.actual.toFixed(2)}" step="0.01" onchange="updateData('financials', 'convCostSC', this.value)">
+                    </td>
+                    <td>${(f.convCostSC.actual - f.convCostSC.budget).toFixed(2)}</td>
+                    <td>${((f.convCostSC.actual - f.convCostSC.budget) / f.convCostSC.budget * 100).toFixed(1)}%</td>
+                    <td><span class="status-badge ${f.convCostSC.actual <= f.convCostSC.budget ? 'status-good' : 'status-critical'}">${f.convCostSC.actual <= f.convCostSC.budget ? 'Favorable' : 'Unfavorable'}</span></td>
+                </tr>
+                <tr>
+                    <td>Conversion Cost (Overall)</td>
+                    <td>PHP/KG</td>
+                    <td>${f.convCostOverall.budget.toFixed(1)}</td>
+                    <td class="input-group">
+                        <input type="number" class="input-field" id="convCostOverall" value="${f.convCostOverall.actual.toFixed(2)}" step="0.01" onchange="updateData('financials', 'convCostOverall', this.value)">
+                    </td>
+                    <td>${(f.convCostOverall.actual - f.convCostOverall.budget).toFixed(2)}</td>
+                    <td>${((f.convCostOverall.actual - f.convCostOverall.budget) / f.convCostOverall.budget * 100).toFixed(1)}%</td>
+                    <td><span class="status-badge ${f.convCostOverall.actual <= f.convCostOverall.budget ? 'status-good' : 'status-critical'}">${f.convCostOverall.actual <= f.convCostOverall.budget ? 'Favorable' : 'Unfavorable'}</span></td>
+                </tr>
+                <tr>
+                    <td>Volume Produced (Actual)</td>
+                    <td>MT</td>
+                    <td>${f.volumeActual.budget.toFixed(1)}</td>
+                    <td class="input-group">
+                        <input type="number" class="input-field" id="volumeActual" value="${f.volumeActual.actual.toFixed(2)}" step="0.01" onchange="updateData('financials', 'volumeActual', this.value)">
+                    </td>
+                    <td>${(f.volumeActual.actual - f.volumeActual.budget).toFixed(2)}</td>
+                    <td>${((f.volumeActual.actual - f.volumeActual.budget) / f.volumeActual.budget * 100).toFixed(1)}%</td>
+                    <td><span class="status-badge ${f.volumeActual.actual >= f.volumeActual.budget ? 'status-good' : 'status-warning'}">${f.volumeActual.actual >= f.volumeActual.budget ? 'On Track' : 'Below Target'}</span></td>
+                </tr>
+                <tr>
+                    <td>Volume Produced (Target)</td>
+                    <td>MT</td>
+                    <td>${f.volumeTarget.budget.toFixed(1)}</td>
+                    <td class="input-group">
+                        <input type="number" class="input-field" id="volumeTarget" value="${f.volumeTarget.actual.toFixed(2)}" step="0.01" onchange="updateData('financials', 'volumeTarget', this.value)">
+                    </td>
+                    <td>${(f.volumeTarget.actual - f.volumeTarget.budget).toFixed(2)}</td>
+                    <td>${((f.volumeTarget.actual - f.volumeTarget.budget) / f.volumeTarget.budget * 100).toFixed(1)}%</td>
+                    <td><span class="status-badge ${f.volumeTarget.actual >= f.volumeTarget.budget ? 'status-good' : 'status-warning'}">Monthly Target</span></td>
+                </tr>
+            `;
+        }
+
+        // Update Operational Table
+        function updateOperationalTable() {
+            const table = document.getElementById('operationalTable');
+            const o = currentData.operational;
+            
+            const opCostPercent = (o.opCost.actual / o.opCost.budget * 100).toFixed(1);
+            const capExPercent = (o.capEx.actual / o.capEx.budget * 100).toFixed(1);
+            const varExpPercent = (o.varianceExp.actual / o.varianceExp.budget * 100).toFixed(1);
+
+            table.innerHTML = `
+                <tr>
+                    <td>Operational Cost</td>
+                    <td>PHP</td>
+                    <td>${o.opCost.budget.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                    <td class="input-group">
+                        <input type="number" class="input-field" id="opCostActual" value="${o.opCost.actual}" step="0.01" onchange="updateData('operational', 'opCost', this.value)">
+                    </td>
+                    <td>${(o.opCost.actual - o.opCost.budget).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                    <td>${opCostPercent}%</td>
+                    <td><span class="status-badge ${o.opCost.actual <= o.opCost.budget ? 'status-good' : 'status-critical'}">${o.opCost.actual <= o.opCost.budget ? 'Under Budget' : 'Over Budget'}</span></td>
+                </tr>
+                <tr>
+                    <td>Capital Expenditures</td>
+                    <td>PHP</td>
+                    <td>${o.capEx.budget.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                    <td class="input-group">
+                        <input type="number" class="input-field" id="capExActual" value="${o.capEx.actual}" step="0.01" onchange="updateData('operational', 'capEx', this.value)">
+                    </td>
+                    <td>${(o.capEx.actual - o.capEx.budget).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                    <td>${capExPercent}%</td>
+                    <td><span class="status-badge ${o.capEx.actual <= o.capEx.budget ? 'status-good' : 'status-warning'}">${o.capEx.actual <= o.capEx.budget ? 'Within Budget' : 'Over Budget'}</span></td>
+                </tr>
+                <tr>
+                    <td>Variance Analysis (Expense)</td>
+                    <td>PHP</td>
+                    <td>${o.varianceExp.budget.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                    <td class="input-group">
+                        <input type="number" class="input-field" id="varExpActual" value="${o.varianceExp.actual}" step="0.01" onchange="updateData('operational', 'varianceExp', this.value)">
+                    </td>
+                    <td>${(o.varianceExp.actual - o.varianceExp.budget).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                    <td>${varExpPercent}%</td>
+                    <td><span class="status-badge ${o.varianceExp.actual <= o.varianceExp.budget ? 'status-good' : 'status-critical'}">${o.varianceExp.actual <= o.varianceExp.budget ? 'Normal' : 'High Variance'}</span></td>
+                </tr>
+            `;
+        }
+
+        // Update Labor Table
+        function updateLaborTable() {
+            const table = document.getElementById('laborTable');
+            const l = currentData.labor;
+            
+            const dlTotal = l.dl.regular + l.dl.overtime;
+            const ilTotal = l.il.regular + l.il.overtime;
+            const totalReg = l.dl.regular + l.il.regular;
+            const totalOT = l.dl.overtime + l.il.overtime;
+            const totalAll = totalReg + totalOT;
+            
+            const dlOTPercent = (l.dl.overtime / l.dl.regular * 100).toFixed(1);
+            const ilOTPercent = (l.il.overtime / l.il.regular * 100).toFixed(1);
+            const totalOTPercent = (totalOT / totalReg * 100).toFixed(1);
+
+            table.innerHTML = `
+                <tr>
+                    <td><strong>Direct Labor (DL)</strong></td>
+                    <td class="input-group">
+                        <input type="number" class="input-field" id="dlRegular" value="${l.dl.regular}" step="0.01" onchange="updateLabor('dl', 'regular', this.value)">
+                    </td>
+                    <td class="input-group">
+                        <input type="number" class="input-field" id="dlOvertime" value="${l.dl.overtime}" step="0.01" onchange="updateLabor('dl', 'overtime', this.value)">
+                    </td>
+                    <td>${dlTotal.toFixed(2)}</td>
+                    <td>${dlOTPercent}%</td>
+                    <td><span class="status-badge ${dlOTPercent <= 20 ? 'status-good' : (dlOTPercent <= 30 ? 'status-warning' : 'status-critical')}">
+                        ${dlOTPercent <= 20 ? 'Normal' : (dlOTPercent <= 30 ? 'High' : 'Critical')}
+                    </span></td>
+                </tr>
+                <tr>
+                    <td><strong>Indirect Labor (IL)</strong></td>
+                    <td class="input-group">
+                        <input type="number" class="input-field" id="ilRegular" value="${l.il.regular}" step="0.01" onchange="updateLabor('il', 'regular', this.value)">
+                    </td>
+                    <td class="input-group">
+                        <input type="number" class="input-field" id="ilOvertime" value="${l.il.overtime}" step="0.01" onchange="updateLabor('il', 'overtime', this.value)">
+                    </td>
+                    <td>${ilTotal.toFixed(2)}</td>
+                    <td>${ilOTPercent}%</td>
+                    <td><span class="status-badge ${ilOTPercent <= 20 ? 'status-good' : (ilOTPercent <= 30 ? 'status-warning' : 'status-critical')}">
+                        ${ilOTPercent <= 20 ? 'Normal' : (ilOTPercent <= 30 ? 'High' : 'Critical')}
+                    </span></td>
+                </tr>
+                <tr style="background-color: #f0f0f0; font-weight: bold;">
+                    <td><strong>TOTAL</strong></td>
+                    <td>${totalReg.toFixed(2)}</td>
+                    <td>${totalOT.toFixed(2)}</td>
+                    <td>${totalAll.toFixed(2)}</td>
+                    <td>${totalOTPercent}%</td>
+                    <td><span class="status-badge ${totalOTPercent <= 20 ? 'status-good' : (totalOTPercent <= 30 ? 'status-warning' : 'status-critical')}">
+                        Overall OT: ${totalOTPercent}%
+                    </span></td>
+                </tr>
+            `;
+        }
+
+        // Update Production Summary
+        function updateProductionSummary() {
+            const table = document.getElementById('productionSummary');
+            const f = currentData.financials;
+            
+            const volumePercent = (f.volumeActual.actual / f.volumeTarget.actual * 100).toFixed(1);
+            const volumeVariance = f.volumeActual.actual - f.volumeTarget.actual;
+
+            table.innerHTML = `
+                <tr>
+                    <td>Volume Production %</td>
+                    <td>${volumePercent}%</td>
+                    <td>= Actual Volume / Target Volume</td>
+                </tr>
+                <tr>
+                    <td>Volume Variance (MT)</td>
+                    <td>${volumeVariance.toFixed(2)} MT</td>
+                    <td>= Actual - Target</td>
+                </tr>
+                <tr>
+                    <td>SC Conversion Cost Variance</td>
+                    <td>${(f.convCostSC.actual - f.convCostSC.budget).toFixed(2)} PHP/KG</td>
+                    <td>= Actual - Budget</td>
+                </tr>
+                <tr>
+                    <td>Overall Conversion Cost Variance</td>
+                    <td>${(f.convCostOverall.actual - f.convCostOverall.budget).toFixed(2)} PHP/KG</td>
+                    <td>= Actual - Budget</td>
+                </tr>
+            `;
+        }
+
+        // Update data function for financials
+        function updateData(category, field, value) {
+            const numValue = parseFloat(value) || 0;
+            
+            if (category === 'financials') {
+                if (field === 'convCostSC' || field === 'convCostOverall' || 
+                    field === 'volumeActual' || field === 'volumeTarget') {
+                    currentData.financials[field].actual = numValue;
+                }
+            } else if (category === 'operational') {
+                if (field === 'opCost' || field === 'capEx' || field === 'varianceExp') {
+                    currentData.operational[field].actual = numValue;
+                }
+            }
+            
+            // Highlight changed field
+            const element = document.getElementById(field);
+            if (element) {
+                element.classList.add('changed');
+                setTimeout(() => element.classList.remove('changed'), 1000);
+            }
+            
+            updateAllDisplays();
+        }
+
+        // Update labor data
+        function updateLabor(type, subfield, value) {
+            const numValue = parseFloat(value) || 0;
+            currentData.labor[type][subfield] = numValue;
+            
+            // Highlight changed field
+            const element = document.getElementById(type + subfield.charAt(0).toUpperCase() + subfield.slice(1));
+            if (element) {
+                element.classList.add('changed');
+                setTimeout(() => element.classList.remove('changed'), 1000);
+            }
+            
+            updateAllDisplays();
+        }
+
+        // Attach input listeners for real-time updates
+        function attachInputListeners() {
+            const inputs = document.querySelectorAll('.input-field');
+            inputs.forEach(input => {
+                input.addEventListener('input', function() {
+                    // Trigger change event for real-time updates
+                    const event = new Event('change', { bubbles: true });
+                    this.dispatchEvent(event);
+                });
+            });
+        }
+
+        // Show notification
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 15px 20px;
+                background: ${type === 'success' ? '#2ecc71' : (type === 'info' ? '#3498db' : '#e74c3c')};
+                color: white;
+                border-radius: 5px;
+                box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+                z-index: 1000;
+                animation: slideIn 0.3s ease;
+            `;
+            notification.textContent = message;
+            
+            // Add animation style if not exists
+            if (!document.querySelector('#notification-style')) {
+                const style = document.createElement('style');
+                style.id = 'notification-style';
+                style.textContent = `
+                    @keyframes slideIn {
+                        from {
+                            transform: translateX(100%);
+                            opacity: 0;
+                        }
+                        to {
+                            transform: translateX(0);
+                            opacity: 1;
+                        }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // Initialize on page load
+        window.onload = initializeDashboard;
+    </script>
+</body>
+</html>

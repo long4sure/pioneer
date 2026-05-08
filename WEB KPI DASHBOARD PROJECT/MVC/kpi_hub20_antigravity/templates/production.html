@@ -1,0 +1,120 @@
+<div class="module-switcher">
+                <button class="mod-btn active" onclick="switchSubMod('util',this)">Machine Utilization</button>
+                <button class="mod-btn" onclick="switchSubMod('waste',this)">Output &amp; Waste</button>
+                <button class="mod-btn" onclick="switchSubMod('sched',this)">Scheduling Attainment</button>
+            </div>
+
+            <!-- UTILIZATION -->
+            <div id="prod-util" class="sub-module active">
+                <div class="tab-bar">
+                    <button class="tab-btn active" onclick="switchTab('util','overview',this)">Overview</button>
+                    <button class="tab-btn" onclick="switchTab('util','input',this)" data-tab="input">Data Entry</button>
+                </div>
+                <div id="util-overview" class="tab-content active">
+                    <div class="kpi-grid kpi-grid-4">
+                        <div class="card" id="card-util-overall"><div class="card-title">Overall Utilization</div><div class="card-value" id="util-overall">0%</div><div class="card-row"><span>Productive Time</span><span class="card-row-val" id="util-prod">0 hrs</span></div><div class="card-row"><span>Available Time</span><span class="card-row-val" id="util-avail">0 hrs</span></div><div class="progress-track"><div class="progress-bar" id="util-bar" style="width:0%"></div></div></div>
+                        <div class="card"><div class="card-title">Machine Summary</div><div class="card-value" id="util-mach">0</div><div class="card-row"><span>Available</span><span class="card-row-val" id="util-mAvail">0</span></div><div class="card-row"><span>Used</span><span class="card-row-val" id="util-mUsed">0</span></div><div class="card-row"><span>Total Prod. Days</span><span class="card-row-val" id="util-days">0</span></div></div>
+                        <div class="card"><div class="card-title">Production Lines</div><div class="card-value" id="util-lines">16</div><div class="card-row"><span>Lines with Data</span><span class="card-row-val" id="util-linesData">0</span></div><div class="card-row"><span>Avg. Utilization/Line</span><span class="card-row-val" id="util-avgUtil">0%</span></div></div>
+                        <div class="card"><div class="card-title">Top Downtime Causes</div><div id="util-downtime"><div class="card-row"><span>No Data</span><span>0 hrs</span></div></div></div>
+                    </div>
+                    <div class="section-title">Utilization by Production Line</div>
+                    <div class="table-wrap"><div class="table-head"><span>Machine Utilization by Line</span><span class="table-total-pill" id="util-totalTime">Total: 0 hrs</span></div><table><thead><tr><th>Line</th><th>Productive</th><th>Total</th><th>Utilization %</th><th>Machines</th><th>Status</th></tr></thead><tbody id="util-tbl"></tbody></table></div>
+                </div>
+                <div id="util-input" class="tab-content">
+                    <div class="input-panel">
+                        <div class="input-panel-head">Machine Utilization — Data Entry</div>
+                        <div class="input-controls">
+                            <span class="input-control-label">Select Line:</span>
+                            <select class="input-control-select" id="util-lineSelect" onchange="utilLoadLine()">
+                                <option value="">— Select Line —</option>
+                                <option value="L06_FILLING">LINE 6 - EPOXY (FILLING)</option><option value="L06_MIXER">LINE 6 - EPOXY (MIXER)</option>
+                                <option value="L04_FILLING">LINE 4 - ELASTO FILLING</option><option value="L04_MIXING">LINE 4 - ELASTO MIXING</option>
+                                <option value="L03_ITALY">LINE 3 - ITALY MACHINE</option><option value="L03_KOREA">LINE 3 - KOREA MACHINE</option>
+                                <option value="L01_MIXER">L01 - COATINGS (MIXER)</option><option value="L01_MILLING">L01 - COATINGS (MILLING)</option>
+                                <option value="L07_TUBE">LINE 7 - EPOXY TUBE</option><option value="L09_EPS">LINE 9 - EPS</option>
+                                <option value="L10_BOND">LINE 10 - CONTACT BOND</option><option value="L11_SILICONE">LINE 11 - SILICONE NEW</option>
+                                <option value="L12_EPOXY">LINE 12 - EPOXY BASED</option><option value="L13_WATER">LINE 13 - WATER BASED</option>
+                                <option value="L14_FILLING">LINE 14 - FILLING</option><option value="L14_MIXING">LINE 14 - MIXING</option>
+                            </select>
+                        </div>
+                        <div class="input-grid-wrap" id="util-inputSections"></div>
+                        <div class="input-panel-actions"><button class="btn btn-danger" onclick="utilClearLine()">Clear</button><button class="btn" onclick="utilClearAll()">Clear All</button><button class="btn btn-primary" onclick="utilSave()">Save</button></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- OUTPUT & WASTAGE -->
+            <div id="prod-waste" class="sub-module">
+                <div class="tab-bar">
+                    <button class="tab-btn active" onclick="switchTab('waste','overview',this)">Overview</button>
+                    <button class="tab-btn" onclick="switchTab('waste','input',this)" data-tab="input">Data Entry</button>
+                </div>
+                <div id="waste-overview" class="tab-content active">
+                    <div class="kpi-grid kpi-grid-4">
+                        <div class="card"><div class="card-title">Total Output</div><div class="card-value" id="waste-total">0 kg</div><div class="card-row"><span>FG Output</span><span class="card-row-val" id="waste-fg">0 kg</span></div><div class="card-row"><span>Reprocess</span><span class="card-row-val" id="waste-rep">0 kg</span></div><div class="card-row"><span>Rejection</span><span class="card-row-val" id="waste-rej">0 kg</span></div></div>
+                        <div class="card"><div class="card-title">Net Output</div><div class="card-value" id="waste-net">0 kg</div></div>
+                        <div class="card"><div class="card-title">Waste Analysis</div><div class="card-value" id="waste-wasteKg">0 kg</div><div class="card-row"><span>Waste %</span><span class="card-row-val" id="waste-wastePct">0%</span></div><div class="progress-track"><div class="progress-bar danger" id="waste-bar" style="width:0%"></div></div></div>
+                        <div class="card"><div class="card-title">Lines</div><div class="card-value" id="waste-lines">14</div><div class="card-row"><span>With Output</span><span class="card-row-val" id="waste-linesData">0</span></div><div class="card-row"><span>With Waste</span><span class="card-row-val" id="waste-linesWaste">0</span></div></div>
+                    </div>
+                    <div class="section-title">Output &amp; Waste by Line</div>
+                    <div class="table-wrap"><div class="table-head"><span>Production Output by Line</span><span class="table-total-pill" id="waste-totalDisp">Total: 0 kg</span></div><table><thead><tr><th>Line</th><th>FG Output</th><th>Reprocess</th><th>Rejection</th><th>Net Output</th><th>Waste</th><th>Waste %</th><th>Status</th></tr></thead><tbody id="waste-tbl"></tbody></table></div>
+                </div>
+                <div id="waste-input" class="tab-content">
+                    <div class="input-panel">
+                        <div class="input-panel-head">Output &amp; Waste — Data Entry</div>
+                        <div class="input-controls">
+                            <span class="input-control-label">Select Line:</span>
+                            <select class="input-control-select" id="waste-lineSelect" onchange="wasteLoadLine()">
+                                <option value="">— Select Line —</option>
+                                <option value="L06_EPOXY">L06 - EPOXY</option><option value="L04B_ELASTO">L04B - ELASTO</option>
+                                <option value="L03_CYANO">L03 - CYANO TUBE</option><option value="L01_COATINGS">L01 - COATINGS</option>
+                                <option value="L07_TUBE">L07 - EPOXY TUBE</option><option value="L09_EPS">LINE 9 - EPS</option>
+                                <option value="L10_BOND">L10 - CONTACT BOND</option><option value="L11_SILICONE">L11 - SILICONE</option>
+                                <option value="L12_EPOXY">L12 - SPECIAL EPOXY</option><option value="L13_WATER">L13 - SPECIAL WATER</option>
+                                <option value="L14">LINE 14</option><option value="L05_CLAY">L05 - EPOXY CLAY</option>
+                                <option value="L02_BOTTLE">L02 - CYNO BOTTLE</option><option value="LABELING">LABELING LINE</option>
+                            </select>
+                        </div>
+                        <div class="input-grid-wrap" id="waste-inputSections"></div>
+                        <div class="input-panel-actions"><button class="btn btn-danger" onclick="wasteClearLine()">Clear</button><button class="btn" onclick="wasteClearAll()">Clear All</button><button class="btn btn-primary" onclick="wasteSave()">Save</button></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SCHEDULING -->
+            <div id="prod-sched" class="sub-module">
+                <div class="tab-bar">
+                    <button class="tab-btn active" onclick="switchTab('sched','overview',this)">Overview</button>
+                    <button class="tab-btn" onclick="switchTab('sched','input',this)" data-tab="input">Data Entry</button>
+                </div>
+                <div id="sched-overview" class="tab-content active">
+                    <div class="kpi-grid kpi-grid-4">
+                        <div class="card" id="card-sched-overall"><div class="card-title">Overall Compliance</div><div class="card-value" id="sched-overall">0%</div><div class="card-row"><span>Total Actual</span><span class="card-row-val" id="sched-actual">0 kg</span></div><div class="card-row"><span>Total Planned</span><span class="card-row-val" id="sched-planned">0 kg</span></div><div class="progress-track"><div class="progress-bar" id="sched-bar" style="width:0%"></div></div></div>
+                        <div class="card"><div class="card-title">Top Performers</div><div id="sched-topPerf"><div class="card-row"><span>No Data</span></div></div></div>
+                        <div class="card"><div class="card-title">Needs Improvement</div><div id="sched-needsImp"><div class="card-row"><span>No Data</span></div></div></div>
+                        <div class="card"><div class="card-title">Production Lines</div><div class="card-value" id="sched-lines">13</div><div class="card-row"><span>Lines with Data</span><span class="card-row-val" id="sched-linesData">0</span></div><div class="card-row"><span>Avg. Compliance</span><span class="card-row-val" id="sched-avgComp">0%</span></div></div>
+                    </div>
+                    <div class="section-title">Scheduling Attainment by Line</div>
+                    <div class="table-wrap"><div class="table-head"><span>Actual vs Planned Output</span><span class="table-total-pill" id="sched-totalDisp">Total Actual: 0 kg</span></div><table><thead><tr><th>Line</th><th>Actual (kg)</th><th>Planned (kg)</th><th>Compliance %</th><th>Status</th></tr></thead><tbody id="sched-tbl"></tbody></table></div>
+                </div>
+                <div id="sched-input" class="tab-content">
+                    <div class="input-panel">
+                        <div class="input-panel-head">Scheduling Attainment — Data Entry</div>
+                        <div class="input-controls">
+                            <span class="input-control-label">Select Line:</span>
+                            <select class="input-control-select" id="sched-lineSelect" onchange="schedLoadLine()">
+                                <option value="">— Select Line —</option>
+                                <option value="L06_EPOXY">L06 - EPOXY</option><option value="L04B_ELASTO">L04B - ELASTO</option>
+                                <option value="L03_CYANO">L03 - CYANO TUBE</option><option value="L01_COATINGS">L01 - COATINGS</option>
+                                <option value="L07_TUBE">L07 - EPOXY TUBE</option><option value="L09_EPS">LINE 9 - EPS</option>
+                                <option value="L10_BOND">L10 - CONTACT BOND</option><option value="L11_SILICONE">L11 - SILICONE</option>
+                                <option value="L12_EPOXY">L12 - SPECIAL EPOXY</option><option value="L13_WATER">L13 - SPECIAL</option>
+                                <option value="L14">LINE 14</option><option value="L05_CLAY">L05 - EPOXY CLAY</option>
+                                <option value="L02_BOTTLE">L02 - CYNO BOTTLE</option>
+                            </select>
+                        </div>
+                        <div class="input-grid-wrap" id="sched-inputSections"></div>
+                        <div class="input-panel-actions"><button class="btn btn-danger" onclick="schedClearLine()">Clear</button><button class="btn" onclick="schedClearAll()">Clear All</button><button class="btn btn-primary" onclick="schedSave()">Save</button></div>
+                    </div>
+                </div>
+            </div>

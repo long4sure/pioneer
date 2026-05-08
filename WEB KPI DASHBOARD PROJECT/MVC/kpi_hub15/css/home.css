@@ -1,0 +1,52 @@
+/* ============================================================
+   HOME.CSS — Home / Dashboard module styles
+   ============================================================ */
+
+.home-welcome {
+    background: linear-gradient(135deg, var(--pioneer-blue-dark) 0%, var(--pioneer-blue-mid) 60%, var(--pioneer-cobalt) 100%);
+    border-radius: var(--radius);
+    padding: 24px 28px;
+    margin-bottom: 24px;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: var(--shadow-md);
+    gap: 16px;
+}
+.home-welcome-title { font-size: 20px; font-weight: 700; letter-spacing: -0.3px; }
+.home-welcome-sub   { font-size: 12px; color: rgba(255,255,255,0.75); margin-top: 4px; }
+
+.home-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+    margin-bottom: 28px;
+}
+.home-card {
+    background: var(--white); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 20px 20px 16px;
+    cursor: pointer; transition: all 0.18s;
+    box-shadow: var(--shadow-sm); position: relative;
+}
+.home-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); border-color: var(--pioneer-blue); }
+.home-card-icon  { width: 44px; height: 44px; border-radius: var(--radius-sm); background: var(--pioneer-blue-light); display: flex; align-items: center; justify-content: center; color: var(--pioneer-blue); margin-bottom: 14px; }
+.home-card-title { font-size: 14px; font-weight: 700; color: var(--text-primary); margin-bottom: 4px; }
+.home-card-desc  { font-size: 12px; color: var(--text-secondary); line-height: 1.6; }
+.home-card-kpi   { margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border-light); display: flex; align-items: baseline; gap: 6px; }
+.home-card-kpi-val   { font-family: 'JetBrains Mono', monospace; font-size: 20px; font-weight: 600; color: var(--pioneer-blue-dark); }
+.home-card-kpi-label { font-size: 10px; color: var(--text-muted); letter-spacing: 0.2px; text-transform: uppercase; }
+.home-card-arrow     { position: absolute; top: 16px; right: 14px; color: var(--text-muted); font-size: 14px; transition: transform 0.15s; }
+.home-card:hover .home-card-arrow { transform: translateX(3px); color: var(--pioneer-blue); }
+
+/* Home summary strip */
+.home-summary {
+    background: var(--white); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 18px 24px;
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 16px; box-shadow: var(--shadow-sm);
+}
+.home-stat       { display: flex; flex-direction: column; gap: 2px; }
+.home-stat-val   { font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 600; color: var(--text-primary); }
+.home-stat-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+.home-stat-sub   { font-size: 11px; color: var(--text-secondary); }

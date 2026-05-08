@@ -1,0 +1,68 @@
+<div class="tab-bar">
+                <button class="tab-btn active" onclick="switchTab('finance','dashboard',this)">Overview</button>
+                <button class="tab-btn" onclick="switchTab('finance','cost',this)">Cost Details</button>
+                <button class="tab-btn" onclick="switchTab('finance','labor',this)">Labor Details</button>
+                <button class="tab-btn" onclick="switchTab('finance','input',this)" data-tab="input">Data Entry</button>
+            </div>
+
+            <div id="finance-dashboard" class="tab-content active">
+                <div class="kpi-grid kpi-grid-4">
+                    <div class="card" id="card-fin-prod"><div class="card-title">Production Volume</div><div class="card-value" id="fin-prodVal">0 MT</div><div class="card-row"><span>Target</span><span class="card-row-val" id="fin-prodTarget">0 MT</span></div><div class="progress-track"><div class="progress-bar" id="fin-prodBar" style="width:0%"></div></div><div class="card-row"><span>Achieved</span><span class="card-row-val" id="fin-prodPct">0%</span></div></div>
+                    <div class="card" id="card-fin-op"><div class="card-title">Operational Cost</div><div class="card-value" id="fin-opVal">₱0</div><div class="card-row"><span>Budget</span><span class="card-row-val" id="fin-opBudget">₱0</span></div><div class="progress-track"><div class="progress-bar" id="fin-opBar" style="width:0%"></div></div><div class="card-row"><span>of Budget</span><span class="card-row-val" id="fin-opPct">0%</span></div></div>
+                    <div class="card" id="card-fin-cap"><div class="card-title">Capital Expenditure</div><div class="card-value" id="fin-capVal">₱0</div><div class="card-row"><span>Budget</span><span class="card-row-val" id="fin-capBudget">₱0</span></div><div class="progress-track"><div class="progress-bar" id="fin-capBar" style="width:0%"></div></div><div class="card-row"><span>of Budget</span><span class="card-row-val" id="fin-capPct">0%</span></div></div>
+                    <div class="card" id="card-fin-other"><div class="card-title">Other Expenses</div><div class="card-value" id="fin-otherVal">₱0</div><div class="card-row"><span>Budget</span><span class="card-row-val" id="fin-otherBudget">₱0</span></div><div class="progress-track"><div class="progress-bar" id="fin-otherBar" style="width:0%"></div></div><div class="card-row"><span>of Budget</span><span class="card-row-val" id="fin-otherPct">0%</span></div></div>
+                </div>
+                <div class="kpi-grid kpi-grid-4">
+                    <div class="card"><div class="card-title">Financial Summary</div><div class="card-value" id="fin-totalAct">₱0</div><div class="card-row"><span>Total Budget</span><span class="card-row-val" id="fin-totalBudget">₱0</span></div><div class="card-row"><span>Variance</span><span class="card-row-val" id="fin-totalVar">₱0</span></div></div>
+                    <div class="card"><div class="card-title">Cost Efficiency</div><div class="card-value" id="fin-totalPct">0%</div><div class="card-row"><span>Under Budget</span><span class="card-row-val" id="fin-under">0</span></div><div class="card-row"><span>Over Budget</span><span class="card-row-val" id="fin-over">0</span></div></div>
+                    <div class="card"><div class="card-title">Labor Hours</div><div class="card-value" id="fin-totalHrs">0 hrs</div><div class="card-row"><span>Regular</span><span class="card-row-val" id="fin-regHrs">0 hrs</span></div><div class="card-row"><span>Overtime</span><span class="card-row-val" id="fin-otHrs">0 hrs</span></div></div>
+                    <div class="card"><div class="card-title">Labor Overview</div><div class="card-value" id="fin-wfTotal">0</div><div class="card-row"><span>OT Rate</span><span class="card-row-val" id="fin-otRate">0%</span></div><div class="card-row"><span>Direct OT %</span><span class="card-row-val" id="fin-dlOt">0%</span></div><div class="card-row"><span>Indirect OT %</span><span class="card-row-val" id="fin-ilOt">0%</span></div></div>
+                </div>
+                <div class="section-title">Cost Details</div>
+                <div class="table-wrap"><div class="table-head"><span>Cost Breakdown by Category</span><span class="table-total-pill" id="fin-costTotal">Total: ₱0</span></div><table><thead><tr><th>Category</th><th>Actual</th><th>Budget</th><th>Variance</th><th>%</th><th>Status</th></tr></thead><tbody id="fin-costTbl"></tbody></table></div>
+                <div class="section-title">Labor Analysis</div>
+                <div class="table-wrap"><div class="table-head"><span>Labor Breakdown by Type</span><span class="table-total-pill" id="fin-laborTotal">Total Hours: 0</span></div><table><thead><tr><th>Labor Type</th><th>Regular</th><th>Overtime</th><th>Total</th><th>OT %</th><th>Status</th></tr></thead><tbody id="fin-laborTbl"></tbody></table></div>
+            </div>
+
+            <div id="finance-cost" class="tab-content">
+                <div class="kpi-grid kpi-grid-4">
+                    <div class="card"><div class="card-title">Total Costs</div><div class="card-value" id="fc-totalAct">₱0</div><div class="card-row"><span>Budget</span><span class="card-row-val" id="fc-totalBudget">₱0</span></div></div>
+                    <div class="card"><div class="card-title">Operational Cost</div><div class="card-value" id="fc-opAct">₱0</div><div class="card-row"><span>Budget</span><span class="card-row-val" id="fc-opBudget">₱0</span></div><div class="card-row"><span>Variance</span><span class="card-row-val" id="fc-opVar">₱0</span></div></div>
+                    <div class="card"><div class="card-title">Capital Expenditure</div><div class="card-value" id="fc-capAct">₱0</div><div class="card-row"><span>Budget</span><span class="card-row-val" id="fc-capBudget">₱0</span></div><div class="card-row"><span>Variance</span><span class="card-row-val" id="fc-capVar">₱0</span></div></div>
+                    <div class="card"><div class="card-title">Other Expenses</div><div class="card-value" id="fc-otherAct">₱0</div><div class="card-row"><span>Budget</span><span class="card-row-val" id="fc-otherBudget">₱0</span></div><div class="card-row"><span>Variance</span><span class="card-row-val" id="fc-otherVar">₱0</span></div></div>
+                </div>
+                <div class="table-wrap"><div class="table-head"><span>Cost Breakdown — All Categories</span><span class="table-total-pill" id="fc-detailTotal">₱0</span></div><table><thead><tr><th>Category</th><th>Actual</th><th>Budget</th><th>Variance</th><th>%</th><th>Status</th></tr></thead><tbody id="fc-detailTbl"></tbody></table></div>
+            </div>
+
+            <div id="finance-labor" class="tab-content">
+                <div class="kpi-grid kpi-grid-4">
+                    <div class="card"><div class="card-title">Total Hours</div><div class="card-value" id="fl-totalHrs">0 hrs</div><div class="card-row"><span>Regular</span><span class="card-row-val" id="fl-reg">0</span></div><div class="card-row"><span>Overtime</span><span class="card-row-val" id="fl-ot">0</span></div></div>
+                    <div class="card"><div class="card-title">Direct Labor</div><div class="card-value" id="fl-dlTotal">0 hrs</div><div class="card-row"><span>Regular</span><span class="card-row-val" id="fl-dlReg">0</span></div><div class="card-row"><span>Overtime</span><span class="card-row-val" id="fl-dlOT">0</span></div><div class="card-row"><span>OT Rate</span><span class="card-row-val" id="fl-dlRate">0%</span></div></div>
+                    <div class="card"><div class="card-title">Indirect Labor</div><div class="card-value" id="fl-ilTotal">0 hrs</div><div class="card-row"><span>Regular</span><span class="card-row-val" id="fl-ilReg">0</span></div><div class="card-row"><span>Overtime</span><span class="card-row-val" id="fl-ilOT">0</span></div><div class="card-row"><span>OT Rate</span><span class="card-row-val" id="fl-ilRate">0%</span></div></div>
+                    <div class="card"><div class="card-title">Overtime Analysis</div><div class="card-value" id="fl-otRate">0%</div><div class="card-row"><span>Direct OT %</span><span class="card-row-val" id="fl-dlOTp">0%</span></div><div class="card-row"><span>Indirect OT %</span><span class="card-row-val" id="fl-ilOTp">0%</span></div></div>
+                </div>
+                <div class="table-wrap"><div class="table-head"><span>Labor Breakdown — All Types</span><span class="table-total-pill" id="fl-total">Total: 0</span></div><table><thead><tr><th>Labor Type</th><th>Regular</th><th>Overtime</th><th>Total</th><th>OT %</th><th>Status</th></tr></thead><tbody id="fl-tbl"></tbody></table></div>
+            </div>
+
+            <div id="finance-input" class="tab-content">
+                <div class="input-panel">
+                    <div class="input-panel-head">Finance — Data Entry</div>
+                    <div class="input-controls">
+                        <span class="input-control-label">Category:</span>
+                        <select class="input-control-select" id="fin-inputCat" onchange="finLoadInput()">
+                            <option value="production">Production Volume</option>
+                            <option value="operational">Operational Cost</option>
+                            <option value="capital">Capital Expenditure</option>
+                            <option value="other">Other Expenses</option>
+                            <option value="labor-dl">Direct Labor</option>
+                            <option value="labor-il">Indirect Labor</option>
+                        </select>
+                    </div>
+                    <div class="input-grid-wrap" id="fin-inputSections"></div>
+                    <div class="input-panel-actions">
+                        <button class="btn btn-danger" onclick="finClear()">Clear</button>
+                        <button class="btn" onclick="finClearAll()">Clear All</button>
+                        <button class="btn btn-primary" onclick="finSave()">Save</button>
+                    </div>
+                </div>
+            </div>

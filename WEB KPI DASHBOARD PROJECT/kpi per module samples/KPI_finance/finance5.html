@@ -1,0 +1,1297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Power BI Style - Finance Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            padding: 20px;
+        }
+
+        /* Power BI Container */
+        .powerbi-container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+
+        /* Power BI Header */
+        .powerbi-header {
+            background-color: #2d2f33;
+            color: white;
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 3px solid #01b8aa;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .powerbi-logo {
+            background-color: #01b8aa;
+            width: 32px;
+            height: 32px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .header-title {
+            font-size: 18px;
+            font-weight: 500;
+            color: #e6e9ef;
+        }
+
+        .header-title span {
+            color: #01b8aa;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .header-badge {
+            background-color: #45474b;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #e6e9ef;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .header-badge i {
+            color: #01b8aa;
+        }
+
+        /* Power BI Toolbar */
+        .powerbi-toolbar {
+            background-color: #f3f5f8;
+            padding: 8px 24px;
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            border-bottom: 1px solid #e1e5ea;
+            flex-wrap: wrap;
+        }
+
+        .toolbar-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: #5f6775;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        .toolbar-item:hover {
+            background-color: #e1e5ea;
+        }
+
+        .toolbar-item.active {
+            background-color: #e1e5ea;
+            color: #2d2f33;
+            font-weight: 500;
+        }
+
+        .toolbar-divider {
+            width: 1px;
+            height: 20px;
+            background-color: #d0d5dd;
+        }
+
+        /* Power BI Page Navigation */
+        .page-nav {
+            background-color: white;
+            padding: 0 24px;
+            border-bottom: 1px solid #e1e5ea;
+            display: flex;
+            gap: 24px;
+        }
+
+        .page-tab {
+            padding: 12px 0;
+            font-size: 14px;
+            font-weight: 500;
+            color: #5f6775;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -1px;
+        }
+
+        .page-tab.active {
+            color: #01b8aa;
+            border-bottom-color: #01b8aa;
+        }
+
+        .page-tab i {
+            margin-right: 8px;
+        }
+
+        /* Power BI Main Content */
+        .powerbi-content {
+            padding: 24px;
+            background-color: white;
+        }
+
+        /* Filter Section */
+        .filter-section {
+            background-color: #fafbfc;
+            border: 1px solid #eef2f5;
+            border-radius: 6px;
+            padding: 16px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .filter-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #5f6775;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .filter-select {
+            padding: 8px 32px 8px 12px;
+            border: 1px solid #d0d5dd;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #2d2f33;
+            background-color: white;
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%235f6775' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 8px center;
+        }
+
+        .filter-date {
+            padding: 8px 12px;
+            border: 1px solid #d0d5dd;
+            border-radius: 4px;
+            font-size: 13px;
+            background-color: white;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 4px;
+            background-color: #eef2f5;
+            padding: 3px;
+            border-radius: 4px;
+        }
+
+        .view-option {
+            padding: 6px 12px;
+            font-size: 12px;
+            border-radius: 3px;
+            cursor: pointer;
+            color: #5f6775;
+        }
+
+        .view-option.active {
+            background-color: white;
+            color: #2d2f33;
+            font-weight: 500;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        /* Power BI KPI Row */
+        .kpi-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .kpi-card {
+            background-color: white;
+            border: 1px solid #eef2f5;
+            border-radius: 6px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            transition: all 0.2s;
+        }
+
+        .kpi-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border-color: #d0d5dd;
+        }
+
+        .kpi-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .kpi-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #5f6775;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .kpi-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .kpi-icon.blue { background-color: #e8f4fd; color: #0078d4; }
+        .kpi-icon.green { background-color: #e6f9ed; color: #107c41; }
+        .kpi-icon.purple { background-color: #f0e6ff; color: #5c2d91; }
+        .kpi-icon.orange { background-color: #fff1e0; color: #d83b01; }
+
+        .kpi-main-value {
+            font-size: 28px;
+            font-weight: 600;
+            color: #2d2f33;
+            margin-bottom: 4px;
+        }
+
+        .kpi-sub-value {
+            font-size: 13px;
+            color: #5f6775;
+            margin-bottom: 12px;
+        }
+
+        .kpi-progress {
+            height: 4px;
+            background-color: #eef2f5;
+            border-radius: 2px;
+            overflow: hidden;
+            margin: 12px 0 8px;
+        }
+
+        .kpi-progress-bar {
+            height: 100%;
+            background-color: #01b8aa;
+            border-radius: 2px;
+        }
+
+        .kpi-footer {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #5f6775;
+        }
+
+        .kpi-trend {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .trend-up { color: #107c41; }
+        .trend-down { color: #d83b01; }
+
+        /* Power BI Two Column Layout */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        /* Power BI Cards */
+        .powerbi-card {
+            background-color: white;
+            border: 1px solid #eef2f5;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #eef2f5;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: #fafbfc;
+        }
+
+        .card-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #2d2f33;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-title i {
+            color: #01b8aa;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 8px;
+            color: #5f6775;
+            font-size: 12px;
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        /* Power BI Table */
+        .powerbi-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .powerbi-table th {
+            text-align: left;
+            padding: 12px 16px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #5f6775;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid #eef2f5;
+            background-color: #fafbfc;
+        }
+
+        .powerbi-table td {
+            padding: 14px 16px;
+            font-size: 13px;
+            color: #2d2f33;
+            border-bottom: 1px solid #eef2f5;
+        }
+
+        .powerbi-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .powerbi-table tbody tr:hover {
+            background-color: #f5f8fb;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-good { background-color: #e6f9ed; color: #107c41; }
+        .status-warning { background-color: #fff1e0; color: #d83b01; }
+        .status-neutral { background-color: #fef7e0; color: #966c00; }
+
+        /* Power BI Metrics Grid */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+
+        .metric-item {
+            text-align: center;
+            padding: 16px;
+            background-color: #fafbfc;
+            border-radius: 4px;
+        }
+
+        .metric-label {
+            font-size: 12px;
+            color: #5f6775;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .metric-value {
+            font-size: 20px;
+            font-weight: 600;
+            color: #2d2f33;
+        }
+
+        .metric-comparison {
+            font-size: 11px;
+            margin-top: 4px;
+        }
+
+        /* Power BI Chart Placeholder */
+        .chart-placeholder {
+            background-color: #fafbfc;
+            border-radius: 4px;
+            padding: 20px;
+        }
+
+        .bar-container {
+            display: flex;
+            align-items: flex-end;
+            height: 180px;
+            gap: 30px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .bar-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 60px;
+        }
+
+        .bar {
+            width: 40px;
+            background-color: #01b8aa;
+            border-radius: 4px 4px 0 0;
+            transition: height 0.3s;
+            min-height: 4px;
+        }
+
+        .bar-label {
+            margin-top: 12px;
+            font-size: 12px;
+            color: #5f6775;
+        }
+
+        .bar-value {
+            font-size: 11px;
+            font-weight: 600;
+            color: #2d2f33;
+            margin-top: 4px;
+        }
+
+        /* Power BI Insights Panel */
+        .insights-panel {
+            background-color: #fafbfc;
+            border-radius: 4px;
+            padding: 16px;
+        }
+
+        .insight-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background-color: white;
+            border-radius: 4px;
+            margin-bottom: 8px;
+            border-left: 3px solid transparent;
+        }
+
+        .insight-item.critical { border-left-color: #d83b01; }
+        .insight-item.warning { border-left-color: #ffaa44; }
+        .insight-item.positive { border-left-color: #107c41; }
+        .insight-item.neutral { border-left-color: #5f6775; }
+
+        .insight-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        .insight-text {
+            flex: 1;
+            font-size: 13px;
+            color: #2d2f33;
+        }
+
+        /* Power BI Button */
+        .powerbi-button {
+            background-color: #01b8aa;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .powerbi-button:hover {
+            background-color: #019f92;
+        }
+
+        .powerbi-button.secondary {
+            background-color: white;
+            color: #2d2f33;
+            border: 1px solid #d0d5dd;
+        }
+
+        .powerbi-button.secondary:hover {
+            background-color: #f3f5f8;
+        }
+
+        /* Power BI Footer */
+        .powerbi-footer {
+            padding: 16px 24px;
+            border-top: 1px solid #eef2f5;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: #5f6775;
+            background-color: #fafbfc;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 24px;
+        }
+
+        .footer-links span {
+            cursor: pointer;
+        }
+
+        .footer-links span:hover {
+            color: #01b8aa;
+        }
+
+        /* Input Panel */
+        .input-panel {
+            background-color: white;
+            border: 1px solid #eef2f5;
+            border-radius: 6px;
+            margin-top: 24px;
+        }
+
+        .input-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .input-field {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .input-field label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #5f6775;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .input-field input {
+            padding: 10px 12px;
+            border: 1px solid #d0d5dd;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #2d2f33;
+            background-color: #fafbfc;
+            transition: all 0.2s;
+        }
+
+        .input-field input:focus {
+            outline: none;
+            border-color: #01b8aa;
+            background-color: white;
+            box-shadow: 0 0 0 3px rgba(1,184,170,0.1);
+        }
+
+        .input-field input:hover {
+            border-color: #5f6775;
+        }
+    </style>
+</head>
+<body>
+    <div class="powerbi-container">
+        <!-- Power BI Header -->
+        <div class="powerbi-header">
+            <div class="header-left">
+                <div class="powerbi-logo">PB</div>
+                <div class="header-title">
+                    Finance Analytics <span>| Executive Dashboard</span>
+                </div>
+            </div>
+            <div class="header-controls">
+                <div class="header-badge">
+                    <i>🔄</i> Live Connection
+                </div>
+                <div class="header-badge">
+                    <i>👤</i> Finance Team
+                </div>
+                <div class="header-badge">
+                    <i>⚙️</i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Power BI Toolbar -->
+        <div class="powerbi-toolbar">
+            <div class="toolbar-item active">
+                <i>📊</i> Report
+            </div>
+            <div class="toolbar-item">
+                <i>📁</i> Data
+            </div>
+            <div class="toolbar-item">
+                <i>🔍</i> Model
+            </div>
+            <div class="toolbar-divider"></div>
+            <div class="toolbar-item">
+                <i>💾</i> Save
+            </div>
+            <div class="toolbar-item">
+                <i>↻</i> Refresh
+            </div>
+            <div class="toolbar-item">
+                <i>📎</i> Export
+            </div>
+            <div class="toolbar-divider"></div>
+            <div class="toolbar-item">
+                <i>👁️</i> Bookmarks
+            </div>
+            <div class="toolbar-item">
+                <i>📌</i> Pin
+            </div>
+        </div>
+
+        <!-- Page Navigation -->
+        <div class="page-nav">
+            <div class="page-tab active">
+                <i>📈</i> Financial Overview
+            </div>
+            <div class="page-tab">
+                <i>💰</i> Cost Analysis
+            </div>
+            <div class="page-tab">
+                <i>👥</i> Labor Productivity
+            </div>
+            <div class="page-tab">
+                <i>📉</i> Variance Analysis
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="powerbi-content">
+            <!-- Filter Section -->
+            <div class="filter-section">
+                <div class="filter-group">
+                    <span class="filter-label">Time Period</span>
+                    <select class="filter-select" id="month" onchange="calculateAll()">
+                        <option value="January">January 2024</option>
+                        <option value="February">February 2024</option>
+                        <option value="March">March 2024</option>
+                        <option value="April">April 2024</option>
+                        <option value="May">May 2024</option>
+                        <option value="June">June 2024</option>
+                        <option value="July">July 2024</option>
+                        <option value="August">August 2024</option>
+                        <option value="September">September 2024</option>
+                        <option value="October" selected>October 2024</option>
+                        <option value="November">November 2024</option>
+                        <option value="December">December 2024</option>
+                    </select>
+                    
+                    <span class="filter-label">Compare to</span>
+                    <select class="filter-select">
+                        <option>Previous Month</option>
+                        <option>Budget</option>
+                        <option>Last Year</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <div class="view-toggle">
+                        <div class="view-option active">Actual</div>
+                        <div class="view-option">Budget</div>
+                        <div class="view-option">Variance</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- KPI Row -->
+            <div class="kpi-row">
+                <div class="kpi-card">
+                    <div class="kpi-header">
+                        <span class="kpi-title">Production Volume</span>
+                        <span class="kpi-icon blue">📦</span>
+                    </div>
+                    <div class="kpi-main-value" id="kpiVolume">0 MT</div>
+                    <div class="kpi-sub-value" id="kpiVolumeTarget">Target: 0 MT</div>
+                    <div class="kpi-progress">
+                        <div class="kpi-progress-bar" id="volumeProgress" style="width: 0%"></div>
+                    </div>
+                    <div class="kpi-footer">
+                        <span id="volumePercent">0% Achieved</span>
+                        <span class="kpi-trend" id="volumeTrend">
+                            <span>vs target</span>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-header">
+                        <span class="kpi-title">Operational Cost</span>
+                        <span class="kpi-icon green">💰</span>
+                    </div>
+                    <div class="kpi-main-value" id="kpiOpCost">₱0</div>
+                    <div class="kpi-sub-value" id="kpiOpBudget">Budget: ₱0</div>
+                    <div class="kpi-progress">
+                        <div class="kpi-progress-bar" id="opProgress" style="width: 0%; background-color: #107c41;"></div>
+                    </div>
+                    <div class="kpi-footer">
+                        <span id="opPercent">0% of budget</span>
+                        <span class="kpi-trend" id="opTrend"></span>
+                    </div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-header">
+                        <span class="kpi-title">Capital Expenditure</span>
+                        <span class="kpi-icon purple">🏭</span>
+                    </div>
+                    <div class="kpi-main-value" id="kpiCapCost">₱0</div>
+                    <div class="kpi-sub-value" id="kpiCapBudget">Budget: ₱0</div>
+                    <div class="kpi-progress">
+                        <div class="kpi-progress-bar" id="capProgress" style="width: 0%; background-color: #5c2d91;"></div>
+                    </div>
+                    <div class="kpi-footer">
+                        <span id="capPercent">0% of budget</span>
+                        <span class="kpi-trend" id="capTrend"></span>
+                    </div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-header">
+                        <span class="kpi-title">Other Expenses</span>
+                        <span class="kpi-icon orange">📋</span>
+                    </div>
+                    <div class="kpi-main-value" id="kpiExpCost">₱0</div>
+                    <div class="kpi-sub-value" id="kpiExpBudget">Budget: ₱0</div>
+                    <div class="kpi-progress">
+                        <div class="kpi-progress-bar" id="expProgress" style="width: 0%; background-color: #d83b01;"></div>
+                    </div>
+                    <div class="kpi-footer">
+                        <span id="expPercent">0% of budget</span>
+                        <span class="kpi-trend" id="expTrend"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Two Column Grid -->
+            <div class="dashboard-grid">
+                <!-- Cost Summary Card -->
+                <div class="powerbi-card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i>📊</i> Cost Summary
+                        </div>
+                        <div class="card-actions">
+                            <i>📌</i> <i>⋯</i>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <table class="powerbi-table">
+                            <thead>
+                                <tr>
+                                    <th>Category</th>
+                                    <th>Actual</th>
+                                    <th>Budget</th>
+                                    <th>Var %</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="costSummaryBody">
+                                <!-- Filled by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Cost Distribution Card -->
+                <div class="powerbi-card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i>📈</i> Cost Distribution
+                        </div>
+                        <div class="card-actions">
+                            <i>🔍</i> <i>⋯</i>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-placeholder">
+                            <div class="bar-container" id="costChart">
+                                <!-- Filled by JavaScript -->
+                            </div>
+                            <div style="display: flex; justify-content: center; gap: 40px; margin-top: 20px;">
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <div style="width: 12px; height: 12px; background-color: #01b8aa; border-radius: 2px;"></div>
+                                    <span style="font-size: 12px;">Operational</span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <div style="width: 12px; height: 12px; background-color: #5c2d91; border-radius: 2px;"></div>
+                                    <span style="font-size: 12px;">Capital</span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <div style="width: 12px; height: 12px; background-color: #d83b01; border-radius: 2px;"></div>
+                                    <span style="font-size: 12px;">Other</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Second Row -->
+            <div class="dashboard-grid">
+                <!-- Labor Analysis Card -->
+                <div class="powerbi-card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i>👥</i> Labor Analysis
+                        </div>
+                        <div class="card-actions">
+                            <i>📌</i> <i>⋯</i>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <table class="powerbi-table">
+                            <thead>
+                                <tr>
+                                    <th>Labor Type</th>
+                                    <th>Regular</th>
+                                    <th>Overtime</th>
+                                    <th>Total</th>
+                                    <th>OT %</th>
+                                </tr>
+                            </thead>
+                            <tbody id="laborSummaryBody">
+                                <!-- Filled by JavaScript -->
+                            </tbody>
+                        </table>
+                        
+                        <div class="metrics-grid" style="margin-top: 20px;">
+                            <div class="metric-item">
+                                <div class="metric-label">Total Hours</div>
+                                <div class="metric-value" id="totalHours">0</div>
+                            </div>
+                            <div class="metric-item">
+                                <div class="metric-label">OT Rate</div>
+                                <div class="metric-value" id="otRate">0%</div>
+                            </div>
+                            <div class="metric-item">
+                                <div class="metric-label">Efficiency</div>
+                                <div class="metric-value" id="laborEfficiency">-</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Insights Card -->
+                <div class="powerbi-card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i>💡</i> Key Insights
+                        </div>
+                        <div class="card-actions">
+                            <span id="insightCount" style="background-color: #01b8aa; color: white; padding: 2px 8px; border-radius: 12px;">0</span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="insights-panel" id="insightsList">
+                            <!-- Filled by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Input Panel -->
+            <div class="input-panel">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i>✏️</i> Data Input Panel
+                    </div>
+                    <div class="card-actions">
+                        <button class="powerbi-button secondary" onclick="resetToDefaults()" style="padding: 4px 12px;">
+                            <i>↻</i> Reset
+                        </button>
+                        <button class="powerbi-button secondary" onclick="clearAll()" style="padding: 4px 12px;">
+                            <i>🗑️</i> Clear
+                        </button>
+                    </div>
+                </div>
+                <div class="input-grid">
+                    <div>
+                        <h4 style="font-size: 13px; color: #01b8aa; margin-bottom: 12px;">🏭 Production</h4>
+                        <div class="input-field">
+                            <label>Volume Produced (MT)</label>
+                            <input type="number" id="volumeActual" value="1235.08" step="0.01" oninput="calculateAll()">
+                        </div>
+                        <div class="input-field">
+                            <label>Volume Target (MT)</label>
+                            <input type="number" id="volumeTarget" value="1221.87" step="0.01" oninput="calculateAll()">
+                        </div>
+                        <div class="input-field">
+                            <label>Conversion Cost (SC)</label>
+                            <input type="number" id="convCostSC" value="10.93" step="0.01" oninput="calculateAll()">
+                        </div>
+                        <div class="input-field">
+                            <label>Conversion Cost (Overall)</label>
+                            <input type="number" id="convCostOverall" value="18.58" step="0.01" oninput="calculateAll()">
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4 style="font-size: 13px; color: #5c2d91; margin-bottom: 12px;">💰 Costs</h4>
+                        <div class="input-field">
+                            <label>Operational Actual (₱)</label>
+                            <input type="number" id="opActual" value="13498890.24" step="0.01" oninput="calculateAll()">
+                        </div>
+                        <div class="input-field">
+                            <label>Operational Budget (₱)</label>
+                            <input type="number" id="opBudget" value="16189431.26" step="0.01" oninput="calculateAll()">
+                        </div>
+                        <div class="input-field">
+                            <label>Capital Actual (₱)</label>
+                            <input type="number" id="capActual" value="2042360" step="0.01" oninput="calculateAll()">
+                        </div>
+                        <div class="input-field">
+                            <label>Capital Budget (₱)</label>
+                            <input type="number" id="capBudget" value="1946800" step="0.01" oninput="calculateAll()">
+                        </div>
+                        <div class="input-field">
+                            <label>Other Expense Actual (₱)</label>
+                            <input type="number" id="expActual" value="675110" step="0.01" oninput="calculateAll()">
+                        </div>
+                        <div class="input-field">
+                            <label>Other Expense Budget (₱)</label>
+                            <input type="number" id="expBudget" value="602100" step="0.01" oninput="calculateAll()">
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4 style="font-size: 13px; color: #d83b01; margin-bottom: 12px;">👥 Labor</h4>
+                        <div class="input-field">
+                            <label>Regular Hours - DL</label>
+                            <input type="number" id="regDL" value="30584.01" step="0.01" oninput="calculateAll()">
+                        </div>
+                        <div class="input-field">
+                            <label>Overtime Hours - DL</label>
+                            <input type="number" id="otDL" value="7548.5" step="0.01" oninput="calculateAll()">
+                        </div>
+                        <div class="input-field">
+                            <label>Regular Hours - IL</label>
+                            <input type="number" id="regIL" value="6066.83" step="0.01" oninput="calculateAll()">
+                        </div>
+                        <div class="input-field">
+                            <label>Overtime Hours - IL</label>
+                            <input type="number" id="otIL" value="2156.5" step="0.01" oninput="calculateAll()">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Power BI Footer -->
+        <div class="powerbi-footer">
+            <div>© 2024 Finance Department | Last updated: <span id="lastUpdate">Just now</span></div>
+            <div class="footer-links">
+                <span>📄 Export to PDF</span>
+                <span>📊 Subscribe</span>
+                <span>❓ Help</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Default values
+        const defaults = {
+            volumeActual: 1235.08,
+            volumeTarget: 1221.87,
+            convCostSC: 10.93,
+            convCostOverall: 18.58,
+            opActual: 13498890.24,
+            opBudget: 16189431.26,
+            capActual: 2042360,
+            capBudget: 1946800,
+            expActual: 675110,
+            expBudget: 602100,
+            regDL: 30584.01,
+            otDL: 7548.5,
+            regIL: 6066.83,
+            otIL: 2156.5
+        };
+
+        function initializeInputs() {
+            for (let key in defaults) {
+                const element = document.getElementById(key);
+                if (element) element.value = defaults[key];
+            }
+            calculateAll();
+        }
+
+        function clearAll() {
+            const inputs = document.querySelectorAll('input[type="number"]');
+            inputs.forEach(input => input.value = '');
+            calculateAll();
+        }
+
+        function resetToDefaults() {
+            initializeInputs();
+        }
+
+        function formatNumber(num, decimals = 2) {
+            if (!num || isNaN(num)) return '0';
+            return num.toLocaleString(undefined, {
+                minimumFractionDigits: decimals,
+                maximumFractionDigits: decimals
+            });
+        }
+
+        function formatCurrency(num) {
+            if (!num || isNaN(num)) return '₱0';
+            if (num >= 1000000) return `₱${(num/1000000).toFixed(1)}M`;
+            if (num >= 1000) return `₱${(num/1000).toFixed(1)}K`;
+            return `₱${formatNumber(num)}`;
+        }
+
+        function calculateAll() {
+            const volumeActual = parseFloat(document.getElementById('volumeActual').value) || 0;
+            const volumeTarget = parseFloat(document.getElementById('volumeTarget').value) || 0;
+            const convCostSC = parseFloat(document.getElementById('convCostSC').value) || 0;
+            const convCostOverall = parseFloat(document.getElementById('convCostOverall').value) || 0;
+            const opActual = parseFloat(document.getElementById('opActual').value) || 0;
+            const opBudget = parseFloat(document.getElementById('opBudget').value) || 0;
+            const capActual = parseFloat(document.getElementById('capActual').value) || 0;
+            const capBudget = parseFloat(document.getElementById('capBudget').value) || 0;
+            const expActual = parseFloat(document.getElementById('expActual').value) || 0;
+            const expBudget = parseFloat(document.getElementById('expBudget').value) || 0;
+            const regDL = parseFloat(document.getElementById('regDL').value) || 0;
+            const otDL = parseFloat(document.getElementById('otDL').value) || 0;
+            const regIL = parseFloat(document.getElementById('regIL').value) || 0;
+            const otIL = parseFloat(document.getElementById('otIL').value) || 0;
+
+            // Calculations
+            const volumePercent = volumeTarget ? (volumeActual / volumeTarget) : 0;
+            const opPercent = opBudget ? (opActual / opBudget) : 0;
+            const capPercent = capBudget ? (capActual / capBudget) : 0;
+            const expPercent = expBudget ? (expActual / expBudget) : 0;
+            
+            const totalRegHours = regDL + regIL;
+            const totalOTHours = otDL + otIL;
+            const totalHours = totalRegHours + totalOTHours;
+            const overallOTPercent = totalHours ? (totalOTHours / totalHours) : 0;
+            const dlOTPercent = regDL ? (otDL / regDL) : 0;
+            const ilOTPercent = regIL ? (otIL / regIL) : 0;
+
+            // Update KPI Cards
+            document.getElementById('kpiVolume').textContent = `${formatNumber(volumeActual, 2)} MT`;
+            document.getElementById('kpiVolumeTarget').textContent = `Target: ${formatNumber(volumeTarget, 2)} MT`;
+            document.getElementById('volumeProgress').style.width = `${Math.min(volumePercent * 100, 100)}%`;
+            document.getElementById('volumePercent').textContent = `${(volumePercent * 100).toFixed(1)}% Achieved`;
+            
+            document.getElementById('kpiOpCost').textContent = formatCurrency(opActual);
+            document.getElementById('kpiOpBudget').textContent = `Budget: ${formatCurrency(opBudget)}`;
+            document.getElementById('opProgress').style.width = `${Math.min(opPercent * 100, 100)}%`;
+            document.getElementById('opPercent').textContent = `${(opPercent * 100).toFixed(1)}% of budget`;
+            
+            document.getElementById('kpiCapCost').textContent = formatCurrency(capActual);
+            document.getElementById('kpiCapBudget').textContent = `Budget: ${formatCurrency(capBudget)}`;
+            document.getElementById('capProgress').style.width = `${Math.min(capPercent * 100, 100)}%`;
+            document.getElementById('capPercent').textContent = `${(capPercent * 100).toFixed(1)}% of budget`;
+            
+            document.getElementById('kpiExpCost').textContent = formatCurrency(expActual);
+            document.getElementById('kpiExpBudget').textContent = `Budget: ${formatCurrency(expBudget)}`;
+            document.getElementById('expProgress').style.width = `${Math.min(expPercent * 100, 100)}%`;
+            document.getElementById('expPercent').textContent = `${(expPercent * 100).toFixed(1)}% of budget`;
+
+            // Update Cost Summary Table
+            const costTbody = document.getElementById('costSummaryBody');
+            const totalActual = opActual + capActual + expActual;
+            const totalBudget = opBudget + capBudget + expBudget;
+            const totalPercent = totalBudget ? (totalActual / totalBudget) : 0;
+            
+            costTbody.innerHTML = `
+                <tr>
+                    <td><strong>Operational</strong></td>
+                    <td>${formatCurrency(opActual)}</td>
+                    <td>${formatCurrency(opBudget)}</td>
+                    <td>${(opPercent * 100).toFixed(1)}%</td>
+                    <td><span class="status-badge ${opPercent <= 1 ? 'status-good' : 'status-warning'}">${opPercent <= 1 ? '✓ On Track' : '⚠ Over'}</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Capital</strong></td>
+                    <td>${formatCurrency(capActual)}</td>
+                    <td>${formatCurrency(capBudget)}</td>
+                    <td>${(capPercent * 100).toFixed(1)}%</td>
+                    <td><span class="status-badge ${capPercent <= 1 ? 'status-good' : 'status-warning'}">${capPercent <= 1 ? '✓ On Track' : '⚠ Over'}</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Other</strong></td>
+                    <td>${formatCurrency(expActual)}</td>
+                    <td>${formatCurrency(expBudget)}</td>
+                    <td>${(expPercent * 100).toFixed(1)}%</td>
+                    <td><span class="status-badge ${expPercent <= 1 ? 'status-good' : 'status-warning'}">${expPercent <= 1 ? '✓ On Track' : '⚠ Over'}</span></td>
+                </tr>
+                <tr style="background-color: #f5f8fb;">
+                    <td><strong>TOTAL</strong></td>
+                    <td><strong>${formatCurrency(totalActual)}</strong></td>
+                    <td><strong>${formatCurrency(totalBudget)}</strong></td>
+                    <td><strong>${(totalPercent * 100).toFixed(1)}%</strong></td>
+                    <td><span class="status-badge ${totalPercent <= 1 ? 'status-good' : 'status-warning'}">${totalPercent <= 1 ? '✓ Under Budget' : '⚠ Over Budget'}</span></td>
+                </tr>
+            `;
+
+            // Update Labor Summary
+            const laborTbody = document.getElementById('laborSummaryBody');
+            const dlTotal = regDL + otDL;
+            const ilTotal = regIL + otIL;
+            
+            laborTbody.innerHTML = `
+                <tr>
+                    <td><strong>Direct Labor</strong></td>
+                    <td>${formatNumber(regDL, 0)}</td>
+                    <td>${formatNumber(otDL, 0)}</td>
+                    <td>${formatNumber(dlTotal, 0)}</td>
+                    <td><span class="status-badge ${dlOTPercent <= 0.25 ? 'status-good' : (dlOTPercent <= 0.35 ? 'status-neutral' : 'status-warning')}">${(dlOTPercent * 100).toFixed(1)}%</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Indirect Labor</strong></td>
+                    <td>${formatNumber(regIL, 0)}</td>
+                    <td>${formatNumber(otIL, 0)}</td>
+                    <td>${formatNumber(ilTotal, 0)}</td>
+                    <td><span class="status-badge ${ilOTPercent <= 0.25 ? 'status-good' : (ilOTPercent <= 0.35 ? 'status-neutral' : 'status-warning')}">${(ilOTPercent * 100).toFixed(1)}%</span></td>
+                </tr>
+            `;
+
+            document.getElementById('totalHours').textContent = formatNumber(totalHours, 0);
+            document.getElementById('otRate').textContent = `${(overallOTPercent * 100).toFixed(1)}%`;
+            document.getElementById('laborEfficiency').textContent = overallOTPercent > 0.3 ? '⚠ High OT' : '✓ Optimal';
+
+            // Update Cost Chart
+            const maxValue = Math.max(opActual, capActual, expActual, opBudget, capBudget, expBudget);
+            const scale = maxValue ? 140 / maxValue : 1;
+            
+            document.getElementById('costChart').innerHTML = `
+                <div class="bar-wrapper">
+                    <div class="bar" style="height: ${Math.min(opActual * scale, 140)}px; background-color: #01b8aa;"></div>
+                    <div class="bar-label">Operational</div>
+                    <div class="bar-value">${formatCurrency(opActual)}</div>
+                </div>
+                <div class="bar-wrapper">
+                    <div class="bar" style="height: ${Math.min(capActual * scale, 140)}px; background-color: #5c2d91;"></div>
+                    <div class="bar-label">Capital</div>
+                    <div class="bar-value">${formatCurrency(capActual)}</div>
+                </div>
+                <div class="bar-wrapper">
+                    <div class="bar" style="height: ${Math.min(expActual * scale, 140)}px; background-color: #d83b01;"></div>
+                    <div class="bar-label">Other</div>
+                    <div class="bar-value">${formatCurrency(expActual)}</div>
+                </div>
+            `;
+
+            // Update Insights
+            const insights = [];
+            
+            if (volumePercent > 1) {
+                insights.push({ type: 'positive', icon: '✅', text: `Production exceeded target by ${((volumePercent - 1) * 100).toFixed(1)}%` });
+            } else if (volumePercent < 1 && volumePercent > 0) {
+                insights.push({ type: 'warning', icon: '⚠️', text: `Production below target by ${((1 - volumePercent) * 100).toFixed(1)}%` });
+            }
+
+            if (opPercent > 1.1) {
+                insights.push({ type: 'critical', icon: '🔴', text: `Operational costs ${((opPercent - 1) * 100).toFixed(1)}% over budget - Critical` });
+            } else if (opPercent > 1) {
+                insights.push({ type: 'warning', icon: '⚠️', text: `Operational costs ${((opPercent - 1) * 100).toFixed(1)}% over budget` });
+            } else if (opPercent < 0.9) {
+                insights.push({ type: 'positive', icon: '✅', text: `Excellent operational cost control: ${((1 - opPercent) * 100).toFixed(1)}% under budget` });
+            }
+
+            if (capPercent > 1.1) {
+                insights.push({ type: 'critical', icon: '🔴', text: `Capital expenditure significantly over budget (${((capPercent - 1) * 100).toFixed(1)}%)` });
+            } else if (capPercent > 1) {
+                insights.push({ type: 'warning', icon: '⚠️', text: `Capital expenditure ${((capPercent - 1) * 100).toFixed(1)}% over budget` });
+            }
+
+            if (expPercent > 1.1) {
+                insights.push({ type: 'critical', icon: '🔴', text: `Other expenses ${((expPercent - 1) * 100).toFixed(1)}% over budget - Investigate` });
+            } else if (expPercent > 1) {
+                insights.push({ type: 'warning', icon: '⚠️', text: `Other expenses ${((expPercent - 1) * 100).toFixed(1)}% over budget` });
+            }
+
+            if (ilOTPercent > 0.4) {
+                insights.push({ type: 'critical', icon: '🔴', text: `Critical: Indirect Labor overtime at ${(ilOTPercent * 100).toFixed(1)}% - Immediate review` });
+            } else if (ilOTPercent > 0.3) {
+                insights.push({ type: 'warning', icon: '⚠️', text: `High Indirect Labor overtime (${(ilOTPercent * 100).toFixed(1)}%) - Consider hiring` });
+            }
+
+            if (totalPercent < 0.95) {
+                insights.push({ type: 'positive', icon: '✅', text: `Overall ${((1 - totalPercent) * 100).toFixed(1)}% under budget - Great cost management` });
+            } else if (totalPercent > 1.05) {
+                insights.push({ type: 'critical', icon: '🔴', text: `Overall ${((totalPercent - 1) * 100).toFixed(1)}% over budget - Review all expenses` });
+            }
+
+            if (insights.length === 0) {
+                insights.push({ type: 'neutral', icon: '📊', text: 'Enter values to see insights' });
+            }
+
+            document.getElementById('insightCount').textContent = insights.length;
+            
+            const insightsList = document.getElementById('insightsList');
+            insightsList.innerHTML = insights.map(insight => 
+                `<div class="insight-item ${insight.type}">
+                    <div class="insight-icon">${insight.icon}</div>
+                    <div class="insight-text">${insight.text}</div>
+                </div>`
+            ).join('');
+
+            document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString();
+        }
+
+        window.onload = initializeInputs;
+    </script>
+</body>
+</html>

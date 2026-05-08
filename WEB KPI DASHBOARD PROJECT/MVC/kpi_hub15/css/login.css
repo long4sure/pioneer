@@ -1,0 +1,405 @@
+/* ============================================================
+   css/login.css — Login screen & role-based UI restrictions
+   ============================================================ */
+
+/* ── Login overlay ── */
+#login-screen {
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(135deg, #0a0f1e 0%, #1a2744 60%, #0d1629 100%);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+#login-screen.hidden { display: none; }
+
+.login-card {
+    background: var(--white);
+    border-radius: 16px;
+    padding: 40px 44px 36px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.4);
+    position: relative;
+    overflow: hidden;
+}
+/* Top accent bar */
+.login-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--pioneer-red), var(--pioneer-blue));
+}
+
+.login-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 28px;
+}
+.login-logo-icon {
+    width: 44px; height: 44px;
+    flex-shrink: 0;
+    filter: drop-shadow(0 2px 8px rgba(30,95,200,0.4));
+}
+.login-logo-text { line-height: 1.2; }
+.login-logo-title {
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--pioneer-blue-dark);
+}
+.login-logo-sub {
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-top: 2px;
+}
+
+.login-heading {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 6px;
+    letter-spacing: -0.3px;
+}
+.login-subheading {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 28px;
+    line-height: 1.5;
+}
+
+.login-field {
+    margin-bottom: 16px;
+}
+.login-label {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    margin-bottom: 6px;
+}
+.login-input {
+    width: 100%;
+    padding: 11px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    color: var(--text-primary);
+    background: var(--white);
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+.login-input:focus {
+    border-color: var(--pioneer-blue);
+    box-shadow: 0 0 0 3px rgba(30,95,200,0.12);
+}
+.login-input::placeholder { color: var(--text-muted); }
+
+.login-input-wrap {
+    position: relative;
+}
+.login-pwd-toggle {
+    position: absolute;
+    right: 12px; top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-muted);
+    font-size: 14px;
+    padding: 2px 4px;
+    transition: color 0.15s;
+    line-height: 1;
+}
+.login-pwd-toggle:hover { color: var(--pioneer-blue); }
+
+.login-error {
+    background: var(--pioneer-red-light);
+    color: var(--pioneer-red);
+    border: 1px solid rgba(200,32,42,0.2);
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    display: none;
+    align-items: center;
+    gap: 8px;
+}
+.login-error.show { display: flex; }
+
+.login-btn {
+    width: 100%;
+    padding: 13px;
+    background: var(--pioneer-blue);
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+    margin-top: 8px;
+    letter-spacing: 0.2px;
+}
+.login-btn:hover   { background: var(--pioneer-blue-dark); }
+.login-btn:active  { transform: scale(0.99); }
+.login-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.login-footer {
+    margin-top: 24px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border-light);
+    font-size: 11px;
+    color: var(--text-muted);
+    text-align: center;
+    line-height: 1.6;
+}
+
+/* ── Role badge in topbar ── */
+.role-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    cursor: default;
+}
+.role-badge.admin  { background: rgba(200,32,42,0.12); color: var(--pioneer-red); }
+.role-badge.viewer { background: var(--pioneer-blue-light); color: var(--pioneer-blue-dark); }
+
+.logout-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--white);
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.15s;
+}
+.logout-btn:hover { background: var(--pioneer-red-light); color: var(--pioneer-red); border-color: rgba(200,32,42,0.3); }
+
+/* ── Viewer restrictions — hide data-entry elements ── */
+body.role-viewer .data-entry-only {
+    display: none !important;
+}
+body.role-viewer .tab-btn[data-tab="input"] {
+    display: none !important;
+}
+body.role-viewer .input-panel-actions {
+    display: none !important;
+}
+body.role-viewer .input-panel {
+    pointer-events: none;
+    opacity: 0.5;
+}
+/* Viewer sees a read-only banner */
+.viewer-banner {
+    display: none;
+    background: var(--pioneer-blue-light);
+    color: var(--pioneer-blue-dark);
+    border: 1px solid rgba(30,95,200,0.2);
+    border-radius: var(--radius-sm);
+    padding: 8px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    align-items: center;
+    gap: 8px;
+}
+body.role-viewer .viewer-banner { display: flex; }
+
+/* ── Responsive ── */
+@media (max-width: 480px) {
+    .login-card { padding: 32px 24px 28px; }
+    .login-heading { font-size: 20px; }
+}
+
+/* ── Superadmin role badge ── */
+.role-badge.role-superadmin { background: rgba(240,192,32,0.15); color: #7a5800; }
+.role-badge.role-admin       { background: rgba(200,32,42,0.12);  color: var(--pioneer-red); }
+.role-badge.role-viewer      { background: var(--pioneer-blue-light); color: var(--pioneer-blue-dark); }
+
+/* ── User Management Modal ── */
+.modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(10,15,30,0.6);
+    backdrop-filter: blur(3px);
+    z-index: 8000;
+    display: none;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 40px 16px;
+    overflow-y: auto;
+}
+.modal-overlay.open { display: flex; }
+
+.modal-box {
+    background: var(--white);
+    border-radius: 14px;
+    width: 100%;
+    max-width: 700px;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.3);
+    overflow: hidden;
+    position: relative;
+    animation: modalIn 0.2s ease;
+}
+@keyframes modalIn { from { opacity:0; transform:translateY(-16px); } to { opacity:1; transform:none; } }
+
+.modal-head {
+    padding: 18px 24px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+.modal-title {
+    font-size: 15px; font-weight: 700;
+    color: var(--text-primary); letter-spacing: -0.2px;
+    display: flex; align-items: center; gap: 8px;
+}
+.modal-close {
+    width: 32px; height: 32px;
+    border: 1px solid var(--border); border-radius: 6px;
+    background: var(--white); cursor: pointer;
+    font-size: 16px; color: var(--text-muted);
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+}
+.modal-close:hover { background: var(--pioneer-red-light); color: var(--pioneer-red); border-color: rgba(200,32,42,0.3); }
+
+.modal-tabs {
+    display: flex; gap: 0;
+    border-bottom: 1px solid var(--border);
+    background: var(--white);
+}
+.modal-tab {
+    flex: 1; padding: 12px 16px;
+    border: none; background: none; cursor: pointer;
+    font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 600;
+    color: var(--text-secondary); border-bottom: 2px solid transparent;
+    transition: all 0.15s; position: relative;
+}
+.modal-tab:hover { color: var(--pioneer-blue); background: var(--accent-faint); }
+.modal-tab.active { color: var(--pioneer-blue); border-bottom-color: var(--pioneer-blue); background: var(--pioneer-blue-light); }
+
+.modal-tab-badge {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 18px; height: 18px;
+    background: var(--pioneer-red); color: white;
+    border-radius: 10px; font-size: 10px; font-weight: 700;
+    padding: 0 5px; margin-left: 6px;
+    vertical-align: middle;
+}
+
+.modal-body { padding: 0; max-height: 500px; overflow-y: auto; }
+.modal-section { display: none; }
+.modal-section.active { display: block; }
+
+.um-empty { padding: 24px; text-align: center; font-size: 13px; color: var(--text-muted); font-style: italic; }
+
+.um-row {
+    display: flex; align-items: center;
+    justify-content: space-between; gap: 12px;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border-light);
+    transition: background 0.1s;
+}
+.um-row:last-child { border-bottom: none; }
+.um-row:hover { background: var(--accent-faint); }
+
+.um-row-info   { flex: 1; min-width: 0; }
+.um-row-name   { font-size: 13px; font-weight: 600; color: var(--text-primary); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.um-row-username { font-size: 11px; color: var(--text-muted); font-weight: 400; }
+.um-row-meta   { font-size: 11px; color: var(--text-secondary); margin-top: 3px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.um-row-actions { display: flex; gap: 8px; align-items: center; flex-shrink: 0; flex-wrap: wrap; }
+
+.um-btn {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 6px 12px; border-radius: 6px;
+    font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 600;
+    cursor: pointer; border: 1px solid transparent; transition: all 0.15s;
+}
+.um-btn-approve { background: var(--green-light); color: var(--green); border-color: rgba(21,128,61,0.2); }
+.um-btn-approve:hover { background: var(--green); color: white; }
+.um-btn-reject  { background: var(--pioneer-red-light); color: var(--pioneer-red); border-color: rgba(200,32,42,0.2); }
+.um-btn-reject:hover  { background: var(--pioneer-red); color: white; }
+
+.um-role-select {
+    padding: 5px 8px; border: 1px solid var(--border);
+    border-radius: 6px; font-family: 'Inter', sans-serif;
+    font-size: 11px; font-weight: 600; cursor: pointer;
+    outline: none; background: var(--white); color: var(--text-primary);
+    transition: border-color 0.15s;
+}
+.um-role-select:focus { border-color: var(--pioneer-blue); }
+
+.um-tag {
+    font-size: 9px; font-weight: 700; letter-spacing: 0.5px;
+    text-transform: uppercase; padding: 2px 6px; border-radius: 4px;
+    background: var(--border-light); color: var(--text-muted);
+}
+.um-tag-you { background: var(--pioneer-blue-light); color: var(--pioneer-blue-dark); }
+
+/* ── Pending badge in sidebar ── */
+.nav-pending-badge {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 16px; height: 16px;
+    background: var(--pioneer-red); color: white;
+    border-radius: 10px; font-size: 9px; font-weight: 700;
+    padding: 0 4px; margin-left: auto;
+    animation: badgePulse 2s infinite;
+}
+@keyframes badgePulse { 0%,100%{opacity:1} 50%{opacity:0.65} }
+
+/* ── Global UI enhancements ── */
+
+/* Smooth page transitions */
+.module-page { animation: fadeUp 0.18s ease; }
+@keyframes fadeUp { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
+
+/* Card hover glow for status cards */
+.card.card-ok:hover   { border-left-color: var(--green-mid); box-shadow: 0 4px 20px rgba(34,197,94,0.15); }
+.card.card-warn:hover { border-left-color: var(--pioneer-gold); box-shadow: 0 4px 20px rgba(240,192,32,0.15); }
+.card.card-bad:hover  { border-left-color: var(--pioneer-red); box-shadow: 0 4px 20px rgba(200,32,42,0.15); }
+
+/* Scrollbar styling */
+::-webkit-scrollbar       { width:6px; height:6px; }
+::-webkit-scrollbar-track { background:var(--border-light); }
+::-webkit-scrollbar-thumb { background:var(--pioneer-silver); border-radius:3px; }
+::-webkit-scrollbar-thumb:hover { background:var(--text-muted); }
+
+/* Improved focus ring */
+*:focus-visible { outline:2px solid var(--pioneer-blue); outline-offset:2px; }
+
+/* Responsive modal */
+@media (max-width: 768px) {
+    .modal-overlay { padding: 16px 8px; align-items: flex-end; }
+    .modal-box { border-radius: 14px 14px 0 0; }
+    .modal-body { max-height: 60vh; }
+    .um-row { flex-direction: column; align-items: flex-start; }
+    .um-row-actions { width: 100%; justify-content: flex-end; }
+}

@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finance Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            padding: 24px;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #2d2f33;
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 16px;
+            background-color: #fafbfc;
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: 1px solid #eef2f5;
+        }
+
+        .filter-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .filter-item label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #5f6775;
+            text-transform: uppercase;
+        }
+
+        .filter-item select {
+            padding: 6px 12px;
+            border: 1px solid #d0d5dd;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #2d2f33;
+            background-color: white;
+            cursor: pointer;
+        }
+
+        /* KPI Cards */
+        .kpi-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .kpi-card {
+            background-color: white;
+            border: 1px solid #eef2f5;
+            border-radius: 6px;
+            padding: 20px;
+        }
+
+        .kpi-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .kpi-icon {
+            font-size: 20px;
+            color: #5f6775;
+        }
+
+        .kpi-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #5f6775;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .kpi-main-value {
+            font-size: 28px;
+            font-weight: 600;
+            color: #2d2f33;
+            margin-bottom: 4px;
+        }
+
+        .kpi-sub-value {
+            font-size: 13px;
+            color: #5f6775;
+            margin-bottom: 12px;
+        }
+
+        .kpi-progress {
+            height: 4px;
+            background-color: #eef2f5;
+            border-radius: 2px;
+            overflow: hidden;
+            margin: 12px 0 8px;
+        }
+
+        .kpi-progress-bar {
+            height: 100%;
+            background-color: #01b8aa;
+            border-radius: 2px;
+        }
+
+        .kpi-footer {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #5f6775;
+        }
+
+        /* Input Panel */
+        .input-panel {
+            background-color: white;
+            border: 1px solid #eef2f5;
+            border-radius: 6px;
+            margin-bottom: 24px;
+        }
+
+        .panel-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #eef2f5;
+            background-color: #fafbfc;
+            font-size: 14px;
+            font-weight: 600;
+            color: #2d2f33;
+        }
+
+        .input-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .input-group h4 {
+            font-size: 13px;
+            color: #5f6775;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #eef2f5;
+        }
+
+        .input-field {
+            margin-bottom: 15px;
+        }
+
+        .input-field label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: #5f6775;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .input-field input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #d0d5dd;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #2d2f33;
+        }
+
+        .input-field input:focus {
+            outline: none;
+            border-color: #01b8aa;
+        }
+
+        .button-group {
+            padding: 16px 20px;
+            border-top: 1px solid #eef2f5;
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: 1px solid #d0d5dd;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            background: white;
+            color: #2d2f33;
+        }
+
+        .btn-primary {
+            background-color: #01b8aa;
+            border-color: #01b8aa;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #019f92;
+        }
+
+        /* Tables Grid */
+        .tables-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .table-card {
+            background-color: white;
+            border: 1px solid #eef2f5;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .table-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #eef2f5;
+            background-color: #fafbfc;
+            font-size: 14px;
+            font-weight: 600;
+            color: #2d2f33;
+        }
+
+        .table-container {
+            padding: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            padding: 12px 16px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #5f6775;
+            text-transform: uppercase;
+            border-bottom: 2px solid #eef2f5;
+            background-color: #fafbfc;
+        }
+
+        td {
+            padding: 12px 16px;
+            font-size: 13px;
+            color: #2d2f33;
+            border-bottom: 1px solid #eef2f5;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-good {
+            background-color: #e6f9ed;
+            color: #107c41;
+        }
+
+        .status-warning {
+            background-color: #fff1e0;
+            color: #d83b01;
+        }
+
+        .status-neutral {
+            background-color: #fef7e0;
+            color: #966c00;
+        }
+
+        .footer {
+            text-align: right;
+            font-size: 12px;
+            color: #5f6775;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header with Year and Month Filters -->
+        <div class="header">
+            <h1>FINANCE DASHBOARD</h1>
+            <div class="filter-group">
+                <div class="filter-item">
+                    <label>Year:</label>
+                    <select id="yearSelect">
+                        <option value="2023">2023</option>
+                        <option value="2024" selected>2024</option>
+                        <option value="2025">2025</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label>Month:</label>
+                    <select id="monthSelect">
+                        <option value="January">January</option>
+                        <option value="February">February</option>
+                        <option value="March">March</option>
+                        <option value="April">April</option>
+                        <option value="May">May</option>
+                        <option value="June">June</option>
+                        <option value="July">July</option>
+                        <option value="August">August</option>
+                        <option value="September">September</option>
+                        <option value="October" selected>October</option>
+                        <option value="November">November</option>
+                        <option value="December">December</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- KPI Cards -->
+        <div class="kpi-row">
+            <!-- Production Volume Card -->
+            <div class="kpi-card">
+                <div class="kpi-header">
+                    <span class="kpi-icon">📦</span>
+                    <span class="kpi-title">Production Volume</span>
+                </div>
+                <div class="kpi-main-value" id="prodValue">0 MT</div>
+                <div class="kpi-sub-value" id="prodTargetDisplay">Target: 0 MT</div>
+                <div class="kpi-progress">
+                    <div class="kpi-progress-bar" id="prodProgress" style="width: 0%"></div>
+                </div>
+                <div class="kpi-footer">
+                    <span id="prodPercent">0%</span>
+                    <span>Achieved</span>
+                </div>
+            </div>
+
+            <!-- Operational Cost Card -->
+            <div class="kpi-card">
+                <div class="kpi-header">
+                    <span class="kpi-icon">💰</span>
+                    <span class="kpi-title">Operational Cost</span>
+                </div>
+                <div class="kpi-main-value" id="opValue">₱0</div>
+                <div class="kpi-sub-value" id="opBudgetDisplay">Budget: ₱0</div>
+                <div class="kpi-progress">
+                    <div class="kpi-progress-bar" id="opProgress" style="width: 0%"></div>
+                </div>
+                <div class="kpi-footer">
+                    <span id="opPercent">0%</span>
+                    <span>of budget</span>
+                </div>
+            </div>
+
+            <!-- Capital Expenditure Card -->
+            <div class="kpi-card">
+                <div class="kpi-header">
+                    <span class="kpi-icon">🏭</span>
+                    <span class="kpi-title">Capital Expenditure</span>
+                </div>
+                <div class="kpi-main-value" id="capValue">₱0</div>
+                <div class="kpi-sub-value" id="capBudgetDisplay">Budget: ₱0</div>
+                <div class="kpi-progress">
+                    <div class="kpi-progress-bar" id="capProgress" style="width: 0%"></div>
+                </div>
+                <div class="kpi-footer">
+                    <span id="capPercent">0%</span>
+                    <span>of budget</span>
+                </div>
+            </div>
+
+            <!-- Other Expenses Card -->
+            <div class="kpi-card">
+                <div class="kpi-header">
+                    <span class="kpi-icon">📋</span>
+                    <span class="kpi-title">Other Expenses</span>
+                </div>
+                <div class="kpi-main-value" id="expValue">₱0</div>
+                <div class="kpi-sub-value" id="expBudgetDisplay">Budget: ₱0</div>
+                <div class="kpi-progress">
+                    <div class="kpi-progress-bar" id="expProgress" style="width: 0%"></div>
+                </div>
+                <div class="kpi-footer">
+                    <span id="expPercent">0%</span>
+                    <span>of budget</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Input Panel -->
+        <div class="input-panel">
+            <div class="panel-header">DATA INPUT FORM</div>
+            <div class="input-grid">
+                <!-- Production Column -->
+                <div class="input-group">
+                    <h4>📦 PRODUCTION</h4>
+                    <div class="input-field">
+                        <label>Volume Produced (MT)</label>
+                        <input type="number" id="volumeActualInput" value="0" step="0.01">
+                    </div>
+                    <div class="input-field">
+                        <label>Volume Target (MT)</label>
+                        <input type="number" id="volumeTargetInput" value="0" step="0.01">
+                    </div>
+                    <div class="input-field">
+                        <label>Conversion Cost - SC (₱/KG)</label>
+                        <input type="number" id="convCostSCInput" value="0" step="0.01">
+                    </div>
+                    <div class="input-field">
+                        <label>Conversion Cost - Overall (₱/KG)</label>
+                        <input type="number" id="convCostOverallInput" value="0" step="0.01">
+                    </div>
+                </div>
+
+                <!-- Costs Column -->
+                <div class="input-group">
+                    <h4>💰 COSTS</h4>
+                    <div class="input-field">
+                        <label>Operational Actual (₱)</label>
+                        <input type="number" id="opActualInput" value="0" step="0.01">
+                    </div>
+                    <div class="input-field">
+                        <label>Operational Budget (₱)</label>
+                        <input type="number" id="opBudgetInput" value="0" step="0.01">
+                    </div>
+                    <div class="input-field">
+                        <label>Capital Actual (₱)</label>
+                        <input type="number" id="capActualInput" value="0" step="0.01">
+                    </div>
+                    <div class="input-field">
+                        <label>Capital Budget (₱)</label>
+                        <input type="number" id="capBudgetInput" value="0" step="0.01">
+                    </div>
+                    <div class="input-field">
+                        <label>Other Expense Actual (₱)</label>
+                        <input type="number" id="expActualInput" value="0" step="0.01">
+                    </div>
+                    <div class="input-field">
+                        <label>Other Expense Budget (₱)</label>
+                        <input type="number" id="expBudgetInput" value="0" step="0.01">
+                    </div>
+                </div>
+
+                <!-- Labor Column -->
+                <div class="input-group">
+                    <h4>👥 LABOR</h4>
+                    <div class="input-field">
+                        <label>Regular Hours - DL</label>
+                        <input type="number" id="regDLInput" value="0" step="0.01">
+                    </div>
+                    <div class="input-field">
+                        <label>Overtime Hours - DL</label>
+                        <input type="number" id="otDLInput" value="0" step="0.01">
+                    </div>
+                    <div class="input-field">
+                        <label>Regular Hours - IL</label>
+                        <input type="number" id="regILInput" value="0" step="0.01">
+                    </div>
+                    <div class="input-field">
+                        <label>Overtime Hours - IL</label>
+                        <input type="number" id="otILInput" value="0" step="0.01">
+                    </div>
+                </div>
+            </div>
+            <div class="button-group">
+                <button class="btn" onclick="clearAll()">CLEAR ALL</button>
+                <button class="btn btn-primary" onclick="calculateAll()">UPDATE</button>
+            </div>
+        </div>
+
+        <!-- Tables Grid -->
+        <div class="tables-grid">
+            <!-- Cost Analysis Table -->
+            <div class="table-card">
+                <div class="table-header">💰 COST ANALYSIS</div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th>Actual</th>
+                                <th>Budget</th>
+                                <th>Variance</th>
+                                <th>%</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="costTableBody">
+                            <tr>
+                                <td>Operational</td>
+                                <td>₱0</td>
+                                <td>₱0</td>
+                                <td>₱0</td>
+                                <td>0%</td>
+                                <td><span class="status-badge status-neutral">No Budget</span></td>
+                            </tr>
+                            <tr>
+                                <td>Capital</td>
+                                <td>₱0</td>
+                                <td>₱0</td>
+                                <td>₱0</td>
+                                <td>0%</td>
+                                <td><span class="status-badge status-neutral">No Budget</span></td>
+                            </tr>
+                            <tr>
+                                <td>Other</td>
+                                <td>₱0</td>
+                                <td>₱0</td>
+                                <td>₱0</td>
+                                <td>0%</td>
+                                <td><span class="status-badge status-neutral">No Budget</span></td>
+                            </tr>
+                            <tr style="background-color: #fafbfc; font-weight: 600;">
+                                <td>TOTAL</td>
+                                <td>₱0</td>
+                                <td>₱0</td>
+                                <td>₱0</td>
+                                <td>0%</td>
+                                <td><span class="status-badge status-neutral">No Budget</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Labor Analysis Table -->
+            <div class="table-card">
+                <div class="table-header">👥 LABOR ANALYSIS</div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Labor Type</th>
+                                <th>Regular</th>
+                                <th>Overtime</th>
+                                <th>Total</th>
+                                <th>OT %</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="laborTableBody">
+                            <tr>
+                                <td>Direct Labor</td>
+                                <td>0</td>
+                                <td>0</td>
+                                <td>0</td>
+                                <td>0%</td>
+                                <td><span class="status-badge status-neutral">No Data</span></td>
+                            </tr>
+                            <tr>
+                                <td>Indirect Labor</td>
+                                <td>0</td>
+                                <td>0</td>
+                                <td>0</td>
+                                <td>0%</td>
+                                <td><span class="status-badge status-neutral">No Data</span></td>
+                            </tr>
+                            <tr style="background-color: #fafbfc; font-weight: 600;">
+                                <td>TOTAL</td>
+                                <td>0</td>
+                                <td>0</td>
+                                <td>0</td>
+                                <td>0%</td>
+                                <td><span class="status-badge status-neutral">No Data</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            Last updated: <span id="lastUpdate">Just now</span>
+        </div>
+    </div>
+
+    <script>
+        function formatNumber(num, decimals = 2) {
+            if (num === 0) return '0';
+            return num.toLocaleString(undefined, {
+                minimumFractionDigits: decimals,
+                maximumFractionDigits: decimals
+            });
+        }
+
+        function formatCurrency(num) {
+            if (num === 0) return '₱0';
+            if (num >= 1000000) return '₱' + (num/1000000).toFixed(1) + 'M';
+            if (num >= 1000) return '₱' + (num/1000).toFixed(1) + 'K';
+            return '₱' + num.toFixed(2);
+        }
+
+        function calculateAll() {
+            // Get values from INPUT fields (with "Input" suffix)
+            const volumeActual = parseFloat(document.getElementById('volumeActualInput').value) || 0;
+            const volumeTarget = parseFloat(document.getElementById('volumeTargetInput').value) || 0;
+            
+            const opActual = parseFloat(document.getElementById('opActualInput').value) || 0;
+            const opBudget = parseFloat(document.getElementById('opBudgetInput').value) || 0;
+            
+            const capActual = parseFloat(document.getElementById('capActualInput').value) || 0;
+            const capBudget = parseFloat(document.getElementById('capBudgetInput').value) || 0;
+            
+            const expActual = parseFloat(document.getElementById('expActualInput').value) || 0;
+            const expBudget = parseFloat(document.getElementById('expBudgetInput').value) || 0;
+            
+            const regDL = parseFloat(document.getElementById('regDLInput').value) || 0;
+            const otDL = parseFloat(document.getElementById('otDLInput').value) || 0;
+            const regIL = parseFloat(document.getElementById('regILInput').value) || 0;
+            const otIL = parseFloat(document.getElementById('otILInput').value) || 0;
+
+            // Production Calculations
+            const volumePercent = volumeTarget > 0 ? (volumeActual / volumeTarget) * 100 : 0;
+            
+            document.getElementById('prodValue').textContent = volumeActual ? formatNumber(volumeActual, 2) + ' MT' : '0 MT';
+            document.getElementById('prodTargetDisplay').textContent = 'Target: ' + (volumeTarget ? formatNumber(volumeTarget, 2) + ' MT' : '0 MT');
+            document.getElementById('prodProgress').style.width = Math.min(volumePercent, 100) + '%';
+            document.getElementById('prodPercent').textContent = volumePercent.toFixed(1) + '%';
+
+            // Operational Cost Calculations
+            const opPercent = opBudget > 0 ? (opActual / opBudget) * 100 : 0;
+            document.getElementById('opValue').textContent = formatCurrency(opActual);
+            document.getElementById('opBudgetDisplay').textContent = 'Budget: ' + formatCurrency(opBudget);
+            document.getElementById('opProgress').style.width = opBudget > 0 ? Math.min(opPercent, 100) + '%' : '0%';
+            document.getElementById('opPercent').textContent = opPercent.toFixed(1) + '%';
+
+            // Capital Calculations
+            const capPercent = capBudget > 0 ? (capActual / capBudget) * 100 : 0;
+            document.getElementById('capValue').textContent = formatCurrency(capActual);
+            document.getElementById('capBudgetDisplay').textContent = 'Budget: ' + formatCurrency(capBudget);
+            document.getElementById('capProgress').style.width = capBudget > 0 ? Math.min(capPercent, 100) + '%' : '0%';
+            document.getElementById('capPercent').textContent = capPercent.toFixed(1) + '%';
+
+            // Other Expenses Calculations
+            const expPercent = expBudget > 0 ? (expActual / expBudget) * 100 : 0;
+            document.getElementById('expValue').textContent = formatCurrency(expActual);
+            document.getElementById('expBudgetDisplay').textContent = 'Budget: ' + formatCurrency(expBudget);
+            document.getElementById('expProgress').style.width = expBudget > 0 ? Math.min(expPercent, 100) + '%' : '0%';
+            document.getElementById('expPercent').textContent = expPercent.toFixed(1) + '%';
+
+            // Cost Table Calculations
+            const opVariance = opActual - opBudget;
+            const capVariance = capActual - capBudget;
+            const expVariance = expActual - expBudget;
+            
+            const totalActual = opActual + capActual + expActual;
+            const totalBudget = opBudget + capBudget + expBudget;
+            const totalVariance = totalActual - totalBudget;
+            const totalPercent = totalBudget > 0 ? (totalActual / totalBudget) * 100 : 0;
+
+            document.getElementById('costTableBody').innerHTML = `
+                <tr>
+                    <td>Operational</td>
+                    <td>${formatCurrency(opActual)}</td>
+                    <td>${formatCurrency(opBudget)}</td>
+                    <td>${opVariance >= 0 ? '+' : ''}${formatCurrency(opVariance)}</td>
+                    <td>${opPercent.toFixed(1)}%</td>
+                    <td>
+                        <span class="status-badge ${opBudget === 0 ? 'status-neutral' : (opActual <= opBudget ? 'status-good' : 'status-warning')}">
+                            ${opBudget === 0 ? 'No Budget' : (opActual <= opBudget ? 'Under' : 'Over')}
+                        </span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Capital</td>
+                    <td>${formatCurrency(capActual)}</td>
+                    <td>${formatCurrency(capBudget)}</td>
+                    <td>${capVariance >= 0 ? '+' : ''}${formatCurrency(capVariance)}</td>
+                    <td>${capPercent.toFixed(1)}%</td>
+                    <td>
+                        <span class="status-badge ${capBudget === 0 ? 'status-neutral' : (capActual <= capBudget ? 'status-good' : 'status-warning')}">
+                            ${capBudget === 0 ? 'No Budget' : (capActual <= capBudget ? 'Under' : 'Over')}
+                        </span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Other</td>
+                    <td>${formatCurrency(expActual)}</td>
+                    <td>${formatCurrency(expBudget)}</td>
+                    <td>${expVariance >= 0 ? '+' : ''}${formatCurrency(expVariance)}</td>
+                    <td>${expPercent.toFixed(1)}%</td>
+                    <td>
+                        <span class="status-badge ${expBudget === 0 ? 'status-neutral' : (expActual <= expBudget ? 'status-good' : 'status-warning')}">
+                            ${expBudget === 0 ? 'No Budget' : (expActual <= expBudget ? 'Under' : 'Over')}
+                        </span>
+                    </td>
+                </tr>
+                <tr style="background-color: #fafbfc; font-weight: 600;">
+                    <td>TOTAL</td>
+                    <td>${formatCurrency(totalActual)}</td>
+                    <td>${formatCurrency(totalBudget)}</td>
+                    <td>${totalVariance >= 0 ? '+' : ''}${formatCurrency(totalVariance)}</td>
+                    <td>${totalPercent.toFixed(1)}%</td>
+                    <td>
+                        <span class="status-badge ${totalBudget === 0 ? 'status-neutral' : (totalActual <= totalBudget ? 'status-good' : 'status-warning')}">
+                            ${totalBudget === 0 ? 'No Budget' : (totalActual <= totalBudget ? 'Under' : 'Over')}
+                        </span>
+                    </td>
+                </tr>
+            `;
+
+            // Labor Calculations
+            const dlTotal = regDL + otDL;
+            const ilTotal = regIL + otIL;
+            const totalReg = regDL + regIL;
+            const totalOT = otDL + otIL;
+            const totalHours = totalReg + totalOT;
+            
+            const dlOTPercent = regDL > 0 ? (otDL / regDL) * 100 : 0;
+            const ilOTPercent = regIL > 0 ? (otIL / regIL) * 100 : 0;
+            const totalOTPercent = totalHours > 0 ? (totalOT / totalHours) * 100 : 0;
+
+            document.getElementById('laborTableBody').innerHTML = `
+                <tr>
+                    <td>Direct Labor</td>
+                    <td>${formatNumber(regDL, 0)}</td>
+                    <td>${formatNumber(otDL, 0)}</td>
+                    <td>${formatNumber(dlTotal, 0)}</td>
+                    <td>${dlOTPercent.toFixed(1)}%</td>
+                    <td>
+                        <span class="status-badge ${regDL === 0 ? 'status-neutral' : (dlOTPercent <= 25 ? 'status-good' : (dlOTPercent <= 35 ? 'status-neutral' : 'status-warning'))}">
+                            ${regDL === 0 ? 'No Data' : (dlOTPercent <= 25 ? 'Normal' : (dlOTPercent <= 35 ? 'High' : 'Critical'))}
+                        </span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Indirect Labor</td>
+                    <td>${formatNumber(regIL, 0)}</td>
+                    <td>${formatNumber(otIL, 0)}</td>
+                    <td>${formatNumber(ilTotal, 0)}</td>
+                    <td>${ilOTPercent.toFixed(1)}%</td>
+                    <td>
+                        <span class="status-badge ${regIL === 0 ? 'status-neutral' : (ilOTPercent <= 25 ? 'status-good' : (ilOTPercent <= 35 ? 'status-neutral' : 'status-warning'))}">
+                            ${regIL === 0 ? 'No Data' : (ilOTPercent <= 25 ? 'Normal' : (ilOTPercent <= 35 ? 'High' : 'Critical'))}
+                        </span>
+                    </td>
+                </tr>
+                <tr style="background-color: #fafbfc; font-weight: 600;">
+                    <td>TOTAL</td>
+                    <td>${formatNumber(totalReg, 0)}</td>
+                    <td>${formatNumber(totalOT, 0)}</td>
+                    <td>${formatNumber(totalHours, 0)}</td>
+                    <td>${totalOTPercent.toFixed(1)}%</td>
+                    <td>
+                        <span class="status-badge ${totalHours === 0 ? 'status-neutral' : (totalOTPercent <= 25 ? 'status-good' : (totalOTPercent <= 35 ? 'status-neutral' : 'status-warning'))}">
+                            ${totalHours === 0 ? 'No Data' : (totalOTPercent <= 25 ? 'Normal' : (totalOTPercent <= 35 ? 'High' : 'Critical'))}
+                        </span>
+                    </td>
+                </tr>
+            `;
+
+            // Update timestamp
+            const year = document.getElementById('yearSelect').value;
+            const month = document.getElementById('monthSelect').value;
+            document.getElementById('lastUpdate').textContent = new Date().toLocaleString() + ` (${month} ${year})`;
+        }
+
+        function clearAll() {
+            document.querySelectorAll('input[type="number"]').forEach(input => input.value = '0');
+            calculateAll();
+        }
+
+        // Add event listeners
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('input', calculateAll);
+        });
+
+        document.getElementById('yearSelect').addEventListener('change', calculateAll);
+        document.getElementById('monthSelect').addEventListener('change', calculateAll);
+
+        // Initialize
+        window.onload = clearAll;
+    </script>
+</body>
+</html>

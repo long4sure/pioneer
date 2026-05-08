@@ -1,0 +1,1422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Production Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            padding: 24px;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #2d2f33;
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 16px;
+            background-color: #fafbfc;
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: 1px solid #eef2f5;
+            flex-wrap: wrap;
+        }
+
+        .filter-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .filter-item label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #5f6775;
+            text-transform: uppercase;
+        }
+
+        .filter-item select, .filter-item input {
+            padding: 6px 12px;
+            border: 1px solid #d0d5dd;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #2d2f33;
+            background-color: white;
+            cursor: pointer;
+        }
+
+        /* Tab Navigation */
+        .tab-nav {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 24px;
+            border-bottom: 2px solid #eef2f5;
+            padding-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 8px 16px;
+            border: none;
+            background: none;
+            font-size: 13px;
+            font-weight: 600;
+            color: #5f6775;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .tab-btn:hover {
+            color: #01b8aa;
+            background-color: #f0f7f7;
+        }
+
+        .tab-btn.active {
+            color: #01b8aa;
+            background-color: #e6f3f2;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* KPI Cards */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .kpi-card {
+            background-color: white;
+            border: 1px solid #eef2f5;
+            border-radius: 8px;
+            padding: 20px;
+            transition: all 0.2s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+        }
+
+        .kpi-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border-color: #01b8aa;
+        }
+
+        .kpi-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .kpi-card-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #5f6775;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .kpi-card-main-value {
+            font-size: 32px;
+            font-weight: 600;
+            color: #2d2f33;
+            margin-bottom: 8px;
+        }
+
+        .kpi-card-details {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .kpi-card-detail-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            color: #5f6775;
+            padding: 4px 0;
+            border-bottom: 1px dashed #f0f0f0;
+        }
+
+        .kpi-card-detail-label {
+            color: #5f6775;
+        }
+
+        .kpi-card-detail-value {
+            font-weight: 600;
+            color: #2d2f33;
+        }
+
+        .kpi-card-progress {
+            height: 6px;
+            background-color: #eef2f5;
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 12px 0 8px;
+        }
+
+        .kpi-card-progress-bar {
+            height: 100%;
+            background-color: #01b8aa;
+            border-radius: 3px;
+        }
+
+        .kpi-card-footer {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #5f6775;
+            margin-top: 8px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-excellent {
+            background-color: #e6f9ed;
+            color: #107c41;
+        }
+
+        .status-good {
+            background-color: #e3f2fd;
+            color: #0d47a1;
+        }
+
+        .status-warning {
+            background-color: #fff1e0;
+            color: #d83b01;
+        }
+
+        .status-critical {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+
+        .status-neutral {
+            background-color: #fef7e0;
+            color: #966c00;
+        }
+
+        /* Section Headers */
+        .section-header {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2d2f33;
+            margin: 30px 0 20px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #01b8aa;
+        }
+
+        /* Two Column Layout */
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        /* Three Column Layout */
+        .three-col {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        /* Tables */
+        .table-container {
+            background-color: white;
+            border: 1px solid #eef2f5;
+            border-radius: 6px;
+            margin-bottom: 24px;
+            overflow-x: auto;
+        }
+
+        .table-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #eef2f5;
+            background-color: #fafbfc;
+            font-size: 14px;
+            font-weight: 600;
+            color: #2d2f33;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .table-total {
+            font-size: 13px;
+            color: #5f6775;
+            background-color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            border: 1px solid #d0d5dd;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            padding: 14px 16px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #5f6775;
+            text-transform: uppercase;
+            border-bottom: 2px solid #eef2f5;
+            background-color: #fafbfc;
+        }
+
+        td {
+            padding: 12px 16px;
+            font-size: 13px;
+            color: #2d2f33;
+            border-bottom: 1px solid #eef2f5;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            background-color: #f0f0f0;
+            color: #5f6775;
+        }
+
+        /* Input Panel */
+        .input-panel {
+            background-color: white;
+            border: 1px solid #eef2f5;
+            border-radius: 6px;
+            margin: 24px 0;
+        }
+
+        .panel-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #eef2f5;
+            background-color: #fafbfc;
+            font-size: 14px;
+            font-weight: 600;
+            color: #2d2f33;
+        }
+
+        .input-controls {
+            display: flex;
+            gap: 20px;
+            padding: 20px;
+            background-color: #fafbfc;
+            border-bottom: 1px solid #eef2f5;
+            flex-wrap: wrap;
+        }
+
+        .input-selector {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .input-selector label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #5f6775;
+            text-transform: uppercase;
+        }
+
+        .input-selector select {
+            padding: 8px 16px;
+            border: 1px solid #d0d5dd;
+            border-radius: 4px;
+            font-size: 13px;
+            min-width: 200px;
+        }
+
+        .input-sections {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .input-section {
+            background-color: #fafbfc;
+            border: 1px solid #eef2f5;
+            border-radius: 6px;
+            padding: 20px;
+        }
+
+        .input-section h4 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #5f6775;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #eef2f5;
+        }
+
+        .input-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .input-field {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .input-field label {
+            font-size: 11px;
+            font-weight: 600;
+            color: #5f6775;
+            text-transform: uppercase;
+        }
+
+        .input-field input {
+            padding: 8px 12px;
+            border: 1px solid #d0d5dd;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #2d2f33;
+            background-color: white;
+        }
+
+        .input-field input:focus {
+            outline: none;
+            border-color: #01b8aa;
+        }
+
+        .button-group {
+            padding: 16px 20px;
+            border-top: 1px solid #eef2f5;
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: 1px solid #d0d5dd;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            background: white;
+            color: #2d2f33;
+        }
+
+        .btn-primary {
+            background-color: #01b8aa;
+            border-color: #01b8aa;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #019f92;
+        }
+
+        .btn-danger {
+            background-color: #d83b01;
+            border-color: #d83b01;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #b32e01;
+        }
+
+        .footer {
+            text-align: right;
+            font-size: 12px;
+            color: #5f6775;
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid #eef2f5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header with Filters -->
+        <div class="header">
+            <h1>PRODUCTION DASHBOARD</h1>
+            <div class="filter-group">
+                <div class="filter-item">
+                    <label>Year:</label>
+                    <select id="yearSelect">
+                        <option value="2023">2023</option>
+                        <option value="2024" selected>2024</option>
+                        <option value="2025">2025</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label>Month:</label>
+                    <select id="monthSelect">
+                        <option value="January">January</option>
+                        <option value="February">February</option>
+                        <option value="March">March</option>
+                        <option value="April">April</option>
+                        <option value="May">May</option>
+                        <option value="June">June</option>
+                        <option value="July">July</option>
+                        <option value="August">August</option>
+                        <option value="September">September</option>
+                        <option value="October" selected>October</option>
+                        <option value="November">November</option>
+                        <option value="December">December</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab Navigation -->
+        <div class="tab-nav">
+            <button class="tab-btn active" onclick="switchTab('overview')">Overview</button>
+            <button class="tab-btn" onclick="switchTab('utilization')">Utilization</button>
+            <button class="tab-btn" onclick="switchTab('output')">Output & Waste</button>
+            <button class="tab-btn" onclick="switchTab('material')">Material Usage</button>
+            <button class="tab-btn" onclick="switchTab('scheduling')">Scheduling</button>
+            <button class="tab-btn" onclick="switchTab('manpower')">Manpower</button>
+            <button class="tab-btn" onclick="switchTab('input')">Data Input</button>
+        </div>
+
+        <!-- OVERVIEW TAB -->
+        <div id="tab-overview" class="tab-content active">
+            <!-- Top KPI Cards -->
+            <div class="kpi-grid">
+                <!-- Machine Utilization Summary -->
+                <div class="kpi-card">
+                    <div class="kpi-card-header">
+                        <span class="kpi-card-title">Machine Utilization</span>
+                    </div>
+                    <div class="kpi-card-main-value" id="utilizationRate">0%</div>
+                    <div class="kpi-card-details">
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Productive Time</span>
+                            <span class="kpi-card-detail-value" id="productiveTime">0 hrs</span>
+                        </div>
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Total Time</span>
+                            <span class="kpi-card-detail-value" id="totalTime">0 hrs</span>
+                        </div>
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Machines Available</span>
+                            <span class="kpi-card-detail-value" id="machinesAvail">0</span>
+                        </div>
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Machines Used</span>
+                            <span class="kpi-card-detail-value" id="machinesUsed">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Output Summary -->
+                <div class="kpi-card">
+                    <div class="kpi-card-header">
+                        <span class="kpi-card-title">Production Output</span>
+                    </div>
+                    <div class="kpi-card-main-value" id="totalOutput">0 kg</div>
+                    <div class="kpi-card-details">
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">FG Output</span>
+                            <span class="kpi-card-detail-value" id="fgOutput">0 kg</span>
+                        </div>
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Reprocess</span>
+                            <span class="kpi-card-detail-value" id="reprocessOutput">0 kg</span>
+                        </div>
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Internal Rejection</span>
+                            <span class="kpi-card-detail-value" id="internalRejection">0 kg</span>
+                        </div>
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Daily Average</span>
+                            <span class="kpi-card-detail-value" id="dailyAvg">0 kg</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Waste Summary -->
+                <div class="kpi-card">
+                    <div class="kpi-card-header">
+                        <span class="kpi-card-title">Production Waste</span>
+                    </div>
+                    <div class="kpi-card-main-value" id="wastePercent">0%</div>
+                    <div class="kpi-card-details">
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Total Waste</span>
+                            <span class="kpi-card-detail-value" id="totalWaste">0 kg</span>
+                        </div>
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Productivity</span>
+                            <span class="kpi-card-detail-value" id="productivity">0 kg/hr</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Material Usage Summary -->
+                <div class="kpi-card">
+                    <div class="kpi-card-header">
+                        <span class="kpi-card-title">Material Usage</span>
+                    </div>
+                    <div class="kpi-card-main-value" id="yieldPercent">0%</div>
+                    <div class="kpi-card-details">
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">RM Usage</span>
+                            <span class="kpi-card-detail-value" id="rmUsage">0 kg</span>
+                        </div>
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">RM Waste %</span>
+                            <span class="kpi-card-detail-value" id="rmWastePct">0%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Scheduling Attainment Section -->
+            <div class="section-header">Scheduling Attainment</div>
+            <div class="kpi-grid">
+                <!-- Overall Attainment -->
+                <div class="kpi-card">
+                    <div class="kpi-card-header">
+                        <span class="kpi-card-title">Overall Compliance</span>
+                    </div>
+                    <div class="kpi-card-main-value" id="overallCompliance">0%</div>
+                    <div class="kpi-card-details">
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Actual Output</span>
+                            <span class="kpi-card-detail-value" id="actualOutput">0 kg</span>
+                        </div>
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Planned Output</span>
+                            <span class="kpi-card-detail-value" id="plannedOutput">0 kg</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Change Over Summary -->
+                <div class="kpi-card">
+                    <div class="kpi-card-header">
+                        <span class="kpi-card-title">Change Over</span>
+                    </div>
+                    <div class="kpi-card-main-value" id="changeOverHours">0 hrs</div>
+                    <div class="kpi-card-details">
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Change Over Count</span>
+                            <span class="kpi-card-detail-value" id="changeOverCount">0</span>
+                        </div>
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Avg Time/Change</span>
+                            <span class="kpi-card-detail-value" id="avgChangeOver">0 min</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Top Performing Lines -->
+                <div class="kpi-card">
+                    <div class="kpi-card-header">
+                        <span class="kpi-card-title">Line Performance</span>
+                    </div>
+                    <div class="kpi-card-details">
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">L06 - Epoxy</span>
+                            <span class="kpi-card-detail-value" id="line6Compliance">0%</span>
+                        </div>
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">L04B - Elasto</span>
+                            <span class="kpi-card-detail-value" id="line4bCompliance">0%</span>
+                        </div>
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">L01 - Coatings</span>
+                            <span class="kpi-card-detail-value" id="line1Compliance">0%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Manpower Summary -->
+            <div class="section-header">Manpower Summary</div>
+            <div class="three-col">
+                <!-- Headcount -->
+                <div class="kpi-card">
+                    <div class="kpi-card-header">
+                        <span class="kpi-card-title">Headcount</span>
+                    </div>
+                    <div class="kpi-card-main-value" id="totalHeadcount">0</div>
+                    <div class="kpi-card-details">
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Regular</span>
+                            <span class="kpi-card-detail-value" id="regularCount">0</span>
+                        </div>
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Agency</span>
+                            <span class="kpi-card-detail-value" id="agencyCount">0</span>
+                        </div>
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Resigned</span>
+                            <span class="kpi-card-detail-value" id="resignedCount">0</span>
+                        </div>
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Attrition</span>
+                            <span class="kpi-card-detail-value" id="attritionRate">0%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Manhours -->
+                <div class="kpi-card">
+                    <div class="kpi-card-header">
+                        <span class="kpi-card-title">Manhours</span>
+                    </div>
+                    <div class="kpi-card-main-value" id="totalManhours">0 hrs</div>
+                    <div class="kpi-card-details">
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Regular</span>
+                            <span class="kpi-card-detail-value" id="regularHours">0 hrs</span>
+                        </div>
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Agency</span>
+                            <span class="kpi-card-detail-value" id="agencyHours">0 hrs</span>
+                        </div>
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Overtime</span>
+                            <span class="kpi-card-detail-value" id="overtimeHours">0 hrs</span>
+                        </div>
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">OT Rate</span>
+                            <span class="kpi-card-detail-value" id="otRate">0%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Absences -->
+                <div class="kpi-card">
+                    <div class="kpi-card-header">
+                        <span class="kpi-card-title">Absences</span>
+                    </div>
+                    <div class="kpi-card-main-value" id="absenteeismRate">0%</div>
+                    <div class="kpi-card-details">
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Absences Count</span>
+                            <span class="kpi-card-detail-value" id="absencesCount">0</span>
+                        </div>
+                        <div class="kpi-card-detail-row">
+                            <span class="kpi-card-detail-label">Working Days</span>
+                            <span class="kpi-card-detail-value" id="workingDays">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- UTILIZATION TAB -->
+        <div id="tab-utilization" class="tab-content">
+            <div class="section-header">Machine Utilization - Summary</div>
+            <div class="table-container">
+                <div class="table-header">
+                    <span>Utilization Breakdown by Category</span>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>Hours</th>
+                            <th>% of Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Actual Productive Time</td><td id="productiveHrs">0</td><td id="productivePct">0%</td></tr>
+                        <tr><td>No Production Plan</td><td id="noPlanHrs">0</td><td id="noPlanPct">0%</td></tr>
+                        <tr><td>No Head Count Allocation</td><td id="noHcHrs">0</td><td id="noHcPct">0%</td></tr>
+                        <tr><td>Change Over Time</td><td id="changeOverHrs">0</td><td id="changeOverPct">0%</td></tr>
+                        <tr><td>Meeting</td><td id="meetingHrs">0</td><td id="meetingPct">0%</td></tr>
+                        <tr><td>Sanitation Time</td><td id="sanitationHrs">0</td><td id="sanitationPct">0%</td></tr>
+                        <tr><td>Start-up Time/Setup</td><td id="startupHrs">0</td><td id="startupPct">0%</td></tr>
+                        <tr><td>Breaktime</td><td id="breaktimeHrs">0</td><td id="breaktimePct">0%</td></tr>
+                        <tr><td>Force Majeure</td><td id="forceMajeureHrs">0</td><td id="forceMajeurePct">0%</td></tr>
+                        <tr><td>Mechanical Breakdown</td><td id="mechBreakdownHrs">0</td><td id="mechBreakdownPct">0%</td></tr>
+                        <tr><td>No Manpower</td><td id="noManpowerHrs">0</td><td id="noManpowerPct">0%</td></tr>
+                        <tr><td>No OT</td><td id="noOtHrs">0</td><td id="noOtPct">0%</td></tr>
+                        <tr><td>No Bulkmix/No Kettle</td><td id="noBulkmixHrs">0</td><td id="noBulkmixPct">0%</td></tr>
+                        <tr><td>Transfer</td><td id="transferHrs">0</td><td id="transferPct">0%</td></tr>
+                        <tr><td>Idle time</td><td id="idleHrs">0</td><td id="idlePct">0%</td></tr>
+                        <tr><td>Electrical Breakdown</td><td id="elecBreakdownHrs">0</td><td id="elecBreakdownPct">0%</td></tr>
+                        <tr><td>Materials Supply</td><td id="materialsSupplyHrs">0</td><td id="materialsSupplyPct">0%</td></tr>
+                        <tr><td>Sorting/Reworking</td><td id="sortingHrs">0</td><td id="sortingPct">0%</td></tr>
+                        <tr><td>UDT-Meeting</td><td id="udtMeetingHrs">0</td><td id="udtMeetingPct">0%</td></tr>
+                        <tr><td>Preventive Maintenance</td><td id="pmHrs">0</td><td id="pmPct">0%</td></tr>
+                        <tr><td>Testing Time</td><td id="testingHrs">0</td><td id="testingPct">0%</td></tr>
+                        <tr><td>Shutdown/cooldown</td><td id="shutdownHrs">0</td><td id="shutdownPct">0%</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="two-col">
+                <div class="kpi-card">
+                    <div class="kpi-card-header">
+                        <span class="kpi-card-title">Machine Summary</span>
+                    </div>
+                    <div class="kpi-card-details">
+                        <div class="kpi-card-detail-row"><span># of Machines Available</span><span id="machinesAvailable">0</span></div>
+                        <div class="kpi-card-detail-row"><span># of Machines Used</span><span id="machinesUsedDetail">0</span></div>
+                        <div class="kpi-card-detail-row"><span>Production Days</span><span id="productionDays">0</span></div>
+                        <div class="kpi-card-detail-row"><span>% Utilization</span><span id="utilizationPct">0%</span></div>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-card-header">
+                        <span class="kpi-card-title">Top Downtime Causes</span>
+                    </div>
+                    <div class="kpi-card-details" id="topDowntime">
+                        <div class="kpi-card-detail-row"><span>No data</span><span></span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- OUTPUT & WASTE TAB -->
+        <div id="tab-output" class="tab-content">
+            <div class="section-header">Output by Production Line</div>
+            <div class="table-container">
+                <div class="table-header">
+                    <span>FG Output (KGS)</span>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Line</th>
+                            <th>FG Output</th>
+                            <th>Reprocess</th>
+                            <th>Rejection</th>
+                            <th>Net Output</th>
+                            <th>Daily Avg</th>
+                            <th>Waste</th>
+                            <th>Waste %</th>
+                            <th>KG/MH</th>
+                        </tr>
+                    </thead>
+                    <tbody id="outputTableBody">
+                        <!-- Filled by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- MATERIAL USAGE TAB -->
+        <div id="tab-material" class="tab-content">
+            <div class="section-header">Material Usage Summary</div>
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-card-header">
+                        <span class="kpi-card-title">Overall</span>
+                    </div>
+                    <div class="kpi-card-details">
+                        <div class="kpi-card-detail-row"><span>RM Usage</span><span id="totalRmUsage">0 kg</span></div>
+                        <div class="kpi-card-detail-row"><span>Production Output</span><span id="totalProdOutput">0 kg</span></div>
+                        <div class="kpi-card-detail-row"><span>Production Waste</span><span id="totalProdWaste">0 kg</span></div>
+                        <div class="kpi-card-detail-row"><span>% Yield</span><span id="totalYield">0%</span></div>
+                        <div class="kpi-card-detail-row"><span>% Waste</span><span id="totalWastePct">0%</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <div class="table-header">
+                    <span>Material Usage by Line</span>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Line</th>
+                            <th>RM Usage (kg)</th>
+                            <th>Output (kg)</th>
+                            <th>Waste (kg)</th>
+                            <th>% Yield</th>
+                            <th>% Waste</th>
+                        </tr>
+                    </thead>
+                    <tbody id="materialTableBody">
+                        <!-- Filled by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- SCHEDULING TAB -->
+        <div id="tab-scheduling" class="tab-content">
+            <div class="section-header">Scheduling Attainment by Line</div>
+            <div class="table-container">
+                <div class="table-header">
+                    <span>Actual vs Planned Output</span>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Line</th>
+                            <th>Actual Output (kg)</th>
+                            <th>Planned Output (kg)</th>
+                            <th>% Compliance</th>
+                        </tr>
+                    </thead>
+                    <tbody id="schedulingTableBody">
+                        <!-- Filled by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="kpi-card" style="margin-top: 20px;">
+                <div class="kpi-card-header">
+                    <span class="kpi-card-title">Overall Scheduling Attainment</span>
+                </div>
+                <div class="kpi-card-main-value" id="overallScheduling">0%</div>
+                <div class="kpi-card-details">
+                    <div class="kpi-card-detail-row"><span>Total Actual</span><span id="totalActualSched">0 kg</span></div>
+                    <div class="kpi-card-detail-row"><span>Total Planned</span><span id="totalPlannedSched">0 kg</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MANPOWER TAB -->
+        <div id="tab-manpower" class="tab-content">
+            <div class="section-header">Manpower Summary by Line</div>
+            <div class="table-container">
+                <div class="table-header">
+                    <span>Headcount, Hours & Attendance</span>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Line</th>
+                            <th>Regular</th>
+                            <th>Agency</th>
+                            <th>Total HC</th>
+                            <th>Resigned</th>
+                            <th>Attrition</th>
+                            <th>Reg Hours</th>
+                            <th>Agy Hours</th>
+                            <th>Total Hrs</th>
+                            <th>OT Hrs</th>
+                            <th>OT Rate</th>
+                            <th>Absences</th>
+                            <th>Abs Rate</th>
+                        </tr>
+                    </thead>
+                    <tbody id="manpowerTableBody">
+                        <!-- Filled by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- DATA INPUT TAB - With Line Selector -->
+        <div id="tab-input" class="tab-content">
+            <div class="input-panel">
+                <div class="panel-header">Production Data Input</div>
+                
+                <!-- Line Selector -->
+                <div class="input-controls">
+                    <div class="input-selector">
+                        <label>Select Production Line:</label>
+                        <select id="lineSelector" onchange="loadLineData()">
+                            <option value="summary">📊 SUMMARY (All Lines)</option>
+                            <option value="L06">🔹 L06 - Epoxy</option>
+                            <option value="L04B">🔹 L04B - Elasto</option>
+                            <option value="L03">🔹 L03 - Cyano Tube</option>
+                            <option value="L01">🔹 L01 - Coatings</option>
+                            <option value="L07">🔹 L07 - Epoxy Tube</option>
+                            <option value="L09">🔹 Line 9 - EPS</option>
+                            <option value="L10">🔹 L10 - Contact Bond</option>
+                            <option value="L11">🔹 L11 - Silicone</option>
+                            <option value="L12">🔹 L12 - Epoxy Based</option>
+                            <option value="L13">🔹 L13 - Special</option>
+                            <option value="L14">🔹 Line 14</option>
+                            <option value="L05">🔹 L05 - Epoxy Clay</option>
+                            <option value="L02">🔹 L02 - Cyno Bottle</option>
+                            <option value="labeling">🔹 Labeling Line</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Input Sections - Dynamic based on selection -->
+                <div class="input-sections" id="inputSections">
+                    <!-- Filled by JavaScript based on line selection -->
+                </div>
+
+                <div class="button-group">
+                    <button class="btn btn-danger" onclick="clearCurrentLine()">Clear This Line</button>
+                    <button class="btn" onclick="clearAllInputs()">Clear All</button>
+                    <button class="btn btn-primary" onclick="saveLineData()">Save Line Data</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            Last updated: <span id="lastUpdate">Just now</span>
+        </div>
+    </div>
+
+    <script>
+        // Data storage for all lines
+        let productionData = {
+            summary: {
+                productive: '', noPlan: '', noHc: '', changeOver: '', meeting: '', sanitation: '', startup: '',
+                shutdown: '', testing: '', breaktime: '', pm: '', forceMajeure: '', elecBreakdown: '',
+                mechBreakdown: '', materialsSupply: '', sorting: '', techDowntime: '', noManpower: '',
+                udtMeeting: '', noOt: '', noBulkmix: '', transfer: '', idle: '',
+                fgOutput: '', reprocess: '', rejection: '', waste: '',
+                rmUsage: '', plannedOutput: '',
+                machinesAvail: '', machinesUsed: '', prodDays: '',
+                regularHc: '', agencyHc: '', resigned: '', regularHours: '', agencyHours: '', otHours: '', absences: ''
+            },
+            L06: { name: 'L06 - Epoxy', fgOutput: '', reprocess: '', rejection: '', waste: '', rmUsage: '', plannedOutput: '', 
+                   machinesAvail: '4', machinesUsed: '4', prodDays: '19.75', 
+                   regularHc: '57', agencyHc: '0', resigned: '0', regularHours: '10039', agencyHours: '0', otHours: '2350', absences: '196' },
+            L04B: { name: 'L04B - Elasto', fgOutput: '', reprocess: '', rejection: '', waste: '', rmUsage: '', plannedOutput: '',
+                    machinesAvail: '5', machinesUsed: '5', prodDays: '19.75',
+                    regularHc: '39', agencyHc: '0', resigned: '0', regularHours: '6807', agencyHours: '0', otHours: '1588', absences: '137' },
+            L03: { name: 'L03 - Cyano Tube', fgOutput: '', reprocess: '', rejection: '', waste: '', rmUsage: '', plannedOutput: '',
+                   machinesAvail: '2', machinesUsed: '2', prodDays: '19.75',
+                   regularHc: '7', agencyHc: '0', resigned: '0', regularHours: '1388', agencyHours: '0', otHours: '395', absences: '1' },
+            L01: { name: 'L01 - Coatings', fgOutput: '', reprocess: '', rejection: '', waste: '', rmUsage: '', plannedOutput: '',
+                   machinesAvail: '2', machinesUsed: '2', prodDays: '19.75',
+                   regularHc: '17', agencyHc: '0', resigned: '0', regularHours: '3166', agencyHours: '0', otHours: '931', absences: '21' },
+            L07: { name: 'L07 - Epoxy Tube', fgOutput: '', reprocess: '', rejection: '', waste: '', rmUsage: '', plannedOutput: '',
+                   machinesAvail: '1', machinesUsed: '1', prodDays: '19.75',
+                   regularHc: '4', agencyHc: '0', resigned: '0', regularHours: '792', agencyHours: '0', otHours: '160', absences: '6' },
+            L09: { name: 'Line 9 - EPS', fgOutput: '', reprocess: '', rejection: '', waste: '', rmUsage: '', plannedOutput: '',
+                   machinesAvail: '1', machinesUsed: '1', prodDays: '19.75',
+                   regularHc: '2', agencyHc: '0', resigned: '0', regularHours: '396', agencyHours: '0', otHours: '73', absences: '1' },
+            L10: { name: 'L10 - Contact Bond', fgOutput: '', reprocess: '', rejection: '', waste: '', rmUsage: '', plannedOutput: '',
+                   machinesAvail: '1', machinesUsed: '1', prodDays: '19.75',
+                   regularHc: '2', agencyHc: '0', resigned: '0', regularHours: '293', agencyHours: '0', otHours: '45', absences: '8' },
+            L11: { name: 'L11 - Silicone', fgOutput: '', reprocess: '', rejection: '', waste: '', rmUsage: '', plannedOutput: '',
+                   machinesAvail: '1', machinesUsed: '1', prodDays: '19.75',
+                   regularHc: '4', agencyHc: '0', resigned: '0', regularHours: '712', agencyHours: '0', otHours: '132', absences: '7' },
+            L12: { name: 'L12 - Epoxy Based', fgOutput: '', reprocess: '', rejection: '', waste: '', rmUsage: '', plannedOutput: '',
+                   machinesAvail: '1', machinesUsed: '1', prodDays: '19.75',
+                   regularHc: '7', agencyHc: '0', resigned: '0', regularHours: '1252', agencyHours: '0', otHours: '305', absences: '19' },
+            L13: { name: 'L13 - Special', fgOutput: '', reprocess: '', rejection: '', waste: '', rmUsage: '', plannedOutput: '',
+                   machinesAvail: '1', machinesUsed: '1', prodDays: '19.75',
+                   regularHc: '6', agencyHc: '0', resigned: '0', regularHours: '896', agencyHours: '0', otHours: '170', absences: '19' },
+            L14: { name: 'Line 14', fgOutput: '', reprocess: '', rejection: '', waste: '', rmUsage: '', plannedOutput: '',
+                   machinesAvail: '1', machinesUsed: '1', prodDays: '19.75',
+                   regularHc: '10', agencyHc: '0', resigned: '0', regularHours: '1905', agencyHours: '0', otHours: '454', absences: '15' },
+            L05: { name: 'L05 - Epoxy Clay', fgOutput: '', reprocess: '', rejection: '', waste: '', rmUsage: '', plannedOutput: '',
+                   machinesAvail: '1', machinesUsed: '1', prodDays: '19.75',
+                   regularHc: '0', agencyHc: '0', resigned: '0', regularHours: '0', agencyHours: '0', otHours: '0', absences: '0' },
+            L02: { name: 'L02 - Cyno Bottle', fgOutput: '', reprocess: '', rejection: '', waste: '', rmUsage: '', plannedOutput: '',
+                   machinesAvail: '1', machinesUsed: '1', prodDays: '19.75',
+                   regularHc: '0', agencyHc: '0', resigned: '0', regularHours: '0', agencyHours: '0', otHours: '0', absences: '0' },
+            labeling: { name: 'Labeling Line', fgOutput: '', reprocess: '', rejection: '', waste: '', rmUsage: '', plannedOutput: '',
+                        machinesAvail: '1', machinesUsed: '1', prodDays: '19.75',
+                        regularHc: '30', agencyHc: '0', resigned: '0', regularHours: '4552', agencyHours: '0', otHours: '1272', absences: '144' }
+        };
+
+        let currentLine = 'summary';
+
+        function formatNumber(num, decimals = 2) {
+            if (!num || isNaN(num) || num === 0) return '0';
+            return num.toLocaleString(undefined, {
+                minimumFractionDigits: decimals,
+                maximumFractionDigits: decimals
+            });
+        }
+
+        function formatPercent(num) {
+            if (!num || isNaN(num) || num === 0) return '0%';
+            return num.toFixed(1) + '%';
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            if (tabName === 'input') {
+                loadLineData();
+            }
+        }
+
+        function loadLineData() {
+            const selector = document.getElementById('lineSelector');
+            currentLine = selector.value;
+            const data = productionData[currentLine] || productionData.summary;
+            
+            let html = '';
+            
+            if (currentLine === 'summary') {
+                // Summary view - all major categories
+                html = `
+                    <!-- Machine Utilization -->
+                    <div class="input-section">
+                        <h4>Machine Utilization (HRS)</h4>
+                        <div class="input-grid">
+                            <div class="input-field"><label>Productive Time</label><input type="number" id="inputProductive" value="${data.productive || ''}" step="0.1" placeholder="hrs"></div>
+                            <div class="input-field"><label>No Production Plan</label><input type="number" id="inputNoPlan" value="${data.noPlan || ''}" step="0.1" placeholder="hrs"></div>
+                            <div class="input-field"><label>No Head Count</label><input type="number" id="inputNoHc" value="${data.noHc || ''}" step="0.1" placeholder="hrs"></div>
+                            <div class="input-field"><label>Change Over</label><input type="number" id="inputChangeOver" value="${data.changeOver || ''}" step="0.1" placeholder="hrs"></div>
+                            <div class="input-field"><label>Meeting</label><input type="number" id="inputMeeting" value="${data.meeting || ''}" step="0.1" placeholder="hrs"></div>
+                            <div class="input-field"><label>Sanitation</label><input type="number" id="inputSanitation" value="${data.sanitation || ''}" step="0.1" placeholder="hrs"></div>
+                            <div class="input-field"><label>Start-up/Setup</label><input type="number" id="inputStartup" value="${data.startup || ''}" step="0.1" placeholder="hrs"></div>
+                            <div class="input-field"><label>Breaktime</label><input type="number" id="inputBreaktime" value="${data.breaktime || ''}" step="0.1" placeholder="hrs"></div>
+                            <div class="input-field"><label>No Manpower</label><input type="number" id="inputNoManpower" value="${data.noManpower || ''}" step="0.1" placeholder="hrs"></div>
+                            <div class="input-field"><label>Transfer</label><input type="number" id="inputTransfer" value="${data.transfer || ''}" step="0.1" placeholder="hrs"></div>
+                            <div class="input-field"><label>Mech Breakdown</label><input type="number" id="inputMechBreak" value="${data.mechBreakdown || ''}" step="0.1" placeholder="hrs"></div>
+                            <div class="input-field"><label>Idle Time</label><input type="number" id="inputIdle" value="${data.idle || ''}" step="0.1" placeholder="hrs"></div>
+                        </div>
+                    </div>
+
+                    <!-- Output Summary -->
+                    <div class="input-section">
+                        <h4>Output (KGS)</h4>
+                        <div class="input-grid">
+                            <div class="input-field"><label>FG Output</label><input type="number" id="inputFgOutput" value="${data.fgOutput || ''}" step="0.1" placeholder="kg"></div>
+                            <div class="input-field"><label>Reprocess</label><input type="number" id="inputReprocess" value="${data.reprocess || ''}" step="0.1" placeholder="kg"></div>
+                            <div class="input-field"><label>Rejection</label><input type="number" id="inputRejection" value="${data.rejection || ''}" step="0.1" placeholder="kg"></div>
+                            <div class="input-field"><label>Waste</label><input type="number" id="inputWaste" value="${data.waste || ''}" step="0.1" placeholder="kg"></div>
+                        </div>
+                    </div>
+
+                    <!-- Material Usage -->
+                    <div class="input-section">
+                        <h4>Material & Scheduling</h4>
+                        <div class="input-grid">
+                            <div class="input-field"><label>RM Usage (kg)</label><input type="number" id="inputRmUsage" value="${data.rmUsage || ''}" step="0.1" placeholder="kg"></div>
+                            <div class="input-field"><label>Planned Output (kg)</label><input type="number" id="inputPlanned" value="${data.plannedOutput || ''}" step="0.1" placeholder="kg"></div>
+                        </div>
+                    </div>
+
+                    <!-- Machine Summary -->
+                    <div class="input-section">
+                        <h4>Machine Summary</h4>
+                        <div class="input-grid">
+                            <div class="input-field"><label>Machines Available</label><input type="number" id="inputMachinesAvail" value="${data.machinesAvail || ''}" step="0.1" placeholder="count"></div>
+                            <div class="input-field"><label>Machines Used</label><input type="number" id="inputMachinesUsed" value="${data.machinesUsed || ''}" step="0.1" placeholder="count"></div>
+                            <div class="input-field"><label>Production Days</label><input type="number" id="inputProdDays" value="${data.prodDays || ''}" step="0.1" placeholder="days"></div>
+                        </div>
+                    </div>
+
+                    <!-- Manpower Summary -->
+                    <div class="input-section">
+                        <h4>Manpower</h4>
+                        <div class="input-grid">
+                            <div class="input-field"><label>Regular HC</label><input type="number" id="inputRegularHc" value="${data.regularHc || ''}" step="0.1" placeholder="count"></div>
+                            <div class="input-field"><label>Agency HC</label><input type="number" id="inputAgencyHc" value="${data.agencyHc || ''}" step="0.1" placeholder="count"></div>
+                            <div class="input-field"><label>Resigned</label><input type="number" id="inputResigned" value="${data.resigned || ''}" step="0.1" placeholder="count"></div>
+                            <div class="input-field"><label>Regular Hours</label><input type="number" id="inputRegularHours" value="${data.regularHours || ''}" step="0.1" placeholder="hrs"></div>
+                            <div class="input-field"><label>Agency Hours</label><input type="number" id="inputAgencyHours" value="${data.agencyHours || ''}" step="0.1" placeholder="hrs"></div>
+                            <div class="input-field"><label>OT Hours</label><input type="number" id="inputOtHours" value="${data.otHours || ''}" step="0.1" placeholder="hrs"></div>
+                            <div class="input-field"><label>Absences</label><input type="number" id="inputAbsences" value="${data.absences || ''}" step="0.1" placeholder="count"></div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                // Individual line view - focused inputs
+                html = `
+                    <!-- Line Output -->
+                    <div class="input-section">
+                        <h4>${data.name} - Output</h4>
+                        <div class="input-grid">
+                            <div class="input-field"><label>FG Output (kg)</label><input type="number" id="inputFgOutput" value="${data.fgOutput || ''}" step="0.1" placeholder="kg"></div>
+                            <div class="input-field"><label>Reprocess (kg)</label><input type="number" id="inputReprocess" value="${data.reprocess || ''}" step="0.1" placeholder="kg"></div>
+                            <div class="input-field"><label>Rejection (kg)</label><input type="number" id="inputRejection" value="${data.rejection || ''}" step="0.1" placeholder="kg"></div>
+                            <div class="input-field"><label>Waste (kg)</label><input type="number" id="inputWaste" value="${data.waste || ''}" step="0.1" placeholder="kg"></div>
+                        </div>
+                    </div>
+
+                    <!-- Material & Scheduling -->
+                    <div class="input-section">
+                        <h4>Material & Planning</h4>
+                        <div class="input-grid">
+                            <div class="input-field"><label>RM Usage (kg)</label><input type="number" id="inputRmUsage" value="${data.rmUsage || ''}" step="0.1" placeholder="kg"></div>
+                            <div class="input-field"><label>Planned Output (kg)</label><input type="number" id="inputPlanned" value="${data.plannedOutput || ''}" step="0.1" placeholder="kg"></div>
+                        </div>
+                    </div>
+
+                    <!-- Machine Summary -->
+                    <div class="input-section">
+                        <h4>Machine Details</h4>
+                        <div class="input-grid">
+                            <div class="input-field"><label>Machines Available</label><input type="number" id="inputMachinesAvail" value="${data.machinesAvail || ''}" step="0.1" placeholder="count"></div>
+                            <div class="input-field"><label>Machines Used</label><input type="number" id="inputMachinesUsed" value="${data.machinesUsed || ''}" step="0.1" placeholder="count"></div>
+                            <div class="input-field"><label>Production Days</label><input type="number" id="inputProdDays" value="${data.prodDays || ''}" step="0.1" placeholder="days"></div>
+                        </div>
+                    </div>
+
+                    <!-- Manpower -->
+                    <div class="input-section">
+                        <h4>Manpower</h4>
+                        <div class="input-grid">
+                            <div class="input-field"><label>Regular HC</label><input type="number" id="inputRegularHc" value="${data.regularHc || ''}" step="0.1" placeholder="count"></div>
+                            <div class="input-field"><label>Agency HC</label><input type="number" id="inputAgencyHc" value="${data.agencyHc || ''}" step="0.1" placeholder="count"></div>
+                            <div class="input-field"><label>Resigned</label><input type="number" id="inputResigned" value="${data.resigned || ''}" step="0.1" placeholder="count"></div>
+                            <div class="input-field"><label>Regular Hours</label><input type="number" id="inputRegularHours" value="${data.regularHours || ''}" step="0.1" placeholder="hrs"></div>
+                            <div class="input-field"><label>Agency Hours</label><input type="number" id="inputAgencyHours" value="${data.agencyHours || ''}" step="0.1" placeholder="hrs"></div>
+                            <div class="input-field"><label>OT Hours</label><input type="number" id="inputOtHours" value="${data.otHours || ''}" step="0.1" placeholder="hrs"></div>
+                            <div class="input-field"><label>Absences</label><input type="number" id="inputAbsences" value="${data.absences || ''}" step="0.1" placeholder="count"></div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            document.getElementById('inputSections').innerHTML = html;
+        }
+
+        function saveLineData() {
+            const data = productionData[currentLine];
+            
+            // Save all input fields
+            if (document.getElementById('inputProductive')) data.productive = document.getElementById('inputProductive').value;
+            if (document.getElementById('inputNoPlan')) data.noPlan = document.getElementById('inputNoPlan').value;
+            if (document.getElementById('inputNoHc')) data.noHc = document.getElementById('inputNoHc').value;
+            if (document.getElementById('inputChangeOver')) data.changeOver = document.getElementById('inputChangeOver').value;
+            if (document.getElementById('inputMeeting')) data.meeting = document.getElementById('inputMeeting').value;
+            if (document.getElementById('inputSanitation')) data.sanitation = document.getElementById('inputSanitation').value;
+            if (document.getElementById('inputStartup')) data.startup = document.getElementById('inputStartup').value;
+            if (document.getElementById('inputBreaktime')) data.breaktime = document.getElementById('inputBreaktime').value;
+            if (document.getElementById('inputNoManpower')) data.noManpower = document.getElementById('inputNoManpower').value;
+            if (document.getElementById('inputTransfer')) data.transfer = document.getElementById('inputTransfer').value;
+            if (document.getElementById('inputMechBreak')) data.mechBreakdown = document.getElementById('inputMechBreak').value;
+            if (document.getElementById('inputIdle')) data.idle = document.getElementById('inputIdle').value;
+            
+            if (document.getElementById('inputFgOutput')) data.fgOutput = document.getElementById('inputFgOutput').value;
+            if (document.getElementById('inputReprocess')) data.reprocess = document.getElementById('inputReprocess').value;
+            if (document.getElementById('inputRejection')) data.rejection = document.getElementById('inputRejection').value;
+            if (document.getElementById('inputWaste')) data.waste = document.getElementById('inputWaste').value;
+            
+            if (document.getElementById('inputRmUsage')) data.rmUsage = document.getElementById('inputRmUsage').value;
+            if (document.getElementById('inputPlanned')) data.plannedOutput = document.getElementById('inputPlanned').value;
+            
+            if (document.getElementById('inputMachinesAvail')) data.machinesAvail = document.getElementById('inputMachinesAvail').value;
+            if (document.getElementById('inputMachinesUsed')) data.machinesUsed = document.getElementById('inputMachinesUsed').value;
+            if (document.getElementById('inputProdDays')) data.prodDays = document.getElementById('inputProdDays').value;
+            
+            if (document.getElementById('inputRegularHc')) data.regularHc = document.getElementById('inputRegularHc').value;
+            if (document.getElementById('inputAgencyHc')) data.agencyHc = document.getElementById('inputAgencyHc').value;
+            if (document.getElementById('inputResigned')) data.resigned = document.getElementById('inputResigned').value;
+            if (document.getElementById('inputRegularHours')) data.regularHours = document.getElementById('inputRegularHours').value;
+            if (document.getElementById('inputAgencyHours')) data.agencyHours = document.getElementById('inputAgencyHours').value;
+            if (document.getElementById('inputOtHours')) data.otHours = document.getElementById('inputOtHours').value;
+            if (document.getElementById('inputAbsences')) data.absences = document.getElementById('inputAbsences').value;
+            
+            alert(`Data saved for ${currentLine === 'summary' ? 'Summary' : data.name}`);
+            calculateAll();
+        }
+
+        function clearCurrentLine() {
+            const data = productionData[currentLine];
+            Object.keys(data).forEach(key => {
+                if (key !== 'name' && key !== 'machinesAvail' && key !== 'machinesUsed' && key !== 'prodDays') {
+                    data[key] = '';
+                }
+            });
+            loadLineData();
+            calculateAll();
+        }
+
+        function clearAllInputs() {
+            if (confirm('Clear ALL production data? This cannot be undone.')) {
+                Object.keys(productionData).forEach(line => {
+                    const data = productionData[line];
+                    Object.keys(data).forEach(key => {
+                        if (key !== 'name') {
+                            data[key] = '';
+                        }
+                    });
+                });
+                loadLineData();
+                calculateAll();
+            }
+        }
+
+        function calculateAll() {
+            // Calculate summary totals from individual lines
+            const summary = productionData.summary;
+            
+            // Reset summary
+            Object.keys(summary).forEach(key => {
+                if (key !== 'name') summary[key] = '';
+            });
+
+            // Sum up all line data for summary
+            let totalFgOutput = 0, totalReprocess = 0, totalRejection = 0, totalWaste = 0;
+            let totalRmUsage = 0, totalPlanned = 0;
+            let totalMachinesAvail = 0, totalMachinesUsed = 0;
+            let totalRegularHc = 0, totalAgencyHc = 0, totalResigned = 0;
+            let totalRegularHours = 0, totalAgencyHours = 0, totalOtHours = 0, totalAbsences = 0;
+            
+            // Downtime totals
+            let totalProductive = 0, totalNoPlan = 0, totalNoHc = 0, totalChangeOver = 0;
+            let totalMeeting = 0, totalSanitation = 0, totalStartup = 0, totalBreaktime = 0;
+            let totalNoManpower = 0, totalTransfer = 0, totalMechBreak = 0, totalIdle = 0;
+
+            const lines = ['L06', 'L04B', 'L03', 'L01', 'L07', 'L09', 'L10', 'L11', 'L12', 'L13', 'L14', 'L05', 'L02', 'labeling'];
+            
+            lines.forEach(line => {
+                const data = productionData[line];
+                
+                // Output
+                if (data.fgOutput) totalFgOutput += parseFloat(data.fgOutput) || 0;
+                if (data.reprocess) totalReprocess += parseFloat(data.reprocess) || 0;
+                if (data.rejection) totalRejection += parseFloat(data.rejection) || 0;
+                if (data.waste) totalWaste += parseFloat(data.waste) || 0;
+                
+                // Material
+                if (data.rmUsage) totalRmUsage += parseFloat(data.rmUsage) || 0;
+                if (data.plannedOutput) totalPlanned += parseFloat(data.plannedOutput) || 0;
+                
+                // Machines
+                if (data.machinesAvail) totalMachinesAvail += parseFloat(data.machinesAvail) || 0;
+                if (data.machinesUsed) totalMachinesUsed += parseFloat(data.machinesUsed) || 0;
+                
+                // Manpower
+                if (data.regularHc) totalRegularHc += parseFloat(data.regularHc) || 0;
+                if (data.agencyHc) totalAgencyHc += parseFloat(data.agencyHc) || 0;
+                if (data.resigned) totalResigned += parseFloat(data.resigned) || 0;
+                if (data.regularHours) totalRegularHours += parseFloat(data.regularHours) || 0;
+                if (data.agencyHours) totalAgencyHours += parseFloat(data.agencyHours) || 0;
+                if (data.otHours) totalOtHours += parseFloat(data.otHours) || 0;
+                if (data.absences) totalAbsences += parseFloat(data.absences) || 0;
+            });
+
+            // Set summary values
+            summary.fgOutput = totalFgOutput;
+            summary.reprocess = totalReprocess;
+            summary.rejection = totalRejection;
+            summary.waste = totalWaste;
+            summary.rmUsage = totalRmUsage;
+            summary.plannedOutput = totalPlanned;
+            summary.machinesAvail = totalMachinesAvail;
+            summary.machinesUsed = totalMachinesUsed;
+            summary.regularHc = totalRegularHc;
+            summary.agencyHc = totalAgencyHc;
+            summary.resigned = totalResigned;
+            summary.regularHours = totalRegularHours;
+            summary.agencyHours = totalAgencyHours;
+            summary.otHours = totalOtHours;
+            summary.absences = totalAbsences;
+
+            // Calculate derived metrics
+            const prodDays = parseFloat(summary.prodDays) || 19.75;
+            const totalTime = totalProductive + totalNoPlan + totalNoHc + totalChangeOver + totalMeeting + 
+                             totalSanitation + totalStartup + totalBreaktime + totalNoManpower + totalTransfer + 
+                             totalMechBreak + totalIdle;
+            
+            const utilizationRate = totalTime > 0 ? (totalProductive / totalTime) * 100 : 0;
+            const wastePercent = totalFgOutput > 0 ? (totalWaste / totalFgOutput) * 100 : 0;
+            const yieldPct = totalRmUsage > 0 ? (totalFgOutput / totalRmUsage) * 100 : 0;
+            const rmWastePct = totalRmUsage > 0 ? (totalWaste / totalRmUsage) * 100 : 0;
+            const dailyAvg = prodDays > 0 ? totalFgOutput / prodDays : 0;
+            const productivity = totalProductive > 0 ? totalFgOutput / totalProductive : 0;
+            const compliance = totalPlanned > 0 ? (totalFgOutput / totalPlanned) * 100 : 0;
+            const otRate = totalRegularHours > 0 ? (totalOtHours / totalRegularHours) * 100 : 0;
+            const absenteeismRate = totalRegularHc > 0 && prodDays > 0 ? (totalAbsences / (totalRegularHc * prodDays)) * 100 : 0;
+
+            // Update Overview displays (as before)
+            document.getElementById('utilizationRate').textContent = utilizationRate.toFixed(1) + '%';
+            document.getElementById('productiveTime').textContent = formatNumber(totalProductive) + ' hrs';
+            document.getElementById('totalTime').textContent = formatNumber(totalTime) + ' hrs';
+            document.getElementById('machinesAvail').textContent = formatNumber(totalMachinesAvail, 0);
+            document.getElementById('machinesUsed').textContent = formatNumber(totalMachinesUsed, 0);
+            
+            document.getElementById('totalOutput').textContent = formatNumber(totalFgOutput) + ' kg';
+            document.getElementById('fgOutput').textContent = formatNumber(totalFgOutput) + ' kg';
+            document.getElementById('reprocessOutput').textContent = formatNumber(totalReprocess) + ' kg';
+            document.getElementById('internalRejection').textContent = formatNumber(totalRejection) + ' kg';
+            document.getElementById('dailyAvg').textContent = formatNumber(dailyAvg) + ' kg';
+            
+            document.getElementById('wastePercent').textContent = wastePercent.toFixed(2) + '%';
+            document.getElementById('totalWaste').textContent = formatNumber(totalWaste) + ' kg';
+            document.getElementById('productivity').textContent = formatNumber(productivity) + ' kg/hr';
+            
+            document.getElementById('yieldPercent').textContent = yieldPct.toFixed(1) + '%';
+            document.getElementById('rmUsage').textContent = formatNumber(totalRmUsage) + ' kg';
+            document.getElementById('rmWastePct').textContent = rmWastePct.toFixed(2) + '%';
+            
+            document.getElementById('overallCompliance').textContent = compliance.toFixed(1) + '%';
+            document.getElementById('actualOutput').textContent = formatNumber(totalFgOutput) + ' kg';
+            document.getElementById('plannedOutput').textContent = formatNumber(totalPlanned) + ' kg';
+            
+            document.getElementById('changeOverHours').textContent = formatNumber(totalChangeOver) + ' hrs';
+            document.getElementById('changeOverCount').textContent = '0';
+            document.getElementById('avgChangeOver').textContent = '0 min';
+            
+            document.getElementById('totalHeadcount').textContent = formatNumber(totalRegularHc + totalAgencyHc, 0);
+            document.getElementById('regularCount').textContent = formatNumber(totalRegularHc, 0);
+            document.getElementById('agencyCount').textContent = formatNumber(totalAgencyHc, 0);
+            document.getElementById('resignedCount').textContent = formatNumber(totalResigned, 0);
+            document.getElementById('attritionRate').textContent = '0%';
+            
+            document.getElementById('totalManhours').textContent = formatNumber(totalRegularHours + totalAgencyHours) + ' hrs';
+            document.getElementById('regularHours').textContent = formatNumber(totalRegularHours) + ' hrs';
+            document.getElementById('agencyHours').textContent = formatNumber(totalAgencyHours) + ' hrs';
+            document.getElementById('overtimeHours').textContent = formatNumber(totalOtHours) + ' hrs';
+            document.getElementById('otRate').textContent = otRate.toFixed(1) + '%';
+            
+            document.getElementById('absenteeismRate').textContent = absenteeismRate.toFixed(1) + '%';
+            document.getElementById('absencesCount').textContent = formatNumber(totalAbsences, 0);
+            document.getElementById('workingDays').textContent = prodDays.toFixed(2);
+
+            // Update timestamp
+            const year = document.getElementById('yearSelect').value;
+            const month = document.getElementById('monthSelect').value;
+            document.getElementById('lastUpdate').textContent = new Date().toLocaleString() + ` (${month} ${year})`;
+        }
+
+        // Initialize
+        window.onload = function() {
+            calculateAll();
+            loadLineData();
+        };
+    </script>
+</body>
+</html>

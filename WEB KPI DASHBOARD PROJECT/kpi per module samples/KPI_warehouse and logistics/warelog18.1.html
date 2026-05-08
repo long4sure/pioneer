@@ -1,0 +1,1809 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Warehouse & Logistics Dashboard - Multi Module</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            padding: 24px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #2d2f33;
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 16px;
+            background-color: #fafbfc;
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: 1px solid #eef2f5;
+        }
+
+        .filter-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .filter-item label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #5f6775;
+            text-transform: uppercase;
+        }
+
+        .filter-item select {
+            padding: 6px 12px;
+            border: 1px solid #d0d5dd;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #2d2f33;
+            background-color: white;
+            cursor: pointer;
+        }
+
+        .module-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 24px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 8px;
+            flex-wrap: wrap;
+        }
+
+        .module-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            background-color: white;
+            color: #5f6775;
+            flex: 1;
+            min-width: 150px;
+            transition: all 0.2s;
+        }
+
+        .module-btn:hover {
+            background-color: #e0e0e0;
+        }
+
+        .module-btn.active {
+            background-color: #01b8aa;
+            color: white;
+        }
+
+        .module-content {
+            display: none;
+        }
+
+        .module-content.active {
+            display: block;
+        }
+
+        .tab-nav {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 24px;
+            border-bottom: 2px solid #eef2f5;
+            padding-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 8px 16px;
+            border: none;
+            background: none;
+            font-size: 13px;
+            font-weight: 600;
+            color: #5f6775;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .tab-btn:hover {
+            color: #01b8aa;
+            background-color: #f0f7f7;
+        }
+
+        .tab-btn.active {
+            color: #01b8aa;
+            background-color: #e6f3f2;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .kpi-card {
+            background-color: white;
+            border: 1px solid #eef2f5;
+            border-radius: 8px;
+            padding: 20px;
+            transition: all 0.2s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+        }
+
+        .kpi-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border-color: #01b8aa;
+        }
+
+        .kpi-card-header {
+            margin-bottom: 15px;
+        }
+
+        .kpi-card-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #5f6775;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .kpi-card-main-value {
+            font-size: 32px;
+            font-weight: 600;
+            color: #2d2f33;
+            margin-bottom: 8px;
+        }
+
+        .kpi-card-details {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .kpi-card-detail-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            color: #5f6775;
+            padding: 4px 0;
+            border-bottom: 1px dashed #f0f0f0;
+        }
+
+        .kpi-card-detail-label {
+            color: #5f6775;
+        }
+
+        .kpi-card-detail-value {
+            font-weight: 600;
+            color: #2d2f33;
+        }
+
+        .kpi-card-progress {
+            height: 6px;
+            background-color: #eef2f5;
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 12px 0 8px;
+        }
+
+        .kpi-card-progress-bar {
+            height: 100%;
+            background-color: #01b8aa;
+            border-radius: 3px;
+        }
+
+        .kpi-card-footer {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #5f6775;
+            margin-top: 8px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-excellent {
+            background-color: #e6f9ed;
+            color: #107c41;
+        }
+
+        .status-good {
+            background-color: #e3f2fd;
+            color: #0d47a1;
+        }
+
+        .status-warning {
+            background-color: #fff1e0;
+            color: #d83b01;
+        }
+
+        .status-critical {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+
+        .status-neutral {
+            background-color: #fef7e0;
+            color: #966c00;
+        }
+
+        .section-header {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2d2f33;
+            margin: 30px 0 20px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #01b8aa;
+        }
+
+        .table-container {
+            background-color: white;
+            border: 1px solid #eef2f5;
+            border-radius: 6px;
+            margin-bottom: 24px;
+            overflow-x: auto;
+        }
+
+        .table-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #eef2f5;
+            background-color: #fafbfc;
+            font-size: 14px;
+            font-weight: 600;
+            color: #2d2f33;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .table-total {
+            font-size: 13px;
+            color: #5f6775;
+            background-color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            border: 1px solid #d0d5dd;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            padding: 14px 16px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #5f6775;
+            text-transform: uppercase;
+            border-bottom: 2px solid #eef2f5;
+            background-color: #fafbfc;
+        }
+
+        td {
+            padding: 12px 16px;
+            font-size: 13px;
+            color: #2d2f33;
+            border-bottom: 1px solid #eef2f5;
+        }
+
+        .input-panel {
+            background-color: white;
+            border: 1px solid #eef2f5;
+            border-radius: 6px;
+            margin: 24px 0;
+        }
+
+        .panel-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #eef2f5;
+            background-color: #fafbfc;
+            font-size: 14px;
+            font-weight: 600;
+            color: #2d2f33;
+        }
+
+        .input-controls {
+            display: flex;
+            gap: 20px;
+            padding: 20px;
+            background-color: #fafbfc;
+            border-bottom: 1px solid #eef2f5;
+            flex-wrap: wrap;
+        }
+
+        .input-selector {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 2;
+        }
+
+        .input-selector label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #5f6775;
+            text-transform: uppercase;
+            min-width: 120px;
+        }
+
+        .input-selector select {
+            padding: 8px 16px;
+            border: 1px solid #d0d5dd;
+            border-radius: 4px;
+            font-size: 13px;
+            flex: 1;
+            max-width: 500px;
+        }
+
+        .input-sections {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            padding: 20px;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .input-section {
+            background-color: #fafbfc;
+            border: 1px solid #eef2f5;
+            border-radius: 6px;
+            padding: 20px;
+        }
+
+        .input-section h4 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #5f6775;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #eef2f5;
+        }
+
+        .input-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .input-field {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .input-field label {
+            font-size: 11px;
+            font-weight: 600;
+            color: #5f6775;
+            text-transform: uppercase;
+        }
+
+        .input-field input {
+            padding: 8px 12px;
+            border: 1px solid #d0d5dd;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #2d2f33;
+            background-color: white;
+        }
+
+        .input-field input:focus {
+            outline: none;
+            border-color: #01b8aa;
+        }
+
+        .input-field input::placeholder {
+            color: #aaa;
+            font-style: italic;
+        }
+
+        .button-group {
+            padding: 16px 20px;
+            border-top: 1px solid #eef2f5;
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: 1px solid #d0d5dd;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            background: white;
+            color: #2d2f33;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            background-color: #f0f0f0;
+        }
+
+        .btn-primary {
+            background-color: #01b8aa;
+            border-color: #01b8aa;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #019f92;
+        }
+
+        .btn-danger {
+            background-color: #d83b01;
+            border-color: #d83b01;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #b32e01;
+        }
+
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .footer {
+            text-align: right;
+            font-size: 12px;
+            color: #5f6775;
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid #eef2f5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>WAREHOUSE & LOGISTICS DASHBOARD</h1>
+            <div class="filter-group">
+                <div class="filter-item">
+                    <label>Year:</label>
+                    <select id="yearSelect" onchange="handlers.loadMonthData()">
+                        <option value="2023">2023</option>
+                        <option value="2024" selected>2024</option>
+                        <option value="2025">2025</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label>Month:</label>
+                    <select id="monthSelect" onchange="handlers.loadMonthData()">
+                        <option value="January">January</option>
+                        <option value="February">February</option>
+                        <option value="March">March</option>
+                        <option value="April">April</option>
+                        <option value="May">May</option>
+                        <option value="June">June</option>
+                        <option value="July">July</option>
+                        <option value="August">August</option>
+                        <option value="September">September</option>
+                        <option value="October" selected>October</option>
+                        <option value="November">November</option>
+                        <option value="December">December</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="module-selector">
+            <button class="module-btn active" onclick="handlers.switchModule('overview')">📊 Overview</button>
+            <button class="module-btn" onclick="handlers.switchModule('fillrates')">📈 Fill Rates</button>
+            <button class="module-btn" onclick="handlers.switchModule('nonotif')">🔍 Non-OTIF</button>
+            <button class="module-btn" onclick="handlers.switchModule('stockouts')">📦 Stock Outs</button>
+            <button class="module-btn" onclick="handlers.switchModule('warehouse')">🏢 Warehouse</button>
+            <button class="module-btn" onclick="handlers.switchModule('manpower')">👥 Manpower</button>
+        </div>
+
+        <!-- OVERVIEW MODULE -->
+        <div id="module-overview" class="module-content active">
+            <div class="tab-nav">
+                <button class="tab-btn active" onclick="handlers.switchTab('overview', 'dashboard')">Dashboard</button>
+                <button class="tab-btn" onclick="handlers.switchTab('overview', 'details')">Details</button>
+                <button class="tab-btn" onclick="handlers.switchTab('overview', 'input')">Data Input</button>
+            </div>
+
+            <div id="overview-dashboard" class="tab-content active">
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-card-header"><span class="kpi-card-title">OTIF Rate</span></div>
+                        <div class="kpi-card-main-value" id="ov-otifValue">0%</div>
+                        <div class="kpi-card-details">
+                            <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Served</span><span class="kpi-card-detail-value" id="ov-otifServed">0</span></div>
+                            <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Total</span><span class="kpi-card-detail-value" id="ov-otifTotal">0</span></div>
+                        </div>
+                        <div class="kpi-card-progress"><div class="kpi-card-progress-bar" id="ov-otifProgress" style="width: 0%"></div></div>
+                        <div class="kpi-card-footer"><span id="ov-otifStatus" class="status-badge status-neutral">No Data</span><span>Per Line Item</span></div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-card-header"><span class="kpi-card-title">Volume Fill</span></div>
+                        <div class="kpi-card-main-value" id="ov-volumeFillValue">0%</div>
+                        <div class="kpi-card-details">
+                            <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Delivered</span><span class="kpi-card-detail-value" id="ov-volumeDelivered">₱0</span></div>
+                            <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Orders</span><span class="kpi-card-detail-value" id="ov-volumeOrders">₱0</span></div>
+                        </div>
+                        <div class="kpi-card-progress"><div class="kpi-card-progress-bar" id="ov-volumeFillProgress" style="width: 0%"></div></div>
+                        <div class="kpi-card-footer"><span id="ov-volumeFillStatus" class="status-badge status-neutral">No Data</span><span>Corporate</span></div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-card-header"><span class="kpi-card-title">WH Utilization</span></div>
+                        <div class="kpi-card-main-value" id="ov-whUtilValue">0%</div>
+                        <div class="kpi-card-details">
+                            <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Used</span><span class="kpi-card-detail-value" id="ov-whUsed">0</span></div>
+                            <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Total</span><span class="kpi-card-detail-value" id="ov-whTotal">0</span></div>
+                        </div>
+                        <div class="kpi-card-progress"><div class="kpi-card-progress-bar" id="ov-whUtilProgress" style="width: 0%"></div></div>
+                        <div class="kpi-card-footer"><span id="ov-whUtilStatus" class="status-badge status-neutral">No Data</span><span>All Warehouses</span></div>
+                    </div>
+                </div>
+
+                <div class="section-header">Key Metrics</div>
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-card-header"><span class="kpi-card-title">Non-OTIF</span></div>
+                        <div class="kpi-card-main-value" id="ov-nonOtifTotal">0</div>
+                        <div class="kpi-card-details"><div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Top Category</span><span class="kpi-card-detail-value" id="ov-nonOtifTop">-</span></div></div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-card-header"><span class="kpi-card-title">Stock Outs</span></div>
+                        <div class="kpi-card-main-value" id="ov-stockOutValue">₱0</div>
+                        <div class="kpi-card-details"><div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Total Weight</span><span class="kpi-card-detail-value" id="ov-stockOutWeight">0 KGS</span></div></div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-card-header"><span class="kpi-card-title">Warehouse</span></div>
+                        <div class="kpi-card-main-value" id="ov-whOverall">0%</div>
+                        <div class="kpi-card-details">
+                            <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">RM/PM</span><span class="kpi-card-detail-value" id="ov-whRm">0%</span></div>
+                            <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">FG</span><span class="kpi-card-detail-value" id="ov-whFg">0%</span></div>
+                            <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">External</span><span class="kpi-card-detail-value" id="ov-whExt">0%</span></div>
+                        </div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-card-header"><span class="kpi-card-title">OTDL</span></div>
+                        <div class="kpi-card-main-value" id="ov-otdlAvg">0 days</div>
+                        <div class="kpi-card-details"><div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Regions</span><span class="kpi-card-detail-value" id="ov-otdlRegions">0</span></div></div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-card-header"><span class="kpi-card-title">Trucks</span></div>
+                        <div class="kpi-card-main-value" id="ov-truckVolume">0 cbm</div>
+                        <div class="kpi-card-details"><div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Active Types</span><span class="kpi-card-detail-value" id="ov-truckTypes">0</span></div></div>
+                    </div>
+                </div>
+
+                <div class="section-header">Manpower</div>
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-card-header"><span class="kpi-card-title">Headcount</span></div>
+                        <div class="kpi-card-main-value" id="ov-hcTotal">0</div>
+                        <div class="kpi-card-details">
+                            <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Regular</span><span class="kpi-card-detail-value" id="ov-hcRegular">0</span></div>
+                            <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Agency</span><span class="kpi-card-detail-value" id="ov-hcAgency">0</span></div>
+                            <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Resigned</span><span class="kpi-card-detail-value" id="ov-hcResigned">0</span></div>
+                            <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Attrition</span><span class="kpi-card-detail-value" id="ov-hcAttrition">0%</span></div>
+                        </div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-card-header"><span class="kpi-card-title">Manhours</span></div>
+                        <div class="kpi-card-main-value" id="ov-mhTotal">0 hrs</div>
+                        <div class="kpi-card-details">
+                            <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Regular</span><span class="kpi-card-detail-value" id="ov-mhRegular">0 hrs</span></div>
+                            <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Agency</span><span class="kpi-card-detail-value" id="ov-mhAgency">0 hrs</span></div>
+                            <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Overtime</span><span class="kpi-card-detail-value" id="ov-mhOT">0 hrs</span></div>
+                            <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">OT Rate</span><span class="kpi-card-detail-value" id="ov-mhOTRate">0%</span></div>
+                        </div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-card-header"><span class="kpi-card-title">Absences</span></div>
+                        <div class="kpi-card-main-value" id="ov-absRate">0%</div>
+                        <div class="kpi-card-details">
+                            <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Count</span><span class="kpi-card-detail-value" id="ov-absCount">0</span></div>
+                            <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Required Days</span><span class="kpi-card-detail-value" id="ov-absDays">0</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="two-col">
+                    <div class="kpi-card">
+                        <div class="kpi-card-header"><span class="kpi-card-title">OTDL by Region</span></div>
+                        <div class="kpi-card-details" id="ov-otdlRegionsList"></div>
+                        <div class="kpi-card-footer"><span>Average</span><span class="kpi-card-detail-value" id="ov-otdlAvgFooter">0 days</span></div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-card-header"><span class="kpi-card-title">Truck Types</span></div>
+                        <div class="kpi-card-details" id="ov-truckList"></div>
+                        <div class="kpi-card-footer"><span>Total Volume</span><span class="kpi-card-detail-value" id="ov-truckVolumeFooter">0 cbm</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="overview-details" class="tab-content">
+                <div class="section-header">Detailed Information</div>
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-card-header"><span class="kpi-card-title">Fill Rates Details</span></div>
+                        <div class="kpi-card-details" id="ov-fillRatesDetail"></div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-card-header"><span class="kpi-card-title">Warehouse Details</span></div>
+                        <div class="kpi-card-details" id="ov-warehouseDetail"></div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-card-header"><span class="kpi-card-title">OTDL Details</span></div>
+                        <div class="kpi-card-details" id="ov-otdlDetail"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="overview-input" class="tab-content">
+                <div class="input-panel">
+                    <div class="panel-header">OVERVIEW DATA INPUT</div>
+                    <div class="input-controls">
+                        <div class="input-selector">
+                            <label>Select Category:</label>
+                            <select id="ov-categorySelector" onchange="handlers.loadOVCategoryData()">
+                                <option value="otif">OTIF Rate</option>
+                                <option value="fillrates">Fill Rates</option>
+                                <option value="warehouse">Warehouse</option>
+                                <option value="otdl">OTDL Days</option>
+                                <option value="trucks">Truck Utilization</option>
+                                <option value="manpower">Manpower</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="input-sections" id="ov-inputSections"></div>
+                    <div class="button-group">
+                        <button class="btn btn-danger" onclick="handlers.clearOVCurrent()">Clear This Category</button>
+                        <button class="btn" onclick="handlers.clearOVAll()">Clear All</button>
+                        <button class="btn btn-primary" onclick="handlers.saveOVData()">Save Data</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FILL RATES MODULE -->
+        <div id="module-fillrates" class="module-content">
+            <div class="tab-nav">
+                <button class="tab-btn active" onclick="handlers.switchTab('fillrates', 'dashboard')">Dashboard</button>
+                <button class="tab-btn" onclick="handlers.switchTab('fillrates', 'input')">Data Input</button>
+            </div>
+
+            <div id="fillrates-dashboard" class="tab-content active">
+                <div class="section-header">Fill Rates - Hit Rate</div>
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-card-header"><span class="kpi-card-title">Corporate</span></div>
+                        <div class="kpi-card-main-value" id="fr-corpValue">0%</div>
+                        <div class="kpi-card-details">
+                            <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Delivered</span><span class="kpi-card-detail-value" id="fr-corpDelivered">₱0</span></div>
+                            <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Orders</span><span class="kpi-card-detail-value" id="fr-corpOrders">₱0</span></div>
+                        </div>
+                        <div class="kpi-card-footer"><span id="fr-corpStatus" class="status-badge status-neutral">No Data</span><span>Hit Rate</span></div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-card-header"><span class="kpi-card-title">SC Fill</span></div>
+                        <div class="kpi-card-main-value" id="fr-scValue">0%</div>
+                        <div class="kpi-card-details">
+                            <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Delivered</span><span class="kpi-card-detail-value" id="fr-scDelivered">₱0</span></div>
+                            <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Orders</span><span class="kpi-card-detail-value" id="fr-scOrders">₱0</span></div>
+                        </div>
+                        <div class="kpi-card-footer"><span id="fr-scStatus" class="status-badge status-neutral">No Data</span><span>Hit Rate</span></div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-card-header"><span class="kpi-card-title">Core Products</span></div>
+                        <div class="kpi-card-main-value" id="fr-coreValue">0%</div>
+                        <div class="kpi-card-details">
+                            <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Delivered</span><span class="kpi-card-detail-value" id="fr-coreDelivered">₱0</span></div>
+                            <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Orders</span><span class="kpi-card-detail-value" id="fr-coreOrders">₱0</span></div>
+                        </div>
+                        <div class="kpi-card-footer"><span id="fr-coreStatus" class="status-badge status-neutral">No Data</span><span>Hit Rate</span></div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-card-header"><span class="kpi-card-title">Emerging</span></div>
+                        <div class="kpi-card-main-value" id="fr-emergingValue">0%</div>
+                        <div class="kpi-card-details">
+                            <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Delivered</span><span class="kpi-card-detail-value" id="fr-emergingDelivered">₱0</span></div>
+                            <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Orders</span><span class="kpi-card-detail-value" id="fr-emergingOrders">₱0</span></div>
+                        </div>
+                        <div class="kpi-card-footer"><span id="fr-emergingStatus" class="status-badge status-neutral">No Data</span><span>Hit Rate</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="fillrates-input" class="tab-content">
+                <div class="input-panel">
+                    <div class="panel-header">FILL RATES DATA INPUT</div>
+                    <div class="input-sections">
+                        <div class="input-section">
+                            <h4>Corporate Fill Rate</h4>
+                            <div class="input-grid">
+                                <div class="input-field"><label>Delivered (₱)</label><input type="number" id="fr_corp_delivered" step="0.01" placeholder="Amount"></div>
+                                <div class="input-field"><label>Orders (₱)</label><input type="number" id="fr_corp_orders" step="0.01" placeholder="Amount"></div>
+                            </div>
+                        </div>
+                        <div class="input-section">
+                            <h4>SC Fill Rate</h4>
+                            <div class="input-grid">
+                                <div class="input-field"><label>Delivered (₱)</label><input type="number" id="fr_sc_delivered" step="0.01" placeholder="Amount"></div>
+                                <div class="input-field"><label>Orders (₱)</label><input type="number" id="fr_sc_orders" step="0.01" placeholder="Amount"></div>
+                            </div>
+                        </div>
+                        <div class="input-section">
+                            <h4>Core Products</h4>
+                            <div class="input-grid">
+                                <div class="input-field"><label>Delivered (₱)</label><input type="number" id="fr_core_delivered" step="0.01" placeholder="Amount"></div>
+                                <div class="input-field"><label>Orders (₱)</label><input type="number" id="fr_core_orders" step="0.01" placeholder="Amount"></div>
+                            </div>
+                        </div>
+                        <div class="input-section">
+                            <h4>Emerging Products</h4>
+                            <div class="input-grid">
+                                <div class="input-field"><label>Delivered (₱)</label><input type="number" id="fr_emerging_delivered" step="0.01" placeholder="Amount"></div>
+                                <div class="input-field"><label>Orders (₱)</label><input type="number" id="fr_emerging_orders" step="0.01" placeholder="Amount"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="button-group">
+                        <button class="btn btn-danger" onclick="handlers.clearFillRates()">Clear All</button>
+                        <button class="btn btn-primary" onclick="handlers.saveFillRates()">Save Data</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- NON-OTIF MODULE -->
+        <div id="module-nonotif" class="module-content">
+            <div class="tab-nav">
+                <button class="tab-btn active" onclick="handlers.switchTab('nonotif', 'dashboard')">Dashboard</button>
+                <button class="tab-btn" onclick="handlers.switchTab('nonotif', 'input')">Data Input</button>
+            </div>
+
+            <div id="nonotif-dashboard" class="tab-content active">
+                <div class="table-container">
+                    <div class="table-header"><span>Non-OTIF Breakdown</span><span class="table-total" id="no-total">Total: 0</span></div>
+                    <table>
+                        <thead><tr><th>Category</th><th>Issue Type</th><th>Count</th></tr></thead>
+                        <tbody id="no-tableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="nonotif-input" class="tab-content">
+                <div class="input-panel">
+                    <div class="panel-header">NON-OTIF DATA INPUT</div>
+                    <div class="input-sections" id="no-inputSections"></div>
+                    <div class="button-group">
+                        <button class="btn btn-danger" onclick="handlers.clearNonOtif()">Clear All</button>
+                        <button class="btn btn-primary" onclick="handlers.saveNonOtif()">Save Data</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- STOCK OUTS MODULE -->
+        <div id="module-stockouts" class="module-content">
+            <div class="tab-nav">
+                <button class="tab-btn active" onclick="handlers.switchTab('stockouts', 'dashboard')">Dashboard</button>
+                <button class="tab-btn" onclick="handlers.switchTab('stockouts', 'input')">Data Input</button>
+            </div>
+
+            <div id="stockouts-dashboard" class="tab-content active">
+                <div class="two-col">
+                    <div class="table-container">
+                        <div class="table-header"><span>Stock Outs by Value</span><span class="table-total" id="so-valueTotal">Total: ₱0</span></div>
+                        <table><thead><tr><th>Category</th><th>Issue Type</th><th>Amount</th></tr></thead><tbody id="so-valueTable"></tbody></table>
+                    </div>
+                    <div class="table-container">
+                        <div class="table-header"><span>Stock Outs by Weight</span><span class="table-total" id="so-weightTotal">Total: 0 KGS</span></div>
+                        <table><thead><tr><th>Category</th><th>Issue Type</th><th>Weight</th></tr></thead><tbody id="so-weightTable"></tbody></table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="stockouts-input" class="tab-content">
+                <div class="input-panel">
+                    <div class="panel-header">STOCK OUTS DATA INPUT</div>
+                    <div class="input-sections" id="so-inputSections"></div>
+                    <div class="button-group">
+                        <button class="btn btn-danger" onclick="handlers.clearStockOuts()">Clear All</button>
+                        <button class="btn btn-primary" onclick="handlers.saveStockOuts()">Save Data</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- WAREHOUSE MODULE -->
+        <div id="module-warehouse" class="module-content">
+            <div class="tab-nav">
+                <button class="tab-btn active" onclick="handlers.switchTab('warehouse', 'dashboard')">Dashboard</button>
+                <button class="tab-btn" onclick="handlers.switchTab('warehouse', 'input')">Data Input</button>
+            </div>
+
+            <div id="warehouse-dashboard" class="tab-content active">
+                <div class="two-col">
+                    <div class="kpi-card">
+                        <h3>Warehouse Utilization</h3>
+                        <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">RM/PM Pallet Positions</span><span class="kpi-card-detail-value" id="wh-rmTotal">0</span></div>
+                        <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">RM/PM Pallet Used</span><span class="kpi-card-detail-value" id="wh-rmUsed">0</span></div>
+                        <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">RM/PM Utilization</span><span class="kpi-card-detail-value" id="wh-rmUtil">0%</span></div>
+                        <div style="height: 10px;"></div>
+                        <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">FG Pallet Positions</span><span class="kpi-card-detail-value" id="wh-fgTotal">0</span></div>
+                        <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">FG Pallet Used</span><span class="kpi-card-detail-value" id="wh-fgUsed">0</span></div>
+                        <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">FG Utilization</span><span class="kpi-card-detail-value" id="wh-fgUtil">0%</span></div>
+                    </div>
+                    <div class="kpi-card">
+                        <h3>External Warehouse</h3>
+                        <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Pallet Positions</span><span class="kpi-card-detail-value" id="wh-extTotal">0</span></div>
+                        <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Pallet Used</span><span class="kpi-card-detail-value" id="wh-extUsed">0</span></div>
+                        <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Utilization</span><span class="kpi-card-detail-value" id="wh-extUtil">0%</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="warehouse-input" class="tab-content">
+                <div class="input-panel">
+                    <div class="panel-header">WAREHOUSE DATA INPUT</div>
+                    <div class="input-sections">
+                        <div class="input-section">
+                            <h4>RM/PM Warehouse</h4>
+                            <div class="input-grid">
+                                <div class="input-field"><label>Pallet Positions</label><input type="number" id="wh_rm_total" step="0.01" placeholder="Count"></div>
+                                <div class="input-field"><label>Pallet Used</label><input type="number" id="wh_rm_used" step="0.01" placeholder="Count"></div>
+                            </div>
+                        </div>
+                        <div class="input-section">
+                            <h4>FG Warehouse</h4>
+                            <div class="input-grid">
+                                <div class="input-field"><label>Pallet Positions</label><input type="number" id="wh_fg_total" step="0.01" placeholder="Count"></div>
+                                <div class="input-field"><label>Pallet Used</label><input type="number" id="wh_fg_used" step="0.01" placeholder="Count"></div>
+                            </div>
+                        </div>
+                        <div class="input-section">
+                            <h4>External Warehouse</h4>
+                            <div class="input-grid">
+                                <div class="input-field"><label>Pallet Positions</label><input type="number" id="wh_ext_total" step="0.01" placeholder="Count"></div>
+                                <div class="input-field"><label>Pallet Used</label><input type="number" id="wh_ext_used" step="0.01" placeholder="Count"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="button-group">
+                        <button class="btn btn-danger" onclick="handlers.clearWarehouse()">Clear All</button>
+                        <button class="btn btn-primary" onclick="handlers.saveWarehouse()">Save Data</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MANPOWER MODULE -->
+        <div id="module-manpower" class="module-content">
+            <div class="tab-nav">
+                <button class="tab-btn active" onclick="handlers.switchTab('manpower', 'dashboard')">Dashboard</button>
+                <button class="tab-btn" onclick="handlers.switchTab('manpower', 'input')">Data Input</button>
+            </div>
+
+            <div id="manpower-dashboard" class="tab-content active">
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <h3>Headcount</h3>
+                        <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Regular</span><span class="kpi-card-detail-value" id="mp-regular">0</span></div>
+                        <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Agency</span><span class="kpi-card-detail-value" id="mp-agency">0</span></div>
+                        <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Resigned</span><span class="kpi-card-detail-value" id="mp-resigned">0</span></div>
+                        <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Attrition</span><span class="kpi-card-detail-value" id="mp-attrition">0%</span></div>
+                    </div>
+                    <div class="kpi-card">
+                        <h3>Manhours</h3>
+                        <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Regular Hours</span><span class="kpi-card-detail-value" id="mp-regHours">0 hrs</span></div>
+                        <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Agency Hours</span><span class="kpi-card-detail-value" id="mp-agyHours">0 hrs</span></div>
+                        <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Overtime Hours</span><span class="kpi-card-detail-value" id="mp-otHours">0 hrs</span></div>
+                        <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">OT Rate</span><span class="kpi-card-detail-value" id="mp-otRate">0%</span></div>
+                    </div>
+                    <div class="kpi-card">
+                        <h3>Absences</h3>
+                        <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Absences Count</span><span class="kpi-card-detail-value" id="mp-absences">0</span></div>
+                        <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Required Days</span><span class="kpi-card-detail-value" id="mp-days">0</span></div>
+                        <div class="kpi-card-detail-row"><span class="kpi-card-detail-label">Absenteeism Rate</span><span class="kpi-card-detail-value" id="mp-absRate">0%</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="manpower-input" class="tab-content">
+                <div class="input-panel">
+                    <div class="panel-header">MANPOWER DATA INPUT</div>
+                    <div class="input-sections">
+                        <div class="input-section">
+                            <h4>Headcount</h4>
+                            <div class="input-grid">
+                                <div class="input-field"><label>Regular</label><input type="number" id="mp_regular" step="0.1" placeholder="Count"></div>
+                                <div class="input-field"><label>Agency</label><input type="number" id="mp_agency" step="0.1" placeholder="Count"></div>
+                                <div class="input-field"><label>Resigned</label><input type="number" id="mp_resigned" step="0.1" placeholder="Count"></div>
+                            </div>
+                        </div>
+                        <div class="input-section">
+                            <h4>Manhours</h4>
+                            <div class="input-grid">
+                                <div class="input-field"><label>Regular Hours</label><input type="number" id="mp_regHours" step="0.01" placeholder="hrs"></div>
+                                <div class="input-field"><label>Agency Hours</label><input type="number" id="mp_agyHours" step="0.01" placeholder="hrs"></div>
+                                <div class="input-field"><label>Overtime Hours</label><input type="number" id="mp_otHours" step="0.01" placeholder="hrs"></div>
+                            </div>
+                        </div>
+                        <div class="input-section">
+                            <h4>Absences</h4>
+                            <div class="input-grid">
+                                <div class="input-field"><label>Absences Count</label><input type="number" id="mp_absences" step="0.1" placeholder="Count"></div>
+                                <div class="input-field"><label>Required Working Days</label><input type="number" id="mp_days" step="0.1" placeholder="Days"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="button-group">
+                        <button class="btn btn-danger" onclick="handlers.clearManpower()">Clear All</button>
+                        <button class="btn btn-primary" onclick="handlers.saveManpower()">Save Data</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">Last updated: <span id="lastUpdate">Just now</span></div>
+    </div>
+
+    <script>
+        // ==================== DATA STRUCTURES ====================
+        let database = {};
+        const years = ['2023', '2024', '2025'];
+        const months = ['January', 'February', 'March', 'April', 'May', 'June', 
+                       'July', 'August', 'September', 'October', 'November', 'December'];
+
+        // Category definitions
+        const categories = {
+            PL: 'Planning', FG: 'Finished Goods', PR: 'Production',
+            TE: 'Technical', SA: 'Sales', FI: 'Finance'
+        };
+
+        const nonOtifIssues = [
+            { cat: 'PL', issue: 'Material constraint' }, { cat: 'PL', issue: 'Planning error' },
+            { cat: 'PL', issue: 'Capacity Constraint' }, { cat: 'PL', issue: 'Acumatica Inventory Issue' },
+            { cat: 'FG', issue: 'Warehouse Constraint' }, { cat: 'FG', issue: 'Truck unavailability' },
+            { cat: 'FG', issue: 'Dispatch Issue' }, { cat: 'FG', issue: 'Custom Issue' },
+            { cat: 'FG', issue: 'Permits' }, { cat: 'PR', issue: 'Machine downtime' },
+            { cat: 'PR', issue: 'Production Under run' }, { cat: 'PR', issue: 'Manpower constraint' },
+            { cat: 'PR', issue: 'Production delay' }, { cat: 'PR', issue: 'Acumatica Confirmation delay' },
+            { cat: 'PR', issue: 'Subcon delay' }, { cat: 'TE', issue: 'Developmental Issue' },
+            { cat: 'TE', issue: 'Quality Issue' }, { cat: 'SA', issue: 'Cancelled Order' },
+            { cat: 'SA', issue: 'Demand Shift' }, { cat: 'SA', issue: 'CS Issue' },
+            { cat: 'FI', issue: 'Pricing Issue' }
+        ];
+
+        const stockOutIssues = [
+            { cat: 'PL', issue: 'Material constraint' }, { cat: 'PL', issue: 'Planning error' },
+            { cat: 'PL', issue: 'Capacity Constraint' }, { cat: 'PL', issue: 'Acumatica Inventory Issue' },
+            { cat: 'FG', issue: 'Warehouse Constraint' }, { cat: 'FG', issue: 'Truck unavailability' },
+            { cat: 'FG', issue: 'Dispatch Issue' }, { cat: 'FG', issue: 'Custom Issue' },
+            { cat: 'FG', issue: 'Permits' }, { cat: 'PR', issue: 'Machine downtime' },
+            { cat: 'PR', issue: 'Production Under run' }, { cat: 'PR', issue: 'Manpower constraint' },
+            { cat: 'PR', issue: 'Production delay' }, { cat: 'PR', issue: 'Acumatica Confirmation delay' },
+            { cat: 'PR', issue: 'Subcon delay' }, { cat: 'TE', issue: 'Developmental Issue' },
+            { cat: 'TE', issue: 'Quality Issue' }, { cat: 'SA', issue: 'Cancelled Order' },
+            { cat: 'SA', issue: 'Demand Shift' }, { cat: 'SA', issue: 'CS Issue' },
+            { cat: 'SA', issue: 'Beyond forecast' }, { cat: 'FI', issue: 'Pricing Issue' }
+        ];
+
+        // Initialize database
+        years.forEach(year => {
+            database[year] = {};
+            months.forEach(month => {
+                database[year][month] = {
+                    // Overview data
+                    otif: { served: '', total: '' },
+                    volumeFill: { delivered: '', orders: '' },
+                    warehouse: { rmTotal: '', rmUsed: '', fgTotal: '', fgUsed: '', extTotal: '', extUsed: '' },
+                    otdl: { gma: '', north: '', central: '', south: '', visayas: '', mindanao: '', modernTrade: '', pai: '' },
+                    trucks: { truck10w: '', truckAuv: '', truck6w: '', truck4w: '', truck20ft: '' },
+                    manpower: { regular: '', agency: '', resigned: '', regHours: '', agyHours: '', otHours: '', absences: '', requiredDays: '' },
+                    
+                    // Fill Rates data
+                    fillRates: {
+                        corporate: { delivered: '', orders: '' },
+                        sc: { delivered: '', orders: '' },
+                        core: { delivered: '', orders: '' },
+                        emerging: { delivered: '', orders: '' }
+                    },
+                    
+                    // Non-OTIF data
+                    nonOtif: {},
+                    
+                    // Stock Outs data
+                    stockOuts: { value: {}, weight: {} }
+                };
+                
+                // Initialize Non-OTIF fields
+                nonOtifIssues.forEach((item, index) => {
+                    database[year][month].nonOtif[`nonOtif_${index}`] = '';
+                });
+                
+                // Initialize Stock Outs fields
+                stockOutIssues.forEach((item, index) => {
+                    database[year][month].stockOuts.value[`stockOutValue_${index}`] = '';
+                    database[year][month].stockOuts.weight[`stockOutWeight_${index}`] = '';
+                });
+            });
+        });
+
+        // ==================== UTILITY FUNCTIONS ====================
+        function formatNumber(num, decimals = 2) {
+            if (!num || isNaN(num) || parseFloat(num) === 0) return '0';
+            return parseFloat(num).toLocaleString(undefined, {
+                minimumFractionDigits: decimals,
+                maximumFractionDigits: decimals
+            });
+        }
+
+        function formatCurrency(num) {
+            if (!num || isNaN(num) || parseFloat(num) === 0) return '₱0';
+            if (Math.abs(num) >= 1000000) return '₱' + (parseFloat(num)/1000000).toFixed(1) + 'M';
+            if (Math.abs(num) >= 1000) return '₱' + (parseFloat(num)/1000).toFixed(1) + 'K';
+            return '₱' + parseFloat(num).toFixed(2);
+        }
+
+        function getCurrentData() {
+            const year = document.getElementById('yearSelect').value;
+            const month = document.getElementById('monthSelect').value;
+            return database[year][month];
+        }
+
+        function updateTimestamp() {
+            const year = document.getElementById('yearSelect').value;
+            const month = document.getElementById('monthSelect').value;
+            document.getElementById('lastUpdate').textContent = new Date().toLocaleString() + ` (${month} ${year})`;
+        }
+
+        function getFillStatusClass(rate) {
+            if (rate >= 98) return 'status-excellent';
+            if (rate >= 90) return 'status-good';
+            if (rate >= 80) return 'status-warning';
+            return 'status-critical';
+        }
+
+        function getFillStatusText(rate) {
+            if (rate >= 98) return 'Excellent';
+            if (rate >= 90) return 'Good';
+            if (rate >= 80) return 'Warning';
+            return 'Critical';
+        }
+
+        // ==================== HANDLERS ====================
+        const handlers = {
+            currentModule: 'overview',
+            currentOverviewCategory: 'otif',
+
+            switchModule: function(module) {
+                document.querySelectorAll('.module-btn').forEach(btn => btn.classList.remove('active'));
+                event.target.classList.add('active');
+                
+                document.querySelectorAll('.module-content').forEach(content => content.classList.remove('active'));
+                document.getElementById(`module-${module}`).classList.add('active');
+                this.currentModule = module;
+                this.loadMonthData();
+            },
+
+            switchTab: function(module, tab) {
+                document.querySelectorAll(`#module-${module} .tab-btn`).forEach(btn => btn.classList.remove('active'));
+                event.target.classList.add('active');
+                
+                document.querySelectorAll(`#module-${module} .tab-content`).forEach(content => content.classList.remove('active'));
+                document.getElementById(`${module}-${tab}`).classList.add('active');
+                
+                if (tab === 'input') {
+                    if (module === 'overview') this.loadOVCategoryData();
+                    else if (module === 'nonotif') this.loadNonOtifInput();
+                    else if (module === 'stockouts') this.loadStockOutsInput();
+                }
+            },
+
+            loadMonthData: function() {
+                if (this.currentModule === 'overview') {
+                    this.calculateOverview();
+                    if (document.getElementById('overview-input').classList.contains('active')) this.loadOVCategoryData();
+                } else if (this.currentModule === 'fillrates') {
+                    this.calculateFillRates();
+                } else if (this.currentModule === 'nonotif') {
+                    this.calculateNonOtif();
+                    if (document.getElementById('nonotif-input').classList.contains('active')) this.loadNonOtifInput();
+                } else if (this.currentModule === 'stockouts') {
+                    this.calculateStockOuts();
+                    if (document.getElementById('stockouts-input').classList.contains('active')) this.loadStockOutsInput();
+                } else if (this.currentModule === 'warehouse') {
+                    this.calculateWarehouse();
+                } else if (this.currentModule === 'manpower') {
+                    this.calculateManpower();
+                }
+                updateTimestamp();
+            },
+
+            // ==================== OVERVIEW FUNCTIONS ====================
+            calculateOverview: function() {
+                const data = getCurrentData();
+                
+                // OTIF
+                const served = parseFloat(data.otif.served) || 0;
+                const total = parseFloat(data.otif.total) || 0;
+                const otifRate = total > 0 ? (served / total) * 100 : 0;
+                document.getElementById('ov-otifValue').textContent = otifRate.toFixed(1) + '%';
+                document.getElementById('ov-otifServed').textContent = formatNumber(served);
+                document.getElementById('ov-otifTotal').textContent = formatNumber(total);
+                document.getElementById('ov-otifProgress').style.width = Math.min(otifRate, 100) + '%';
+                let otifStatus = 'No Data', otifClass = 'status-neutral';
+                if (total > 0) {
+                    if (otifRate >= 95) { otifStatus = 'Excellent'; otifClass = 'status-excellent'; }
+                    else if (otifRate >= 85) { otifStatus = 'Good'; otifClass = 'status-good'; }
+                    else if (otifRate >= 75) { otifStatus = 'Warning'; otifClass = 'status-warning'; }
+                    else { otifStatus = 'Critical'; otifClass = 'status-critical'; }
+                }
+                document.getElementById('ov-otifStatus').textContent = otifStatus;
+                document.getElementById('ov-otifStatus').className = 'status-badge ' + otifClass;
+
+                // Volume Fill
+                const volDelivered = parseFloat(data.volumeFill.delivered) || 0;
+                const volOrders = parseFloat(data.volumeFill.orders) || 0;
+                const volFillRate = volOrders > 0 ? (volDelivered / volOrders) * 100 : 0;
+                document.getElementById('ov-volumeFillValue').textContent = volFillRate.toFixed(1) + '%';
+                document.getElementById('ov-volumeDelivered').textContent = formatCurrency(volDelivered);
+                document.getElementById('ov-volumeOrders').textContent = formatCurrency(volOrders);
+                document.getElementById('ov-volumeFillProgress').style.width = Math.min(volFillRate, 100) + '%';
+                let volFillStatus = 'No Data', volFillClass = 'status-neutral';
+                if (volOrders > 0) {
+                    if (volFillRate >= 98) { volFillStatus = 'Excellent'; volFillClass = 'status-excellent'; }
+                    else if (volFillRate >= 90) { volFillStatus = 'Good'; volFillClass = 'status-good'; }
+                    else if (volFillRate >= 80) { volFillStatus = 'Warning'; volFillClass = 'status-warning'; }
+                    else { volFillStatus = 'Critical'; volFillClass = 'status-critical'; }
+                }
+                document.getElementById('ov-volumeFillStatus').textContent = volFillStatus;
+                document.getElementById('ov-volumeFillStatus').className = 'status-badge ' + volFillClass;
+
+                // Warehouse
+                const rmTotal = parseFloat(data.warehouse.rmTotal) || 0;
+                const rmUsed = parseFloat(data.warehouse.rmUsed) || 0;
+                const fgTotal = parseFloat(data.warehouse.fgTotal) || 0;
+                const fgUsed = parseFloat(data.warehouse.fgUsed) || 0;
+                const extTotal = parseFloat(data.warehouse.extTotal) || 0;
+                const extUsed = parseFloat(data.warehouse.extUsed) || 0;
+                const totalPalletPositions = rmTotal + fgTotal + extTotal;
+                const totalPalletUsed = rmUsed + fgUsed + extUsed;
+                const whUtilRate = totalPalletPositions > 0 ? (totalPalletUsed / totalPalletPositions) * 100 : 0;
+                const rmUtil = rmTotal > 0 ? (rmUsed / rmTotal) * 100 : 0;
+                const fgUtil = fgTotal > 0 ? (fgUsed / fgTotal) * 100 : 0;
+                const extUtil = extTotal > 0 ? (extUsed / extTotal) * 100 : 0;
+                
+                document.getElementById('ov-whUtilValue').textContent = whUtilRate.toFixed(1) + '%';
+                document.getElementById('ov-whUsed').textContent = formatNumber(totalPalletUsed);
+                document.getElementById('ov-whTotal').textContent = formatNumber(totalPalletPositions);
+                document.getElementById('ov-whUtilProgress').style.width = Math.min(whUtilRate, 100) + '%';
+                document.getElementById('ov-whOverall').textContent = whUtilRate.toFixed(1) + '%';
+                document.getElementById('ov-whRm').textContent = rmUtil.toFixed(1) + '%';
+                document.getElementById('ov-whFg').textContent = fgUtil.toFixed(1) + '%';
+                document.getElementById('ov-whExt').textContent = extUtil.toFixed(1) + '%';
+                
+                let whUtilStatus = 'No Data', whUtilClass = 'status-neutral';
+                if (totalPalletPositions > 0) {
+                    if (whUtilRate <= 75) { whUtilStatus = 'Under-Utilized'; whUtilClass = 'status-warning'; }
+                    else if (whUtilRate <= 85) { whUtilStatus = 'Optimal'; whUtilClass = 'status-excellent'; }
+                    else if (whUtilRate <= 95) { whUtilStatus = 'Good'; whUtilClass = 'status-good'; }
+                    else { whUtilStatus = 'Near Capacity'; whUtilClass = 'status-warning'; }
+                }
+                document.getElementById('ov-whUtilStatus').textContent = whUtilStatus;
+                document.getElementById('ov-whUtilStatus').className = 'status-badge ' + whUtilClass;
+
+                // OTDL
+                const otdlRegions = [
+                    { name: 'GMA', value: parseFloat(data.otdl.gma) || 0 },
+                    { name: 'North Luzon', value: parseFloat(data.otdl.north) || 0 },
+                    { name: 'Central Luzon', value: parseFloat(data.otdl.central) || 0 },
+                    { name: 'South Luzon', value: parseFloat(data.otdl.south) || 0 },
+                    { name: 'Visayas', value: parseFloat(data.otdl.visayas) || 0 },
+                    { name: 'Mindanao', value: parseFloat(data.otdl.mindanao) || 0 },
+                    { name: 'Modern Trade', value: parseFloat(data.otdl.modernTrade) || 0 },
+                    { name: 'PAI OTDL', value: parseFloat(data.otdl.pai) || 0 }
+                ];
+                let totalOtdl = 0, regionCount = 0;
+                let otdlHtml = '';
+                otdlRegions.forEach(region => {
+                    if (region.value > 0) { totalOtdl += region.value; regionCount++; }
+                    otdlHtml += `<div class="kpi-card-detail-row"><span class="kpi-card-detail-label">${region.name}</span><span class="kpi-card-detail-value">${region.value ? region.value.toFixed(1) + ' days' : '0'}</span></div>`;
+                });
+                const avgOtdl = regionCount > 0 ? totalOtdl / regionCount : 0;
+                document.getElementById('ov-otdlAvg').textContent = avgOtdl.toFixed(1) + ' days';
+                document.getElementById('ov-otdlRegions').textContent = regionCount;
+                document.getElementById('ov-otdlAvgFooter').textContent = avgOtdl.toFixed(1) + ' days';
+                document.getElementById('ov-otdlRegionsList').innerHTML = otdlHtml;
+
+                // Trucks
+                const truck10w = parseFloat(data.trucks.truck10w) || 0;
+                const truckAuv = parseFloat(data.trucks.truckAuv) || 0;
+                const truck6w = parseFloat(data.trucks.truck6w) || 0;
+                const truck4w = parseFloat(data.trucks.truck4w) || 0;
+                const truck20ft = parseFloat(data.trucks.truck20ft) || 0;
+                const totalTruckVolume = truck10w + truckAuv + truck6w + truck4w + truck20ft;
+                let truckTypeCount = 0;
+                let truckHtml = '';
+                if (truck10w > 0) { truckHtml += `<div class="kpi-card-detail-row"><span class="kpi-card-detail-label">10-wheeler</span><span class="kpi-card-detail-value">${truck10w.toFixed(1)} cbm</span></div>`; truckTypeCount++; }
+                if (truckAuv > 0) { truckHtml += `<div class="kpi-card-detail-row"><span class="kpi-card-detail-label">AUV</span><span class="kpi-card-detail-value">${truckAuv.toFixed(1)} cbm</span></div>`; truckTypeCount++; }
+                if (truck6w > 0) { truckHtml += `<div class="kpi-card-detail-row"><span class="kpi-card-detail-label">6-wheeler</span><span class="kpi-card-detail-value">${truck6w.toFixed(1)} cbm</span></div>`; truckTypeCount++; }
+                if (truck4w > 0) { truckHtml += `<div class="kpi-card-detail-row"><span class="kpi-card-detail-label">4-wheeler</span><span class="kpi-card-detail-value">${truck4w.toFixed(1)} cbm</span></div>`; truckTypeCount++; }
+                if (truck20ft > 0) { truckHtml += `<div class="kpi-card-detail-row"><span class="kpi-card-detail-label">20-ft</span><span class="kpi-card-detail-value">${truck20ft.toFixed(1)} cbm</span></div>`; truckTypeCount++; }
+                document.getElementById('ov-truckVolume').textContent = formatNumber(totalTruckVolume) + ' cbm';
+                document.getElementById('ov-truckTypes').textContent = truckTypeCount;
+                document.getElementById('ov-truckVolumeFooter').textContent = formatNumber(totalTruckVolume) + ' cbm';
+                document.getElementById('ov-truckList').innerHTML = truckHtml || '<div class="kpi-card-detail-row">No data</div>';
+
+                // Non-OTIF
+                let nonOtifTotal = 0, categoryCounts = {};
+                nonOtifIssues.forEach((item, index) => {
+                    const value = parseFloat(data.nonOtif[`nonOtif_${index}`]) || 0;
+                    nonOtifTotal += value;
+                    if (value > 0) categoryCounts[item.cat] = (categoryCounts[item.cat] || 0) + value;
+                });
+                let topCategory = '-', topCount = 0;
+                for (let cat in categoryCounts) {
+                    if (categoryCounts[cat] > topCount) { topCount = categoryCounts[cat]; topCategory = cat + ' (' + formatNumber(topCount) + ')'; }
+                }
+                document.getElementById('ov-nonOtifTotal').textContent = formatNumber(nonOtifTotal);
+                document.getElementById('ov-nonOtifTop').textContent = topCategory;
+
+                // Stock Outs
+                let stockOutValueTotal = 0, stockOutWeightTotal = 0;
+                stockOutIssues.forEach((item, index) => {
+                    stockOutValueTotal += parseFloat(data.stockOuts.value[`stockOutValue_${index}`]) || 0;
+                    stockOutWeightTotal += parseFloat(data.stockOuts.weight[`stockOutWeight_${index}`]) || 0;
+                });
+                document.getElementById('ov-stockOutValue').textContent = formatCurrency(stockOutValueTotal);
+                document.getElementById('ov-stockOutWeight').textContent = formatNumber(stockOutWeightTotal) + ' KGS';
+
+                // Manpower
+                const regular = parseFloat(data.manpower.regular) || 0;
+                const agency = parseFloat(data.manpower.agency) || 0;
+                const resigned = parseFloat(data.manpower.resigned) || 0;
+                const regHours = parseFloat(data.manpower.regHours) || 0;
+                const agyHours = parseFloat(data.manpower.agyHours) || 0;
+                const otHours = parseFloat(data.manpower.otHours) || 0;
+                const absences = parseFloat(data.manpower.absences) || 0;
+                const requiredDays = parseFloat(data.manpower.requiredDays) || 0;
+                
+                const totalHeadcount = regular + agency;
+                const avgHeadcount = totalHeadcount > 0 ? (totalHeadcount + (totalHeadcount - resigned)) / 2 : totalHeadcount;
+                const attritionRate = avgHeadcount > 0 ? (resigned / avgHeadcount) * 100 : 0;
+                const totalManhours = regHours + agyHours;
+                const overtimeRate = totalManhours > 0 ? (otHours / totalManhours) * 100 : 0;
+                const absenteeismRate = requiredDays > 0 ? (absences / requiredDays) * 100 : 0;
+                
+                document.getElementById('ov-hcTotal').textContent = formatNumber(totalHeadcount, 0);
+                document.getElementById('ov-hcRegular').textContent = formatNumber(regular, 0);
+                document.getElementById('ov-hcAgency').textContent = formatNumber(agency, 0);
+                document.getElementById('ov-hcResigned').textContent = formatNumber(resigned, 0);
+                document.getElementById('ov-hcAttrition').textContent = attritionRate.toFixed(1) + '%';
+                document.getElementById('ov-mhTotal').textContent = formatNumber(totalManhours) + ' hrs';
+                document.getElementById('ov-mhRegular').textContent = formatNumber(regHours) + ' hrs';
+                document.getElementById('ov-mhAgency').textContent = formatNumber(agyHours) + ' hrs';
+                document.getElementById('ov-mhOT').textContent = formatNumber(otHours) + ' hrs';
+                document.getElementById('ov-mhOTRate').textContent = overtimeRate.toFixed(1) + '%';
+                document.getElementById('ov-absRate').textContent = absenteeismRate.toFixed(1) + '%';
+                document.getElementById('ov-absCount').textContent = formatNumber(absences, 0);
+                document.getElementById('ov-absDays').textContent = requiredDays.toFixed(2);
+            },
+
+            loadOVCategoryData: function() {
+                const selector = document.getElementById('ov-categorySelector');
+                this.currentOverviewCategory = selector.value;
+                const data = getCurrentData();
+                let html = '';
+
+                if (this.currentOverviewCategory === 'otif') {
+                    html = `
+                        <div class="input-section" style="grid-column: span 3;">
+                            <h4>OTIF RATE</h4>
+                            <div class="input-grid" style="grid-template-columns: repeat(2, 1fr);">
+                                <div class="input-field"><label>Served per Line Item</label><input type="number" id="ov_otif_served" value="${data.otif.served}" step="0.01" placeholder="Count"></div>
+                                <div class="input-field"><label>Total Line Items</label><input type="number" id="ov_otif_total" value="${data.otif.total}" step="0.01" placeholder="Count"></div>
+                            </div>
+                        </div>
+                    `;
+                } else if (this.currentOverviewCategory === 'fillrates') {
+                    html = `
+                        <div class="input-section" style="grid-column: span 3;">
+                            <h4>VOLUME FILL RATE</h4>
+                            <div class="input-grid" style="grid-template-columns: repeat(2, 1fr);">
+                                <div class="input-field"><label>Delivered (₱)</label><input type="number" id="ov_vol_delivered" value="${data.volumeFill.delivered}" step="0.01" placeholder="₱"></div>
+                                <div class="input-field"><label>Orders (₱)</label><input type="number" id="ov_vol_orders" value="${data.volumeFill.orders}" step="0.01" placeholder="₱"></div>
+                            </div>
+                        </div>
+                    `;
+                } else if (this.currentOverviewCategory === 'warehouse') {
+                    html = `
+                        <div class="input-section"><h4>RM/PM Warehouse</h4><div class="input-grid"><div class="input-field"><label>Pallet Positions</label><input type="number" id="ov_rm_total" value="${data.warehouse.rmTotal}" step="0.01"></div><div class="input-field"><label>Pallet Used</label><input type="number" id="ov_rm_used" value="${data.warehouse.rmUsed}" step="0.01"></div></div></div>
+                        <div class="input-section"><h4>FG Warehouse</h4><div class="input-grid"><div class="input-field"><label>Pallet Positions</label><input type="number" id="ov_fg_total" value="${data.warehouse.fgTotal}" step="0.01"></div><div class="input-field"><label>Pallet Used</label><input type="number" id="ov_fg_used" value="${data.warehouse.fgUsed}" step="0.01"></div></div></div>
+                        <div class="input-section"><h4>External Warehouse</h4><div class="input-grid"><div class="input-field"><label>Pallet Positions</label><input type="number" id="ov_ext_total" value="${data.warehouse.extTotal}" step="0.01"></div><div class="input-field"><label>Pallet Used</label><input type="number" id="ov_ext_used" value="${data.warehouse.extUsed}" step="0.01"></div></div></div>
+                    `;
+                } else if (this.currentOverviewCategory === 'otdl') {
+                    html = `
+                        <div class="input-section" style="grid-column: span 3;">
+                            <h4>OTDL DAYS</h4>
+                            <div class="input-grid" style="grid-template-columns: repeat(4, 1fr);">
+                                <div class="input-field"><label>GMA</label><input type="number" id="ov_gma" value="${data.otdl.gma}" step="0.01"></div>
+                                <div class="input-field"><label>North Luzon</label><input type="number" id="ov_north" value="${data.otdl.north}" step="0.01"></div>
+                                <div class="input-field"><label>Central Luzon</label><input type="number" id="ov_central" value="${data.otdl.central}" step="0.01"></div>
+                                <div class="input-field"><label>South Luzon</label><input type="number" id="ov_south" value="${data.otdl.south}" step="0.01"></div>
+                                <div class="input-field"><label>Visayas</label><input type="number" id="ov_visayas" value="${data.otdl.visayas}" step="0.01"></div>
+                                <div class="input-field"><label>Mindanao</label><input type="number" id="ov_mindanao" value="${data.otdl.mindanao}" step="0.01"></div>
+                                <div class="input-field"><label>Modern Trade</label><input type="number" id="ov_modern" value="${data.otdl.modernTrade}" step="0.01"></div>
+                                <div class="input-field"><label>PAI OTDL</label><input type="number" id="ov_pai" value="${data.otdl.pai}" step="0.01"></div>
+                            </div>
+                        </div>
+                    `;
+                } else if (this.currentOverviewCategory === 'trucks') {
+                    html = `
+                        <div class="input-section" style="grid-column: span 3;">
+                            <h4>TRUCK UTILIZATION (CBM)</h4>
+                            <div class="input-grid" style="grid-template-columns: repeat(3, 1fr);">
+                                <div class="input-field"><label>10-wheeler</label><input type="number" id="ov_truck10w" value="${data.trucks.truck10w}" step="0.01"></div>
+                                <div class="input-field"><label>AUV</label><input type="number" id="ov_truckAuv" value="${data.trucks.truckAuv}" step="0.01"></div>
+                                <div class="input-field"><label>6-wheeler</label><input type="number" id="ov_truck6w" value="${data.trucks.truck6w}" step="0.01"></div>
+                                <div class="input-field"><label>4-wheeler</label><input type="number" id="ov_truck4w" value="${data.trucks.truck4w}" step="0.01"></div>
+                                <div class="input-field"><label>20-ft container</label><input type="number" id="ov_truck20ft" value="${data.trucks.truck20ft}" step="0.01"></div>
+                            </div>
+                        </div>
+                    `;
+                } else if (this.currentOverviewCategory === 'manpower') {
+                    html = `
+                        <div class="input-section"><h4>Headcount</h4><div class="input-grid"><div class="input-field"><label>Regular</label><input type="number" id="ov_mp_regular" value="${data.manpower.regular}" step="0.01"></div><div class="input-field"><label>Agency</label><input type="number" id="ov_mp_agency" value="${data.manpower.agency}" step="0.01"></div><div class="input-field"><label>Resigned</label><input type="number" id="ov_mp_resigned" value="${data.manpower.resigned}" step="0.01"></div></div></div>
+                        <div class="input-section"><h4>Manhours</h4><div class="input-grid"><div class="input-field"><label>Regular Hours</label><input type="number" id="ov_mp_regHours" value="${data.manpower.regHours}" step="0.01"></div><div class="input-field"><label>Agency Hours</label><input type="number" id="ov_mp_agyHours" value="${data.manpower.agyHours}" step="0.01"></div><div class="input-field"><label>Overtime Hours</label><input type="number" id="ov_mp_otHours" value="${data.manpower.otHours}" step="0.01"></div></div></div>
+                        <div class="input-section"><h4>Absences</h4><div class="input-grid"><div class="input-field"><label>Absences Count</label><input type="number" id="ov_mp_absences" value="${data.manpower.absences}" step="0.01"></div><div class="input-field"><label>Required Days</label><input type="number" id="ov_mp_days" value="${data.manpower.requiredDays}" step="0.01"></div></div></div>
+                    `;
+                }
+
+                document.getElementById('ov-inputSections').innerHTML = html;
+            },
+
+            saveOVData: function() {
+                const data = getCurrentData();
+                
+                if (this.currentOverviewCategory === 'otif') {
+                    if (document.getElementById('ov_otif_served')) data.otif.served = document.getElementById('ov_otif_served').value;
+                    if (document.getElementById('ov_otif_total')) data.otif.total = document.getElementById('ov_otif_total').value;
+                } else if (this.currentOverviewCategory === 'fillrates') {
+                    if (document.getElementById('ov_vol_delivered')) data.volumeFill.delivered = document.getElementById('ov_vol_delivered').value;
+                    if (document.getElementById('ov_vol_orders')) data.volumeFill.orders = document.getElementById('ov_vol_orders').value;
+                } else if (this.currentOverviewCategory === 'warehouse') {
+                    if (document.getElementById('ov_rm_total')) data.warehouse.rmTotal = document.getElementById('ov_rm_total').value;
+                    if (document.getElementById('ov_rm_used')) data.warehouse.rmUsed = document.getElementById('ov_rm_used').value;
+                    if (document.getElementById('ov_fg_total')) data.warehouse.fgTotal = document.getElementById('ov_fg_total').value;
+                    if (document.getElementById('ov_fg_used')) data.warehouse.fgUsed = document.getElementById('ov_fg_used').value;
+                    if (document.getElementById('ov_ext_total')) data.warehouse.extTotal = document.getElementById('ov_ext_total').value;
+                    if (document.getElementById('ov_ext_used')) data.warehouse.extUsed = document.getElementById('ov_ext_used').value;
+                } else if (this.currentOverviewCategory === 'otdl') {
+                    if (document.getElementById('ov_gma')) data.otdl.gma = document.getElementById('ov_gma').value;
+                    if (document.getElementById('ov_north')) data.otdl.north = document.getElementById('ov_north').value;
+                    if (document.getElementById('ov_central')) data.otdl.central = document.getElementById('ov_central').value;
+                    if (document.getElementById('ov_south')) data.otdl.south = document.getElementById('ov_south').value;
+                    if (document.getElementById('ov_visayas')) data.otdl.visayas = document.getElementById('ov_visayas').value;
+                    if (document.getElementById('ov_mindanao')) data.otdl.mindanao = document.getElementById('ov_mindanao').value;
+                    if (document.getElementById('ov_modern')) data.otdl.modernTrade = document.getElementById('ov_modern').value;
+                    if (document.getElementById('ov_pai')) data.otdl.pai = document.getElementById('ov_pai').value;
+                } else if (this.currentOverviewCategory === 'trucks') {
+                    if (document.getElementById('ov_truck10w')) data.trucks.truck10w = document.getElementById('ov_truck10w').value;
+                    if (document.getElementById('ov_truckAuv')) data.trucks.truckAuv = document.getElementById('ov_truckAuv').value;
+                    if (document.getElementById('ov_truck6w')) data.trucks.truck6w = document.getElementById('ov_truck6w').value;
+                    if (document.getElementById('ov_truck4w')) data.trucks.truck4w = document.getElementById('ov_truck4w').value;
+                    if (document.getElementById('ov_truck20ft')) data.trucks.truck20ft = document.getElementById('ov_truck20ft').value;
+                } else if (this.currentOverviewCategory === 'manpower') {
+                    if (document.getElementById('ov_mp_regular')) data.manpower.regular = document.getElementById('ov_mp_regular').value;
+                    if (document.getElementById('ov_mp_agency')) data.manpower.agency = document.getElementById('ov_mp_agency').value;
+                    if (document.getElementById('ov_mp_resigned')) data.manpower.resigned = document.getElementById('ov_mp_resigned').value;
+                    if (document.getElementById('ov_mp_regHours')) data.manpower.regHours = document.getElementById('ov_mp_regHours').value;
+                    if (document.getElementById('ov_mp_agyHours')) data.manpower.agyHours = document.getElementById('ov_mp_agyHours').value;
+                    if (document.getElementById('ov_mp_otHours')) data.manpower.otHours = document.getElementById('ov_mp_otHours').value;
+                    if (document.getElementById('ov_mp_absences')) data.manpower.absences = document.getElementById('ov_mp_absences').value;
+                    if (document.getElementById('ov_mp_days')) data.manpower.requiredDays = document.getElementById('ov_mp_days').value;
+                }
+                
+                alert('Data saved successfully');
+                this.calculateOverview();
+            },
+
+            clearOVCurrent: function() {
+                const data = getCurrentData();
+                if (this.currentOverviewCategory === 'otif') {
+                    data.otif = { served: '', total: '' };
+                } else if (this.currentOverviewCategory === 'fillrates') {
+                    data.volumeFill = { delivered: '', orders: '' };
+                } else if (this.currentOverviewCategory === 'warehouse') {
+                    data.warehouse = { rmTotal: '', rmUsed: '', fgTotal: '', fgUsed: '', extTotal: '', extUsed: '' };
+                } else if (this.currentOverviewCategory === 'otdl') {
+                    data.otdl = { gma: '', north: '', central: '', south: '', visayas: '', mindanao: '', modernTrade: '', pai: '' };
+                } else if (this.currentOverviewCategory === 'trucks') {
+                    data.trucks = { truck10w: '', truckAuv: '', truck6w: '', truck4w: '', truck20ft: '' };
+                } else if (this.currentOverviewCategory === 'manpower') {
+                    data.manpower = { regular: '', agency: '', resigned: '', regHours: '', agyHours: '', otHours: '', absences: '', requiredDays: '' };
+                }
+                this.loadOVCategoryData();
+                this.calculateOverview();
+            },
+
+            clearOVAll: function() {
+                if (confirm('Clear ALL overview data for this month?')) {
+                    const data = getCurrentData();
+                    data.otif = { served: '', total: '' };
+                    data.volumeFill = { delivered: '', orders: '' };
+                    data.warehouse = { rmTotal: '', rmUsed: '', fgTotal: '', fgUsed: '', extTotal: '', extUsed: '' };
+                    data.otdl = { gma: '', north: '', central: '', south: '', visayas: '', mindanao: '', modernTrade: '', pai: '' };
+                    data.trucks = { truck10w: '', truckAuv: '', truck6w: '', truck4w: '', truck20ft: '' };
+                    data.manpower = { regular: '', agency: '', resigned: '', regHours: '', agyHours: '', otHours: '', absences: '', requiredDays: '' };
+                    this.loadOVCategoryData();
+                    this.calculateOverview();
+                }
+            },
+
+            // ==================== FILL RATES FUNCTIONS ====================
+            calculateFillRates: function() {
+                const data = getCurrentData().fillRates;
+                
+                const corpDelivered = parseFloat(data.corporate.delivered) || 0;
+                const corpOrders = parseFloat(data.corporate.orders) || 0;
+                const corpRate = corpOrders > 0 ? (corpDelivered / corpOrders) * 100 : 0;
+                document.getElementById('fr-corpValue').textContent = corpRate.toFixed(1) + '%';
+                document.getElementById('fr-corpDelivered').textContent = formatCurrency(corpDelivered);
+                document.getElementById('fr-corpOrders').textContent = formatCurrency(corpOrders);
+                let corpStatus = 'No Data', corpClass = 'status-neutral';
+                if (corpOrders > 0) {
+                    corpStatus = getFillStatusText(corpRate);
+                    corpClass = getFillStatusClass(corpRate);
+                }
+                document.getElementById('fr-corpStatus').textContent = corpStatus;
+                document.getElementById('fr-corpStatus').className = 'status-badge ' + corpClass;
+
+                const scDelivered = parseFloat(data.sc.delivered) || 0;
+                const scOrders = parseFloat(data.sc.orders) || 0;
+                const scRate = scOrders > 0 ? (scDelivered / scOrders) * 100 : 0;
+                document.getElementById('fr-scValue').textContent = scRate.toFixed(1) + '%';
+                document.getElementById('fr-scDelivered').textContent = formatCurrency(scDelivered);
+                document.getElementById('fr-scOrders').textContent = formatCurrency(scOrders);
+                let scStatus = 'No Data', scClass = 'status-neutral';
+                if (scOrders > 0) {
+                    scStatus = getFillStatusText(scRate);
+                    scClass = getFillStatusClass(scRate);
+                }
+                document.getElementById('fr-scStatus').textContent = scStatus;
+                document.getElementById('fr-scStatus').className = 'status-badge ' + scClass;
+
+                const coreDelivered = parseFloat(data.core.delivered) || 0;
+                const coreOrders = parseFloat(data.core.orders) || 0;
+                const coreRate = coreOrders > 0 ? (coreDelivered / coreOrders) * 100 : 0;
+                document.getElementById('fr-coreValue').textContent = coreRate.toFixed(1) + '%';
+                document.getElementById('fr-coreDelivered').textContent = formatCurrency(coreDelivered);
+                document.getElementById('fr-coreOrders').textContent = formatCurrency(coreOrders);
+                let coreStatus = 'No Data', coreClass = 'status-neutral';
+                if (coreOrders > 0) {
+                    coreStatus = getFillStatusText(coreRate);
+                    coreClass = getFillStatusClass(coreRate);
+                }
+                document.getElementById('fr-coreStatus').textContent = coreStatus;
+                document.getElementById('fr-coreStatus').className = 'status-badge ' + coreClass;
+
+                const emergingDelivered = parseFloat(data.emerging.delivered) || 0;
+                const emergingOrders = parseFloat(data.emerging.orders) || 0;
+                const emergingRate = emergingOrders > 0 ? (emergingDelivered / emergingOrders) * 100 : 0;
+                document.getElementById('fr-emergingValue').textContent = emergingRate.toFixed(1) + '%';
+                document.getElementById('fr-emergingDelivered').textContent = formatCurrency(emergingDelivered);
+                document.getElementById('fr-emergingOrders').textContent = formatCurrency(emergingOrders);
+                let emergingStatus = 'No Data', emergingClass = 'status-neutral';
+                if (emergingOrders > 0) {
+                    emergingStatus = getFillStatusText(emergingRate);
+                    emergingClass = getFillStatusClass(emergingRate);
+                }
+                document.getElementById('fr-emergingStatus').textContent = emergingStatus;
+                document.getElementById('fr-emergingStatus').className = 'status-badge ' + emergingClass;
+            },
+
+            saveFillRates: function() {
+                const data = getCurrentData().fillRates;
+                data.corporate.delivered = document.getElementById('fr_corp_delivered').value;
+                data.corporate.orders = document.getElementById('fr_corp_orders').value;
+                data.sc.delivered = document.getElementById('fr_sc_delivered').value;
+                data.sc.orders = document.getElementById('fr_sc_orders').value;
+                data.core.delivered = document.getElementById('fr_core_delivered').value;
+                data.core.orders = document.getElementById('fr_core_orders').value;
+                data.emerging.delivered = document.getElementById('fr_emerging_delivered').value;
+                data.emerging.orders = document.getElementById('fr_emerging_orders').value;
+                alert('Fill Rates data saved');
+                this.calculateFillRates();
+            },
+
+            clearFillRates: function() {
+                if (confirm('Clear ALL fill rates data?')) {
+                    document.getElementById('fr_corp_delivered').value = '';
+                    document.getElementById('fr_corp_orders').value = '';
+                    document.getElementById('fr_sc_delivered').value = '';
+                    document.getElementById('fr_sc_orders').value = '';
+                    document.getElementById('fr_core_delivered').value = '';
+                    document.getElementById('fr_core_orders').value = '';
+                    document.getElementById('fr_emerging_delivered').value = '';
+                    document.getElementById('fr_emerging_orders').value = '';
+                    this.saveFillRates();
+                }
+            },
+
+            // ==================== NON-OTIF FUNCTIONS ====================
+            calculateNonOtif: function() {
+                const data = getCurrentData().nonOtif;
+                let nonOtifHtml = '', nonOtifTotal = 0, categoryCounts = {};
+                nonOtifIssues.forEach((item, index) => {
+                    const inputId = `no_${index}`;
+                    const value = parseFloat(data[`nonOtif_${index}`]) || 0;
+                    nonOtifTotal += value;
+                    if (value > 0) categoryCounts[item.cat] = (categoryCounts[item.cat] || 0) + value;
+                    nonOtifHtml += `<tr><td><span class="category-badge">${item.cat}</span> ${categories[item.cat]}</td><td>${item.issue}</td><td>${value ? formatNumber(value) : '0'}</td></tr>`;
+                });
+                document.getElementById('no-tableBody').innerHTML = nonOtifHtml;
+                document.getElementById('no-total').textContent = `Total: ${formatNumber(nonOtifTotal)}`;
+            },
+
+            loadNonOtifInput: function() {
+                const data = getCurrentData().nonOtif;
+                let html = `<div class="input-section" style="grid-column: span 3;"><h4>NON-OTIF ISSUES (COUNT)</h4><div class="input-grid" style="grid-template-columns: repeat(4, 1fr);">`;
+                nonOtifIssues.forEach((item, index) => {
+                    const inputId = `no_input_${index}`;
+                    const value = data[`nonOtif_${index}`] || '';
+                    html += `<div class="input-field"><label>${item.cat} - ${item.issue}</label><input type="number" id="${inputId}" value="${value}" step="0.01" placeholder="Count"></div>`;
+                });
+                html += `</div></div>`;
+                document.getElementById('no-inputSections').innerHTML = html;
+            },
+
+            saveNonOtif: function() {
+                const data = getCurrentData().nonOtif;
+                nonOtifIssues.forEach((item, index) => {
+                    const inputId = `no_input_${index}`;
+                    data[`nonOtif_${index}`] = document.getElementById(inputId).value;
+                });
+                alert('Non-OTIF data saved');
+                this.calculateNonOtif();
+            },
+
+            clearNonOtif: function() {
+                if (confirm('Clear ALL non-OTIF data?')) {
+                    nonOtifIssues.forEach((item, index) => {
+                        const inputId = `no_input_${index}`;
+                        if (document.getElementById(inputId)) document.getElementById(inputId).value = '';
+                    });
+                    this.saveNonOtif();
+                }
+            },
+
+            // ==================== STOCK OUTS FUNCTIONS ====================
+            calculateStockOuts: function() {
+                const data = getCurrentData().stockOuts;
+                let valueHtml = '', weightHtml = '';
+                let valueTotal = 0, weightTotal = 0;
+                stockOutIssues.forEach((item, index) => {
+                    const valueVal = parseFloat(data.value[`stockOutValue_${index}`]) || 0;
+                    const weightVal = parseFloat(data.weight[`stockOutWeight_${index}`]) || 0;
+                    valueTotal += valueVal;
+                    weightTotal += weightVal;
+                    valueHtml += `<tr><td><span class="category-badge">${item.cat}</span> ${categories[item.cat]}</td><td>${item.issue}</td><td>${valueVal ? formatCurrency(valueVal) : '₱0'}</td></tr>`;
+                    weightHtml += `<tr><td><span class="category-badge">${item.cat}</span> ${categories[item.cat]}</td><td>${item.issue}</td><td>${weightVal ? formatNumber(weightVal) : '0'} KGS</td></tr>`;
+                });
+                document.getElementById('so-valueTable').innerHTML = valueHtml;
+                document.getElementById('so-weightTable').innerHTML = weightHtml;
+                document.getElementById('so-valueTotal').textContent = `Total: ${formatCurrency(valueTotal)}`;
+                document.getElementById('so-weightTotal').textContent = `Total: ${formatNumber(weightTotal)} KGS`;
+            },
+
+            loadStockOutsInput: function() {
+                const data = getCurrentData().stockOuts;
+                let html = `<div class="input-section" style="grid-column: span 3;"><h4>STOCK OUTS - VALUE (₱)</h4><div class="input-grid" style="grid-template-columns: repeat(3, 1fr);">`;
+                stockOutIssues.forEach((item, index) => {
+                    const value = data.value[`stockOutValue_${index}`] || '';
+                    html += `<div class="input-field"><label>${item.cat} - ${item.issue}</label><input type="number" id="so_value_${index}" value="${value}" step="0.01" placeholder="₱"></div>`;
+                });
+                html += `</div></div><div class="input-section" style="grid-column: span 3;"><h4>STOCK OUTS - WEIGHT (KGS)</h4><div class="input-grid" style="grid-template-columns: repeat(3, 1fr);">`;
+                stockOutIssues.forEach((item, index) => {
+                    const weight = data.weight[`stockOutWeight_${index}`] || '';
+                    html += `<div class="input-field"><label>${item.cat} - ${item.issue}</label><input type="number" id="so_weight_${index}" value="${weight}" step="0.01" placeholder="KGS"></div>`;
+                });
+                html += `</div></div>`;
+                document.getElementById('so-inputSections').innerHTML = html;
+            },
+
+            saveStockOuts: function() {
+                const data = getCurrentData().stockOuts;
+                stockOutIssues.forEach((item, index) => {
+                    data.value[`stockOutValue_${index}`] = document.getElementById(`so_value_${index}`).value;
+                    data.weight[`stockOutWeight_${index}`] = document.getElementById(`so_weight_${index}`).value;
+                });
+                alert('Stock Outs data saved');
+                this.calculateStockOuts();
+            },
+
+            clearStockOuts: function() {
+                if (confirm('Clear ALL stock outs data?')) {
+                    stockOutIssues.forEach((item, index) => {
+                        if (document.getElementById(`so_value_${index}`)) document.getElementById(`so_value_${index}`).value = '';
+                        if (document.getElementById(`so_weight_${index}`)) document.getElementById(`so_weight_${index}`).value = '';
+                    });
+                    this.saveStockOuts();
+                }
+            },
+
+            // ==================== WAREHOUSE FUNCTIONS ====================
+            calculateWarehouse: function() {
+                const data = getCurrentData().warehouse;
+                const rmTotal = parseFloat(data.rmTotal) || 0;
+                const rmUsed = parseFloat(data.rmUsed) || 0;
+                const fgTotal = parseFloat(data.fgTotal) || 0;
+                const fgUsed = parseFloat(data.fgUsed) || 0;
+                const extTotal = parseFloat(data.extTotal) || 0;
+                const extUsed = parseFloat(data.extUsed) || 0;
+                
+                document.getElementById('wh-rmTotal').textContent = formatNumber(rmTotal);
+                document.getElementById('wh-rmUsed').textContent = formatNumber(rmUsed);
+                document.getElementById('wh-rmUtil').textContent = rmTotal > 0 ? ((rmUsed / rmTotal) * 100).toFixed(1) + '%' : '0%';
+                document.getElementById('wh-fgTotal').textContent = formatNumber(fgTotal);
+                document.getElementById('wh-fgUsed').textContent = formatNumber(fgUsed);
+                document.getElementById('wh-fgUtil').textContent = fgTotal > 0 ? ((fgUsed / fgTotal) * 100).toFixed(1) + '%' : '0%';
+                document.getElementById('wh-extTotal').textContent = formatNumber(extTotal);
+                document.getElementById('wh-extUsed').textContent = formatNumber(extUsed);
+                document.getElementById('wh-extUtil').textContent = extTotal > 0 ? ((extUsed / extTotal) * 100).toFixed(1) + '%' : '0%';
+            },
+
+            saveWarehouse: function() {
+                const data = getCurrentData().warehouse;
+                data.rmTotal = document.getElementById('wh_rm_total').value;
+                data.rmUsed = document.getElementById('wh_rm_used').value;
+                data.fgTotal = document.getElementById('wh_fg_total').value;
+                data.fgUsed = document.getElementById('wh_fg_used').value;
+                data.extTotal = document.getElementById('wh_ext_total').value;
+                data.extUsed = document.getElementById('wh_ext_used').value;
+                alert('Warehouse data saved');
+                this.calculateWarehouse();
+                this.calculateOverview();
+            },
+
+            clearWarehouse: function() {
+                if (confirm('Clear ALL warehouse data?')) {
+                    document.getElementById('wh_rm_total').value = '';
+                    document.getElementById('wh_rm_used').value = '';
+                    document.getElementById('wh_fg_total').value = '';
+                    document.getElementById('wh_fg_used').value = '';
+                    document.getElementById('wh_ext_total').value = '';
+                    document.getElementById('wh_ext_used').value = '';
+                    this.saveWarehouse();
+                }
+            },
+
+            // ==================== MANPOWER FUNCTIONS ====================
+            calculateManpower: function() {
+                const data = getCurrentData().manpower;
+                const regular = parseFloat(data.regular) || 0;
+                const agency = parseFloat(data.agency) || 0;
+                const resigned = parseFloat(data.resigned) || 0;
+                const regHours = parseFloat(data.regHours) || 0;
+                const agyHours = parseFloat(data.agyHours) || 0;
+                const otHours = parseFloat(data.otHours) || 0;
+                const absences = parseFloat(data.absences) || 0;
+                const requiredDays = parseFloat(data.requiredDays) || 0;
+                
+                const totalHeadcount = regular + agency;
+                const avgHeadcount = totalHeadcount > 0 ? (totalHeadcount + (totalHeadcount - resigned)) / 2 : totalHeadcount;
+                const attritionRate = avgHeadcount > 0 ? (resigned / avgHeadcount) * 100 : 0;
+                const totalManhours = regHours + agyHours;
+                const overtimeRate = totalManhours > 0 ? (otHours / totalManhours) * 100 : 0;
+                const absenteeismRate = requiredDays > 0 ? (absences / requiredDays) * 100 : 0;
+                
+                document.getElementById('mp-regular').textContent = formatNumber(regular, 0);
+                document.getElementById('mp-agency').textContent = formatNumber(agency, 0);
+                document.getElementById('mp-resigned').textContent = formatNumber(resigned, 0);
+                document.getElementById('mp-attrition').textContent = attritionRate.toFixed(2) + '%';
+                document.getElementById('mp-regHours').textContent = formatNumber(regHours) + ' hrs';
+                document.getElementById('mp-agyHours').textContent = formatNumber(agyHours) + ' hrs';
+                document.getElementById('mp-otHours').textContent = formatNumber(otHours) + ' hrs';
+                document.getElementById('mp-otRate').textContent = overtimeRate.toFixed(1) + '%';
+                document.getElementById('mp-absences').textContent = formatNumber(absences, 0);
+                document.getElementById('mp-days').textContent = requiredDays.toFixed(2);
+                document.getElementById('mp-absRate').textContent = absenteeismRate.toFixed(2) + '%';
+            },
+
+            saveManpower: function() {
+                const data = getCurrentData().manpower;
+                data.regular = document.getElementById('mp_regular').value;
+                data.agency = document.getElementById('mp_agency').value;
+                data.resigned = document.getElementById('mp_resigned').value;
+                data.regHours = document.getElementById('mp_regHours').value;
+                data.agyHours = document.getElementById('mp_agyHours').value;
+                data.otHours = document.getElementById('mp_otHours').value;
+                data.absences = document.getElementById('mp_absences').value;
+                data.requiredDays = document.getElementById('mp_days').value;
+                alert('Manpower data saved');
+                this.calculateManpower();
+                this.calculateOverview();
+            },
+
+            clearManpower: function() {
+                if (confirm('Clear ALL manpower data?')) {
+                    document.getElementById('mp_regular').value = '';
+                    document.getElementById('mp_agency').value = '';
+                    document.getElementById('mp_resigned').value = '';
+                    document.getElementById('mp_regHours').value = '';
+                    document.getElementById('mp_agyHours').value = '';
+                    document.getElementById('mp_otHours').value = '';
+                    document.getElementById('mp_absences').value = '';
+                    document.getElementById('mp_days').value = '';
+                    this.saveManpower();
+                }
+            }
+        };
+
+        // Initialize
+        window.onload = function() {
+            handlers.calculateOverview();
+            handlers.calculateFillRates();
+            handlers.calculateNonOtif();
+            handlers.calculateStockOuts();
+            handlers.calculateWarehouse();
+            handlers.calculateManpower();
+            updateTimestamp();
+        };
+    </script>
+</body>
+</html>
