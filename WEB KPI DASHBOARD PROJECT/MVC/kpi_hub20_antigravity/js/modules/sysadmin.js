@@ -906,7 +906,12 @@ function _importRowCSV(module, headers, row, year, month) {
         if (!lineName) return false;
         const lineKey = utilLines.find(lk => (utilLineNames[lk]||lk) === lineName) || lineName;
         utilDB[year][month][lineKey] = {
-            productive: get('Productive'), unproductive: get('Unproductive'), idle: get('Idle'), downtime: get('Downtime'),
+            productive: get('Productive'), noPlan: get('No Plan'), noHc: get('No HC'), changeOver: get('Change Over'),
+            meeting: get('Meeting'), sanitation: get('Sanitation'), startup: get('Startup'), shutdown: get('Shutdown'),
+            testing: get('Testing'), breaktime: get('Breaktime'), pm: get('PM'), force: get('Force Majeure'),
+            elec: get('Elec Breakdown'), mech: get('Mech Breakdown'), material: get('Material'), sorting: get('Sorting'),
+            tech: get('Tech'), noManpower: get('No Manpower'), udt: get('UDT'), noOt: get('No OT'),
+            noBulk: get('No Bulk'), transfer: get('Transfer'), idle: get('Idle'),
             mAvail: get('M.Avail'), mUsed: get('M.Used'), days: get('Days')
         };
         return true;
@@ -1089,7 +1094,7 @@ function saGetSchema(module) {
         finance:          ['Year','Month','Prod Act','Prod Tgt','Op Act','Op Bgt','Cap Act','Cap Bgt','Oth Act','Oth Bgt','DL Reg','DL OT','IL Reg','IL OT'],
         planning:         ['Year','Month','FG Core (Days)','FG M7 (Days)','FG Others (Days)','FG All-In (Days)','RM Core (Days)','RM M7 (Days)','RM Others (Days)','PM Core (Days)','PM M7 (Days)','PM Others (Days)','FG Kgs Core','FG Kgs M7','FG Kgs Others','FG Kgs Exp','FG Kgs Days','FG Php Core','FG Php M7','FG Php Others','FG Php Exp','RM Kgs Core','RM Kgs M7','RM Kgs Others','RM Kgs Exp','RM Kgs Days','RM Php Core','RM Php M7','RM Php Others','RM Php Exp','FG Cnt','FG Miss','RM Cnt','RM Miss','FC GMA','FC North','FC South','FC Vis','FC Mind','FC MT','FC PSBSI','FC Indo','FC India','FC Direct','P Epoxy','P Elasto','P Mighty','P Pro-Epoxy','P Builders','P Coating','P Transport','P Other','P Sealant','P Waterproof','P Painting','P Adhesives','P Mining','P Others'],
         procurement:      ['Year','Month','Actual (₱)','Target (₱)'],
-        production_util:  ['Year','Month','Line','Productive','Unproductive','Idle','Downtime','M.Avail','M.Used','Days'],
+        production_util:  ['Year','Month','Line','Productive','No Plan','No HC','Change Over','Meeting','Sanitation','Startup','Shutdown','Testing','Breaktime','PM','Force Majeure','Elec Breakdown','Mech Breakdown','Material','Sorting','Tech','No Manpower','UDT','No OT','No Bulk','Transfer','Idle','M.Avail','M.Used','Days'],
         production_waste: ['Year','Month','Line','FG Output','Reprocess','Rejection','Waste'],
         production_sched: ['Year','Month','Line','Actual','Planned'],
         warehouse:        ['Year','Month','Vol Del','Vol Ord','FR SC Del','FR SC Ord','FR Corp Del','FR Corp Ord','FR Core Del','FR Core Ord','FR M7 Del','FR M7 Ord','WH RM Tot','WH RM Used','WH FG Tot','WH FG Used','WH Ext Tot','WH Ext Used','OTDL GMA','OTDL North','OTDL Central','OTDL South','OTDL Vis','OTDL Mind','OTDL MT','OTDL PAI','Truck T10','Truck AUV','Truck T6','Truck T4','Truck C20','MP Reg','MP Agy','MP Res','MP Reg H','MP Agy H','MP OT H','MP Abs','MP Days'],
@@ -1131,8 +1136,8 @@ function saGetAllData(module) {
                 utilLines.forEach(line => {
                     const d = db[line];
                     const tot = utilKeys2.reduce((s,k) => s+(+d[k]||0), 0);
-                    if (!tot) return;
-                    rows.push([y, m, utilLineNames[line]||line, d.productive||'', d.unproductive||'', d.idle||'', d.downtime||'', d.mAvail||'', d.mUsed||'', d.days||'']);
+                    if (!tot && !d.mAvail && !d.days) return;
+                    rows.push([y, m, utilLineNames[line]||line, d.productive||'', d.noPlan||'', d.noHc||'', d.changeOver||'', d.meeting||'', d.sanitation||'', d.startup||'', d.shutdown||'', d.testing||'', d.breaktime||'', d.pm||'', d.force||'', d.elec||'', d.mech||'', d.material||'', d.sorting||'', d.tech||'', d.noManpower||'', d.udt||'', d.noOt||'', d.noBulk||'', d.transfer||'', d.idle||'', d.mAvail||'', d.mUsed||'', d.days||'']);
                 });
                 break;
             }
@@ -1159,8 +1164,8 @@ function saGetAllData(module) {
             case 'warehouse': {
                 const d = whDB[y]?.[m];
                 if (!d) return;
-                const vd = +d.vol.del||0, vo = +d.vol.ord||0;
-                if (!vd && !vo) return;
+                const hasData = Object.values(d).some(cat => Object.values(cat).some(v => v !== '' && v != null));
+                if (!hasData) return;
                 rows.push([y, m, d.vol.del||'', d.vol.ord||'', d.fr.sc.del||'', d.fr.sc.ord||'', d.fr.corp.del||'', d.fr.corp.ord||'', d.fr.core.del||'', d.fr.core.ord||'', d.fr.m7.del||'', d.fr.m7.ord||'', d.wh.rmTot||'', d.wh.rmUsed||'', d.wh.fgTot||'', d.wh.fgUsed||'', d.wh.extTot||'', d.wh.extUsed||'', d.otdl.gma||'', d.otdl.north||'', d.otdl.central||'', d.otdl.south||'', d.otdl.vis||'', d.otdl.mind||'', d.otdl.mt||'', d.otdl.pai||'', d.trucks.t10||'', d.trucks.auv||'', d.trucks.t6||'', d.trucks.t4||'', d.trucks.c20||'', d.mp.reg||'', d.mp.agy||'', d.mp.res||'', d.mp.regH||'', d.mp.agyH||'', d.mp.otH||'', d.mp.abs||'', d.mp.days||'']);
                 break;
             }
