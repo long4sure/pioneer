@@ -821,7 +821,9 @@ async function saDataImport(inputEl) {
                 if (module === 'finance')     payload = (finDB[yr] && finDB[yr][mo]) ? finDB[yr][mo] : {};
                 if (module === 'procurement') payload = (procDB[yr] && procDB[yr][mo]) ? procDB[yr][mo] : {};
                 if (module === 'planning')    payload = { fields: (plDB[yr] && plDB[yr][mo]) ? plDB[yr][mo] : {} };
-                if (module === 'warehouse')   payload = (whDB[yr] && whDB[yr][mo]) ? whDB[yr][mo] : {};
+                if (module === 'production_util') payload = { lines: (utilDB[yr] && utilDB[yr][mo]) ? utilDB[yr][mo] : {} };
+                if (module === 'production_waste') payload = { lines: (wasteDB[yr] && wasteDB[yr][mo]) ? wasteDB[yr][mo] : {} };
+                if (module === 'production_sched') payload = { lines: (schedDB[yr] && schedDB[yr][mo]) ? schedDB[yr][mo] : {} };
                 try { await API.save(module, parseInt(yr), mNum, payload); } catch(err) { console.warn('sync err', err); }
             }
             showToast('Imported and saved ' + imported + ' record(s) to database');
@@ -860,6 +862,74 @@ function _importRowCSV(module, headers, row, year, month) {
         procDB[year][month] = {
             actual: get('Actual (\u20b1)') || get('Actual Savings (\u20b1)'),
             target: get('Target (\u20b1)') || get('Target Savings (\u20b1)'),
+        };
+        return true;
+    }
+    if (module === 'planning') {
+        if (!plDB[year]) plDB[year] = {};
+        plDB[year][month] = {
+            fgA: get('FG Core (Days)'), fgB: get('FG M7 (Days)'), fgC: get('FG Others (Days)'), fgAllIn: get('FG All-In (Days)'),
+            rmA: get('RM Core (Days)'), rmB: get('RM M7 (Days)'), rmC: get('RM Others (Days)'),
+            pmCore: get('PM Core (Days)'), pmM7: get('PM M7 (Days)'), pmOthers: get('PM Others (Days)'),
+            fgKgsFG: get('FG Kgs Core'), fgKgsFN: get('FG Kgs M7'), fgKgsSL: get('FG Kgs Others'), fgKgsEX: get('FG Kgs Exp'), fgKgsDays: get('FG Kgs Days'),
+            fgPhpFG: get('FG Php Core'), fgPhpFN: get('FG Php M7'), fgPhpSL: get('FG Php Others'), fgPhpEX: get('FG Php Exp'),
+            rmKgsFG: get('RM Kgs Core'), rmKgsFN: get('RM Kgs M7'), rmKgsSL: get('RM Kgs Others'), rmKgsEX: get('RM Kgs Exp'), rmKgsDays: get('RM Kgs Days'),
+            rmPhpFG: get('RM Php Core'), rmPhpFN: get('RM Php M7'), rmPhpSL: get('RM Php Others'), rmPhpEX: get('RM Php Exp'),
+            fgCnt: get('FG Cnt'), fgMiss: get('FG Miss'), rmCnt: get('RM Cnt'), rmMiss: get('RM Miss'),
+            fcGma: get('FC GMA'), fcNorth: get('FC North'), fcSouth: get('FC South'), fcVis: get('FC Vis'), fcMind: get('FC Mind'), fcMT: get('FC MT'), fcPsbsi: get('FC PSBSI'),
+            fcIndo: get('FC Indo'), fcIndia: get('FC India'), fcDirect: get('FC Direct'),
+            pEpoxy: get('P Epoxy'), pElasto: get('P Elasto'), pMighty: get('P Mighty'), pProEpoxy: get('P Pro-Epoxy'), pBuilders: get('P Builders'), pCoating: get('P Coating'), pTransport: get('P Transport'), pOther: get('P Other'), pSealant: get('P Sealant'), pWaterproof: get('P Waterproof'), pPainting: get('P Painting'), pAdhesives: get('P Adhesives'), pMining: get('P Mining'), pOthers: get('P Others')
+        };
+        return true;
+    }
+    if (module === 'warehouse') {
+        if (!whDB[year]) whDB[year] = {};
+        whDB[year][month] = {
+            vol: { del: get('Vol Del'), ord: get('Vol Ord') },
+            fr: {
+                sc: { del: get('FR SC Del'), ord: get('FR SC Ord') },
+                corp: { del: get('FR Corp Del'), ord: get('FR Corp Ord') },
+                core: { del: get('FR Core Del'), ord: get('FR Core Ord') },
+                m7: { del: get('FR M7 Del'), ord: get('FR M7 Ord') }
+            },
+            wh: { rmTot: get('WH RM Tot'), rmUsed: get('WH RM Used'), fgTot: get('WH FG Tot'), fgUsed: get('WH FG Used'), extTot: get('WH Ext Tot'), extUsed: get('WH Ext Used') },
+            otdl: { gma: get('OTDL GMA'), north: get('OTDL North'), central: get('OTDL Central'), south: get('OTDL South'), vis: get('OTDL Vis'), mind: get('OTDL Mind'), mt: get('OTDL MT'), pai: get('OTDL PAI') },
+            trucks: { t10: get('Truck T10'), auv: get('Truck AUV'), t6: get('Truck T6'), t4: get('Truck T4'), c20: get('Truck C20') },
+            mp: { reg: get('MP Reg'), agy: get('MP Agy'), res: get('MP Res'), regH: get('MP Reg H'), agyH: get('MP Agy H'), otH: get('MP OT H'), abs: get('MP Abs'), days: get('MP Days') }
+        };
+        return true;
+    }
+    if (module === 'production_util') {
+        if (!utilDB[year]) utilDB[year] = {};
+        if (!utilDB[year][month]) utilDB[year][month] = {};
+        const lineName = get('Line');
+        if (!lineName) return false;
+        const lineKey = utilLines.find(lk => (utilLineNames[lk]||lk) === lineName) || lineName;
+        utilDB[year][month][lineKey] = {
+            productive: get('Productive'), unproductive: get('Unproductive'), idle: get('Idle'), downtime: get('Downtime'),
+            mAvail: get('M.Avail'), mUsed: get('M.Used'), days: get('Days')
+        };
+        return true;
+    }
+    if (module === 'production_waste') {
+        if (!wasteDB[year]) wasteDB[year] = {};
+        if (!wasteDB[year][month]) wasteDB[year][month] = {};
+        const lineName = get('Line');
+        if (!lineName) return false;
+        const lineKey = wasteLines.find(lk => (wasteLineNames[lk]||lk) === lineName) || lineName;
+        wasteDB[year][month][lineKey] = {
+            fg: get('FG Output'), rep: get('Reprocess'), rej: get('Rejection'), waste: get('Waste')
+        };
+        return true;
+    }
+    if (module === 'production_sched') {
+        if (!schedDB[year]) schedDB[year] = {};
+        if (!schedDB[year][month]) schedDB[year][month] = {};
+        const lineName = get('Line');
+        if (!lineName) return false;
+        const lineKey = schedLines.find(lk => (schedLineNames[lk]||lk) === lineName) || lineName;
+        schedDB[year][month][lineKey] = {
+            actual: get('Actual'), planned: get('Planned')
         };
         return true;
     }
@@ -1019,10 +1089,10 @@ function saGetSchema(module) {
         finance:          ['Year','Month','Prod Act','Prod Tgt','Op Act','Op Bgt','Cap Act','Cap Bgt','Oth Act','Oth Bgt','DL Reg','DL OT','IL Reg','IL OT'],
         planning:         ['Year','Month','FG Core (Days)','FG M7 (Days)','FG Others (Days)','FG All-In (Days)','RM Core (Days)','RM M7 (Days)','RM Others (Days)','PM Core (Days)','PM M7 (Days)','PM Others (Days)','FG Kgs Core','FG Kgs M7','FG Kgs Others','FG Kgs Exp','FG Kgs Days','FG Php Core','FG Php M7','FG Php Others','FG Php Exp','RM Kgs Core','RM Kgs M7','RM Kgs Others','RM Kgs Exp','RM Kgs Days','RM Php Core','RM Php M7','RM Php Others','RM Php Exp','FG Cnt','FG Miss','RM Cnt','RM Miss','FC GMA','FC North','FC South','FC Vis','FC Mind','FC MT','FC PSBSI','FC Indo','FC India','FC Direct','P Epoxy','P Elasto','P Mighty','P Pro-Epoxy','P Builders','P Coating','P Transport','P Other','P Sealant','P Waterproof','P Painting','P Adhesives','P Mining','P Others'],
         procurement:      ['Year','Month','Actual (₱)','Target (₱)'],
-        production_util:  ['Year','Month','Line','Productive','Total Hrs','Util%','M.Avail','M.Used','Days'],
-        production_waste: ['Year','Month','Line','FG Output','Reprocess','Rejection','Waste','Net Output','Waste%'],
-        production_sched: ['Year','Month','Line','Actual','Planned','Compliance%'],
-        warehouse:        ['Year','Month','Vol Del','Vol Ord','Vol Fill%','SC Fill%','Corp Fill%','Core Fill%','M7 Fill%','WH Util%'],
+        production_util:  ['Year','Month','Line','Productive','Unproductive','Idle','Downtime','M.Avail','M.Used','Days'],
+        production_waste: ['Year','Month','Line','FG Output','Reprocess','Rejection','Waste'],
+        production_sched: ['Year','Month','Line','Actual','Planned'],
+        warehouse:        ['Year','Month','Vol Del','Vol Ord','FR SC Del','FR SC Ord','FR Corp Del','FR Corp Ord','FR Core Del','FR Core Ord','FR M7 Del','FR M7 Ord','WH RM Tot','WH RM Used','WH FG Tot','WH FG Used','WH Ext Tot','WH Ext Used','OTDL GMA','OTDL North','OTDL Central','OTDL South','OTDL Vis','OTDL Mind','OTDL MT','OTDL PAI','Truck T10','Truck AUV','Truck T6','Truck T4','Truck C20','MP Reg','MP Agy','MP Res','MP Reg H','MP Agy H','MP OT H','MP Abs','MP Days'],
     };
     return schemas[module] || [];
 }
@@ -1062,9 +1132,7 @@ function saGetAllData(module) {
                     const d = db[line];
                     const tot = utilKeys2.reduce((s,k) => s+(+d[k]||0), 0);
                     if (!tot) return;
-                    const prod = +d.productive||0;
-                    const util = tot > 0 ? (prod/tot*100).toFixed(2)+'%' : '—';
-                    rows.push([y, m, utilLineNames[line]||line, fmtN(prod), fmtN(tot), util, d.mAvail||'', d.mUsed||'', d.days||'']);
+                    rows.push([y, m, utilLineNames[line]||line, d.productive||'', d.unproductive||'', d.idle||'', d.downtime||'', d.mAvail||'', d.mUsed||'', d.days||'']);
                 });
                 break;
             }
@@ -1073,11 +1141,8 @@ function saGetAllData(module) {
                 if (!db) return;
                 wasteLines.forEach(line => {
                     const d = db[line];
-                    const fg = +d.fg||0, rep = +d.rep||0, rej = +d.rej||0, w = +d.waste||0;
-                    if (!fg && !w) return;
-                    const net = fg+rep-rej;
-                    const wp  = (fg+w) > 0 ? (w/(fg+w)*100).toFixed(2)+'%' : '—';
-                    rows.push([y, m, wasteLineNames[line]||line, fmtN(fg), fmtN(rep), fmtN(rej), fmtN(w), fmtN(net), wp]);
+                    if (!d.fg && !d.waste) return;
+                    rows.push([y, m, wasteLineNames[line]||line, d.fg||'', d.rep||'', d.rej||'', d.waste||'']);
                 });
                 break;
             }
@@ -1086,10 +1151,8 @@ function saGetAllData(module) {
                 if (!db) return;
                 schedLines.forEach(line => {
                     const d = db[line];
-                    const a = +d.actual||0, p = +d.planned||0;
-                    if (!a && !p) return;
-                    const comp = p > 0 ? (a/p*100).toFixed(2)+'%' : '—';
-                    rows.push([y, m, schedLineNames[line]||line, fmtN(a), fmtN(p), comp]);
+                    if (!d.actual && !d.planned) return;
+                    rows.push([y, m, schedLineNames[line]||line, d.actual||'', d.planned||'']);
                 });
                 break;
             }
@@ -1098,16 +1161,7 @@ function saGetAllData(module) {
                 if (!d) return;
                 const vd = +d.vol.del||0, vo = +d.vol.ord||0;
                 if (!vd && !vo) return;
-                const volPct  = vo > 0  ? (vd/vo*100).toFixed(2)+'%'  : '—';
-                const fr = d.fr;
-                const scPct   = +fr.sc.ord   > 0 ? (+fr.sc.del  /+fr.sc.ord  *100).toFixed(2)+'%' : '—';
-                const coPct   = +fr.corp.ord  > 0 ? (+fr.corp.del/+fr.corp.ord *100).toFixed(2)+'%' : '—';
-                const corePct = +fr.core.ord  > 0 ? (+fr.core.del/+fr.core.ord *100).toFixed(2)+'%' : '—';
-                const m7Pct   = +fr.m7.ord    > 0 ? (+fr.m7.del  /+fr.m7.ord  *100).toFixed(2)+'%' : '—';
-                const wTot = (+d.wh.rmTot||0)+(+d.wh.fgTot||0)+(+d.wh.extTot||0);
-                const wUsd = (+d.wh.rmUsed||0)+(+d.wh.fgUsed||0)+(+d.wh.extUsed||0);
-                const whPct = wTot > 0 ? (wUsd/wTot*100).toFixed(2)+'%' : '—';
-                rows.push([y, m, fmtC(vd), fmtC(vo), volPct, scPct, coPct, corePct, m7Pct, whPct]);
+                rows.push([y, m, d.vol.del||'', d.vol.ord||'', d.fr.sc.del||'', d.fr.sc.ord||'', d.fr.corp.del||'', d.fr.corp.ord||'', d.fr.core.del||'', d.fr.core.ord||'', d.fr.m7.del||'', d.fr.m7.ord||'', d.wh.rmTot||'', d.wh.rmUsed||'', d.wh.fgTot||'', d.wh.fgUsed||'', d.wh.extTot||'', d.wh.extUsed||'', d.otdl.gma||'', d.otdl.north||'', d.otdl.central||'', d.otdl.south||'', d.otdl.vis||'', d.otdl.mind||'', d.otdl.mt||'', d.otdl.pai||'', d.trucks.t10||'', d.trucks.auv||'', d.trucks.t6||'', d.trucks.t4||'', d.trucks.c20||'', d.mp.reg||'', d.mp.agy||'', d.mp.res||'', d.mp.regH||'', d.mp.agyH||'', d.mp.otH||'', d.mp.abs||'', d.mp.days||'']);
                 break;
             }
         }
