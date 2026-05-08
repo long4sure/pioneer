@@ -195,24 +195,12 @@ const KPI_REGISTRY = [
 
     // ── Warehouse & Logistics ────────────────────────────────
     {
-        id: 'wh-otif',         module: 'Warehouse',   color: 'col-blue',
-        label: 'OTIF Rate', unit: '%',
-        thresholds: { good: 99.01, warn: 95, higherIsBetter: true },
-        resolver: (y, m) => {
-            const d = whDB[y]?.[m]; if (!d) return null;
-            const sv = +d.otif.served||0, tot = +d.otif.total||0;
-            if (!tot) return null;
-            const pct = sv / tot * 100;
-            return { value: pct, raw: pct, formatted: pct.toFixed(2) + '%', sub: fmtN(sv) + ' / ' + fmtN(tot), isPercent: true };
-        }
-    },
-    {
         id: 'wh-vol-fill',     module: 'Warehouse',   color: 'col-blue',
         label: 'Volume Fill Rate', unit: '%',
         thresholds: { good: 99.01, warn: 95, higherIsBetter: true },
         resolver: (y, m) => {
             const d = whDB[y]?.[m]; if (!d) return null;
-            const del = +d.vol.del||0, ord = +d.vol.ord||0;
+            const del = +d.vol?.del||0, ord = +d.vol?.ord||0;
             if (!ord) return null;
             const pct = del / ord * 100;
             return { value: pct, raw: pct, formatted: pct.toFixed(2) + '%', sub: fmtC(del) + ' delivered', isPercent: true };
@@ -224,34 +212,12 @@ const KPI_REGISTRY = [
         thresholds: { good: 75, warn: 60, higherIsBetter: true },
         resolver: (y, m) => {
             const d = whDB[y]?.[m]; if (!d) return null;
-            const wh = d.wh;
-            const tot = (+wh.rmTot||0)+(+wh.fgTot||0)+(+wh.extTot||0);
-            const used = (+wh.rmUsed||0)+(+wh.fgUsed||0)+(+wh.extUsed||0);
+            const wh = d.wh; if (!wh) return null;
+            const tot  = (+wh.rmTot||0)  + (+wh.fgTot||0)  + (+wh.extTot||0);
+            const used = (+wh.rmUsed||0) + (+wh.fgUsed||0) + (+wh.extUsed||0);
             if (!tot) return null;
             const pct = used / tot * 100;
             return { value: pct, raw: pct, formatted: pct.toFixed(2) + '%', sub: fmtN(used) + ' / ' + fmtN(tot) + ' pallets', isPercent: true };
-        }
-    },
-    {
-        id: 'wh-non-otif',     module: 'Warehouse',   color: 'col-red',
-        label: 'Non-OTIF Issues', unit: 'count',
-        thresholds: { good: 0, warn: 5, higherIsBetter: false },
-        resolver: (y, m) => {
-            const d = whDB[y]?.[m]; if (!d) return null;
-            const tot = Object.values(d.nonOtif).reduce((s, v) => s + (+v||0), 0);
-            if (!tot) return null;
-            return { value: tot, raw: tot, formatted: fmtN(tot, 0), sub: 'issues logged', isPercent: false };
-        }
-    },
-    {
-        id: 'wh-stockout-val', module: 'Warehouse',   color: 'col-red',
-        label: 'Stock-Out Value', unit: '₱',
-        thresholds: { good: 0, warn: 0, higherIsBetter: false },
-        resolver: (y, m) => {
-            const d = whDB[y]?.[m]; if (!d) return null;
-            const tot = Object.values(d.soVal).reduce((s, v) => s + (+v||0), 0);
-            if (!tot) return null;
-            return { value: tot, raw: tot, formatted: fmtC(tot), sub: '', isPercent: false };
         }
     },
     {
